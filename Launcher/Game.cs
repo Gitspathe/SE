@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace DeeZEngine_Launcher
+namespace SELauncher
 {
     /// <summary>
     /// This is the main type for your game.

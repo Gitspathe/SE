@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using SE;
 using SE.Core;
 using Console = System.Console;
 
-namespace DeeZEngine_Launcher
+namespace SELauncher
 {
     /// <summary>
     /// The main class.

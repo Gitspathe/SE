@@ -50,9 +50,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Aether.Physics2D.NETSTANDARD.MG">
-      <HintPath>..\_DEPENDENCIES\Aether.Physics2D\bin\Release\netstandard2.1\Aether.Physics2D.NETSTANDARD.MG.dll</HintPath>
-    </Reference>
     <Reference Include="DeeZInput">
       <HintPath>..\_SHARED\DeeZInput.dll</HintPath>
     </Reference>
@@ -63,10 +60,10 @@
       <HintPath>..\_SHARED\LiteNetLib.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\_SHARED\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Penumbra">
-      <HintPath>..\_SHARED\MonoGame.Penumbra.dll</HintPath>
+      <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\Release\DesktopGL\MonoGame.Penumbra.dll</HintPath>
     </Reference>
     <Reference Include="Open.Nat">
       <HintPath>..\_SHARED\Open.Nat.dll</HintPath>
@@ -77,11 +74,11 @@
     <Reference Include="SEDemos">
       <HintPath>..\Demos\bin\netstandard2.1\SEDemos.dll</HintPath>
     </Reference>
-    <Reference Include="SEInput">
-      <HintPath>..\SEInput\bin\Debug\netstandard2.0\SEInput.dll</HintPath>
-    </Reference>
     <Reference Include="SEUtility">
       <HintPath>..\SENet\bin\Debug\netstandard2.1\SEUtility.dll</HintPath>
+    </Reference>
+    <Reference Include="StbImageSharp">
+      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\StbImageSharp.dll</HintPath>
     </Reference>
   </ItemGroup>
 
