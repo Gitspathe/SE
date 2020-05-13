@@ -1,0 +1,24 @@
+[submodule "MonoGame"]
+	path = MonoGame
+	url = https://github.com/GeoSTGames/MonoGame
+[submodule "_DEPENDENCIES/MonoGame"]
+	path = _DEPENDENCIES/MonoGame
+	url = https://github.com/Gitspathe/MonoGame
+[submodule "_DEPENDENCIES/LiteNetLib"]
+	path = _DEPENDENCIES/LiteNetLib
+	url = https://github.com/Gitspathe/LiteNetLib
+[submodule "_DEPENDENCIES/Open.NAT"]
+	path = _DEPENDENCIES/Open.NAT
+	url = https://github.com/GeoSTGames/Open.NAT
+[submodule "_DEPENDENCIES/penumbra"]
+	path = _DEPENDENCIES/penumbra
+	url = https://github.com/Gitspathe/penumbra
+[submodule "_DEPENDENCIES/Aether.Physics2D"]
+	path = _DEPENDENCIES/Aether.Physics2D
+	url = https://github.com/Gitspathe/Aether.Physics2D
+[submodule "_DEPENDENCIES/fast-member"]
+	path = _DEPENDENCIES/fast-member
+	url = https://github.com/Gitspathe/fast-member
+[submodule "_DEPENDENCIES/DeeZInput"]
+	path = _DEPENDENCIES/DeeZInput
+	url = https://github.com/GeoSTGames/DeeZInput
