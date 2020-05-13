@@ -16,6 +16,3 @@
 [submodule "_DEPENDENCIES/fast-member"]
 	path = _DEPENDENCIES/fast-member
 	url = https://github.com/Gitspathe/fast-member
-[submodule "_DEPENDENCIES/DeeZInput"]
-	path = _DEPENDENCIES/DeeZInput
-	url = https://github.com/Gitspathe/DeeZInput
