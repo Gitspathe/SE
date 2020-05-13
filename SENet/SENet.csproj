@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <RootNamespace>SE</RootNamespace>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition=" '$(TargetFramework)'=='netstandard2.0' " />
+    <When Condition=" '$(TargetFramework)'=='netstandard2.1' ">
+      <ItemGroup>
+        <Reference Include="SEUtility">
+          <HintPath>..\SEUtility\bin\Debug\netstandard2.1\SEUtility.dll</HintPath>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+
+  <ItemGroup>
+    <Reference Include="LiteNetLib">
+      <HintPath>..\_SHARED\LiteNetLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Open.Nat">
+      <HintPath>..\_SHARED\Open.Nat.dll</HintPath>
+    </Reference>
+    <Reference Include="SEUtility">
+      <HintPath>..\SEUtility\bin\Debug\netstandard2.0\SEUtility.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Core\Extensions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+  </ItemGroup>
+
+</Project>

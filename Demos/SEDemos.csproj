@@ -1,0 +1,120 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <ApplicationIcon />
+    <StartupObject />
+    <TieredCompilation>false</TieredCompilation>
+    <RootNamespace>SEDemos</RootNamespace>
+    <Platforms>AnyCPU</Platforms>
+    <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE;EDITOR;</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>EDITOR;</DefineConstants>
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <MonoGameContentReference Include="**\*.mgcb" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <MonoGameContentReference Remove="Data\Content.mgcb" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Console" Version="4.3.1" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Aether.Physics2D.NETSTANDARD.MG">
+      <HintPath>..\_DEPENDENCIES\Aether.Physics2D\bin\Release\netstandard2.1\Aether.Physics2D.NETSTANDARD.MG.dll</HintPath>
+    </Reference>
+    <Reference Include="FastMember">
+      <HintPath>..\_SHARED\FastMember.dll</HintPath>
+    </Reference>
+    <Reference Include="LiteNetLib">
+      <HintPath>..\_SHARED\LiteNetLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\_SHARED\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Penumbra">
+      <HintPath>..\_SHARED\MonoGame.Penumbra.dll</HintPath>
+    </Reference>
+    <Reference Include="Open.Nat">
+      <HintPath>..\_SHARED\Open.Nat.dll</HintPath>
+    </Reference>
+    <Reference Include="SE">
+      <HintPath>..\Engine\bin\netstandard2.1\SE.dll</HintPath>
+    </Reference>
+    <Reference Include="SEInput">
+      <HintPath>..\SEInput\bin\Debug\netstandard2.0\SEInput.dll</HintPath>
+    </Reference>
+    <Reference Include="SENet">
+      <HintPath>..\SENet\bin\Debug\netstandard2.1\SENet.dll</HintPath>
+    </Reference>
+    <Reference Include="SEUtility">
+      <HintPath>..\SEUtility\bin\Debug\netstandard2.1\SEUtility.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Aether.Physics2D.Diagnostics.NETCORE.MG.deps.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Aether.Physics2D.Diagnostics.NETCORE.MG.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Aether.Physics2D.Diagnostics.NETSTANDARD2_0.MG.deps.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Aether.Physics2D.Diagnostics.NETSTANDARD2_0.MG.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Aether.Physics2D.Diagnostics.NETSTANDARD2_0.MG.pdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Aether.Physics2D.NETCORE.MG.deps.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Aether.Physics2D.NETCORE.MG.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Aether.Physics2D.NETSTANDARD2_0.MG.deps.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Aether.Physics2D.NETSTANDARD2_0.MG.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Aether.Physics2D.NETSTANDARD2_0.MG.pdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Lidgren.Network.MultiTarget.deps.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Lidgren.Network.MultiTarget.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="LiteNetLib.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MonoGame.Framework.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="MonoGame.Penumbra.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

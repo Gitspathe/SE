@@ -1,0 +1,119 @@
+{
+  "runtimeTarget": {
+    "name": ".NETStandard,Version=v2.1/",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETStandard,Version=v2.1": {},
+    ".NETStandard,Version=v2.1/": {
+      "Aether.Physics2D.NETSTANDARD.MG/1.0.0": {
+        "dependencies": {
+          "DeeZEngine": "0.1.0.0",
+          "MonoGame.Framework": "1.0.0.0"
+        },
+        "runtime": {
+          "Aether.Physics2D.NETSTANDARD.MG.dll": {}
+        }
+      },
+      "DeeZEngine/0.1.0.0": {
+        "runtime": {
+          "DeeZEngine.dll": {
+            "assemblyVersion": "0.1.0.0",
+            "fileVersion": "0.1.0.0"
+          }
+        }
+      },
+      "MonoGame.Framework/1.0.0.0": {
+        "runtime": {
+          "MonoGame.Framework.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "FastMember/1.5.0.0": {
+        "runtime": {
+          "FastMember.dll": {
+            "assemblyVersion": "1.5.0.0",
+            "fileVersion": "1.5.0.0"
+          }
+        }
+      },
+      "Aether.Physics2D.NETSTANDARD.MG/1.4.0.0": {
+        "runtime": {
+          "Aether.Physics2D.NETSTANDARD.MG.dll": {
+            "assemblyVersion": "1.4.0.0",
+            "fileVersion": "1.4.0.0"
+          }
+        }
+      },
+      "LiteNetLib/1.0.0.0": {
+        "runtime": {
+          "LiteNetLib.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "MonoGame.Penumbra/1.0.0.0": {
+        "runtime": {
+          "MonoGame.Penumbra.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Open.Nat/2.1.0.0": {
+        "runtime": {
+          "Open.Nat.dll": {
+            "assemblyVersion": "2.1.0.0",
+            "fileVersion": "1.0.1.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Aether.Physics2D.NETSTANDARD.MG/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DeeZEngine/0.1.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "MonoGame.Framework/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FastMember/1.5.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Aether.Physics2D.NETSTANDARD.MG/1.4.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "LiteNetLib/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "MonoGame.Penumbra/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Open.Nat/2.1.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

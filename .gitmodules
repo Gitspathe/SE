@@ -1,6 +1,3 @@
-[submodule "MonoGame"]
-	path = MonoGame
-	url = https://github.com/GeoSTGames/MonoGame
 [submodule "_DEPENDENCIES/MonoGame"]
 	path = _DEPENDENCIES/MonoGame
 	url = https://github.com/Gitspathe/MonoGame
@@ -21,4 +18,4 @@
 	url = https://github.com/Gitspathe/fast-member
 [submodule "_DEPENDENCIES/DeeZInput"]
 	path = _DEPENDENCIES/DeeZInput
-	url = https://github.com/GeoSTGames/DeeZInput
+	url = https://github.com/Gitspathe/DeeZInput
