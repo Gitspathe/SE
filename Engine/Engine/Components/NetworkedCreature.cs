@@ -8,7 +8,7 @@ namespace SE.Components
 {
     public class NetworkedEntity : Component
     {
-        //protected PhysicsObject PhysicsObject;
+        protected PhysicsObject PhysicsObject;
 
         public Players PlayerIndex;
 
@@ -16,8 +16,8 @@ namespace SE.Components
         {
             if (Owner.NetIdentity == null || !Owner.NetIdentity.IsOwner)
                 return;
-            //if(PhysicsObject == null)
-                //PhysicsObject = Owner.GetComponent<PhysicsObject>();
+            if(PhysicsObject == null)
+                PhysicsObject = Owner.GetComponent<PhysicsObject>();
 
             Vector2 velocity = Vector2.Zero;
             if (UIManager.IsKeyboardFree()) {
@@ -28,7 +28,7 @@ namespace SE.Components
                 velocity = Vector2.Normalize(velocity);
                 velocity *= 256;
             }
-            //PhysicsObject.Body.LinearVelocity = velocity;
+            PhysicsObject.Body.LinearVelocity = velocity;
             base.OnUpdate();
         }
     }

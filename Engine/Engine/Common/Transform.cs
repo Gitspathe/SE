@@ -8,7 +8,6 @@ using Vector3 = System.Numerics.Vector3;
 
 namespace SE.Common
 {
-
     /// <summary>
     /// Contains information about an object's position, rotation and scale. 
     /// Transforms are hierarchical, their positions, rotations and scales are derived from their parent Transform.
@@ -297,7 +296,7 @@ namespace SE.Common
                     Children[i].UpdateTransformation();
                 }
             }
-            //GameObject.PhysicsObject?.OverridePosition(GlobalPositionInternal);
+            GameObject.PhysicsObject?.OverridePosition(GlobalPositionInternal);
             GameObject.ResetPartition();
         }
 
