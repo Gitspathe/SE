@@ -1,5 +1,4 @@
 ﻿using System;
-using DeeZ.Core.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Attributes;
@@ -7,6 +6,7 @@ using SE.Common;
 using SE.Core;
 using SE.Rendering;
 using SE.World.Partitioning;
+using SE.Core.Extensions;
 using Vector2 = System.Numerics.Vector2;
 // ReSharper disable InconsistentNaming
 

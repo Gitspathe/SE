@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using DeeZ.Core;
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework;
 using SE.Common;
 using SE.Core;
+using SE.Engine.Utility;
 using SE.UI.Events;
 using Vector2 = System.Numerics.Vector2;
 

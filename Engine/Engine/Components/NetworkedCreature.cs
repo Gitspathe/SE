@@ -1,8 +1,7 @@
 ﻿using System;
-using DeeZ.Core;
-using DeeZ.Engine.Input;
 using SE.Common;
 using SE.Core;
+using SE.Engine.Input;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components

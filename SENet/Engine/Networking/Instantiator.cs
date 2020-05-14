@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
-using DeeZ.Core.Extensions;
-using DeeZ.Engine.Networking.Attributes;
-using DeeZ.Engine.Utility;
 using LiteNetLib;
-using static DeeZ.Core.Network;
+using SE.Core.Extensions;
+using SE.Engine.Networking.Attributes;
+using SE.Engine.Utility;
+using static SE.Core.Network;
 
-namespace DeeZ.Engine.Networking
+namespace SE.Engine.Networking
 {
     public class Instantiator : INetworkExtension
     {

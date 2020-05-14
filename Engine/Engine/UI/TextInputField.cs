@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using DeeZ.Core;
-using DeeZ.Engine.Input;
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SE.Components.UI;
 using SE.Core;
+using SE.Engine.Input;
+using SE.Engine.Utility;
 using SE.UI.Events;
 using Vector2 = System.Numerics.Vector2;
 

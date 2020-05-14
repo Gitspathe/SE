@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace DeeZ.Core.Extensions
+namespace SE.Core.Extensions
 {
     public static class SerializerExtensions
     {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DeeZ.Engine.Networking
+﻿namespace SE.Engine.Networking
 {
     public class SpawnedNetObject
     {

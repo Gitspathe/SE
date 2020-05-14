@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using LiteNetLib;
+﻿using LiteNetLib;
 
-namespace DeeZ.Engine.Networking
+namespace SE.Engine.Networking
 {
     public interface INetworkExtension : INetLogic
     {

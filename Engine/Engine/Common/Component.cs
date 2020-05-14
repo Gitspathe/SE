@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using DeeZ.Core.Extensions;
 using SE.AssetManagement;
 using SE.Attributes;
 using SE.Core;
 using SE.Serialization;
 using SE.World.Partitioning;
+using SE.Core.Extensions;
 
 namespace SE.Common
 {

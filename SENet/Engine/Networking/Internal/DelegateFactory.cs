@@ -3,7 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace DeeZ.Engine.Networking.Internal
+namespace SE.Engine.Networking.Internal
 {
     // This class is stolen straight from https://szumiato.pl/2016/07/05/invoking-methods-dynamically-in-c-examples-and-benchmarks/
 

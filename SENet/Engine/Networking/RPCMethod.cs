@@ -1,6 +1,6 @@
 ﻿using LiteNetLib;
 
-namespace DeeZ.Engine.Networking
+namespace SE.Engine.Networking
 {
     public class RPCMethod
     {

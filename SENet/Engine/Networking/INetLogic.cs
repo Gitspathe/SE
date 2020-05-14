@@ -1,7 +1,6 @@
-﻿using System;
-using LiteNetLib.Utils;
+﻿using LiteNetLib.Utils;
 
-namespace DeeZ.Engine.Networking
+namespace SE.Engine.Networking
 {
     public interface INetLogicProxy
     {

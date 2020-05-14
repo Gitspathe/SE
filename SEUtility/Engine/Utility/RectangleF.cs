@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Vector2 = System.Numerics.Vector2;
 
-namespace DeeZ.Engine.Utility
+namespace SE.Engine.Utility
 {
     public struct RectangleF : IEquatable<RectangleF>
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DeeZ.Engine.Networking.Attributes
+namespace SE.Engine.Networking.Attributes
 {
 
     /// <summary>

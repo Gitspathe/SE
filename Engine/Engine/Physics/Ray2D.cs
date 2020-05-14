@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using DeeZ.Core.Extensions;
+using SE.Core.Extensions;
 
 namespace SE.Physics
 {

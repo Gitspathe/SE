@@ -1,7 +1,7 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
 
-namespace DeeZ.Engine.Networking.Packets
+namespace SE.Engine.Networking.Packets
 {
     /// <summary>
     /// Container for engine-level data sent over the network.

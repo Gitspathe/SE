@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using LiteNetLib;
 using LiteNetLib.Utils;
-using DeeZ.Core;
-using static DeeZ.Core.Network;
+using static SE.Core.Network;
 
-namespace DeeZ.Engine.Networking
+namespace SE.Engine.Networking
 {
     /// <summary>
     /// Protects the server instance, and reports errors or warnings to the Console (for both clients and servers).

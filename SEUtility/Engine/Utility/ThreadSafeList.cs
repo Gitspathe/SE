@@ -2,10 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 
-namespace DeeZ.Engine.Utility
+namespace SE.Engine.Utility
 {
     /// <summary>
     /// Exposes direct access to it's inner array.

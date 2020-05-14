@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DeeZ.Engine.Networking.Attributes
+namespace SE.Engine.Networking.Attributes
 {
     /// <summary>
     /// Attribute applied to functions. Tags the desired function as being a Remote Procedure Call from the client to the server.

@@ -1,10 +1,10 @@
 ﻿using System;
-using DeeZ.Core.Extensions;
-using DeeZ.Engine.Networking;
-using DeeZ.Engine.Networking.Attributes;
 using LiteNetLib;
 using SE.Core;
+using SE.Engine.Networking;
+using SE.Engine.Networking.Attributes;
 using SE.Networking.Types;
+using SE.Core.Extensions;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components.Network
@@ -67,7 +67,7 @@ namespace SE.Components.Network
             bool changedRotation = MathF.Abs(curRotation - oldRotation) > 0.01f;
             bool changedVelocity = MathF.Abs(curVelocity.X - oldVelocity.X) > 1.0f || MathF.Abs(curVelocity.Y - oldVelocity.Y) > 1.0f;
             if (changedVelocity || changedRotation) {
-                DeeZ.Core.Network.SendRPC(velocityMethod, curPosition, curVelocity, curRotation);
+                SE.Core.Network.SendRPC(velocityMethod, curPosition, curVelocity, curRotation);
             }
             oldVelocity = curVelocity;
             oldRotation = curRotation;
@@ -92,7 +92,7 @@ namespace SE.Components.Network
 
         private void SendUpdateVelocityRPC(DeliveryMethod deliveryMethod)
         {
-            DeeZ.Core.Network.SendRPC(updateVelocityMethod, curPosition, curVelocity, curRotation);
+            SE.Core.Network.SendRPC(updateVelocityMethod, curPosition, curVelocity, curRotation);
         }
 
         public string SerializeNetworkState()

@@ -5,19 +5,19 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DeeZ.Core.Exceptions;
-using DeeZ.Core.Extensions;
-using DeeZ.Engine.Networking;
-using DeeZ.Engine.Networking.Attributes;
-using DeeZ.Engine.Networking.Internal;
-using DeeZ.Engine.Networking.Packets;
-using DeeZ.Engine.Utility;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using Open.Nat;
+using SE.Core.Exceptions;
+using SE.Core.Extensions;
+using SE.Engine.Networking;
+using SE.Engine.Networking.Attributes;
+using SE.Engine.Networking.Internal;
+using SE.Engine.Networking.Packets;
+
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 
-namespace DeeZ.Core
+namespace SE.Core
 {
     public static class Network
     {

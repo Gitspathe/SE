@@ -1,4 +1,4 @@
-﻿using DeeZ.Engine.Utility;
+﻿using SE.Engine.Utility;
 
 namespace SE.Particles
 {

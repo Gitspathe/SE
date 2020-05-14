@@ -6,28 +6,34 @@
   </PropertyGroup>
 
   <Choose>
-    <When Condition=" '$(TargetFramework)'=='netstandard2.0' " />
-    <When Condition=" '$(TargetFramework)'=='netstandard2.1' ">
+    <When Condition=" '$(Configuration)'=='Debug' ">
       <ItemGroup>
+        <Reference Include="LiteNetLib">
+          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\Debug\netstandard2.0\LiteNetLib.dll</HintPath>
+        </Reference>
         <Reference Include="SEUtility">
           <HintPath>..\SEUtility\bin\Debug\netstandard2.1\SEUtility.dll</HintPath>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition=" '$(Configuration)'=='Release' ">
+      <ItemGroup>
+        <Reference Include="LiteNetLib">
+          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\Release\netstandard2.0\LiteNetLib.dll</HintPath>
+        </Reference>
+        <Reference Include="SEUtility">
+          <HintPath>..\SEUtility\bin\Release\netstandard2.1\SEUtility.dll</HintPath>
         </Reference>
       </ItemGroup>
     </When>
   </Choose>
 
   <ItemGroup>
-    <Reference Include="LiteNetLib">
-      <HintPath>..\_SHARED\LiteNetLib.dll</HintPath>
+    <Reference Include="SEUtility">
+      <HintPath>..\SEUtility\bin\$(Configuration)\$(TargetFramework)\SEUtility.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Open.Nat">
-      <HintPath>..\_SHARED\Open.Nat.dll</HintPath>
-    </Reference>
-    <Reference Include="SEUtility">
-      <HintPath>..\SEUtility\bin\Debug\netstandard2.0\SEUtility.dll</HintPath>
     </Reference>
   </ItemGroup>
 
@@ -36,6 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Open.NAT.Core" Version="2.1.0.5" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
   </ItemGroup>
 

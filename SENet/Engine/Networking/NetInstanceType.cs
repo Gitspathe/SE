@@ -1,4 +1,4 @@
-﻿namespace DeeZ.Engine.Networking
+﻿namespace SE.Engine.Networking
 {
     /// <summary>
     /// An instance's state in relation to the networking system.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DeeZ.Core.Exceptions
+namespace SE.Core.Exceptions
 {
     public class InvalidRPCException : Exception
     {

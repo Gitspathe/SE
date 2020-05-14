@@ -1,5 +1,5 @@
 ﻿using System;
-using DeeZ.Engine.Input;
+using SE.Engine.Input;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.UI.Events

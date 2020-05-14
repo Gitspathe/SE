@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DeeZ.Core
+﻿namespace SE.Core
 {
     public enum LogSource
     {

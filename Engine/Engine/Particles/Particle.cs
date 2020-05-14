@@ -1,9 +1,9 @@
 ﻿using System;
-using DeeZ.Core.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Core;
 using SE.Rendering;
+using SE.Core.Extensions;
 using Vector2 = System.Numerics.Vector2;
 using MonoGameColor = Microsoft.Xna.Framework.Color;
 

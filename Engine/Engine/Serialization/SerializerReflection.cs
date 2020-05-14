@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using DeeZ.Core.Extensions.Internal;
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework;
 using SE.Attributes;
 using SE.Core.Internal;
+using SE.Engine.Utility;
+using SE.Core.Extensions.Internal;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Serialization

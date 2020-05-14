@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using DeeZ.Core.Extensions;
 using SE.Common;
 using SE.Components;
 using SE.Core;
 using SE.Physics;
+using SE.Core.Extensions;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Engine.Components

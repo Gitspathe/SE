@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using DeeZ.Core;
 using LiteNetLib;
 
-namespace DeeZ.Engine.Networking
+namespace SE.Engine.Networking
 {
     public delegate void OnServerStartedEventHandler();
     public delegate void OnPeerConnectedEventHandler(NetPeer peer);

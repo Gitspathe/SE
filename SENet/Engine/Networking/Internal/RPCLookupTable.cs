@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
-using DeeZ.Core.Exceptions;
-using DeeZ.Engine.Utility;
+using SE.Core.Exceptions;
+using SE.Engine.Utility;
 
-namespace DeeZ.Engine.Networking.Internal
+namespace SE.Engine.Networking.Internal
 {
     internal class RPCLookupTable<T> where T : RPCInfo
     {

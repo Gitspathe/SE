@@ -1,5 +1,4 @@
 ﻿using System;
-using DeeZ.Core;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Vector2 = System.Numerics.Vector2;

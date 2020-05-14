@@ -1,6 +1,6 @@
-﻿using DeeZ.Engine.Networking;
+﻿using SE.Engine.Networking;
 using Vector2 = System.Numerics.Vector2;
-using static DeeZ.Core.Network;
+using static SE.Core.Network;
 
 namespace SE.Networking.Internal
 {

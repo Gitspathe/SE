@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using DeeZ.Core.Extensions;
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Components;
 using SE.Core.Exceptions;
+using SE.Engine.Utility;
 using SE.Rendering;
 using SE.World.Partitioning;
+using SE.Core.Extensions;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core

@@ -1,7 +1,7 @@
-﻿using DeeZ.Engine.Networking;
-using SE.Common;
+﻿using SE.Common;
 using SE.Components.Network;
 using SE.Core;
+using SE.Engine.Networking;
 
 namespace SE.Networking.Types
 {

@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using Microsoft.Xna.Framework;
 
-namespace DeeZ.Core.Extensions
+namespace SE.Core.Extensions
 {
 
     public static class MatrixExtensions

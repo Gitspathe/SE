@@ -1,9 +1,9 @@
 ﻿using System;
-using DeeZ.Core.Exceptions;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using SE.Core.Exceptions;
 
-namespace DeeZ.Engine.Networking.Packets
+namespace SE.Engine.Networking.Packets
 {
     /// <inheritdoc/>
     internal class RPCFunction : DeeZPacket

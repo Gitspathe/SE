@@ -1,9 +1,9 @@
 ﻿using System;
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework;
+using SE.Engine.Utility;
 using Vector2 = System.Numerics.Vector2;
 
-namespace DeeZ.Core.Extensions
+namespace SE.Core.Extensions
 {
     public static class RectangleExtensions
     {

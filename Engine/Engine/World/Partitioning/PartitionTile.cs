@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework;
 using SE.Core;
+using SE.Engine.Utility;
 
 namespace SE.World.Partitioning
 {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework;
 using SE.Components;
 using SE.Core;
+using SE.Engine.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.World.Partitioning

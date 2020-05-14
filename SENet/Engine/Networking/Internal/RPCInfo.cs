@@ -1,6 +1,6 @@
-﻿using DeeZ.Engine.Networking.Attributes;
+﻿using SE.Engine.Networking.Attributes;
 
-namespace DeeZ.Engine.Networking.Internal
+namespace SE.Engine.Networking.Internal
 {
     internal class RPCInfo
     {

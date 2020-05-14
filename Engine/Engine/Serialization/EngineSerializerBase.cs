@@ -1,7 +1,7 @@
 ﻿using System;
-using DeeZ.Core.Extensions;
-using DeeZ.Engine.Utility;
 using FastMember;
+using SE.Engine.Utility;
+using SE.Core.Extensions;
 
 namespace SE.Serialization
 {

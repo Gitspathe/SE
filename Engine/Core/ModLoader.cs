@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using DeeZ.Core.Extensions;
 using SE.Modding;
+using SE.Core.Extensions;
 
 namespace SE.Core
 {

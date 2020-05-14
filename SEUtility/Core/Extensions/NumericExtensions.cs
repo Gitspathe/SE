@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace DeeZ.Core.Extensions
+namespace SE.Core.Extensions
 {
     public static class NumericExtensions
     {

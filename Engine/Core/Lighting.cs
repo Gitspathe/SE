@@ -1,10 +1,10 @@
 ﻿using System.Collections.ObjectModel;
-using DeeZ.Core.Extensions;
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework;
 using Penumbra;
 using SE.Components;
 using SE.Core.Exceptions;
+using SE.Core.Extensions;
+using SE.Engine.Utility;
 using SE.Lighting;
 using Light = SE.Lighting.Light;
 using Vector2 = System.Numerics.Vector2;

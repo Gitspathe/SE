@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace DeeZ.Engine.Utility
+namespace SE.Engine.Utility
 {
     /// <summary>
     /// Dictionary which internally uses two regular dictionaries to provide a self-reference between each

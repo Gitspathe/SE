@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using DeeZ.Core.Extensions;
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework;
+using SE.Engine.Utility;
 using SE.Physics;
+using SE.Core.Extensions;
 using tainicom.Aether.Physics2D.Dynamics;
 using Vector2 = System.Numerics.Vector2;
 using MonoGameVector2 = Microsoft.Xna.Framework.Vector2;

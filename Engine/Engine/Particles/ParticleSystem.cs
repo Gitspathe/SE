@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework;
 using SE.AssetManagement;
 using SE.Components;
 using SE.Core;
+using SE.Engine.Utility;
 using SE.Particles.Modules;
 using Vector2 = System.Numerics.Vector2;
 

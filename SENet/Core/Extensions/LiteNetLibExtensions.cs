@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using LiteNetLib;
+﻿using LiteNetLib;
 
-namespace DeeZ.Core.Extensions
+namespace SE.Core.Extensions
 {
     public static class LiteNetLibExtensions
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DeeZ.Engine.Utility;
+using SE.Engine.Utility;
 using SE.Particles;
 
 namespace SE.Core

@@ -1,10 +1,9 @@
 ﻿using System;
-using DeeZ.Core;
-using DeeZ.Engine.Networking;
 using Microsoft.Xna.Framework;
 using SE.Common;
 using SE.Core;
 using SE.Editor.UI;
+using SE.Engine.Networking;
 using SE.UI;
 using Button = SE.UI.Button;
 using Random = SE.Random;

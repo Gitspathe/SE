@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework.Graphics;
+using SE.Engine.Utility;
 
 namespace SE.Rendering
 {

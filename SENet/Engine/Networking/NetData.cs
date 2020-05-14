@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using DeeZ.Core.Exceptions;
-using DeeZ.Engine.Utility;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using SE.Core.Exceptions;
+using SE.Engine.Utility;
 using Vector2 = System.Numerics.Vector2;
 
-namespace DeeZ.Engine.Networking
+namespace SE.Engine.Networking
 {
     public static class NetData
     {

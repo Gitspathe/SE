@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using DeeZ.Core.Extensions;
 using Microsoft.Xna.Framework;
 using SE.Core;
+using SE.Core.Extensions;
 
 namespace SE.World
 {

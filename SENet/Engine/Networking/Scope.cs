@@ -1,4 +1,4 @@
-﻿namespace DeeZ.Engine.Networking
+﻿namespace SE.Engine.Networking
 {
     public enum Scope
     {

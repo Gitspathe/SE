@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace DeeZ.Core.Extensions.Internal
+namespace SE.Core.Extensions.Internal
 {
     public static class ReflectionExtensions
     {

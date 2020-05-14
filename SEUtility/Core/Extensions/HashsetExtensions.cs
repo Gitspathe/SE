@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace DeeZ.Core.Extensions
+namespace SE.Core.Extensions
 {
     public static class HashsetExtensions
     {

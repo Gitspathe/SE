@@ -1,4 +1,4 @@
-﻿namespace DeeZ.Engine.Networking.Packets
+﻿namespace SE.Engine.Networking.Packets
 {
     public enum DeeZPacketType
     {

@@ -1,6 +1,6 @@
-﻿using DeeZ.Engine.Utility;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE.Components.UI;
+using SE.Engine.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.UI

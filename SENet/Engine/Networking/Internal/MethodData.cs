@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace DeeZ.Engine.Networking.Internal
+namespace SE.Engine.Networking.Internal
 {
     internal class MethodData
     {

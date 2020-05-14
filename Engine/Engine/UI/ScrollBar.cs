@@ -1,7 +1,7 @@
 ﻿#if EDITOR
 #endif
-using DeeZ.Engine.Utility;
 using Microsoft.Xna.Framework;
+using SE.Engine.Utility;
 using SE.Rendering;
 using Vector2 = System.Numerics.Vector2;
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using Vector2 = System.Numerics.Vector2;
 
-namespace DeeZ.Core.Extensions
+namespace SE.Core.Extensions
 {
     public static class Vector2Extensions
     {

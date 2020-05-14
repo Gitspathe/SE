@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using DeeZ.Engine.Networking;
 using LiteNetLib.Utils;
+using SE.Engine.Networking;
 using SE.Networking.Internal;
 using SE.Networking.Types;
-using static DeeZ.Core.Network;
+using static SE.Core.Network;
 
 namespace SE.Components.Network
 {
