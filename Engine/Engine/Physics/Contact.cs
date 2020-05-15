@@ -8,8 +8,8 @@ namespace SE.Physics
     {
         internal AetherContact InternalContact;
 
-        public Fixture FixtureA => InternalContact.FixtureA.DeeZFixture;
-        public Fixture FixtureB => InternalContact.FixtureB.DeeZFixture;
+        public Fixture FixtureA => InternalContact.FixtureA.DependencyFixture as Fixture;
+        public Fixture FixtureB => InternalContact.FixtureB.DependencyFixture as Fixture;
 
         public PhysicsBody PhysicsBodyA => FixtureA?.PhysicsBody;
         public PhysicsBody PhysicsBodyB => FixtureB?.PhysicsBody;

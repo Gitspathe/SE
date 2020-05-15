@@ -1,14 +1,17 @@
 ﻿using SE.Common;
 using SE.Components;
 using tainicom.Aether.Physics2D.Collision.Shapes;
+using tainicom.Aether.Physics2D.Dynamics;
 using AetherFixture = tainicom.Aether.Physics2D.Dynamics.Fixture;
 using AetherCategory = tainicom.Aether.Physics2D.Dynamics.Category;
 
 namespace SE.Physics
 {
-    public class Fixture
+    public class Fixture : IPhysicsDependencyFixture<Fixture>
     {
         internal AetherFixture InternalFixture;
+
+        public Fixture GetFixture => this;
 
         public short CollisionGroup {
             get => InternalFixture.CollisionGroup;
@@ -31,7 +34,7 @@ namespace SE.Physics
         }
 
         public Shape Shape => InternalFixture.Shape;
-        public PhysicsBody PhysicsBody => InternalFixture.PhysicsBody;
+        public PhysicsBody PhysicsBody => InternalFixture.DependencyBody as PhysicsBody;
         public PhysicsObject PhysicsObject => PhysicsBody?.PhysicsObject;
         public GameObject GameObject => PhysicsObject?.Owner;
 
@@ -54,12 +57,13 @@ namespace SE.Physics
         internal Fixture(Shape shape)
         {
             InternalFixture = new AetherFixture(shape);
-            InternalFixture.DeeZFixture = this;
+            InternalFixture.DependencyFixture = this;
         }
 
         internal Fixture(AetherFixture internalFixture)
         {
-            internalFixture.DeeZFixture = this;
+            InternalFixture = internalFixture;
+            internalFixture.DependencyFixture = this;
         }
     }
 

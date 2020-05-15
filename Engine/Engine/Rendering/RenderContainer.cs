@@ -51,7 +51,7 @@ namespace SE.Rendering
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            while (RenderLists.Count < renderIndex+1) {
+            while (RenderLists.Count < renderIndex + 1) {
                 RenderLists.Add(null);
             }
 
@@ -90,7 +90,7 @@ namespace SE.Rendering
             DefaultRenderer renderer = RenderLoop.DefaultRender;
             for (int i = 0; i < RenderLists.Count; i++) {
                 RenderList list = RenderLists.Array[i];
-                if(list == null)
+                if (list == null) 
                     continue;
 
                 if (!RenderLoop.Loop.ContainsKey(i)) {

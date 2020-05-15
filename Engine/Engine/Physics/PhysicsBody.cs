@@ -13,7 +13,7 @@ using static SE.Core.Physics;
 namespace SE.Physics
 {
     // TODO: Navigation.
-    public class PhysicsBody
+    public class PhysicsBody : IPhysicsDependencyBody<PhysicsBody>
     {
         internal Body Body;
         internal bool AddedToPhysics;
@@ -24,6 +24,7 @@ namespace SE.Physics
 
         internal JointEdge JointList => Body.JointList;
         internal ContactEdge ContactList => Body.ContactList;
+        public PhysicsBody GetBody => this;
 
         /// <summary>True if PhysicsBody was destroyed while the world was locked.
         ///          The PhysicsBody will be destroyed when the world is next available.</summary>
@@ -233,7 +234,7 @@ namespace SE.Physics
 
         public PhysicsBody(Body body)
         {
-            body.PhysicsBody = this;
+            body.DependencyBody = this;
             Body = body;
             SetupEvents();
         }
@@ -242,13 +243,13 @@ namespace SE.Physics
         {
             Body.OnCollision += (sender, other, contact) => {
                 if (ValidState && OnCollisionEventHandler != null) {
-                    return OnCollisionEventHandler.Invoke(sender.DeeZFixture, other.DeeZFixture, new Contact(contact));
+                    return OnCollisionEventHandler.Invoke(sender.DependencyFixture as Fixture, other.DependencyFixture as Fixture, new Contact(contact));
                 }
                 return true;
             };
             Body.OnSeparation += (sender, other, contact) => {
                 if (ValidState) {
-                    OnSeparationEventHandler?.Invoke(sender.DeeZFixture, other.DeeZFixture, new Contact(contact));
+                    OnSeparationEventHandler?.Invoke(sender.DependencyFixture as Fixture, other.DependencyFixture as Fixture, new Contact(contact));
                 }
             };
         }

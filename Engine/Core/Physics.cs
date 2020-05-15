@@ -60,13 +60,13 @@ namespace SE.Core
             // The Aether.Physics2D call-back does not work as expected. So I return 1 to get all ray-cast results.
             float Callback(AetherFixture fixture, MonoGameVector2 point, MonoGameVector2 normal, float fraction)
             {
-                if (fixture.DeeZFixture == null)
+                if (fixture.DependencyFixture == null)
                     return 1;
 
                 Vector2 hitPoint = ToPixels(point);
                 Vector2 hitNormal = ToPixels(normal);
                 float hitDistance = Vector2.Distance(hitPoint, ray.Position);
-                tmpHits.Add(new RayCast2DHit(fixture.DeeZFixture, hitPoint, hitNormal, hitDistance));
+                tmpHits.Add(new RayCast2DHit(fixture.DependencyFixture as SE.Physics.Fixture, hitPoint, hitNormal, hitDistance));
                 return 1;
             }
 
