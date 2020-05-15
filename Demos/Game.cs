@@ -54,10 +54,8 @@ namespace SEDemos
                 AxisInput.FromThumbStick(ThumbSticks.Left, ThumbSticksAxis.X, 0.1f));
 
             // Initialize networking...
-            Instantiator spawner = (Instantiator) Network.GetExtension<Instantiator>();
-
-            spawner.AddSpawnable("Player", typeof(NetPlayer));
-            spawner.AddSpawnable("bouncy", typeof(BouncyBall));
+            NetHelper.AddSpawnable("Player", typeof(NetPlayer));
+            NetHelper.AddSpawnable("bouncy", typeof(BouncyBall));
             Network.OnServerStarted += SpawnStuff;
             Network.OnPeerConnected += peer => {
                 if (Network.IsServer) {

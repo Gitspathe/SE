@@ -382,16 +382,16 @@ namespace SE.Common
         /// <summary>
         /// A node within the Transform state tree.
         /// </summary>
-        public class TransformNode
+        public struct TransformNode
         {
             /// <summary>Enabled/disabled state of the node.</summary>
-            public bool Data;
+            public bool State;
 
             /// <summary>Node's transform.</summary>
             public Transform Transform;
 
             /// <summary>Children of the node's Transform.</summary>
-            public List<TransformNode> Children = new List<TransformNode>();
+            public List<TransformNode> Children;
 
             /// <summary>
             /// Creates a new Transform node for use in a state tree.
@@ -401,7 +401,8 @@ namespace SE.Common
             public TransformNode(Transform transform, bool root = false)
             {
                 Transform = transform;
-                Data = transform.GameObject.Enabled;
+                State = transform.GameObject.Enabled;
+                Children = new List<TransformNode>();
                 for (int i = 0; i < transform.Children.Count; i++) {
                     Children.Add(new TransformNode(transform.Children[i]));
                 }
@@ -415,7 +416,7 @@ namespace SE.Common
             {
                 bool isRoot = root == Transform;
 
-                if (Data && !Transform.GameObject.Enabled) {
+                if (State && !Transform.GameObject.Enabled) {
                     Transform.GameObject.Enable(isRoot);
                 }
                 for (int i = 0; i < Children.Count; i++) {

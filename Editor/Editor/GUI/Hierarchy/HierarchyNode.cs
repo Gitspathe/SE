@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using DeeZ.Core.Extensions;
 using DeeZ.Editor.GUI.Properties.Views;
-using DeeZ.Engine.Common;
-using DeeZ.Engine.Utility;
 using ImGuiNET;
+using SE.Common;
+using SE.Core.Extensions;
+using SE.Engine.Utility;
 
 namespace DeeZ.Editor.GUI.Hierarchy
 {

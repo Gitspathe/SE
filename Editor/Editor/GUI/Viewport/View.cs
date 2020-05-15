@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SE.Core;
 using Vector2 = System.Numerics.Vector2;
 
 namespace DeeZ.Editor.GUI.Viewport
@@ -37,7 +38,7 @@ namespace DeeZ.Editor.GUI.Viewport
 
             // Magical numbers to fix the viewport scaling.
             ViewBounds = new Rectangle((int)ViewPos.X + 7, (int)ViewPos.Y + 7, (int)ViewSize.X, (int)ViewSize.Y);
-            Core.Screen.EditorViewBounds = ViewBounds;
+            Screen.EditorViewBounds = ViewBounds;
 
             GUI.Image(boundTexture, ViewSize, Vector2.Zero, Vector2.One);
             GUI.End();

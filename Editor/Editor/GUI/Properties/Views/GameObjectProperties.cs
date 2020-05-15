@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
-using DeeZ.Core;
-using DeeZ.Engine.Common;
-using DeeZ.Engine.Utility;
 using ImGuiNET;
+using SE.Common;
+using SE.Core;
+using SE.Engine.Utility;
 
 namespace DeeZ.Editor.GUI.Properties.Views
 {

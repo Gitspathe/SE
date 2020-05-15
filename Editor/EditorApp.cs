@@ -1,14 +1,14 @@
 ﻿using System;
-using DeeZ.Core;
 using DeeZ.Editor.GUI;
 using DeeZ.Editor.ImGUI;
-using DeeZ.Engine;
-using DeeZ.Engine.AssetManagement;
-using DeeZ.Engine.Components;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Console = DeeZ.Core.Console;
+using SE;
+using SE.AssetManagement;
+using SE.Components;
+using SE.Core;
+using Console = SE.Core.Console;
 using Vector2 = System.Numerics.Vector2;
 
 namespace DeeZ
@@ -58,7 +58,7 @@ namespace DeeZ
             if (InputManager.KeyCodePressed(Microsoft.Xna.Framework.Input.Keys.F2)) {
                 SceneManager.CurrentScene.Unload();
 
-                Game gameInstance = (Game) Activator.CreateInstance(typeof(DeeZEngine_Demos.Game), null, this, this);
+                Game gameInstance = (Game) Activator.CreateInstance(typeof(SEDemos.Game), null, this, this);
                 gameInstance.KeepWindowOnDipose = true;
 
                 // Hook into the game instance. OnUpdate will be called from this instance,

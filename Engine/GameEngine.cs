@@ -18,7 +18,7 @@ using SE.Core.Extensions;
 using static SE.Core.SceneManager;
 using Console = SE.Core.Console;
 
-[assembly: InternalsVisibleTo("DeeZEditor")]
+[assembly: InternalsVisibleTo("SEEditor")]
 namespace SE
 {
     /// <summary>

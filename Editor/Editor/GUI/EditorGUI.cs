@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using SE.Core;
 using DeeZ.Editor.GUI.Viewport;
-using DeeZ.Engine.Utility;
 using ImGuiNET;
+using SE.Engine.Utility;
 
 namespace DeeZ.Editor.GUI
 {
@@ -19,7 +20,7 @@ namespace DeeZ.Editor.GUI
             guiObjects.Clear();
             InitializeStyle();
 
-            View = new View(Core.Rendering.FinalRender, new Vector2(1920 - 1477, 18),
+            View = new View(Rendering.FinalRender, new Vector2(1920 - 1477, 18),
                 new Vector2(1920 / 1.3f, 1080 / 1.3f));
 
             Properties = new Properties.Properties();

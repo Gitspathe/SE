@@ -1,6 +1,6 @@
 ﻿using System;
-using DeeZ.Engine.Common;
 using Microsoft.Xna.Framework;
+using SE.Common;
 using Vector2 = System.Numerics.Vector2;
 
 namespace DeeZ.Editor.GUI.Properties

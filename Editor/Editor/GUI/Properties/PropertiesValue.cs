@@ -1,5 +1,5 @@
-﻿using DeeZ.Engine.Serialization;
-using ImGuiNET;
+﻿using ImGuiNET;
+using SE.Serialization;
 
 namespace DeeZ.Editor.GUI.Properties
 {

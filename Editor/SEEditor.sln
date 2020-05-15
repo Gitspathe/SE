@@ -3,18 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeeZEditor", "DeeZEditor.csproj", "{F2A5B146-E841-476B-9DE8-873192BE4588}"
-	ProjectSection(ProjectDependencies) = postProject
-		{AB0791A2-226A-47BC-ACF8-0ABA6765EB0A} = {AB0791A2-226A-47BC-ACF8-0ABA6765EB0A}
-		{727BDCCB-7CBB-4ABB-8D1C-92C22B6A7820} = {727BDCCB-7CBB-4ABB-8D1C-92C22B6A7820}
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SE", "..\Engine\SE.csproj", "{59AEADB7-F92E-4E93-9D69-C85AF262556B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeeZEngine-Demos", "..\Demos\DeeZEngine-Demos.csproj", "{AB0791A2-226A-47BC-ACF8-0ABA6765EB0A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{727BDCCB-7CBB-4ABB-8D1C-92C22B6A7820} = {727BDCCB-7CBB-4ABB-8D1C-92C22B6A7820}
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SEDemos", "..\Demos\SEDemos.csproj", "{8A590E6C-46F3-4A10-AEE4-AC4C96196C28}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeeZEngine", "..\Engine\DeeZEngine.csproj", "{727BDCCB-7CBB-4ABB-8D1C-92C22B6A7820}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SEEditor", "SEEditor.csproj", "{5666892F-E2B1-44C5-9119-32E303581BD8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,18 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F2A5B146-E841-476B-9DE8-873192BE4588}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F2A5B146-E841-476B-9DE8-873192BE4588}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F2A5B146-E841-476B-9DE8-873192BE4588}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F2A5B146-E841-476B-9DE8-873192BE4588}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AB0791A2-226A-47BC-ACF8-0ABA6765EB0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AB0791A2-226A-47BC-ACF8-0ABA6765EB0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AB0791A2-226A-47BC-ACF8-0ABA6765EB0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AB0791A2-226A-47BC-ACF8-0ABA6765EB0A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{727BDCCB-7CBB-4ABB-8D1C-92C22B6A7820}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{727BDCCB-7CBB-4ABB-8D1C-92C22B6A7820}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{727BDCCB-7CBB-4ABB-8D1C-92C22B6A7820}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{727BDCCB-7CBB-4ABB-8D1C-92C22B6A7820}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59AEADB7-F92E-4E93-9D69-C85AF262556B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59AEADB7-F92E-4E93-9D69-C85AF262556B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59AEADB7-F92E-4E93-9D69-C85AF262556B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59AEADB7-F92E-4E93-9D69-C85AF262556B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A590E6C-46F3-4A10-AEE4-AC4C96196C28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A590E6C-46F3-4A10-AEE4-AC4C96196C28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A590E6C-46F3-4A10-AEE4-AC4C96196C28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A590E6C-46F3-4A10-AEE4-AC4C96196C28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5666892F-E2B1-44C5-9119-32E303581BD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5666892F-E2B1-44C5-9119-32E303581BD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5666892F-E2B1-44C5-9119-32E303581BD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5666892F-E2B1-44C5-9119-32E303581BD8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -13,6 +13,7 @@ using SE.UI;
 using SE.World.Partitioning;
 using SE.Core.Extensions;
 using SE.Engine.Networking;
+using SE.Networking.Internal;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Common
@@ -48,7 +49,8 @@ namespace SE.Common
 
         HashSet<IAsset> IAssetConsumer.ReferencedAssets { get; set; }
 
-        /// <summary>Dynamic state of a GameObject. Dynamic GameObjects have their Update methods called while static GameObjects do not.</summary>
+        /// <summary>Dynamic state of a GameObject. Dynamic GameObjects have their Update methods called while static
+        ///          GameObjects do not.</summary>
         public virtual bool IsDynamic {
             get => dynamic;
             protected set {
@@ -77,7 +79,7 @@ namespace SE.Common
         }
 
         /// <summary>If true, the GameObject will have it's bounds automatically calculated from it's sprites' bounds.
-        /// Defaults to true for regular GameObjects, defaults to false for UIObjects.</summary>
+        ///          Defaults to true for regular GameObjects, defaults to false for UIObjects.</summary>
         public virtual bool AutoBounds { get; set; } = true;
 
         /// <summary>The bounds of a GameObject, scaled to the object's transform scale.</summary>
@@ -253,7 +255,7 @@ namespace SE.Common
                 OnDestroy();
                 if (NetIdentity != null) {
                     if (Network.IsServer) {
-                        ((Instantiator) Network.GetExtension<Instantiator>()).Destroy(NetLogic.ID);
+                        NetHelper.Destroy(NetLogic.ID);
                     }
                 } else {
                     OnDestroyInternal();
@@ -293,8 +295,9 @@ namespace SE.Common
 
             // Awaken any components from the EngineInitialize() method.
             for (int i = 0; i < Components.Count; i++) {
-                if (!Components.Array[i].AwakeCalled && ExecuteIsValid(Components.Array[i]))
+                if (!Components.Array[i].AwakeCalled && ExecuteIsValid(Components.Array[i])) {
                     Components.Array[i].Awake();
+                }
             }
 
             // Awaken children.
@@ -357,8 +360,7 @@ namespace SE.Common
             Transform.SetParent(null);
 
             for (int i = Transform.Children.Count - 1; i >= 0; i--) {
-                Transform t = Transform.Children[i];
-                t.GameObject?.Destroy();
+                Transform.Children[i].GameObject?.Destroy();
             }
 
             ((IAssetConsumer)this).DereferenceAssets();
@@ -433,8 +435,7 @@ namespace SE.Common
             }
             Enabled = false;
             for (int i = 0; i < Transform.Children.Count; i++) {
-                Transform t = Transform.Children[i];
-                t.GameObject?.OnDisableInternal(false);
+                Transform.Children[i].GameObject?.OnDisableInternal(false);
             }
 
             OnDisable(isRoot);

@@ -1,7 +1,7 @@
 ﻿using System;
-using DeeZ.Engine.Common;
-using DeeZ.Engine.Serialization;
-using DeeZ.Engine.Utility;
+using SE.Common;
+using SE.Engine.Utility;
+using SE.Serialization;
 
 namespace DeeZ.Editor.GUI.Properties
 {

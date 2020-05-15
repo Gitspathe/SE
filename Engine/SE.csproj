@@ -6,7 +6,7 @@
     <Version>0.0.1</Version>
     <ApplicationIcon />
     <StartupObject />
-    <Copyright>GeoSTGames</Copyright>
+    <Copyright>Gitspathe</Copyright>
     <TieredCompilation>false</TieredCompilation>
     <Platforms>AnyCPU</Platforms>
     <Configurations>Debug;Release</Configurations>
@@ -14,10 +14,10 @@
     <NeutralLanguage>en</NeutralLanguage>
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
     <FileVersion>0.1.0.0</FileVersion>
-    <Authors>GeoSTGames</Authors>
-    <Company>GeoSTGames</Company>
+    <Authors>Gitspathe</Authors>
+    <Company>Gitspathe</Company>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <RepositoryUrl>https://github.com/GeoSTGames/SEEngine</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Gitspathe/SE</RepositoryUrl>
     <Description>2D game engine built over MonoGame.</Description>
     <SignAssembly>false</SignAssembly>
     <AssemblyName>SE</AssemblyName>
