@@ -52,31 +52,31 @@ namespace SE.UI
             Vector2 parentSize = ParentSize;
             SpriteBase s;
             Vector2 origin = Vector2.Zero;
-            if (align.HasFlag(Alignment.Center)) {
+            if ((align & Alignment.Center) == Alignment.Center) {
                 for (int i = 0; i < GameObject.Sprites.Length; i++) {
                     size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
                     origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), -(parentSize.Y / 2) + (size.Y / 2));
                 }
             }
-            if (align.HasFlag(Alignment.Up)) {
+            if ((align & Alignment.Up) == Alignment.Up) {
                 for (int i = 0; i < GameObject.Sprites.Length; i++) {
                     size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
                     origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), 0);
                 }
             }
-            if (align.HasFlag(Alignment.Right)) {
+            if ((align & Alignment.Right) == Alignment.Right) {
                 for (int i = 0; i < GameObject.Sprites.Length; i++) {
                     size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
                     origin += new Vector2(-(parentSize.X) + size.X, -(parentSize.Y / 2) + (size.Y / 2));
                 }
             }
-            if (align.HasFlag(Alignment.Down)) {
+            if ((align & Alignment.Down) == Alignment.Down) {
                 for (int i = 0; i < GameObject.Sprites.Length; i++) {
                     size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
                     origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), -(parentSize.Y) + (size.Y / 2));
                 }
             }
-            if (align.HasFlag(Alignment.Left)) {
+            if ((align & Alignment.Left) == Alignment.Left) {
                 for (int i = 0; i < GameObject.Sprites.Length; i++) {
                     size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
                     origin += new Vector2(0, -(parentSize.Y / 2) + (size.Y / 2));
