@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using SE.Components;
+using SE.Engine.Utility;
 
 namespace SE.Rendering
 {
     public class RenderContainer
     {
-        public SortedDictionary<int, RenderList> RenderLists = new SortedDictionary<int, RenderList>();
+        // Weird, but is faster than SortedDictionary. Might get more benefit from adding
+        // an additional QuickList which stores the indexes of ACTUAL RenderList elements.
+        public QuickList<RenderList> RenderLists = new QuickList<RenderList>();
 
         private bool isDirty;
 
@@ -17,8 +20,8 @@ namespace SE.Rendering
 
         public void Reset()
         {
-            foreach (KeyValuePair<int, RenderList> pair in RenderLists) {
-                pair.Value.Reset();
+            for (int i = 0; i < RenderLists.Count; i++) {
+                RenderLists.Array[i]?.Reset();
             }
         }
 
@@ -48,29 +51,32 @@ namespace SE.Rendering
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            while (RenderLists.Count < renderIndex+1) {
+                RenderLists.Add(null);
+            }
 
             // Add the sprite to the correct RenderList.
-            if (RenderLists.TryGetValue(renderIndex, out RenderList list)) {
+            RenderList list = RenderLists.Array[renderIndex];
+            if (list != null) {
                 if (threadSafe) {
                     list.AddThreaded(sprite.DrawCallID, sprite);
                 } else {
                     list.Add(sprite.DrawCallID, sprite);
                 }
             } else {
-                // If the RenderList does not exist, create it.
                 if (threadSafe) {
                     lock (RenderLists) {
-                        if (RenderLists.ContainsKey(renderIndex))
-                            return;
+                        //if (RenderLists.ContainsKey(renderIndex))
+                        //    return;
 
-                        RenderList newList = new RenderList(renderIndex, sprite.BlendMode); 
+                        RenderList newList = new RenderList(renderIndex, sprite.BlendMode);
                         newList.AddThreaded(sprite.DrawCallID, sprite);
-                        RenderLists.Add(renderIndex, newList);
+                        RenderLists.Array[renderIndex] = newList;
                     }
                 } else {
                     RenderList newList = new RenderList(renderIndex, sprite.BlendMode);
                     newList.Add(sprite.DrawCallID, sprite);
-                    RenderLists.Add(renderIndex, newList);
+                    RenderLists.Array[renderIndex] = newList;
                 }
                 isDirty = true;
             }
@@ -82,9 +88,13 @@ namespace SE.Rendering
                 return;
 
             DefaultRenderer renderer = RenderLoop.DefaultRender;
-            foreach ((int loopOrder, RenderList list) in RenderLists) {
-                if (!RenderLoop.Loop.ContainsKey(loopOrder)) {
-                    RenderLoop.Add(loopOrder, cam => renderer.ProcessRenderList(cam, list));
+            for (int i = 0; i < RenderLists.Count; i++) {
+                RenderList list = RenderLists.Array[i];
+                if(list == null)
+                    continue;
+
+                if (!RenderLoop.Loop.ContainsKey(i)) {
+                    RenderLoop.Add(i, cam => renderer.ProcessRenderList(cam, list));
                 }
             }
             isDirty = false;
