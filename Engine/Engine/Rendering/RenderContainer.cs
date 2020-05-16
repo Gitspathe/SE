@@ -11,7 +11,7 @@ namespace SE.Rendering
         // an additional QuickList which stores the indexes of ACTUAL RenderList elements.
         public QuickList<RenderList> RenderLists = new QuickList<RenderList>();
         
-        private Dictionary<int, Action<Camera2D>> renderActions = new Dictionary<int, Action<Camera2D>>();
+        private Dictionary<uint, Action<Camera2D>> renderActions = new Dictionary<uint, Action<Camera2D>>();
         private bool isDirty;
 
         public void Clear()
@@ -89,13 +89,13 @@ namespace SE.Rendering
             if(!isDirty)
                 return;
 
-            foreach ((int key, _) in renderActions) {
+            foreach ((uint key, _) in renderActions) {
                 RenderLoop.Loop.Remove(key);
             }
             renderActions.Clear();
 
-            DefaultRenderer renderer = RenderLoop.DefaultRender;
-            for (int i = 0; i < RenderLists.Count; i++) {
+            Renderer renderer = RenderLoop.Render;
+            for (uint i = 0; i < RenderLists.Count; i++) {
                 RenderList list = RenderLists.Array[i];
                 if (list == null || RenderLoop.Loop.ContainsKey(i))
                     continue;

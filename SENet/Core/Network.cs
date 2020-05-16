@@ -10,6 +10,7 @@ using LiteNetLib.Utils;
 using Open.Nat;
 using SE.Core.Exceptions;
 using SE.Core.Extensions;
+using SE.Core.Extensions.Internal;
 using SE.Engine.Networking;
 using SE.Engine.Networking.Attributes;
 using SE.Engine.Networking.Internal;
@@ -34,8 +35,8 @@ namespace SE.Core
         public static Dictionary<string, NetPeer> Connections = new Dictionary<string, NetPeer>();
 
         private static EventBasedNetListener listener;
-        private static RPCLookupTable<RPCServerInfo> serverRPCLookupTable;
-        private static RPCLookupTable<RPCClientInfo> clientRPCLookupTable;
+        public static RPCLookupTable<RPCServerInfo> serverRPCLookupTable;
+        public static RPCLookupTable<RPCClientInfo> clientRPCLookupTable;
 
         private static Dictionary<Type, INetworkExtension> networkExtensions = new Dictionary<Type, INetworkExtension>();
         private static bool initialized;
@@ -205,11 +206,18 @@ namespace SE.Core
             for (ushort i = 0; i < methodData.Length; i++) {
                 MethodData data = methodData[i];
                 ServerRPCAttribute attribute = data.Info.GetCustomAttribute<ServerRPCAttribute>();
+                Type[] types = data.Info.GetParameterTypes();
+                byte[] typeBytes = new byte[types.Length];
+                for (int ii = 0; ii < typeBytes.Length; ii++) {
+                    typeBytes[ii] = NetData.NetDataConversionTable[types[ii]];
+                }
+
                 serverRPCLookupTable.Add(new RPCServerInfo(
                     attribute, 
                     new RPCCache(data.Info), 
                     i, 
-                    data.ID));
+                    data.ID, 
+                    typeBytes));
             }
 
             // Construct client RPC tables.
@@ -219,11 +227,18 @@ namespace SE.Core
             for (ushort i = 0; i < methodData.Length; i++) {
                 MethodData data = methodData[i];
                 ClientRPCAttribute attribute = data.Info.GetCustomAttribute<ClientRPCAttribute>();
+                Type[] types = data.Info.GetParameterTypes();
+                byte[] typeBytes = new byte[types.Length];
+                for (int ii = 0; ii < typeBytes.Length; ii++) {
+                    typeBytes[ii] = NetData.NetDataConversionTable[types[ii]];
+                }
+
                 clientRPCLookupTable.Add(new RPCClientInfo(
                     attribute,
                     new RPCCache(data.Info), 
                     i, 
-                    data.ID));
+                    data.ID, 
+                    typeBytes));
             }
             initialized = true;
         }
@@ -634,14 +649,10 @@ namespace SE.Core
         {
             methodNameBuilder.Clear();
             ParameterInfo[] pInfo = info.GetParameters();
-            methodNameBuilder.Append(info.DeclaringType).Append(" Void ").Append(info.Name).Append(" (");
+            methodNameBuilder.Append(info.DeclaringType).Append(info.Name).Append(" (");
             for (int i = 0; i < pInfo.Length; i++) {
                 methodNameBuilder.Append(pInfo[i].ParameterType.FullName);
-                if (i + 1 < pInfo.Length) {
-                    methodNameBuilder.Append(", ");
-                }
             }
-            methodNameBuilder.Append(")");
             return methodNameBuilder.ToString();
         }
 
@@ -655,16 +666,12 @@ namespace SE.Core
                 t = nObject.GetType();
             } else throw new KeyNotFoundException("Method signature not found.");
 
-            signatureBuilder.Append(t).Append(" Void ").Append(method).Append(" (");
+            signatureBuilder.Append(t).Append(method).Append(" (");
             if (parameters.Length > 0) {
                 for (int i = 0; i < parameters.Length; i++) {
                     signatureBuilder.Append(parameters[i].GetType().FullName);
-                    if (i + 1 < parameters.Length) {
-                        signatureBuilder.Append(", ");
-                    }
                 }
             }
-            signatureBuilder.Append(")");
             return signatureBuilder.ToString();
         }
         #endregion

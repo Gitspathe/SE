@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace SE.Engine.Networking.Internal
 {
-    internal class RPCCache
+    public class RPCCache
     {
         public MethodInfo MethodInfo;
         public Dictionary<object, LateBoundMethod> LateBoundMethods = new Dictionary<object, LateBoundMethod>();

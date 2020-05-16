@@ -1,13 +1,15 @@
-﻿using SE.Engine.Networking.Attributes;
+﻿using System;
+using SE.Engine.Networking.Attributes;
 
 namespace SE.Engine.Networking.Internal
 {
-    internal class RPCInfo
+    public class RPCInfo
     {
         public RPCCache Cache;
         public ushort UshortID;
         public string StringID;
         public bool FrequentMethod;
+        public byte[] ParameterTypes;
 
         public void Invoke(object target, object[] parameters)
         {
@@ -24,21 +26,22 @@ namespace SE.Engine.Networking.Internal
             }
         }
 
-        public RPCInfo(RPCCache cache, ushort ushortID, string stringID, bool frequentMethod)
+        public RPCInfo(RPCCache cache, ushort ushortID, string stringID, bool frequentMethod, byte[] paramTypes)
         {
             Cache = cache;
             UshortID = ushortID;
             StringID = stringID;
             FrequentMethod = frequentMethod;
+            ParameterTypes = paramTypes;
         }
     }
 
-    internal class RPCClientInfo : RPCInfo
+    public class RPCClientInfo : RPCInfo
     {
         public RPCClientInfoOptions Options;
 
-        public RPCClientInfo(ClientRPCAttribute attribute, RPCCache cache, ushort ushortID, string stringID)
-            : base(cache, ushortID, stringID, attribute.Frequent)
+        public RPCClientInfo(ClientRPCAttribute attribute, RPCCache cache, ushort ushortID, string stringID, byte[] paramTypes)
+            : base(cache, ushortID, stringID, attribute.Frequent, paramTypes)
         {
             Options = new RPCClientInfoOptions();
         }
@@ -49,12 +52,12 @@ namespace SE.Engine.Networking.Internal
         }
     }
 
-    internal class RPCServerInfo : RPCInfo
+    public class RPCServerInfo : RPCInfo
     {
         public RPCServerInfoOptions Options;
 
-        public RPCServerInfo(ServerRPCAttribute attribute, RPCCache cache, ushort ushortID, string stringID)
-            : base(cache, ushortID, stringID, attribute.Frequent)
+        public RPCServerInfo(ServerRPCAttribute attribute, RPCCache cache, ushort ushortID, string stringID, byte[] paramTypes)
+            : base(cache, ushortID, stringID, attribute.Frequent, paramTypes)
         {
             Options = new RPCServerInfoOptions(attribute.CallClientRPC);
         }

@@ -4,26 +4,23 @@ using SE.Engine.Utility;
 
 namespace SE.Engine.Networking.Internal
 {
-    internal class RPCLookupTable<T> where T : RPCInfo
+    public class RPCLookupTable<T> where T : RPCInfo
     {
-        public QuickList<KeyValuePair<ushort, T>> RPCTableInt = new QuickList<KeyValuePair<ushort, T>>();
-        public QuickList<KeyValuePair<string, T>> RPCTableString = new QuickList<KeyValuePair<string, T>>();
+        public Dictionary<ushort, T> RPCTableInt = new Dictionary<ushort, T>();
+        public Dictionary<string, T> RPCTableString = new Dictionary<string, T>();
 
         public void Add(T toAdd)
         {
-            RPCTableInt.Add(new KeyValuePair<ushort, T>(toAdd.UshortID, toAdd));
-            RPCTableString.Add(new KeyValuePair<string, T>(toAdd.StringID, toAdd));
+            RPCTableInt.Add(toAdd.UshortID, toAdd);
+            RPCTableString.Add(toAdd.StringID, toAdd);
         }
 
         public bool TryGetRPCInfo(ushort id, out T c)
         {
             c = null;
-            KeyValuePair<ushort, T>[] array = RPCTableInt.Array;
-            for (int i = 0; i < RPCTableInt.Count; i++) {
-                if (array[i].Key == id) {
-                    c = array[i].Value;
-                    return true;
-                }
+            if (RPCTableInt.TryGetValue(id, out T val)) {
+                c = val;
+                return true;
             }
             return false;
         }
@@ -31,15 +28,18 @@ namespace SE.Engine.Networking.Internal
         public bool TryGetRPCInfo(string id, out T c)
         {
             c = null;
-            KeyValuePair<string, T>[] array = RPCTableString.Array;
-            for (int i = 0; i < RPCTableString.Count; i++) {
-                if (array[i].Key == id) {
-                    c = array[i].Value;
-                    return true;
-                }
+            if (RPCTableString.TryGetValue(id, out T val)) {
+                c = val;
+                return true;
             }
             return false;
         }
+
+        public T GetRPCInfo(ushort id) 
+            => RPCTableInt[id];
+
+        public T GetRPCInfo(string id) 
+            => RPCTableString[id];
 
         public ushort? GetUshortID(string id)
         {

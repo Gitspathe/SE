@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace SE.Core.Extensions.Internal
 {
@@ -23,6 +24,16 @@ namespace SE.Core.Extensions.Internal
                 currentType = currentType.BaseType;
             }
             return false;
+        }
+
+        public static Type[] GetParameterTypes(this MethodInfo methodInfo)
+        {
+            ParameterInfo[] paramsInfo = methodInfo.GetParameters();
+            Type[] types = new Type[paramsInfo.Length];
+            for (int i = 0; i < types.Length; i++) {
+                types[i] = paramsInfo[i].ParameterType;
+            }
+            return types;
         }
     }
 }

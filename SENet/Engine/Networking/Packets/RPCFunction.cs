@@ -1,7 +1,9 @@
 ﻿using System;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using SE.Core;
 using SE.Core.Exceptions;
+using SE.Engine.Networking.Internal;
 
 namespace SE.Engine.Networking.Packets
 {
@@ -11,7 +13,7 @@ namespace SE.Engine.Networking.Packets
         public uint NetworkID;
         public ushort MethodID;
         public object[] Parameters = new object[0];
-        public byte[] ParameterTypes = new byte[0];
+        public RPCInfo RPCInfo;
 
         public int ParametersNum { get; protected set; }
 
@@ -21,30 +23,14 @@ namespace SE.Engine.Networking.Packets
             MethodID = methodID;
             ParametersNum = parameters.Length;
             Parameters = parameters;
-            if (ParameterTypes.Length < ParametersNum) {
-                ParameterTypes = new byte[ParametersNum];
-            }
-            NetData.Convert(parameters, ParameterTypes);
+            RPCInfo = Network.InstanceType == NetInstanceType.Server
+                ? (RPCInfo) Network.clientRPCLookupTable.GetRPCInfo(methodID)
+                : Network.serverRPCLookupTable.GetRPCInfo(methodID);
+
+            NetData.Convert(parameters, RPCInfo.ParameterTypes);
         }
 
         public override void Reset(NetPacketReader message = null) => Read(message);
-
-        /// <summary>
-        /// Creates a new RPCFunction packet.
-        /// </summary>
-        /// <param name="networkID">Network ID to invoke RPC on.</param>
-        /// <param name="methodID">Method ID.</param>
-        /// <param name="parameters">Parameter values passed to the RPC method.</param>
-        /// <param name="types">Parameter types sent to the RPC method.</param>
-        public RPCFunction(ushort networkID, ushort methodID, object[] parameters, byte[] types)
-        {
-            MethodID = methodID;
-            NetworkID = networkID;
-            Parameters = parameters;
-            ParametersNum = parameters.Length;
-            ParameterTypes = types;
-            PacketType = SEPacketType.RPC;
-        }
 
         /// <summary>
         /// Creates a new RPCFunction packet.
@@ -63,11 +49,14 @@ namespace SE.Engine.Networking.Packets
                 ParametersNum = message.GetByte();
                 if (Parameters.Length < ParametersNum) {
                     Parameters = new object[ParametersNum];
-                    ParameterTypes = new byte[ParametersNum];
                 }
+
+                RPCInfo = Network.InstanceType == NetInstanceType.Server
+                    ? (RPCInfo) Network.serverRPCLookupTable.GetRPCInfo(MethodID)
+                    : Network.clientRPCLookupTable.GetRPCInfo(MethodID);
+
                 for (int i = 0; i < ParametersNum; i++) {
-                    ParameterTypes[i] = message.GetByte();
-                    Parameters[i] = NetData.Read(ParameterTypes[i], message);
+                    Parameters[i] = NetData.Read(RPCInfo.ParameterTypes[i], message);
                 }
             } catch (Exception e) {
                 throw new MalformedPacketException("Failed to read packet.", e);
@@ -83,8 +72,7 @@ namespace SE.Engine.Networking.Packets
                 message.Put(MethodID);
                 message.Put((byte)ParametersNum);
                 for (int i = 0; i < ParametersNum; i++) {
-                    message.Put(ParameterTypes[i]);
-                    NetData.Write(ParameterTypes[i], Parameters[i], message);
+                    NetData.Write(RPCInfo.ParameterTypes[i], Parameters[i], message);
                 }
             } catch (Exception e) {
                 throw new MalformedPacketException("Failed to write packet.", e);

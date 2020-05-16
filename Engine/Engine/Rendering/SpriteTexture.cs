@@ -5,7 +5,6 @@ using SE.AssetManagement;
 
 namespace SE.Rendering
 {
-
     /// <summary>
     /// Class which bundles a texture sheet and a source rectangle together to render a sprite.
     /// </summary>
@@ -41,5 +40,4 @@ namespace SE.Rendering
         public override int GetHashCode() 
             => HashCode.Combine(textureAsset, SourceRectangle);
     }
-
 }

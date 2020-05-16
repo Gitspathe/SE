@@ -16,7 +16,7 @@ namespace SE.Engine.Networking.Internal
     /// <param name="target">The instance that the dynamic method is called on</param>
     /// <param name="arguments"></param>
     /// <returns></returns>
-    internal delegate void LateBoundMethod(object target, object[] arguments);
+    public delegate void LateBoundMethod(object target, object[] arguments);
 
     /// <summary>
     /// This class creates a generic method delegate from a MethodInfo signature
@@ -31,7 +31,7 @@ namespace SE.Engine.Networking.Internal
     /// Entirely based on Nate Kohari's blog post:
     /// http://kohari.org/2009/03/06/fast-late-bound-invocation-with-expression-trees/
     /// </summary>
-    internal static class DelegateFactory
+    public static class DelegateFactory
     {
         /// <summary>
         /// Creates a LateBoundMethod delegate from a MethodInfo structure

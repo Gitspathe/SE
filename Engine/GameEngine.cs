@@ -234,8 +234,8 @@ namespace SE
 
             // Multithreaded render test.
             if (InputManager.KeyCodePressed(Keys.F)) {
-                DefaultRenderer.Multithreaded = !DefaultRenderer.Multithreaded;
-                Console.WriteLine("Multithreaded: " + (DefaultRenderer.Multithreaded ? "on" : "off"));
+                Renderer.Multithreaded = !Renderer.Multithreaded;
+                Console.WriteLine("Multithreaded: " + (Renderer.Multithreaded ? "on" : "off"));
             }
 
             GameTime = gameTime;

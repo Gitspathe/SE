@@ -17,7 +17,7 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Rendering
 {
-    public class DefaultRenderer : IRenderer
+    public class Renderer : IRenderer
     {
         public RenderContainer RenderContainer = new RenderContainer();
 

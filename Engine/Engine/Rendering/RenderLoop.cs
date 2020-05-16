@@ -8,12 +8,12 @@ namespace SE.Rendering
 {
     public static class RenderLoop
     {
-        internal static SortedDictionary<int, Action<Camera2D>> Loop { get; } = new SortedDictionary<int, Action<Camera2D>>();
-        internal static DefaultRenderer DefaultRender = new DefaultRenderer();
+        internal static SortedDictionary<uint, Action<Camera2D>> Loop { get; } = new SortedDictionary<uint, Action<Camera2D>>();
+        internal static Renderer Render = new Renderer();
 
         internal static bool IsDirty;
 
-        public static void Add(int order, Action<Camera2D> action)
+        public static void Add(uint order, Action<Camera2D> action)
         {
             Loop.Add(order, action);
             IsDirty = true;
@@ -21,12 +21,13 @@ namespace SE.Rendering
 
         public static void Add(LoopEnum order, Action<Camera2D> action)
         {
-            Add((int)order, action);
+            Add((uint)order, action);
         }
 
-        public enum LoopEnum
+        public enum LoopEnum : uint
         {
-            PrepareFrame = 0,
+            NewFrame = 0,
+            PrepareFrame = 1,
             Culling = 100,
             GenerateRenderLists = 200,
             LightingStart = 300,
@@ -50,43 +51,43 @@ namespace SE.Rendering
 
             // Headless mode.
             if (Screen.DisplayMode == DisplayMode.Headless) {
-                Add(LoopEnum.PrepareFrame, DefaultRender.NewFrame);
+                Add(LoopEnum.PrepareFrame, Render.NewFrame);
                 Add(LoopEnum.Culling, Core.Rendering.PerformCulling);
-                Add(LoopEnum.DrawUI, DefaultRender.DrawUI);
+                Add(LoopEnum.DrawUI, Render.DrawUI);
                 Add(LoopEnum.DrawRenderTargets, Core.Rendering.DrawRenderTargets);
                 return;
             }
 
             // Full graphics mode.
-            Add(LoopEnum.PrepareFrame - 100, Core.Lighting.Update);
-            Add(LoopEnum.PrepareFrame, DefaultRender.NewFrame);
+            Add(LoopEnum.NewFrame, Core.Lighting.Update);
+            Add(LoopEnum.PrepareFrame, Render.NewFrame);
             Add(LoopEnum.Culling, Core.Rendering.PerformCulling);
-            Add(LoopEnum.GenerateRenderLists, cam => DefaultRender.GenerateRenderLists());
-            Add(LoopEnum.LightingStart, _ => DefaultRender.StartLighting());
+            Add(LoopEnum.GenerateRenderLists, cam => Render.GenerateRenderLists());
+            Add(LoopEnum.LightingStart, _ => Render.StartLighting());
 
             Add(LoopEnum.FinalizeParticles, _ => ParticleEngine.FinalizeThreads());
 
             Add(LoopEnum.RenderAlphaParticles, cam
-                => DefaultRender.RenderAlphaParticles(cam, ParticleEngine.AlphaParticles));
+                => Render.RenderAlphaParticles(cam, ParticleEngine.AlphaParticles));
 
             Add(LoopEnum.LightingEnd, _
-                => DefaultRender.EndLighting());
+                => Render.EndLighting());
 
             Add(LoopEnum.RenderAlphaParticlesUnlit, cam
-                => DefaultRender.RenderAlphaParticles(cam, ParticleEngine.AlphaParticlesUnlit));
+                => Render.RenderAlphaParticles(cam, ParticleEngine.AlphaParticlesUnlit));
 
             Add(LoopEnum.RenderAdditiveParticles, cam
-                => DefaultRender.RenderAdditiveParticles(cam, ParticleEngine.AdditiveParticles));
+                => Render.RenderAdditiveParticles(cam, ParticleEngine.AdditiveParticles));
 
             Add(LoopEnum.DrawUnderlay, cam => Console.DrawUnderlay(cam, Core.Rendering.SpriteBatch));
-            Add(LoopEnum.DrawUI, DefaultRender.DrawUI);
+            Add(LoopEnum.DrawUI, Render.DrawUI);
             Add(LoopEnum.DrawRenderTargets, Core.Rendering.DrawRenderTargets);
         }
 
         public new static string ToString()
         {
             string s = "";
-            foreach (KeyValuePair<int, Action<Camera2D>> loop in Loop) {
+            foreach (KeyValuePair<uint, Action<Camera2D>> loop in Loop) {
                 if (loop.Value.Method.ReflectedType != null) {
                     s += "  " + loop.Key + ", " + loop.Value.Method.ReflectedType.FullName + "." + loop.Value.Method.Name + "\n";
                 }

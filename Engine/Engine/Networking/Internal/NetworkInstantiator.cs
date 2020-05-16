@@ -15,7 +15,7 @@ namespace SE.Networking.Internal
         public static void Destroy(uint netID)
             => Spawner.Destroy(netID);
 
-        public static void AddSpawnable(string key, Type type) 
+        public static void AddSpawnable(string key, Type type)
             => Spawner.AddSpawnable(key, type);
     }
 }

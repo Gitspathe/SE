@@ -30,8 +30,7 @@ namespace SE.Serialization
             if (!initialized)
                 throw new InvalidOperationException("Not initialized!");
 
-            EngineSerializerData data = new EngineSerializerData(ValueWrappers);
-            return data.Serialize();
+            return new EngineSerializerData(ValueWrappers).Serialize();
         }
 
         public void Deserialize(string jsonData)
