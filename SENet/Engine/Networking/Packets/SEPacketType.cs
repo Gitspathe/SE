@@ -1,6 +1,6 @@
 ﻿namespace SE.Engine.Networking.Packets
 {
-    public enum DeeZPacketType
+    public enum SEPacketType : byte
     {
         None,
         RPC

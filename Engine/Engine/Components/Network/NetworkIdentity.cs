@@ -45,13 +45,10 @@ namespace SE.Components.Network
         /// Called when the GameObject has it's network ID and owner values filled in by the server.
         /// Any network logic relating to the 
         /// </summary>
-        public new virtual void Setup(uint id, bool isOwner, string netState = null)
+        public new virtual void Setup(uint id, bool isOwner)
         {
             ID = id;
             IsOwner = isOwner;
-            if (!string.IsNullOrEmpty(netState)) {
-                RestoreNetworkState(netState);
-            }
             NetIDs.Add(id);
             IsSetup = true;
             OnSetup?.Invoke(isOwner);
@@ -96,7 +93,10 @@ namespace SE.Components.Network
                 if (nComponent is NetworkIdentity)
                     continue;
 
-                nComponent.Setup(netIDs[index], isOwner, netStates[index]);
+                nComponent.Setup(netIDs[index], isOwner);
+                if (nComponent is INetPersistable persist && netStates[index] != null)
+                    persist.RestoreNetworkState(netStates[index]);
+
                 NetworkObjects.Add(netIDs[index], nComponent);
                 index++;
             }

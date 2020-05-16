@@ -10,8 +10,6 @@ namespace SE.Engine.Networking
 {
     public static class NetData
     {
-        // TODO: REEEEEEEEEEEEEEEEEEEEEEE BOXING & UNBOXING REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE!!!!!
-
         private static byte curByte = 23;
 
         /// <summary>
@@ -140,9 +138,7 @@ namespace SE.Engine.Networking
             message => new Vector2(message.GetFloat(), message.GetFloat())
         };
 
-        /// <summary>
-        /// Dictionary used to write an object to a NetIncomingMessage. The byte key identifies which Type the object is.
-        /// </summary>
+        /// <summary>Dictionary used to write an object to a NetIncomingMessage. The byte key identifies which Type the object is.</summary>
         internal static QuickList<Action<object, NetDataWriter>> DataWriters = new QuickList<Action<object, NetDataWriter>> {
             (obj, message) => message.Put((long)obj),
             (obj, message) => message.Put((ulong)obj),

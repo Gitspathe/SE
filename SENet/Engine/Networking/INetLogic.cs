@@ -2,8 +2,14 @@
 
 namespace SE.Engine.Networking
 {
+    /// <summary>
+    /// Interface representing an entity that HAS an INetLogic interface present, but one not present
+    /// on the object itself. This is typically used for something like GameObjects, which may or may
+    /// not have an INetLogic component.
+    /// </summary>
     public interface INetLogicProxy
     {
+        /// <summary>INetLogic interface.</summary>
         INetLogic NetLogic { get; }
     }
 
@@ -25,38 +31,77 @@ namespace SE.Engine.Networking
         /// </summary>
         /// <param name="id">Network ID.</param>
         /// <param name="isOwner">If the local client owns the NetLogic.</param>
-        /// <param name="netState">Serialized state information created by the SerializeNetworkState function.</param>
-        void Setup(uint id, bool isOwner, string netState = null);
+        void Setup(uint id, bool isOwner);
     }
 
+    /// <summary>
+    /// Represents an object whose state persists to new clients on connection.
+    /// </summary>
     public interface INetPersistable : INetLogic
     {
         /// <summary>
         /// Serializes custom network information into a Json string.
-        /// Deserialized to restore object state when a new client joins.
+        /// Intended to be used for <see cref="RestoreNetworkState"/>.
         /// </summary>
         /// <returns>Json string containing the custom state information.</returns>
         string SerializeNetworkState();
 
         /// <summary>
         /// Deserializes a Json string sent from the SerializeNetworkState function.
-        /// Restores custom state information when a new client joins.
+        /// Intended to restore state retrieved from <see cref="SerializeNetworkState()"/>.
         /// </summary>
         /// <param name="jsonString">Serialized state information.</param>
         void RestoreNetworkState(string jsonString);
     }
 
+    /// <summary>
+    /// Represents an object which can be Instantiated across the network.
+    /// </summary>
     public interface INetInstantiatable : INetLogic
     {
+        /// <summary>Parameters used for the constructor(s) of the object.</summary>
         object[] InstantiateParameters { get; }
+
+        /// <summary>
+        /// Called when the object is instantiated on the server.
+        /// This is called before <see cref="OnNetworkInstantiatedClient"/>.
+        /// </summary>
+        /// <param name="type">Spawnable ID for the object.</param>
+        /// <param name="owner">Unique ID of the peer who has authority over the object.</param>
         void OnNetworkInstantiatedServer(string type, string owner);
+
+        /// <summary>
+        /// Called when an object is instantiated on the local client.
+        /// This is called after <see cref="OnNetworkInstantiatedClient"/>.
+        /// </summary>
+        /// <param name="type">Spawnable ID for the object.</param>
+        /// <param name="isOwner">Whether or not the local client has authority over the object.</param>
+        /// <param name="data">Data passed in from the server instance of the object.
+        ///                    Intended to be used for constructors.</param>
         void OnNetworkInstantiatedClient(string type, bool isOwner, byte[] data);
+        
+        /// <summary>
+        /// Used to obtain a byte array of custom data. Intended to be used for constructors.
+        /// </summary>
+        /// <returns>Byte array of data.</returns>
         byte[] GetBufferedData();
+
+        /// <summary>
+        /// Called when the networked object is destroyed.
+        /// </summary>
         void NetClean();
     }
 
+    /// <summary>
+    /// Represents a networked serializer related to <see cref="INetPersistable"/>.
+    /// </summary>
     public interface IInstantiateSerializer
     {
+        /// <summary>
+        /// Serializes data into a byte array.
+        /// </summary>
+        /// <param name="writer">Helper NetDataWriter.</param>
+        /// <returns>Byte array of serialized data.</returns>
         byte[] Serialize(NetDataWriter writer);
     }
 }

@@ -6,7 +6,7 @@ using SE.Core.Exceptions;
 namespace SE.Engine.Networking.Packets
 {
     /// <inheritdoc/>
-    internal class RPCFunction : DeeZPacket
+    internal class RPCFunction : SEPacket
     {
         public uint NetworkID;
         public ushort MethodID;
@@ -43,7 +43,7 @@ namespace SE.Engine.Networking.Packets
             Parameters = parameters;
             ParametersNum = parameters.Length;
             ParameterTypes = types;
-            PacketType = DeeZPacketType.RPC;
+            PacketType = SEPacketType.RPC;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace SE.Engine.Networking.Packets
         /// </summary>
         /// <param name="message">NetIncomingMessage.</param>
         public RPCFunction(NetPacketReader message = null) : base(message) 
-            => PacketType = DeeZPacketType.RPC;
+            => PacketType = SEPacketType.RPC;
 
         /// <inheritdoc/>
         public override void Read(NetPacketReader message)

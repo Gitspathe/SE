@@ -15,7 +15,7 @@ namespace SE.Networking.Types
         public bool IsOwner { get; protected set; }
 
         /// <inheritdoc />
-        public void Setup(uint id, bool isOwner, string netState = null)
+        public void Setup(uint id, bool isOwner)
         {
             NetworkIdentity netID = Owner.Transform.Root.GameObject.NetIdentity;
             if (!(this is NetworkIdentity) && netID == null) {
@@ -25,9 +25,6 @@ namespace SE.Networking.Types
 
             ID = id;
             IsOwner = isOwner;
-            if (this is INetPersistable netPersist && !string.IsNullOrEmpty(netState)) {
-                netPersist.RestoreNetworkState(netState);
-            }
             netID.NetIDs.Add(id);
             IsSetup = true;
         }

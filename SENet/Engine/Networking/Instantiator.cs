@@ -24,7 +24,7 @@ namespace SE.Engine.Networking
         private List<string> netStates = new List<string>();
         private List<uint> netIDs = new List<uint>();
 
-        public void Setup(uint id, bool isOwner, string netState = null)
+        public void Setup(uint id, bool isOwner)
         {
             ID = id;
             IsOwner = isOwner;

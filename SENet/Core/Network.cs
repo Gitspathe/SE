@@ -44,7 +44,7 @@ namespace SE.Core
         private static NetDataWriter cachedWriter = new NetDataWriter();
         private static NetDataReader cachedReader = new NetDataReader();
         private static RPCFunction cacheFunc = new RPCFunction();
-        private static DeeZPacket cachePacket = new DeeZPacket();
+        private static SEPacket cachePacket = new SEPacket();
         private static StringBuilder signatureBuilder = new StringBuilder(256);
         private static StringBuilder methodNameBuilder = new StringBuilder(256);
         private static List<NetPeer> recipients = new List<NetPeer>();
@@ -260,14 +260,20 @@ namespace SE.Core
 
         public static void SetupNetLogic(INetLogic logic, bool isOwner, string netState = null)
         {
-            logic.Setup(CurrentNetworkID, isOwner, netState);
+            logic.Setup(CurrentNetworkID, isOwner);
+            if (logic is INetPersistable persist && netState != null)
+                persist.RestoreNetworkState(netState);
+
             NetworkObjects.Add(CurrentNetworkID, logic);
             CurrentNetworkID++;
         }
 
         public static void SetupNetLogic(INetLogic logic, uint networkID, bool isOwner, string netState = null)
         {
-            logic.Setup(networkID, isOwner, netState);
+            logic.Setup(networkID, isOwner);
+            if (logic is INetPersistable persist && netState != null)
+                persist.RestoreNetworkState(netState);
+
             NetworkObjects.Add(networkID, logic);
             if(networkID > CurrentNetworkID)
                 CurrentNetworkID = networkID;
@@ -290,7 +296,7 @@ namespace SE.Core
             switch (cachePacket.PacketType) {
 
                 // Client -> server RPC request.
-                case DeeZPacketType.RPC:
+                case SEPacketType.RPC:
                     try {
                         // Invoke on server.
                         cacheFunc.Reset(msg);
@@ -306,7 +312,7 @@ namespace SE.Core
                     }
                     break;
 
-                case DeeZPacketType.None:
+                case SEPacketType.None:
                     NetProtector.ReportError(new Exception("Server recieved packet with invalid type."), peer);
                     break;
             }
@@ -315,11 +321,11 @@ namespace SE.Core
         private static void HandleNetMessageClient(NetPacketReader msg, NetPeer peer, DeliveryMethod deliveryMethod)
         {
             cachePacket.PeekType(msg);
-            DeeZPacketType packetType = cachePacket.PacketType;
+            SEPacketType packetType = cachePacket.PacketType;
             switch (packetType) {
 
                 // Client receives an RPC packet from the server.
-                case DeeZPacketType.RPC: {
+                case SEPacketType.RPC: {
                     try {
                         cacheFunc.Reset(msg);
                         InvokeRPC(cacheFunc);
@@ -329,7 +335,7 @@ namespace SE.Core
                     break;
                 }
 
-                case DeeZPacketType.None:
+                case SEPacketType.None:
                     NetProtector.ReportError(new Exception("Client recieved packet with invalid type."), peer); 
                     break;
             }

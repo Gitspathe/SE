@@ -7,26 +7,26 @@ namespace SE.Engine.Networking.Packets
     /// Container for engine-level data sent over the network.
     /// Higher level than a regular network packet.
     /// </summary>
-    public class DeeZPacket
+    public class SEPacket
     {
-        public DeeZPacketType PacketType;
+        public SEPacketType PacketType;
 
-        public DeeZPacket(NetPacketReader message = null)
+        public SEPacket(NetPacketReader message = null)
         {
-            PacketType = DeeZPacketType.None;
+            PacketType = SEPacketType.None;
             if (message == null)
                 return;
 
-            PacketType = (DeeZPacketType)message.GetByte();
+            PacketType = (SEPacketType)message.GetByte();
         }
 
         public virtual void Reset(NetPacketReader message = null)
         {
-            PacketType = DeeZPacketType.None;
+            PacketType = SEPacketType.None;
             if (message == null)
                 return;
 
-            PacketType = (DeeZPacketType)message.GetByte();
+            PacketType = (SEPacketType)message.GetByte();
         }
 
         /// <summary>
@@ -35,16 +35,16 @@ namespace SE.Engine.Networking.Packets
         /// <param name="message">Stream to read.</param>
         /// <returns>Bytes read.</returns>
         public virtual void Read(NetPacketReader message) 
-            => PacketType = (DeeZPacketType)message.GetByte();
+            => PacketType = (SEPacketType)message.GetByte();
 
         public void PeekType(NetPacketReader message) 
-            => PacketType = (DeeZPacketType)message.PeekByte();
+            => PacketType = (SEPacketType)message.PeekByte();
 
         /// <summary>
         /// Writes the packet into a NetOutgoingMessage stream for transmission over a network.
         /// </summary>
         /// <param name="message">Stream to write into.</param>
-        public virtual void WriteTo(NetDataWriter message) 
+        public virtual void WriteTo(NetDataWriter message)
             => message.Put((byte) PacketType);
 
         /// <summary>
