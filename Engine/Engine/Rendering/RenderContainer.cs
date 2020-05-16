@@ -10,7 +10,8 @@ namespace SE.Rendering
         // Weird, but is faster than SortedDictionary. Might get more benefit from adding
         // an additional QuickList which stores the indexes of ACTUAL RenderList elements.
         public QuickList<RenderList> RenderLists = new QuickList<RenderList>();
-
+        
+        private Dictionary<int, Action<Camera2D>> renderActions = new Dictionary<int, Action<Camera2D>>();
         private bool isDirty;
 
         public void Clear()
@@ -20,8 +21,9 @@ namespace SE.Rendering
 
         public void Reset()
         {
+            RenderList[] lists = RenderLists.Array;
             for (int i = 0; i < RenderLists.Count; i++) {
-                RenderLists.Array[i]?.Reset();
+                lists[i]?.Reset();
             }
         }
 
@@ -87,15 +89,20 @@ namespace SE.Rendering
             if(!isDirty)
                 return;
 
+            foreach ((int key, _) in renderActions) {
+                RenderLoop.Loop.Remove(key);
+            }
+            renderActions.Clear();
+
             DefaultRenderer renderer = RenderLoop.DefaultRender;
             for (int i = 0; i < RenderLists.Count; i++) {
                 RenderList list = RenderLists.Array[i];
-                if (list == null) 
+                if (list == null || RenderLoop.Loop.ContainsKey(i))
                     continue;
 
-                if (!RenderLoop.Loop.ContainsKey(i)) {
-                    RenderLoop.Add(i, cam => renderer.ProcessRenderList(cam, list));
-                }
+                Action<Camera2D> action = cam => renderer.ProcessRenderList(cam, list);
+                renderActions.Add(i, action);
+                RenderLoop.Add(i, action);
             }
             isDirty = false;
         }

@@ -9,6 +9,7 @@ using SE.Engine.Networking;
 using SE.Physics;
 using SE.Rendering;
 using SE.Core.Extensions;
+using SE.Networking.Internal;
 using Random = SE.Random;
 using TestParticleSystem = SEDemos.Particles.TestParticleSystem;
 using Vector2 = System.Numerics.Vector2;
@@ -74,7 +75,7 @@ namespace SEDemos.GameObjects
         private bool Body_OnCollision(Fixture sender, Fixture other, Contact contact)
         {
             if (other.GameObject is WallDown) {
-                //Network.Instantiate("bouncy", new Vector2(Transform.Position.X, Transform.Position.Y + 100));
+                NetHelper.Instantiate("bouncy", position: new Vector2(Transform.Position.X, Transform.Position.Y - 24));
                 Destroy();
             }
             return true;
