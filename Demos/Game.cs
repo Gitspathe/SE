@@ -88,6 +88,9 @@ namespace SEDemos
 
         public static void SpawnStuff()
         {
+            if(!Network.IsServer)
+                return;
+
             for (int x = 0; x < 10; x++) {
                 for (int y = 0; y < 10; y++) {
                     NetHelper.Instantiate("bouncy", "SERVER", new Vector2(128 + x * 64, 128 + y * 64));

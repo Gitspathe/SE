@@ -15,17 +15,17 @@ namespace SE.Engine.Networking.Packets
         public object[] Parameters = new object[0];
         public RPCInfo RPCInfo;
 
-        public int ParametersNum { get; protected set; }
+        public int ParametersNum;
 
         public void Reset(uint networkID, ushort methodID, object[] parameters)
         {
             NetworkID = networkID;
             MethodID = methodID;
-            ParametersNum = parameters.Length;
             Parameters = parameters;
             RPCInfo = Network.InstanceType == NetInstanceType.Server
                 ? (RPCInfo) Network.clientRPCLookupTable.GetRPCInfo(methodID)
                 : Network.serverRPCLookupTable.GetRPCInfo(methodID);
+            ParametersNum = RPCInfo.ParameterTypes.Length;
 
             NetData.Convert(parameters, RPCInfo.ParameterTypes);
         }
@@ -46,14 +46,15 @@ namespace SE.Engine.Networking.Packets
             try {
                 NetworkID = message.GetUInt();
                 MethodID = message.GetUShort();
-                ParametersNum = message.GetByte();
+
+                RPCInfo = Network.InstanceType == NetInstanceType.Server
+                    ? (RPCInfo)Network.serverRPCLookupTable.GetRPCInfo(MethodID)
+                    : Network.clientRPCLookupTable.GetRPCInfo(MethodID);
+                ParametersNum = RPCInfo.ParameterTypes.Length;
+
                 if (Parameters.Length < ParametersNum) {
                     Parameters = new object[ParametersNum];
                 }
-
-                RPCInfo = Network.InstanceType == NetInstanceType.Server
-                    ? (RPCInfo) Network.serverRPCLookupTable.GetRPCInfo(MethodID)
-                    : Network.clientRPCLookupTable.GetRPCInfo(MethodID);
 
                 for (int i = 0; i < ParametersNum; i++) {
                     Parameters[i] = NetData.Read(RPCInfo.ParameterTypes[i], message);
@@ -70,7 +71,6 @@ namespace SE.Engine.Networking.Packets
                 base.WriteTo(message);
                 message.Put(NetworkID);
                 message.Put(MethodID);
-                message.Put((byte)ParametersNum);
                 for (int i = 0; i < ParametersNum; i++) {
                     NetData.Write(RPCInfo.ParameterTypes[i], Parameters[i], message);
                 }

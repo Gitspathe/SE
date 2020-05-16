@@ -51,7 +51,7 @@ namespace SEDemos.GameObjects
             } else {
                 myPhysics.Enabled = false;
             }
-            GetComponent<ParticleEmitter>().ParticleSystem = new TestParticleSystem();
+            //GetComponent<ParticleEmitter>().ParticleSystem = new TestParticleSystem();
 
             networkIdentity.OnSerializeNetworkState += () => c.Serialize();
             networkIdentity.OnRestoreNetworkState += jsonString => {
