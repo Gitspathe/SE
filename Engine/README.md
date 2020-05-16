@@ -1,6 +1,6 @@
-# DeeZEngine
+# Spaghetti Engine
 
-DeeZEngine is an amateur's attempt at creating a 2D game engine using the MonoGame framework.
+SE is an amateur's attempt at creating a 2D game engine using the MonoGame framework.
 
 ## Features
 
@@ -25,7 +25,6 @@ DeeZEngine is an amateur's attempt at creating a 2D game engine using the MonoGa
 * Better API
 
 ## Software Used
-These are either NuGet packages, or assemblies included within the project. So the engine should -mostly- work out of the box.
 * Newtonsoft.Json
 * Modified Aether.Physics2D assembly (https://github.com/tainicom/Aether.Physics2D)
 * Modified MonoGame assembly (https://github.com/MonoGame/MonoGame)
