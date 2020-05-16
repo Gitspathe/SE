@@ -1,2 +1,2 @@
-# DeeZEngine-Demos
-Contains testing code and demos for DeeZEngine.
+# SEDemos
+Contains testing code and demos for SE.
