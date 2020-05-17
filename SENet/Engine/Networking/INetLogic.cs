@@ -44,14 +44,14 @@ namespace SE.Engine.Networking
         /// Intended to be used for <see cref="RestoreNetworkState"/>.
         /// </summary>
         /// <returns>Json string containing the custom state information.</returns>
-        string SerializeNetworkState();
+        byte[] SerializeNetworkState();
 
         /// <summary>
         /// Deserializes a Json string sent from the SerializeNetworkState function.
         /// Intended to restore state retrieved from <see cref="SerializeNetworkState()"/>.
         /// </summary>
-        /// <param name="jsonString">Serialized state information.</param>
-        void RestoreNetworkState(string jsonString);
+        /// <param name="data">Serialized state information.</param>
+        void RestoreNetworkState(byte[] data);
     }
 
     /// <summary>

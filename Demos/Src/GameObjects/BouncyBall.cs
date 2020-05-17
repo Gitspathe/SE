@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using LiteNetLib.Utils;
+using Microsoft.Xna.Framework;
 using SE.Attributes;
 using SE.Common;
 using SE.Components;
@@ -53,9 +54,18 @@ namespace SEDemos.GameObjects
             }
             //GetComponent<ParticleEmitter>().ParticleSystem = new TestParticleSystem();
 
-            networkIdentity.OnSerializeNetworkState += () => c.Serialize();
-            networkIdentity.OnRestoreNetworkState += jsonString => {
-                c = jsonString.Deserialize<Color>();
+            networkIdentity.OnSerializeNetworkState += () => {
+                NetDataWriter writer = new NetDataWriter();
+                writer.Put(sprite.Color.R);
+                writer.Put(sprite.Color.G);
+                writer.Put(sprite.Color.B);
+                writer.Put(sprite.Color.A);
+                return writer.CopyData();
+            };
+
+            networkIdentity.OnRestoreNetworkState += data => {
+                NetDataReader reader = new NetDataReader(data);
+                c = new Color(reader.GetByte(), reader.GetByte(), reader.GetByte(), reader.GetByte());
                 sprite.Color = c;
                 light.Color = c;
             };

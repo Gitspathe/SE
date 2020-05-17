@@ -159,8 +159,6 @@ namespace SE.Core
             return cachedReader;
         }
 
-        // TODO: Expression trees are much slower than MethodInfo.Invoke when a function isn't a lot.
-        // TODO: Therefore, MethodInfo should still be used to invoke 'uncommon' methods.
         public static void Initialize()
         {
             if (initialized)
@@ -261,7 +259,7 @@ namespace SE.Core
             }
         }
 
-        public static void SetupNetLogic(INetLogic logic, bool isOwner, string netState = null)
+        public static void SetupNetLogic(INetLogic logic, bool isOwner, byte[] netState = null)
         {
             logic.Setup(CurrentNetworkID, isOwner);
             if (logic is INetPersistable persist && netState != null)
@@ -271,7 +269,7 @@ namespace SE.Core
             CurrentNetworkID++;
         }
 
-        public static void SetupNetLogic(INetLogic logic, uint networkID, bool isOwner, string netState = null)
+        public static void SetupNetLogic(INetLogic logic, uint networkID, bool isOwner, byte[] netState = null)
         {
             logic.Setup(networkID, isOwner);
             if (logic is INetPersistable persist && netState != null)
@@ -560,10 +558,8 @@ namespace SE.Core
 
         public static void SendRPC(RPCMethod method, params object[] parameters)
             => SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, null, null, method.Method, parameters);
-
         public static void SendRPC(RPCMethod method, NetPeer recipient, params object[] parameters)
             => SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, new [] { recipient }, null, method.Method, parameters);
-
         public static void SendRPC(RPCMethod method, NetPeer[] recipients, params object[] parameters) 
             => SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, recipients, null, method.Method, parameters);
 

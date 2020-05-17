@@ -1,5 +1,6 @@
 ﻿using System;
 using LiteNetLib;
+using LiteNetLib.Utils;
 using SE.Core;
 using SE.Engine.Networking;
 using SE.Engine.Networking.Attributes;
@@ -92,27 +93,29 @@ namespace SE.Components.Network
 
         private void SendUpdateVelocityRPC(DeliveryMethod deliveryMethod)
         {
-            SE.Core.Network.SendRPC(updateVelocityMethod, curPosition, curVelocity, curRotation);
+            Core.Network.SendRPC(updateVelocityMethod, curPosition, curVelocity, curRotation);
         }
 
-        public string SerializeNetworkState()
+        public byte[] SerializeNetworkState()
         {
-            NetworkState netState = new NetworkState {
-                Pos = Owner.Transform.Position,
-                Velocity = curVelocity,
-                Scale = Owner.Transform.Scale,
-                Rot = Owner.Transform.Rotation
-            };
-            return netState.Serialize();
+            NetDataWriter writer = new NetDataWriter();
+            writer.Put(Owner.Transform.Position.X);
+            writer.Put(Owner.Transform.Position.Y);
+            writer.Put(curVelocity.X);
+            writer.Put(curVelocity.Y);
+            writer.Put(Owner.Transform.Scale.X);
+            writer.Put(Owner.Transform.Scale.Y);
+            writer.Put(Owner.Transform.Rotation);
+            return writer.CopyData();
         }
 
-        public void RestoreNetworkState(string jsonString)
+        public void RestoreNetworkState(byte[] data)
         {
-            NetworkState netState = jsonString.Deserialize<NetworkState>();
-            Owner.Transform.Position = netState.Pos;
-            Owner.Transform.Rotation = netState.Rot;
-            Owner.Transform.Scale = netState.Scale;
-            curVelocity = netState.Velocity;
+            NetDataReader reader = new NetDataReader(data);
+            Owner.Transform.Position = new Vector2(reader.GetFloat(), reader.GetFloat());
+            curVelocity = new Vector2(reader.GetFloat(), reader.GetFloat());
+            Owner.Transform.Scale = new Vector2(reader.GetFloat(), reader.GetFloat());
+            Owner.Transform.Rotation = reader.GetFloat();
         }
 
         [ServerRPC]
@@ -160,19 +163,11 @@ namespace SE.Components.Network
 
         public NetTransform() { }
 
-        public struct NetworkState
-        {
-            public Vector2 Pos;
-            public Vector2 Velocity;
-            public Vector2 Scale;
-            public float Rot;
-        }
 
         public enum CompensationQuality
         {
             Low,
             High
         }
-
     }
 }

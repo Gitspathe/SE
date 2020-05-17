@@ -13,16 +13,16 @@ namespace SE.Components.Network
     {
         public override int Queue => int.MinValue;
 
-        public Func<string> OnSerializeNetworkState;
+        public Func<byte[]> OnSerializeNetworkState;
 
-        public Action<string> OnRestoreNetworkState;
+        public Action<byte[]> OnRestoreNetworkState;
 
         public Action<bool> OnSetup;
 
         internal SpawnedGameObject SpawnedGameObject;
         internal List<uint> NetIDs = new List<uint>();
 
-        private List<string> netStates = new List<string>();
+        private List<byte[]> netStates = new List<byte[]>();
         private List<uint> netIDs = new List<uint>();
 
         protected override void OnInitialize()
@@ -31,14 +31,14 @@ namespace SE.Components.Network
             Owner.NetIdentity = this;
         }
 
-        public void RestoreNetworkState(string jsonString)
+        public void RestoreNetworkState(byte[] data)
         {
-            OnRestoreNetworkState?.Invoke(jsonString);
+            OnRestoreNetworkState?.Invoke(data);
         }
 
-        public string SerializeNetworkState()
+        public byte[] SerializeNetworkState()
         {
-            return OnSerializeNetworkState?.Invoke();
+            return OnSerializeNetworkState?.Invoke() ?? new byte[0];
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace SE.Components.Network
         public void OnNetworkInstantiatedClient(string type, bool isOwner, byte[] data)
         {
             InstantiateData buffer = new InstantiateData(data);
-            string[] netStates = buffer.NetStates;
+            List<byte[]> netStates = buffer.NetStates;
             uint[] netIDs = buffer.NetIDs;
 
             // Handle any NetComponents on the GameObject.
@@ -102,8 +102,6 @@ namespace SE.Components.Network
             }
         }
 
-        private static NetDataWriter writer = new NetDataWriter();
-
         public byte[] GetBufferedData()
         {
             netStates.Clear();
@@ -120,8 +118,8 @@ namespace SE.Components.Network
                 netIDs.Add(nComponent.ID);
             }
 
-            InstantiateData buffer = new InstantiateData(netStates.ToArray(), netIDs.ToArray());
-            return buffer.Serialize(GetWriter());
+            InstantiateData buffer = new InstantiateData(netStates, netIDs.ToArray());
+            return buffer.Serialize(new NetDataWriter());
         }
 
         public void NetClean()
@@ -139,10 +137,10 @@ namespace SE.Components.Network
 
         public struct InstantiateData : IInstantiateSerializer
         {
-            public string[] NetStates;
+            public List<byte[]> NetStates;
             public uint[] NetIDs;
 
-            public InstantiateData(string[] netStates, uint[] netIDs)
+            public InstantiateData(List<byte[]> netStates, uint[] netIDs)
             {
                 NetStates = netStates;
                 NetIDs = netIDs;
@@ -152,19 +150,19 @@ namespace SE.Components.Network
             {
                 NetDataReader reader = new NetDataReader(bytes);
                 uint len = reader.GetUInt();
-                NetStates = new string[len];
+                NetStates = new List<byte[]>();
                 NetIDs = new uint[len];
                 for (int i = 0; i < len; i++) {
-                    NetStates[i] = reader.GetString();
+                    NetStates.Add(reader.GetBytesWithLength());
                     NetIDs[i] = reader.GetUInt();
                 }
             }
 
             public byte[] Serialize(NetDataWriter writer)
             {
-                writer.Put((uint) NetStates.Length);
-                for (int i = 0; i < NetStates.Length; i++) {
-                    writer.Put(NetStates[i]);
+                writer.Put((uint) NetStates.Count);
+                for (int i = 0; i < NetStates.Count; i++) {
+                    writer.PutBytesWithLength(NetStates[i]);
                     writer.Put(NetIDs[i]);
                 }
                 return writer.CopyData();

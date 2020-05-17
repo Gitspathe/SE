@@ -62,7 +62,7 @@ namespace SE.Engine.Networking
                 return;
 
             byte[] data = null;
-            string netState = null;
+            byte[] netState = null;
             string instantiateParams = null;
             if (netObj.NetLogic is INetInstantiatable instantiatable) {
                 data = instantiatable.GetBufferedData();
@@ -71,7 +71,7 @@ namespace SE.Engine.Networking
             if (netObj.NetLogic is INetPersistable persist)
                 netState = persist.SerializeNetworkState();
 
-            SendRPC(instantiateMethod, conn, netObj.SpawnableID, conn.GetUniqueID() == netObj.Owner, netObj.NetworkID, netState ?? "", data ?? new byte[0], instantiateParams ?? "");
+            SendRPC(instantiateMethod, conn, netObj.SpawnableID, conn.GetUniqueID() == netObj.Owner, netObj.NetworkID, netState ?? new byte[0], data ?? new byte[0], instantiateParams ?? "");
         }
 
         public void Instantiate(string type, string owner = "SERVER", object[] parameters = null)
@@ -98,7 +98,7 @@ namespace SE.Engine.Networking
                 SetupNetLogic(logic, owner == "SERVER");
                 SpawnedNetObjects.Add(logic.ID, new SpawnedNetObject(logic, logic.ID, type, owner));
                 byte[] returned = null;
-                string netState = null;
+                byte[] netState = null;
                 string paramsData = parameters?.Serialize();
                 if (logic is INetInstantiatable instantiatable) {
                     instantiatable.OnNetworkInstantiatedServer(type, owner);
@@ -108,7 +108,7 @@ namespace SE.Engine.Networking
                     netState = persist.SerializeNetworkState();
 
                 foreach (string playerID in Connections.Keys) {
-                    SendRPC(instantiateMethod, Connections[playerID], type, playerID == owner, logic.ID, netState ?? "", returned ?? new byte[0], paramsData ?? "");
+                    SendRPC(instantiateMethod, Connections[playerID], type, playerID == owner, logic.ID, netState ?? new byte[0], returned ?? new byte[0], paramsData ?? "");
                 }
             } catch (Exception e) {
                 LogError(exception: e);
@@ -116,7 +116,7 @@ namespace SE.Engine.Networking
         }
 
         [ClientRPC(frequent: true)]
-        public void Instantiate_CLIENT(string type, bool isOwner, uint netID, string netState, byte[] data, string paramsData)
+        public void Instantiate_CLIENT(string type, bool isOwner, uint netID, byte[] netState, byte[] data, string paramsData)
         {
             if (!spawnables.TryGetValue(type, out Type t))
                 throw new Exception("No Spawnable of Type " + type + " found in dictionary.");

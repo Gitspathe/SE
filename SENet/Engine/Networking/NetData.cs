@@ -74,6 +74,12 @@ namespace SE.Engine.Networking
             DataWriters.Add(type, writeFunction);
         }
 
+        /// <summary>
+        /// Reads serialized data from a NetPacketReader, and returns the result.
+        /// </summary>
+        /// <param name="type">Type of the object to be read.</param>
+        /// <param name="reader">NetPacketReader the data will be read from.</param>
+        /// <returns>A deserialized object obtained from the NetPacketReader.</returns>
         public static object Read(Type type, NetPacketReader reader)
         {
             if (reader == null)
@@ -84,6 +90,12 @@ namespace SE.Engine.Networking
             return func.Invoke(reader);
         }
 
+        /// <summary>
+        /// Serializes an object and writes the result to a NetDataWriter.
+        /// </summary>
+        /// <param name="type">Type of the object.</param>
+        /// <param name="obj">Object to be written.</param>
+        /// <param name="writer">NetDataWriter the object will be serialized into.</param>
         public static void Write(Type type, object obj, NetDataWriter writer)
         {
             if (obj == null)
