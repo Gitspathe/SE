@@ -10,275 +10,90 @@ namespace SE.Engine.Networking
 {
     public static class NetData
     {
-        private static byte curByte = 23;
-
-        /// <summary>
-        /// Dictionary used to convert types to bytes. The byte returned from a conversion is used as an ID
-        /// by the networking system to identify Types.
-        /// </summary>
-        internal static Dictionary<Type, byte> NetDataConversionTable = new Dictionary<Type, byte> {
-            {typeof(long), 1},
-            {typeof(ulong), 2},
-            {typeof(int), 3},
-            {typeof(uint), 4},
-            {typeof(short), 5},
-            {typeof(ushort), 6},
-            {typeof(bool), 7},
-            {typeof(byte), 8},
-            {typeof(float), 9},
-            {typeof(double), 10},
-            {typeof(string), 11},
-            {typeof(long[]), 12},
-            {typeof(ulong[]), 13},
-            {typeof(int[]), 14},
-            {typeof(uint[]), 15},
-            {typeof(short[]), 16},
-            {typeof(ushort[]), 17},
-            {typeof(bool[]), 18},
-            {typeof(byte[]), 19},
-            {typeof(float[]), 20},
-            {typeof(double[]), 21},
-            {typeof(string[]), 22},
-            {typeof(Vector2), 23}
-        };
-
-        /// <summary>
-        /// Dictionary used to read an object from a NetIncomingMessage. The byte key identifies which Type the object is.
-        /// </summary>
-        //TODO: Could eliminate new() calls with a non-alloc version of this function.
-        internal static QuickList<Func<NetPacketReader, object>> DataReaders = new QuickList<Func<NetPacketReader, object>> {
-            message => message.GetLong(),
-            message => message.GetULong(),
-            message => message.GetInt(),
-            message => message.GetUInt(),
-            message => message.GetShort(),
-            message => message.GetUShort(),
-            message => message.GetBool(),
-            message => message.GetByte(),
-            message => message.GetFloat(),
-            message => message.GetDouble(),
-            message => message.GetString(),
-            message => {
-                long[] array = new long[message.GetUShort()];
-                for (int ii = 0; ii < array.Length; ii++) {
-                    array[ii] = message.GetLong();
-                }
-                return array;
-            },
-            message => {
-                ulong[] array = new ulong[message.GetUShort()];
-                for (int ii = 0; ii < array.Length; ii++) {
-                    array[ii] = message.GetULong();
-                }
-                return array;
-            },
-            message => {
-                int[] array = new int[message.GetUShort()];
-                for (int ii = 0; ii < array.Length; ii++) {
-                    array[ii] = message.GetInt();
-                }
-                return array;
-            },
-            message => {
-                uint[] array = new uint[message.GetUShort()];
-                for (int ii = 0; ii < array.Length; ii++) {
-                    array[ii] = message.GetUInt();
-                }
-                return array;
-            },
-            message => {
-                short[] array = new short[message.GetUShort()];
-                for (int ii = 0; ii < array.Length; ii++) {
-                    array[ii] = message.GetShort();
-                }
-                return array;
-            },
-            message => {
-                ushort[] array = new ushort[message.GetUShort()];
-                for (int ii = 0; ii < array.Length; ii++) {
-                    array[ii] = message.GetUShort();
-                }
-                return array;
-            },
-            message => {
-                bool[] array = new bool[message.GetUShort()];
-                for (int ii = 0; ii < array.Length; ii++) {
-                    array[ii] = message.GetBool();
-                }
-                return array;
-            },
-            message => {
-                byte[] array = new byte[message.GetUShort()];
-                for (int ii = 0; ii < array.Length; ii++) {
-                    array[ii] = message.GetByte();
-                }
-                return array;
-            },
-            message => {
-                float[] array = new float[message.GetUShort()];
-                for (int ii = 0; ii < array.Length; ii++) {
-                    array[ii] = message.GetFloat();
-                }
-                return array;
-            },
-            message => {
-                double[] array = new double[message.GetUShort()];
-                for (int ii = 0; ii < array.Length; ii++) {
-                    array[ii] = message.GetDouble();
-                }
-                return array;
-            },
-            message => {
-                string[] array = new string[message.GetUShort()];
-                for (int ii = 0; ii < array.Length; ii++) {
-                    array[ii] = message.GetString();
-                }
-                return array;
-            },
-            message => new Vector2(message.GetFloat(), message.GetFloat())
+        /// <summary>Dictionary used to read an object from a NetIncomingMessage. The byte key identifies which Type the object is.</summary>
+        internal static Dictionary<Type, Func<NetPacketReader, object>> DataReaders = new Dictionary<Type, Func<NetPacketReader, object>> {
+            {typeof(long), message => message.GetLong()},
+            {typeof(ulong), message => message.GetULong()},
+            {typeof(int), message => message.GetInt()},
+            {typeof(uint), message => message.GetUInt()},
+            {typeof(short), message => message.GetShort()},
+            {typeof(ushort), message => message.GetUShort()},
+            {typeof(bool), message => message.GetBool()},
+            {typeof(byte), message => message.GetByte()},
+            {typeof(float), message => message.GetFloat()},
+            {typeof(double), message => message.GetDouble()},
+            {typeof(string), message => message.GetString()},
+            {typeof(long[]), message => message.GetLongArray()},
+            {typeof(ulong[]), message => message.GetULongArray()},
+            {typeof(int[]), message => message.GetIntArray()},
+            {typeof(uint[]), message => message.GetUIntArray()},
+            {typeof(short[]), message => message.GetShortArray()},
+            {typeof(ushort[]), message => message.GetUShortArray()},
+            {typeof(bool[]), message => message.GetBoolArray()},
+            {typeof(byte[]), message => message.GetBytesWithLength()},
+            {typeof(float[]), message => message.GetFloatArray()},
+            {typeof(double[]), message => message.GetDoubleArray()},
+            {typeof(string[]), message => message.GetStringArray()},
+            {typeof(Vector2), message => new Vector2(message.GetFloat(), message.GetFloat())}
         };
 
         /// <summary>Dictionary used to write an object to a NetIncomingMessage. The byte key identifies which Type the object is.</summary>
-        internal static QuickList<Action<object, NetDataWriter>> DataWriters = new QuickList<Action<object, NetDataWriter>> {
-            (obj, message) => message.Put((long)obj),
-            (obj, message) => message.Put((ulong)obj),
-            (obj, message) => message.Put((int)obj),
-            (obj, message) => message.Put((uint)obj),
-            (obj, message) => message.Put((short)obj),
-            (obj, message) => message.Put((ushort)obj),
-            (obj, message) => message.Put((bool)obj),
-            (obj, message) => message.Put((byte)obj),
-            (obj, message) => message.Put((float)obj),
-            (obj, message) => message.Put((double)obj),
-            (obj, message) => message.Put(obj as string),
-            (obj, message) => {
-                long[] array = obj as long[];
-                message.Put((ushort)array.Length);
-                for (int ii = 0; ii < array.Length; ii++) {
-                    message.Put(array[ii]);
-                }
-            },
-            (obj, message) => {
-                ulong[] array = obj as ulong[];
-                message.Put((ushort)array.Length);
-                for (int ii = 0; ii < array.Length; ii++) {
-                    message.Put(array[ii]);
-                }
-            },
-            (obj, message) => {
-                int[] array = obj as int[];
-                message.Put((ushort)array.Length);
-                for (int ii = 0; ii < array.Length; ii++) {
-                    message.Put(array[ii]);
-                }
-            },
-            (obj, message) => {
-                uint[] array = obj as uint[];
-                message.Put((ushort)array.Length);
-                for (int ii = 0; ii < array.Length; ii++) {
-                    message.Put(array[ii]);
-                }
-            },
-            (obj, message) => {
-                short[] array = obj as short[];
-                message.Put((ushort)array.Length);
-                for (int ii = 0; ii < array.Length; ii++) {
-                    message.Put(array[ii]);
-                }
-            },
-            (obj, message) => {
-                ushort[] array = obj as ushort[];
-                message.Put((ushort)array.Length);
-                for (int ii = 0; ii < array.Length; ii++) {
-                    message.Put(array[ii]);
-                }
-            },
-            (obj, message) => {
-                bool[] array = obj as bool[];
-                message.Put((ushort)array.Length);
-                for (int ii = 0; ii < array.Length; ii++) {
-                    message.Put(array[ii]);
-                }
-            },
-            (obj, message) => {
-                byte[] array = obj as byte[];
-                message.Put((ushort)array.Length);
-                for (int ii = 0; ii < array.Length; ii++) {
-                    message.Put(array[ii]);
-                }
-            },
-            (obj, message) => {
-                float[] array = obj as float[];
-                message.Put((ushort)array.Length);
-                for (int ii = 0; ii < array.Length; ii++) {
-                    message.Put(array[ii]);
-                }
-            },
-            (obj, message) => {
-                double[] array = obj as double[];
-                message.Put((ushort)array.Length);
-                for (int ii = 0; ii < array.Length; ii++) {
-                    message.Put(array[ii]);
-                }
-            },
-            (obj, message) => {
-                string[] array = obj as string[];
-                message.Put((ushort)array.Length);
-                for (int ii = 0; ii < array.Length; ii++) {
-                    message.Put(array[ii]);
-                }
-            },
-            (obj, message) => {
+        internal static Dictionary<Type, Action<object, NetDataWriter>> DataWriters = new Dictionary<Type, Action<object, NetDataWriter>> {
+            {typeof(long),  (obj, message) => message.Put((long)obj)},
+            {typeof(ulong),  (obj, message) => message.Put((ulong)obj)},
+            {typeof(int),  (obj, message) => message.Put((int)obj)},
+            {typeof(uint),  (obj, message) => message.Put((uint)obj)},
+            {typeof(short),  (obj, message) => message.Put((short)obj)},
+            {typeof(ushort),  (obj, message) => message.Put((ushort)obj)},
+            {typeof(bool),  (obj, message) => message.Put((bool)obj)},
+            {typeof(byte),  (obj, message) => message.Put((byte)obj)},
+            {typeof(float),  (obj, message) => message.Put((float)obj)},
+            {typeof(double),  (obj, message) => message.Put((double)obj)},
+            {typeof(string),  (obj, message) => message.Put(obj as string)},
+            {typeof(long[]), (obj, message) => message.PutArray(obj as long[]) },
+            {typeof(ulong[]), (obj, message) => message.PutArray(obj as ulong[]) },
+            {typeof(int[]), (obj, message) => message.PutArray(obj as int[]) },
+            {typeof(uint[]), (obj, message) => message.PutArray(obj as uint[]) },
+            {typeof(short[]), (obj, message) => message.PutArray(obj as short[]) },
+            {typeof(ushort[]), (obj, message) => message.PutArray(obj as ushort[]) },
+            {typeof(bool[]), (obj, message) => message.PutArray(obj as bool[]) },
+            {typeof(byte[]), (obj, message) => message.PutBytesWithLength(obj as byte[]) },
+            {typeof(float[]), (obj, message) => message.PutArray(obj as float[]) },
+            {typeof(double[]), (obj, message) => message.PutArray(obj as double[]) },
+            {typeof(string[]), (obj, message) => message.PutArray(obj as string[]) },
+            {typeof(Vector2), (obj, message) => {
                 Vector2 vector = (Vector2) obj;
                 message.Put(vector.X);
                 message.Put(vector.Y);
-            }
+            }}
         };
-
-        public static void Convert(object[] parameters, byte[] existing)
-        {
-            try {
-                for (int i = 0; i < parameters.Length; i++) {
-                    NetDataConversionTable.TryGetValue(parameters[i].GetType(), out existing[i]);
-                }
-            } catch (Exception e) {
-                throw new RPCConversionException("Failed to convert object[] to RPCDataType[].", e);
-            }
-        }
 
         public static void AddDataType(Type type, Func<NetPacketReader, object> readFunction, Action<object, NetDataWriter> writeFunction)
         {
-            if (curByte + 1 > byte.MaxValue)
-                throw new Exception("Cannot add new data type. Not enough space.");
-
-            curByte++;
-            NetDataConversionTable.Add(type, curByte);
-            DataReaders.Add(readFunction);
-            DataWriters.Add(writeFunction);
+            DataReaders.Add(type, readFunction);
+            DataWriters.Add(type, writeFunction);
         }
 
-        public static object Read(byte byteVal, NetPacketReader reader)
+        public static object Read(Type type, NetPacketReader reader)
         {
-            byteVal--; // Decrement to get correct array index.
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
-            if (byteVal > DataWriters.Count)
-                throw new ArgumentOutOfRangeException(nameof(byteVal), "No data reader found.");
-
-            return DataReaders.Array[byteVal].Invoke(reader);
+            if (!DataReaders.TryGetValue(type, out var func))
+                throw new NullReferenceException("No data reader found for type " + type + ".");
+            
+            return func.Invoke(reader);
         }
 
-        public static void Write(byte byteVal, object obj, NetDataWriter writer)
+        public static void Write(Type type, object obj, NetDataWriter writer)
         {
-            byteVal--; // Decrement to get correct array index.
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
-            if(writer == null)
+            if (writer == null)
                 throw new ArgumentNullException(nameof(writer));
-            if(byteVal > DataWriters.Count)
-                throw new ArgumentOutOfRangeException(nameof(byteVal), "No data writer found.");
-
-            DataWriters.Array[byteVal].Invoke(obj, writer);
+            if (!DataWriters.TryGetValue(type, out var func))
+                throw new NullReferenceException("No data writer found for type " + type + ".");
+            
+            func.Invoke(obj, writer);
         }
     }
 }

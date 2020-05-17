@@ -9,7 +9,7 @@ namespace SE.Engine.Networking.Internal
         public ushort UshortID;
         public string StringID;
         public bool FrequentMethod;
-        public byte[] ParameterTypes;
+        public Type[] ParameterTypes;
 
         public void Invoke(object target, object[] parameters)
         {
@@ -26,7 +26,7 @@ namespace SE.Engine.Networking.Internal
             }
         }
 
-        public RPCInfo(RPCCache cache, ushort ushortID, string stringID, bool frequentMethod, byte[] paramTypes)
+        public RPCInfo(RPCCache cache, ushort ushortID, string stringID, bool frequentMethod, Type[] paramTypes)
         {
             Cache = cache;
             UshortID = ushortID;
@@ -40,7 +40,7 @@ namespace SE.Engine.Networking.Internal
     {
         public RPCClientInfoOptions Options;
 
-        public RPCClientInfo(ClientRPCAttribute attribute, RPCCache cache, ushort ushortID, string stringID, byte[] paramTypes)
+        public RPCClientInfo(ClientRPCAttribute attribute, RPCCache cache, ushort ushortID, string stringID, Type[] paramTypes)
             : base(cache, ushortID, stringID, attribute.Frequent, paramTypes)
         {
             Options = new RPCClientInfoOptions();
@@ -56,7 +56,7 @@ namespace SE.Engine.Networking.Internal
     {
         public RPCServerInfoOptions Options;
 
-        public RPCServerInfo(ServerRPCAttribute attribute, RPCCache cache, ushort ushortID, string stringID, byte[] paramTypes)
+        public RPCServerInfo(ServerRPCAttribute attribute, RPCCache cache, ushort ushortID, string stringID, Type[] paramTypes)
             : base(cache, ushortID, stringID, attribute.Frequent, paramTypes)
         {
             Options = new RPCServerInfoOptions(attribute.CallClientRPC);

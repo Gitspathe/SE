@@ -206,18 +206,12 @@ namespace SE.Core
             for (ushort i = 0; i < methodData.Length; i++) {
                 MethodData data = methodData[i];
                 ServerRPCAttribute attribute = data.Info.GetCustomAttribute<ServerRPCAttribute>();
-                Type[] types = data.Info.GetParameterTypes();
-                byte[] typeBytes = new byte[types.Length];
-                for (int ii = 0; ii < typeBytes.Length; ii++) {
-                    typeBytes[ii] = NetData.NetDataConversionTable[types[ii]];
-                }
-
                 serverRPCLookupTable.Add(new RPCServerInfo(
                     attribute, 
                     new RPCCache(data.Info), 
                     i, 
                     data.ID, 
-                    typeBytes));
+                    data.Info.GetParameterTypes()));
             }
 
             // Construct client RPC tables.
@@ -227,18 +221,12 @@ namespace SE.Core
             for (ushort i = 0; i < methodData.Length; i++) {
                 MethodData data = methodData[i];
                 ClientRPCAttribute attribute = data.Info.GetCustomAttribute<ClientRPCAttribute>();
-                Type[] types = data.Info.GetParameterTypes();
-                byte[] typeBytes = new byte[types.Length];
-                for (int ii = 0; ii < typeBytes.Length; ii++) {
-                    typeBytes[ii] = NetData.NetDataConversionTable[types[ii]];
-                }
-
                 clientRPCLookupTable.Add(new RPCClientInfo(
                     attribute,
                     new RPCCache(data.Info), 
                     i, 
                     data.ID, 
-                    typeBytes));
+                    data.Info.GetParameterTypes()));
             }
             initialized = true;
         }

@@ -26,8 +26,6 @@ namespace SE.Engine.Networking.Packets
                 ? (RPCInfo) Network.clientRPCLookupTable.GetRPCInfo(methodID)
                 : Network.serverRPCLookupTable.GetRPCInfo(methodID);
             ParametersNum = RPCInfo.ParameterTypes.Length;
-
-            NetData.Convert(parameters, RPCInfo.ParameterTypes);
         }
 
         public override void Reset(NetPacketReader message = null) => Read(message);
