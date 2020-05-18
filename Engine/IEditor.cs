@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace SE
 {
     /// <summary>
-    /// Interface used to inject the editor pipeline into a DeeZEngine game.
+    /// Interface used to inject the editor pipeline into an SE game.
     /// </summary>
     public interface IEditor
     {

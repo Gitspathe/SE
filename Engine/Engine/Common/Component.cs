@@ -12,7 +12,7 @@ namespace SE.Common
     /// Containers for logic which are added to GameObjects.
     /// </summary>
     [ExecuteInEditor]
-    public class Component : DeeZObject, IAssetConsumer
+    public class Component : SEObject, IAssetConsumer
     {
         public bool Serialized => !NeverSerialize && InstantiatedFromAttribute;
 

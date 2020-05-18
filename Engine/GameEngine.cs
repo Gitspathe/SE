@@ -22,7 +22,7 @@ using Console = SE.Core.Console;
 namespace SE
 {
     /// <summary>
-    /// Entry point for DeeZEngine. Override this class to use DeeZEngine.
+    /// Entry point for SE. Override this class to use SE.
     /// </summary>
     public class GameEngine : Game
     {
@@ -50,7 +50,7 @@ namespace SE
         public static Camera2D EditorCamera { get; protected set; }
 
         /// <summary>
-        /// Creates a new instance of DeeZEngine.
+        /// Creates a new instance of SE.
         /// </summary>
         protected GameEngine(string[] args, IEditor editorEntry = null, Game existingGame = null) : base(existingGame)
         {
@@ -332,7 +332,7 @@ namespace SE
             EngineUtility.TransformHierarchyDirty = true;
         }
 
-        // DeeZEngine methods.
+        // SE methods.
         protected virtual void LoadAssets() { }
 
         /// <summary>

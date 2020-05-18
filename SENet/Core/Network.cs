@@ -340,7 +340,7 @@ namespace SE.Core
                 reader.Recycle();
             };
 
-            Task forwardPortTask = ForwardPort(incomingPort, outgoingPort, "DeeZNet Server Port");
+            Task forwardPortTask = ForwardPort(incomingPort, outgoingPort, "SE Server Port");
             forwardPortTask.Wait();
 
             Server = new NetManager(listener) {
@@ -383,7 +383,7 @@ namespace SE.Core
                 Console.WriteLine("Disconnection: " + peer.EndPoint);
             };
 
-            Task forwardPortTask = ForwardPort(incomingPort, outgoingPort, "DeeZNet Client Port");
+            Task forwardPortTask = ForwardPort(incomingPort, outgoingPort, "SE Client Port");
             forwardPortTask.Wait();
 
             Client = new NetManager(listener) {

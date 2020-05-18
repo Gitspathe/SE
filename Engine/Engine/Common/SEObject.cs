@@ -2,7 +2,7 @@
 
 namespace SE.Common
 {
-    public class DeeZObject : ISerializedObject
+    public class SEObject : ISerializedObject
     {
 
     }

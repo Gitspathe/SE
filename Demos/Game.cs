@@ -36,20 +36,20 @@ namespace SEDemos
             bool headless = Screen.DisplayMode == DisplayMode.Decapitated || Screen.DisplayMode == DisplayMode.Headless;
 
             // Initialize input for player 1...
-            InputManager.AddAxisInput("PlayerVertical", new [] { Players.One },
+            InputManager.AddAxisInputs("PlayerVertical", new [] { Players.One },
                 AxisInput.FromKeyboard(Keys.S, Keys.W),
                 AxisInput.FromThumbStick(ThumbSticks.Left, ThumbSticksAxis.Y, 0.1f, true));
 
-            InputManager.AddAxisInput("PlayerHorizontal", new[] { Players.One },
+            InputManager.AddAxisInputs("PlayerHorizontal", new[] { Players.One },
                 AxisInput.FromKeyboard(Keys.D, Keys.A), 
                 AxisInput.FromThumbStick(ThumbSticks.Left, ThumbSticksAxis.X, 0.1f));
 
             // Initialize input for player 2...
-            InputManager.AddAxisInput("PlayerVertical", new[] { Players.Two },
+            InputManager.AddAxisInputs("PlayerVertical", new[] { Players.Two },
                 AxisInput.FromKeyboard(Keys.G, Keys.T),
                 AxisInput.FromThumbStick(ThumbSticks.Left, ThumbSticksAxis.Y, 0.1f, true));
 
-            InputManager.AddAxisInput("PlayerHorizontal", new[] { Players.Two },
+            InputManager.AddAxisInputs("PlayerHorizontal", new[] { Players.Two },
                 AxisInput.FromKeyboard(Keys.H, Keys.F),
                 AxisInput.FromThumbStick(ThumbSticks.Left, ThumbSticksAxis.X, 0.1f));
 
