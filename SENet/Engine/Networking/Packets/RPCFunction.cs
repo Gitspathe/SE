@@ -23,8 +23,8 @@ namespace SE.Engine.Networking.Packets
             MethodID = methodID;
             Parameters = parameters;
             RPCInfo = Network.InstanceType == NetInstanceType.Server
-                ? (RPCInfo) Network.clientRPCLookupTable.GetRPCInfo(methodID)
-                : Network.serverRPCLookupTable.GetRPCInfo(methodID);
+                ? (RPCInfo) Network.ClientRPCLookupTable.GetRPCInfo(methodID)
+                : Network.ServerRPCLookupTable.GetRPCInfo(methodID);
             ParametersNum = RPCInfo.ParameterTypes.Length;
         }
 
@@ -34,8 +34,7 @@ namespace SE.Engine.Networking.Packets
         /// Creates a new RPCFunction packet.
         /// </summary>
         /// <param name="message">NetIncomingMessage.</param>
-        public RPCFunction(NetPacketReader message = null) : base(message) 
-            => PacketType = SEPacketType.RPC;
+        public RPCFunction(NetPacketReader message = null) : base(message) { }
 
         /// <inheritdoc/>
         public override void Read(NetPacketReader message)
@@ -46,8 +45,8 @@ namespace SE.Engine.Networking.Packets
                 MethodID = message.GetUShort();
 
                 RPCInfo = Network.InstanceType == NetInstanceType.Server
-                    ? (RPCInfo)Network.serverRPCLookupTable.GetRPCInfo(MethodID)
-                    : Network.clientRPCLookupTable.GetRPCInfo(MethodID);
+                    ? (RPCInfo)Network.ServerRPCLookupTable.GetRPCInfo(MethodID)
+                    : Network.ClientRPCLookupTable.GetRPCInfo(MethodID);
                 ParametersNum = RPCInfo.ParameterTypes.Length;
 
                 if (Parameters.Length < ParametersNum) {
@@ -74,6 +73,25 @@ namespace SE.Engine.Networking.Packets
                 }
             } catch (Exception e) {
                 throw new MalformedPacketException("Failed to write packet.", e);
+            }
+        }
+    }
+
+    public class RPCFunctionProcessor : IPacketProcessor
+    {
+        public void OnReceive(NetPacketReader reader, NetPeer peer, DeliveryMethod deliveryMethod)
+        {
+            // Invoke on server.
+            RPCFunction func = Network.CacheRPCFunc;
+            func.Reset(reader);
+            Network.InvokeRPC(func);
+
+            if (Network.IsServer) {
+                // If the options has CallClientRPC flag, invoke the RPC on all clients.
+                Network.ServerRPCLookupTable.TryGetRPCInfo(Network.CacheRPCFunc.MethodID, out RPCServerInfo info);
+                if (info.Options.CallClientRPC) {
+                    Network.SendRPC(func.NetworkID, deliveryMethod, 0, Scope.Broadcast, null, peer, info.StringID, func.Parameters);
+                }
             }
         }
     }

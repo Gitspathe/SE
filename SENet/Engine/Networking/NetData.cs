@@ -10,6 +10,9 @@ namespace SE.Engine.Networking
 {
     public static class NetData
     {
+        internal static Dictionary<Type, byte> PacketConverters = new Dictionary<Type, byte>();
+        internal static Dictionary<byte, IPacketProcessor> Packets = new Dictionary<byte, IPacketProcessor>();
+
         /// <summary>Dictionary used to read an object from a NetIncomingMessage. The byte key identifies which Type the object is.</summary>
         internal static Dictionary<Type, Func<NetPacketReader, object>> DataReaders = new Dictionary<Type, Func<NetPacketReader, object>> {
             {typeof(long), message => message.GetLong()},
@@ -68,10 +71,22 @@ namespace SE.Engine.Networking
             }}
         };
 
+        private static byte currentPacketIndex;
+
         public static void AddDataType(Type type, Func<NetPacketReader, object> readFunction, Action<object, NetDataWriter> writeFunction)
         {
             DataReaders.Add(type, readFunction);
             DataWriters.Add(type, writeFunction);
+        }
+
+        public static void RegisterPacketType(Type type, IPacketProcessor processor)
+        {
+            if (currentPacketIndex + 1 > byte.MaxValue)
+                throw new InvalidOperationException("Cannot register packet type. Not enough space.");
+
+            PacketConverters.Add(type, currentPacketIndex);
+            Packets.Add(currentPacketIndex, processor);
+            currentPacketIndex++;
         }
 
         /// <summary>

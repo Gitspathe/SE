@@ -98,7 +98,7 @@ namespace SE.Components.Network
 
         public byte[] SerializeNetworkState()
         {
-            NetDataWriter writer = new NetDataWriter();
+            NetDataWriter writer = Core.Network.GetWriter();
             writer.Put(Owner.Transform.Position.X);
             writer.Put(Owner.Transform.Position.Y);
             writer.Put(curVelocity.X);
@@ -111,7 +111,7 @@ namespace SE.Components.Network
 
         public void RestoreNetworkState(byte[] data)
         {
-            NetDataReader reader = new NetDataReader(data);
+            NetDataReader reader = Core.Network.GetReader(data);
             Owner.Transform.Position = new Vector2(reader.GetFloat(), reader.GetFloat());
             curVelocity = new Vector2(reader.GetFloat(), reader.GetFloat());
             Owner.Transform.Scale = new Vector2(reader.GetFloat(), reader.GetFloat());

@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Net.Mime;
+using System.Reflection;
+using System.Threading;
 using DeeZ.Editor.GUI;
 using DeeZ.Editor.ImGUI;
 using ImGuiNET;
@@ -36,6 +40,8 @@ namespace DeeZ
 
         public void OnInitialize(Game game)
         {
+
+
             EditorGraphicsDeviceManager = GraphicsDeviceManager;
             EditorGraphicsDevice = GraphicsDeviceManager.GraphicsDevice;
             //ImGuiRenderer = new ImGuiRenderer(game);
@@ -68,6 +74,15 @@ namespace DeeZ
                 
                 //Exit();
                 // TODO: Exit and reopen program.
+            }
+
+            // Test reload.
+            // This is how hot reloading of code will work. Even though it isn't hot reloading.
+            // Detect change -> Save editor state -> Close -> Reopen -> Restore editor state.
+            if (InputManager.KeyCodePressed(Microsoft.Xna.Framework.Input.Keys.F9)) {
+                Process.Start(AppDomain.CurrentDomain.BaseDirectory + "/SEEditor.exe");
+                Thread.Sleep(2000);
+                Environment.Exit(-1);
             }
         }
 

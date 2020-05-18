@@ -11,6 +11,7 @@ using Open.Nat;
 using SE.Core.Exceptions;
 using SE.Core.Extensions;
 using SE.Core.Extensions.Internal;
+using SE.Engine;
 using SE.Engine.Networking;
 using SE.Engine.Networking.Attributes;
 using SE.Engine.Networking.Internal;
@@ -34,18 +35,17 @@ namespace SE.Core
         public static Dictionary<uint, INetLogic> NetworkObjects = new Dictionary<uint, INetLogic>();
         public static Dictionary<string, NetPeer> Connections = new Dictionary<string, NetPeer>();
 
-        private static EventBasedNetListener listener;
-        public static RPCLookupTable<RPCServerInfo> serverRPCLookupTable;
-        public static RPCLookupTable<RPCClientInfo> clientRPCLookupTable;
+        internal static RPCLookupTable<RPCServerInfo> ServerRPCLookupTable;
+        internal static RPCLookupTable<RPCClientInfo> ClientRPCLookupTable;
 
         private static Dictionary<Type, INetworkExtension> networkExtensions = new Dictionary<Type, INetworkExtension>();
         private static bool initialized;
 
         // Cache packets to reduce memory allocations and CPU overhead.
+        private static EventBasedNetListener listener;
         private static NetDataWriter cachedWriter = new NetDataWriter();
         private static NetDataReader cachedReader = new NetDataReader();
-        private static RPCFunction cacheFunc = new RPCFunction();
-        private static SEPacket cachePacket = new SEPacket();
+        internal static RPCFunction CacheRPCFunc = new RPCFunction();
         private static StringBuilder signatureBuilder = new StringBuilder(256);
         private static StringBuilder methodNameBuilder = new StringBuilder(256);
         private static List<NetPeer> recipients = new List<NetPeer>();
@@ -136,11 +136,11 @@ namespace SE.Core
 
         #region LOGGING
 
-        public static void LogInfo(string msg, bool important = false)
+        internal static void LogInfo(string msg, bool important = false)
             => onLogInfoHandler?.Invoke(msg, important);
-        public static void LogWarning(string msg = null, Exception exception = null)
+        internal static void LogWarning(string msg = null, Exception exception = null)
             => onLogWarningHandler?.Invoke(msg, exception);
-        public static void LogError(string msg = null, Exception exception = null)
+        internal static void LogError(string msg = null, Exception exception = null)
             => onLogErrorHandler?.Invoke(msg, exception);
 
         #endregion
@@ -153,9 +153,10 @@ namespace SE.Core
             return cachedWriter;
         }
 
-        public static NetDataReader GetReader()
+        public static NetDataReader GetReader(byte[] source)
         {
             cachedReader.Clear();
+            cachedReader.SetSource(source);
             return cachedReader;
         }
 
@@ -165,6 +166,9 @@ namespace SE.Core
                 return;
 
             LogInfo("Initializing network manager...", true);
+
+            // Register the RPCFunction packet type.
+            NetData.RegisterPacketType(typeof(RPCFunction), new RPCFunctionProcessor());
 
             // Adding user-defined net logics before initialization.
             RegisterExtension(new Instantiator());
@@ -198,13 +202,13 @@ namespace SE.Core
             }
 
             // Construct server RPC tables.
-            serverRPCLookupTable = new RPCLookupTable<RPCServerInfo>();
+            ServerRPCLookupTable = new RPCLookupTable<RPCServerInfo>();
             MethodData[] methodData = methodBundlesServerRPC.ToArray();
             methodData = methodData.ToList().OrderBy(a => a.ID).ToArray();
             for (ushort i = 0; i < methodData.Length; i++) {
                 MethodData data = methodData[i];
                 ServerRPCAttribute attribute = data.Info.GetCustomAttribute<ServerRPCAttribute>();
-                serverRPCLookupTable.Add(new RPCServerInfo(
+                ServerRPCLookupTable.Add(new RPCServerInfo(
                     attribute, 
                     new RPCCache(data.Info), 
                     i, 
@@ -213,13 +217,13 @@ namespace SE.Core
             }
 
             // Construct client RPC tables.
-            clientRPCLookupTable = new RPCLookupTable<RPCClientInfo>();
+            ClientRPCLookupTable = new RPCLookupTable<RPCClientInfo>();
             methodData = methodBundlesClientRPC.ToArray();
             methodData = methodData.ToList().OrderBy(a => a.ID).ToArray();
             for (ushort i = 0; i < methodData.Length; i++) {
                 MethodData data = methodData[i];
                 ClientRPCAttribute attribute = data.Info.GetCustomAttribute<ClientRPCAttribute>();
-                clientRPCLookupTable.Add(new RPCClientInfo(
+                ClientRPCLookupTable.Add(new RPCClientInfo(
                     attribute,
                     new RPCCache(data.Info), 
                     i, 
@@ -239,19 +243,17 @@ namespace SE.Core
                 // Server receiving network messages.
                 case NetInstanceType.Server:
                     Server.PollEvents();
-                    NetProtector.Update(deltaTime);
                     break;
-
                 // Client receiving network messages.
                 case NetInstanceType.Client:
                     Client.PollEvents();
-                    NetProtector.Update(deltaTime);
                     break;
                 case NetInstanceType.None:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            NetProtector.Update(deltaTime);
 
             // Delete objects in the destroy buffer.
             foreach (var extension in networkExtensions) {
@@ -259,7 +261,7 @@ namespace SE.Core
             }
         }
 
-        public static void SetupNetLogic(INetLogic logic, bool isOwner, byte[] netState = null)
+        internal static void SetupNetLogic(INetLogic logic, bool isOwner, byte[] netState = null)
         {
             logic.Setup(CurrentNetworkID, isOwner);
             if (logic is INetPersistable persist && netState != null)
@@ -269,7 +271,7 @@ namespace SE.Core
             CurrentNetworkID++;
         }
 
-        public static void SetupNetLogic(INetLogic logic, uint networkID, bool isOwner, byte[] netState = null)
+        internal static void SetupNetLogic(INetLogic logic, uint networkID, bool isOwner, byte[] netState = null)
         {
             logic.Setup(networkID, isOwner);
             if (logic is INetPersistable persist && netState != null)
@@ -291,58 +293,18 @@ namespace SE.Core
                 => onPeerDisconnectedHandler?.Invoke(peer, disconnectInfo);
         }
 
-        private static void HandleNetMessageServer(NetPacketReader msg, NetPeer peer, DeliveryMethod deliveryMethod)
+        private static void HandleNetMessage(NetPacketReader msg, NetPeer peer, DeliveryMethod deliveryMethod)
         {
-            cachePacket.PeekType(msg);
-            switch (cachePacket.PacketType) {
-
-                // Client -> server RPC request.
-                case SEPacketType.RPC:
-                    try {
-                        // Invoke on server.
-                        cacheFunc.Reset(msg);
-                        InvokeRPC(cacheFunc);
-
-                        // If the options has CallClientRPC flag, invoke the RPC on all clients.
-                        serverRPCLookupTable.TryGetRPCInfo(cacheFunc.MethodID, out RPCServerInfo info);
-                        if (info.Options.CallClientRPC) {
-                            SendRPC(cacheFunc.NetworkID, deliveryMethod, 0, Scope.Broadcast, null, peer, info.StringID, cacheFunc.Parameters);
-                        }
-                    } catch (Exception e) {
-                        NetProtector.ReportError(e, peer);
-                    }
-                    break;
-
-                case SEPacketType.None:
-                    NetProtector.ReportError(new Exception("Server recieved packet with invalid type."), peer);
-                    break;
+            try {
+                byte packetType = msg.PeekByte();
+                NetData.Packets.TryGetValue(packetType, out IPacketProcessor processor);
+                processor?.OnReceive(msg, peer, deliveryMethod);
+            } catch (Exception e) {
+                NetProtector.ReportError(e, peer);
             }
         }
 
-        private static void HandleNetMessageClient(NetPacketReader msg, NetPeer peer, DeliveryMethod deliveryMethod)
-        {
-            cachePacket.PeekType(msg);
-            SEPacketType packetType = cachePacket.PacketType;
-            switch (packetType) {
-
-                // Client receives an RPC packet from the server.
-                case SEPacketType.RPC: {
-                    try {
-                        cacheFunc.Reset(msg);
-                        InvokeRPC(cacheFunc);
-                    } catch (Exception e) {
-                        NetProtector.ReportError(e, peer);
-                    }
-                    break;
-                }
-
-                case SEPacketType.None:
-                    NetProtector.ReportError(new Exception("Client recieved packet with invalid type."), peer); 
-                    break;
-            }
-        }
-
-        public static void StartServer(int incomingPort, int outgoingPort, int maxConnections = 128)
+        public static void StartServer(int incomingPort, int outgoingPort, int maxConnections = 128, bool loopBack = false)
         {
             if (!initialized)
                 throw new InvalidOperationException("Network manager not yet initialized.");
@@ -374,7 +336,7 @@ namespace SE.Core
             };
 
             listener.NetworkReceiveEvent += (peer, reader, deliveryMethod) => {
-                HandleNetMessageServer(reader, peer, deliveryMethod);
+                HandleNetMessage(reader, peer, deliveryMethod);
                 reader.Recycle();
             };
 
@@ -386,7 +348,11 @@ namespace SE.Core
                 PingInterval = 2000,
                 ChannelsCount = 8
             };
-            Server.Start(incomingPort);
+            if (loopBack) {
+                Server.Start("localhost", "localhost", incomingPort);
+            } else {
+                Server.Start(incomingPort);
+            }
             Server.EnableStatistics = true;
 
             InstanceType = NetInstanceType.Server;
@@ -408,7 +374,7 @@ namespace SE.Core
             };
 
             listener.NetworkReceiveEvent += (peer, reader, deliveryMethod) => {
-                HandleNetMessageClient(reader, peer, deliveryMethod);
+                HandleNetMessage(reader, peer, deliveryMethod);
                 reader.Recycle();
             };
 
@@ -486,13 +452,13 @@ namespace SE.Core
                             throw new Exception("Invalid RPC send: server RPC target scope not specified during method " + method + ".");
 
                         // Convert the method signature into an ID which can then be sent over the network.
-                        ushort? methodID = clientRPCLookupTable.GetUshortID(methodSignature);
+                        ushort? methodID = ClientRPCLookupTable.GetUshortID(methodSignature);
                         if (!methodID.HasValue)
                             throw new InvalidRPCException("Invalid RPC send: server RPC method '" + method + "' not found.");
                         
                         // Construct NetOutgoingMessage.
-                        cacheFunc.Reset(networkIdentity, methodID.Value, parameters);
-                        cacheFunc.WriteTo(GetWriter());
+                        CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
+                        CacheRPCFunc.WriteTo(GetWriter());
 
                         // Find recipients who should receive the RPC.
                         recipients.Clear();
@@ -524,13 +490,13 @@ namespace SE.Core
                     // Send client -> server request.
                     case NetInstanceType.Client: {
                         // Convert the method signature into an ID which can then be sent over the network.
-                        ushort? methodID = serverRPCLookupTable.GetUshortID(methodSignature);
+                        ushort? methodID = ServerRPCLookupTable.GetUshortID(methodSignature);
                         if (!methodID.HasValue)
                             throw new InvalidRPCException("Invalid RPC send: client RPC method '" + method + "' not found.");
 
                         // Construct a data writer.
-                        cacheFunc.Reset(networkIdentity, methodID.Value, parameters);
-                        cacheFunc.WriteTo(GetWriter());
+                        CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
+                        CacheRPCFunc.WriteTo(GetWriter());
 
                         // Find recipients.
                         recipients.Clear();
@@ -563,7 +529,7 @@ namespace SE.Core
         public static void SendRPC(RPCMethod method, NetPeer[] recipients, params object[] parameters) 
             => SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, recipients, null, method.Method, parameters);
 
-        private static void InvokeRPC(RPCFunction rpcFunc)
+        internal static void InvokeRPC(RPCFunction rpcFunc)
         {
             if (!initialized)
                 throw new InvalidOperationException("Network manager is not initialized.");
@@ -583,12 +549,12 @@ namespace SE.Core
             // Search the client or server RPC lookup tables for the method which the RPC needs to invoke.
             switch (InstanceType) {
                 case NetInstanceType.Server:
-                    if (serverRPCLookupTable.TryGetRPCInfo(rpcFunc.MethodID, out RPCServerInfo serverRPC)) {
+                    if (ServerRPCLookupTable.TryGetRPCInfo(rpcFunc.MethodID, out RPCServerInfo serverRPC)) {
                         rpcInfo = serverRPC;
                     }
                     break;
                 case NetInstanceType.Client:
-                    if (clientRPCLookupTable.TryGetRPCInfo(rpcFunc.MethodID, out RPCClientInfo clientRPC)) {
+                    if (ClientRPCLookupTable.TryGetRPCInfo(rpcFunc.MethodID, out RPCClientInfo clientRPC)) {
                         rpcInfo = clientRPC;
                     }
                     break;
