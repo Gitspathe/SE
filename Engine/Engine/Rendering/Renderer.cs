@@ -7,12 +7,16 @@ using Microsoft.Xna.Framework.Graphics;
 using SE.Common;
 using SE.Components;
 using SE.Core;
+using SE.Engine.Components;
 using SE.Engine.Utility;
 using SE.Particles;
 using SE.UI;
 using SE.World.Partitioning;
+using SEParticles;
 using Console = SE.Core.Console;
 using static SE.Core.Rendering;
+using Color = Microsoft.Xna.Framework.Color;
+using Particle = SE.Particles.Particle;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Rendering
@@ -318,6 +322,38 @@ namespace SE.Rendering
                     for (int ii = 0; ii < particles.ParticlesRenderData[i].Count; ii++) {
                         Particle p = particles.ParticlesRenderData[i].Array[ii];
                         Core.Rendering.SpriteBatch.Draw(drawCall.Texture, p.GlobalPosition - camPos, p.sourceRect, p.CurrentColor, p.CurrentRotation, p.Origin, p.CurrentScale, p.LayerDepth);
+                    }
+                }
+            }
+        }
+
+        public unsafe void DrawNewParticles(Camera2D cam)
+        {
+            ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, null);
+            foreach (NewTestParticleEmitter pEmitter in NewParticleEngine.Emitters) {
+                //ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, null);
+                Vector2 camPos = cam.Position;
+                Emitter emitter = pEmitter.Emitter;
+                Span<SEParticles.Particle> particles = emitter.ActiveParticles;
+                for (int i = 0; i < particles.Length; i++) {
+                    fixed (SEParticles.Particle* particle = &particles[i]) {
+                        Texture2D tex = pEmitter.Texture;
+                        Vector2 origin = new Vector2(
+                            pEmitter.SourceRect.Width / 2.0f,
+                            pEmitter.SourceRect.Width / 2.0f);
+
+                        System.Numerics.Vector4* particleC = &particle->Color;
+                        Color c = new Color(particleC->X, particleC->Y, particleC->Z, particleC->W);
+
+                        Core.Rendering.SpriteBatch.Draw(tex,
+                            particle->Position - camPos,
+                            pEmitter.SourceRect,
+                            c,
+                            particle->Rotation,
+                            origin,
+                            particle->Scale,
+                            SpriteEffects.None,
+                            1.0f);
                     }
                 }
             }

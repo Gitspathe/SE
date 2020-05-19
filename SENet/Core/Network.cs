@@ -614,7 +614,7 @@ namespace SE.Core
                 t = typeof(Network);
             } else if(NetworkObjects.TryGetValue(networkID, out INetLogic nObject)) {
                 t = nObject.GetType();
-            } else throw new KeyNotFoundException("Method signature not found.");
+            } else throw new KeyNotFoundException("Method signature not found: " + method);
 
             signatureBuilder.Append(t).Append(method).Append(" (");
             if (parameters.Length > 0) {

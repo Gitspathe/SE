@@ -62,6 +62,9 @@
         <Reference Include="SEInput">
           <HintPath>..\SEInput\bin\Debug\netstandard2.0\SEInput.dll</HintPath>
         </Reference>
+        <Reference Include="SEParticles">
+          <HintPath>..\SEParticles\bin\Debug\netstandard2.1\SEParticles.dll</HintPath>
+        </Reference>
         <Reference Include="SENet">
           <HintPath>..\SENet\bin\Debug\netstandard2.1\SENet.dll</HintPath>
         </Reference>
@@ -86,6 +89,12 @@
         </Reference>
         <Reference Include="SEInput">
           <HintPath>..\SEInput\bin\Release\netstandard2.0\SEInput.dll</HintPath>
+        </Reference>
+        <Reference Include="SEParticles">
+          <HintPath>..\SEParticles\bin\Release\netstandard2.1\SEParticles.dll</HintPath>
+        </Reference>
+        <Reference Include="SEInput">
+          <HintPath>..\SEInput\bin\Release\netstandard2.1\SEParticles.dll</HintPath>
         </Reference>
         <Reference Include="SENet">
           <HintPath>..\SENet\bin\Release\netstandard2.1\SENet.dll</HintPath>
@@ -153,6 +162,10 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SEParticles\SEParticles.csproj" />
   </ItemGroup>
 
 </Project>

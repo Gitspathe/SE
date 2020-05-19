@@ -10,6 +10,7 @@ using SE.Engine.Networking;
 using SE.Physics;
 using SE.Rendering;
 using SE.Core.Extensions;
+using SE.Engine.Components;
 using SE.Networking.Internal;
 using Random = SE.Random;
 using TestParticleSystem = SEDemos.Particles.TestParticleSystem;
@@ -23,7 +24,7 @@ namespace SEDemos.GameObjects
         typeof(NetTransform),
         typeof(Sprite),
         typeof(PhysicsObject),
-        typeof(ParticleEmitter),
+        typeof(NewTestParticleEmitter),
         typeof(LightComponent)
         )]
 
@@ -52,6 +53,13 @@ namespace SEDemos.GameObjects
             } else {
                 myPhysics.Enabled = false;
             }
+
+            SpriteTexture tex = AssetManager.Get<SpriteTexture>(this, "circle");
+
+            NewTestParticleEmitter emitter = GetComponent<NewTestParticleEmitter>();
+            emitter.Texture = tex.Texture;
+            emitter.SourceRect = tex.SourceRectangle;
+
             //GetComponent<ParticleEmitter>().ParticleSystem = new TestParticleSystem();
 
             networkIdentity.OnSerializeNetworkState += () => {
@@ -70,7 +78,7 @@ namespace SEDemos.GameObjects
                 light.Color = c;
             };
 
-            sprite.SpriteTexture = AssetManager.Get<SpriteTexture>(this, "circle");
+            sprite.SpriteTexture = tex;
             sprite.Origin = new Vector2(16, 16);
             sprite.Color = c;
             sprite.BlendMode = BlendMode.Transparent;

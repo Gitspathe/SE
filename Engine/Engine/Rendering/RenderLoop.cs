@@ -73,6 +73,8 @@ namespace SE.Rendering
             Add(LoopEnum.LightingEnd, _
                 => Render.EndLighting());
 
+            Add(LoopEnum.LightingEnd+1, cam => Render.DrawNewParticles(cam));
+
             Add(LoopEnum.RenderAlphaParticlesUnlit, cam
                 => Render.RenderAlphaParticles(cam, ParticleEngine.AlphaParticlesUnlit));
 

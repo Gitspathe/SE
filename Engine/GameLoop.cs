@@ -71,6 +71,9 @@ namespace SE
             Add(DefaultEnum.FinalizeTime, Time.FinalizeFixedTimeStep);
 
             if (!Screen.IsFullHeadless) {
+                Add(DefaultEnum.StartParticles - 1, () => NewParticleEngine.Update(Time.DeltaTime));
+                Add(DefaultEnum.RenderingSystem - 1, NewParticleEngine.WaitForThreads);
+
                 Add(DefaultEnum.StartParticles, ParticleEngine.Update);
                 Add(DefaultEnum.InputManager, () => InputManager.Update(Time.UnscaledDeltaTime));
                 Add(DefaultEnum.UIManager, UIManager.Update);

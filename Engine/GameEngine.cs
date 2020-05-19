@@ -232,6 +232,11 @@ namespace SE
             //    GC.Collect();
             //}
 
+            if (InputManager.KeyCodePressed(Keys.L)) {
+                NewParticleEngine.MultiThreaded = !NewParticleEngine.MultiThreaded;
+                Console.WriteLine("Multithreaded particles: " + (NewParticleEngine.MultiThreaded ? "on" : "off"));
+            }
+
             // Multithreaded render test.
             if (InputManager.KeyCodePressed(Keys.F)) {
                 Renderer.Multithreaded = !Renderer.Multithreaded;
