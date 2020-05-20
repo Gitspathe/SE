@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
 using SE.Utility;
 
-namespace SEParticles.Processors
+namespace SEParticles.Modules
 {
-    public unsafe class AngleProcessor : ParticleProcessor
+    public unsafe class AngleModule : ParticleModule
     {
         private Configuration Config = new Configuration();
 
@@ -113,42 +110,42 @@ namespace SEParticles.Processors
             }
         }
 
-        public static AngleProcessor Constant(float val)
+        public static AngleModule Constant(float val)
         {
-            AngleProcessor processor = new AngleProcessor();
-            processor.SetConstant(val);
-            return processor;
+            AngleModule module = new AngleModule();
+            module.SetConstant(val);
+            return module;
         }
 
-        public static AngleProcessor Lerp(float start, float end)
+        public static AngleModule Lerp(float start, float end)
         {
-            AngleProcessor processor = new AngleProcessor();
-            processor.SetLerp(start, end);
-            return processor;
+            AngleModule module = new AngleModule();
+            module.SetLerp(start, end);
+            return module;
         }
 
-        public static AngleProcessor Curve(Curve curve)
+        public static AngleModule Curve(Curve curve)
         {
-            AngleProcessor processor = new AngleProcessor();
-            processor.SetCurve(curve);
-            return processor;
+            AngleModule module = new AngleModule();
+            module.SetCurve(curve);
+            return module;
         }
 
-        public static AngleProcessor RandomConstant(float min, float max)
+        public static AngleModule RandomConstant(float min, float max)
         {
-            AngleProcessor processor = new AngleProcessor();
-            processor.SetRandomConstant(min, max);
-            return processor;
+            AngleModule module = new AngleModule();
+            module.SetRandomConstant(min, max);
+            return module;
         }
 
-        public static AngleProcessor RandomCurve(Curve curve)
+        public static AngleModule RandomCurve(Curve curve)
         {
-            AngleProcessor processor = new AngleProcessor();
-            processor.SetRandomCurve(curve);
-            return processor;
+            AngleModule module = new AngleModule();
+            module.SetRandomCurve(curve);
+            return module;
         }
 
-        public AngleProcessor()
+        public AngleModule()
         {
             Config = new Configuration();
         }

@@ -9,7 +9,7 @@ namespace SEParticles
 {
     public unsafe class Emitter
     {
-        public QuickList<ParticleProcessor> Processors = new QuickList<ParticleProcessor>();
+        public QuickList<ParticleModule> Modules = new QuickList<ParticleModule>();
         public Particle[] Particles;
 
         public Vector4 StartColor = Vector4.One;
@@ -37,9 +37,9 @@ namespace SEParticles
                 }
             }
 
-            ParticleProcessor[] processors = Processors.Array;
+            ParticleModule[] processors = Modules.Array;
             Span<Particle> activeParticles = ActiveParticles;
-            for (int i = 0; i < Processors.Count; i++) {
+            for (int i = 0; i < Modules.Count; i++) {
                 processors[i].Update(deltaTime, activeParticles);
             }
 
@@ -87,10 +87,10 @@ namespace SEParticles
             }
         }
 
-        public void AddProcessor(ParticleProcessor processor)
+        public void AddModule(ParticleModule module)
         {
-            Processors.Add(processor);
-            processor.Emitter = this;
+            Modules.Add(module);
+            module.Emitter = this;
         }
 
         public Emitter(int capacity = 4096)

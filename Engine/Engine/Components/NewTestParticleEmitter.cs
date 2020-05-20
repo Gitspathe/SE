@@ -7,7 +7,7 @@ using SE.Common;
 using SE.Core;
 using SE.Rendering;
 using SEParticles;
-using SEParticles.Processors;
+using SEParticles.Modules;
 using Curve = SE.Utility.Curve;
 
 namespace SE.Engine.Components
@@ -25,7 +25,7 @@ namespace SE.Engine.Components
         protected override void OnInitialize()
         {
             Emitter = new Emitter();
-            Emitter.AddProcessor(new ColorProcessor(
+            Emitter.AddModule(new ColorModule(
                 new System.Numerics.Vector4(1.0f, 0.0f, 0.0f, 1.0f), 
                 new System.Numerics.Vector4(1.0f, 0.0f, 0.0f, 0.0f)));
 
@@ -41,8 +41,8 @@ namespace SE.Engine.Components
             forwardVelocityCurve.Keys.Add(new Utility.CurveKey(0.5f, 512.0f));
             forwardVelocityCurve.Keys.Add(new Utility.CurveKey(1.0f, 3000.0f));
 
-            Emitter.AddProcessor(AngleProcessor.RandomCurve(angleCurve));
-            Emitter.AddProcessor(new ForwardVelocityProcessor(forwardVelocityCurve));
+            Emitter.AddModule(AngleModule.RandomCurve(angleCurve));
+            Emitter.AddModule(new ForwardVelocityModule(forwardVelocityCurve));
 
             NewParticleEngine.AddEmitter(this);
         }

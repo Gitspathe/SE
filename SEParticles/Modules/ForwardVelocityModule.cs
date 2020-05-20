@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Text;
 using SE.Core.Extensions;
 using SE.Utility;
 
-namespace SEParticles.Processors
+namespace SEParticles.Modules
 {
-    public unsafe class ForwardVelocityProcessor : ParticleProcessor
+    public unsafe class ForwardVelocityModule : ParticleModule
     {
         public Configuration Config = new Configuration();
 
@@ -85,17 +82,17 @@ namespace SEParticles.Processors
         }
 
 
-        public ForwardVelocityProcessor(float constantValue)
+        public ForwardVelocityModule(float constantValue)
         {
             Config.SetConstant(constantValue);
         }
 
-        public ForwardVelocityProcessor(float lerpStart, float lerpEnd)
+        public ForwardVelocityModule(float lerpStart, float lerpEnd)
         {
             Config.SetLerp(lerpStart, lerpEnd);
         }
 
-        public ForwardVelocityProcessor(Curve curve)
+        public ForwardVelocityModule(Curve curve)
         {
             Config.SetCurve(curve);
         }

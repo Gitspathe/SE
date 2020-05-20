@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 
-namespace SEParticles.Processors
+namespace SEParticles.Modules
 {
-    public unsafe class ColorProcessor : ParticleProcessor
+    public unsafe class ColorModule : ParticleModule
     {
         public Vector4 StartColor;
         public Vector4 EndColor;
@@ -35,7 +33,7 @@ namespace SEParticles.Processors
             }
         }
 
-        public ColorProcessor(Vector4 start, Vector4 end)
+        public ColorModule(Vector4 start, Vector4 end)
         {
             StartColor = start;
             EndColor = end;

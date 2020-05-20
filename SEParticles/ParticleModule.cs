@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SEParticles
 {
-    public abstract class ParticleProcessor
+    public abstract class ParticleModule
     {
         protected internal Emitter Emitter;
         public abstract void Update(float deltaTime, Span<Particle> particles);
