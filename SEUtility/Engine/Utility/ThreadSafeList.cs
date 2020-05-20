@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace SE.Engine.Utility
+namespace SE.Utility
 {
     /// <summary>
     /// Exposes direct access to it's inner array.

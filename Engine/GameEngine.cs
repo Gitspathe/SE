@@ -12,9 +12,9 @@ using SE.Common;
 using SE.Components;
 using SE.Core;
 using SE.Core.Internal;
-using SE.Engine.Utility;
 using SE.Rendering;
 using SE.Core.Extensions;
+using SE.Utility;
 using static SE.Core.SceneManager;
 using Console = SE.Core.Console;
 
@@ -221,6 +221,8 @@ namespace SE
             );
         }
 
+        private float time = 2.0f;
+
         /// <summary>
         /// Main update loop, the majority of both the engine's and the game's logic are processed here.
         /// </summary>
@@ -235,6 +237,12 @@ namespace SE
             if (InputManager.KeyCodePressed(Keys.L)) {
                 NewParticleEngine.MultiThreaded = !NewParticleEngine.MultiThreaded;
                 Console.WriteLine("Multithreaded particles: " + (NewParticleEngine.MultiThreaded ? "on" : "off"));
+            }
+
+            time -= Time.DeltaTime;
+            if (time <= 0.0f) {
+                time = 2.0f;
+                Console.WriteLine("NEW: " + NewParticleEngine.ParticleCount + ", OLD: " + ParticleEngine.ParticleCount);
             }
 
             // Multithreaded render test.

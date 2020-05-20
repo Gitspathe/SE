@@ -3,8 +3,8 @@ using Microsoft.Xna.Framework;
 using SE.AssetManagement;
 using SE.Components;
 using SE.Core;
-using SE.Engine.Utility;
 using SE.Particles.Modules;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Particles

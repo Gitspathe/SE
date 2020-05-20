@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SE.Engine.Utility
+namespace SE.Utility
 {
     public class MultiKeyDictionary<TKey1, TKey2, TValue>
         where TValue : class

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SE.Engine.Utility
+namespace SE.Utility
 {
     /// <summary>
     /// Dictionary which internally uses two regular dictionaries to provide a self-reference between each

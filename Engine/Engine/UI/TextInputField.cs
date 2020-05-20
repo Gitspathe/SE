@@ -6,8 +6,8 @@ using Microsoft.Xna.Framework.Input;
 using SE.Components.UI;
 using SE.Core;
 using SE.Engine.Input;
-using SE.Engine.Utility;
 using SE.UI.Events;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.UI

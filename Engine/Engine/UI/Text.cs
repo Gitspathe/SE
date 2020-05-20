@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Components.UI;
-using SE.Engine.Utility;
 using SE.Pooling;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.UI

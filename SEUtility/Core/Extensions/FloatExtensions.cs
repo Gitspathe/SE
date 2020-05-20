@@ -21,7 +21,7 @@ namespace SE.Core.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ToDirectionVector(this float angle, out Vector2 vector)
         {
-#if NETSTANDARD21
+#if NETSTANDARD2_1
             vector = new Vector2(MathF.Sin(angle), -MathF.Cos(angle));
 #else
             vector = new Vector2((float)Math.Sin(angle), (float)-Math.Cos(angle));

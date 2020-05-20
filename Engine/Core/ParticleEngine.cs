@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using SE.Engine.Utility;
 using SE.Particles;
+using SE.Utility;
 
 namespace SE.Core
 {
@@ -98,6 +98,16 @@ namespace SE.Core
         public static float UpdateRate {
             get => updateRate;
             set => updateRate = Math.Clamp(value, 1.0f / 1000.0f, 1.0f / 10);
+        }
+
+        public static int ParticleCount {
+            get {
+                int cur = 0;
+                foreach (ParticleSystem ps in VisibleParticleSystems) {
+                    cur += ps.ActiveParticles.Count;
+                }
+                return cur;
+            }
         }
 
         internal static void Initialize(int particlePoolSize = _DEFAULT_PARTICLE_POOL_SIZE, int particleCacheLists = _DEFAULT_PARTICLE_LISTS, int maximumThreads = _DEFAULT_MAX_THREADS)

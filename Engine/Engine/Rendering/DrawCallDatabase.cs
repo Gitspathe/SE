@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
-using SE.Engine.Utility;
+using SE.Utility;
 
 namespace SE.Rendering
 {

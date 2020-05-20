@@ -8,6 +8,7 @@ using SE.Core;
 using SE.Rendering;
 using SEParticles;
 using SEParticles.Processors;
+using Curve = SE.Utility.Curve;
 
 namespace SE.Engine.Components
 {
@@ -24,9 +25,24 @@ namespace SE.Engine.Components
         protected override void OnInitialize()
         {
             Emitter = new Emitter();
-            Emitter.AddProcessor(new TestProcessor(
+            Emitter.AddProcessor(new ColorProcessor(
                 new System.Numerics.Vector4(1.0f, 0.0f, 0.0f, 1.0f), 
                 new System.Numerics.Vector4(1.0f, 0.0f, 0.0f, 0.0f)));
+
+            Curve angleCurve = new Curve();
+            angleCurve.Keys.Add(new Utility.CurveKey(0.0f, 0.0f));
+            angleCurve.Keys.Add(new Utility.CurveKey(0.25f, 0.1f));
+            angleCurve.Keys.Add(new Utility.CurveKey(0.5f, 1.0f));
+            angleCurve.Keys.Add(new Utility.CurveKey(1.0f, 10.0f));
+
+            Curve forwardVelocityCurve = new Curve();
+            forwardVelocityCurve.Keys.Add(new Utility.CurveKey(0.0f, 0.0f));
+            forwardVelocityCurve.Keys.Add(new Utility.CurveKey(0.20f, 128.0f));
+            forwardVelocityCurve.Keys.Add(new Utility.CurveKey(0.5f, 512.0f));
+            forwardVelocityCurve.Keys.Add(new Utility.CurveKey(1.0f, 3000.0f));
+
+            Emitter.AddProcessor(AngleProcessor.RandomCurve(angleCurve));
+            Emitter.AddProcessor(new ForwardVelocityProcessor(forwardVelocityCurve));
 
             NewParticleEngine.AddEmitter(this);
         }
@@ -46,17 +62,16 @@ namespace SE.Engine.Components
             NewParticleEngine.RemoveEmitter(this);
         }
 
-        private float time = 0.0f;
+        private float time;
         protected override void OnUpdate()
         {
             Emitter.Position = Owner.Transform.GlobalPositionInternal;
 
             time -= Time.DeltaTime;
             if (time <= 0.0f) {
-                Emitter.Emit(5);
+                Emitter.Emit(4);
                 time = 0.01f;
             }
-
         }
     }
 }

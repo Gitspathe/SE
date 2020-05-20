@@ -12,7 +12,7 @@ using SE.Rendering;
 using SE.Core.Extensions;
 using SE.Engine.Components;
 using SE.Networking.Internal;
-using Random = SE.Random;
+using Random = SE.Utility.Random;
 using TestParticleSystem = SEDemos.Particles.TestParticleSystem;
 using Vector2 = System.Numerics.Vector2;
 
@@ -25,6 +25,7 @@ namespace SEDemos.GameObjects
         typeof(Sprite),
         typeof(PhysicsObject),
         typeof(NewTestParticleEmitter),
+        typeof(ParticleEmitter),
         typeof(LightComponent)
         )]
 

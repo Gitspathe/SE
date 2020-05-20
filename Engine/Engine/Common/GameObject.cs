@@ -6,7 +6,6 @@ using SE.Components;
 using SE.Components.Network;
 using SE.Core;
 using SE.Core.Internal;
-using SE.Engine.Utility;
 using SE.Pooling;
 using SE.Serialization;
 using SE.UI;
@@ -14,6 +13,7 @@ using SE.World.Partitioning;
 using SE.Core.Extensions;
 using SE.Engine.Networking;
 using SE.Networking.Internal;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Common

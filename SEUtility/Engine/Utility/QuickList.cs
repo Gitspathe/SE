@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 // ReSharper disable InconsistentNaming
 
-namespace SE.Engine.Utility
+namespace SE.Utility
 {
     /// <summary>
     /// Exposes direct access to it's inner array.
@@ -32,6 +32,8 @@ namespace SE.Engine.Utility
         public T this[int index] {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Array[index];
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => Array[index] = value;
         }
 
         /// <summary>
@@ -144,6 +146,18 @@ namespace SE.Engine.Utility
             return false;
         }
 
+        public void Insert(int index, T item)
+        {
+            if (Count == Array.Length) {
+                EnsureCapacity(1);
+            }
+            if (index < Count) {
+                System.Array.Copy(Array, index, Array, index + 1, Count - index);
+            }
+            Array[index] = item;
+            Count++;
+        }
+
         /// <summary>
         /// Removes an element at a specific index.
         /// </summary>
@@ -172,6 +186,23 @@ namespace SE.Engine.Utility
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Finds the index of an item. Returns -1 if the item isn't found.
+        /// </summary>
+        /// <param name="item">Item to find the index of.</param>
+        /// <returns>Index of the element, if found. If not found, returns -1.</returns>
+        public int IndexOf(T item)
+        {
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+            for (int i = 0; i < Count; ++i) {
+                if (comparer.Equals(item, Array[i])) {
+                    RemoveAt(i);
+                    return i;
+                }
+            }
+            return -1;
         }
 
         /// <summary>

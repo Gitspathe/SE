@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using SE.Engine.Utility;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core.Extensions

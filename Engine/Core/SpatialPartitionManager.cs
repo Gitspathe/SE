@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using SE.Common;
 using SE.Components;
-using SE.Engine.Utility;
+using SE.Utility;
 using SE.World.Partitioning;
 using Vector2 = System.Numerics.Vector2;
 

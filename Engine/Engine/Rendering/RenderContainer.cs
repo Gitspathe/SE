@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SE.Components;
-using SE.Engine.Utility;
+using SE.Utility;
 
 namespace SE.Rendering
 {

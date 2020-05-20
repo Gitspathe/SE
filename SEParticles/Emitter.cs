@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using SE.Engine.Utility;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 using Vector4 = System.Numerics.Vector4;
 
@@ -14,8 +14,8 @@ namespace SEParticles
 
         public Vector4 StartColor = Vector4.One;
         public float StartRotation = 0f;
-        public Vector2 StartScale = Vector2.One;
-        public float Life = 1.0f;
+        public Vector2 StartScale = new Vector2(1.0f, 1.0f);
+        public float Life = 2.0f;
         public Vector2 Position;
 
         private int lastActiveIndex;
@@ -25,18 +25,33 @@ namespace SEParticles
         public void Update(float deltaTime)
         {
             Span<Particle> particles = ActiveParticles;
-            for (int i = 0; i < particles.Length; i++) {
-                fixed (Particle* particle = &particles[i]) {
-                    particle->TTL -= deltaTime;
-                    if (particle->Active && particle->TTL <= 0.0f) {
+            int size = particles.Length;
+            fixed (Particle* ptr = particles) {
+                Particle* particle = ptr;
+                for (int i = 0; i < size; i++) {
+                    particle->TimeAlive += deltaTime;
+                    if (particle->Active && particle->TimeAlive >= Life) {
                         DeactivateParticle(i, particle);
                     }
+                    particle++;
                 }
             }
 
             ParticleProcessor[] processors = Processors.Array;
+            Span<Particle> activeParticles = ActiveParticles;
             for (int i = 0; i < Processors.Count; i++) {
-                processors[i].Update(deltaTime, ActiveParticles);
+                processors[i].Update(deltaTime, activeParticles);
+            }
+
+            // Update RGBA color.
+            particles = activeParticles;
+            size = particles.Length;
+            fixed (Particle* ptr = particles) {
+                Particle* particle = ptr;
+                for (int i = 0; i < size; i++) {
+                    particle->ColorRGBA = particle->Color.ToRgba();
+                    particle++;
+                }
             }
         }
 
@@ -59,9 +74,10 @@ namespace SEParticles
                     particle->Rotation = StartRotation;
                     particle->Color = StartColor;
                     particle->Scale = StartScale;
-                    particle->TTL = Life;
+                    particle->TimeAlive = 0.0f;
                     particle->InitialLife = Life;
                     particle->Active = true;
+                    particle->GenerateSeed();
                 }
 
                 int lenMinusOne = Particles.Length - 1;
@@ -77,7 +93,7 @@ namespace SEParticles
             processor.Emitter = this;
         }
 
-        public Emitter(int capacity = 512)
+        public Emitter(int capacity = 4096)
         {
             Position = Vector2.Zero;
             Particles = new Particle[capacity];

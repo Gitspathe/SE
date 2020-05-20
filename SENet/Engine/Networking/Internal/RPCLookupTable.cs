@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using SE.Core.Exceptions;
-using SE.Engine.Utility;
 
 namespace SE.Engine.Networking.Internal
 {

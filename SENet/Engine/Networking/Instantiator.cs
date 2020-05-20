@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using LiteNetLib;
 using SE.Core.Extensions;
 using SE.Engine.Networking.Attributes;
-using SE.Engine.Utility;
+using SE.Utility;
 using static SE.Core.Network;
 
 namespace SE.Engine.Networking

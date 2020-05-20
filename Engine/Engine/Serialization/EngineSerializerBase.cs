@@ -1,7 +1,7 @@
 ﻿using System;
 using FastMember;
-using SE.Engine.Utility;
 using SE.Core.Extensions;
+using SE.Utility;
 
 namespace SE.Serialization
 {

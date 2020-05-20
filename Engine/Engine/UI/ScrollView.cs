@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using SE.Common;
 using SE.Core;
-using SE.Engine.Utility;
 using SE.UI.Events;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.UI

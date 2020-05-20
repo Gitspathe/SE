@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using BenchmarkDotNet.Attributes;
-using DeeZ.Engine.Utility;
+using BenchmarkDotNet.Running;
+using SE.Utility;
+
 // ReSharper disable AssignmentIsFullyDiscarded
 
 namespace DeeZ.PerformanceTests
 {
-    [SimpleJob(1, 10, 10, 30_000_000)]
+    [SimpleJob(1, 10, 10, 1_000_000)]
     public class ListAdd
     {
-        private List<int> normalList = new List<int>(200_000_000);
-        private QuickList<int> quickList = new QuickList<int>(200_000_000);
+        private List<int> normalList = new List<int>(1_000_000);
+        private QuickList<int> quickList = new QuickList<int>(1_000_000);
 
         [Benchmark(Baseline = true)]
         public void AddList()
@@ -34,7 +35,7 @@ namespace DeeZ.PerformanceTests
         }
     }
 
-    [SimpleJob(1, 10, 10, 100_000)]
+    [SimpleJob(1, 10, 10, 10_000)]
     public class ListRemove
     {
         private List<int> normalList = new List<int> { 10 };
@@ -70,7 +71,7 @@ namespace DeeZ.PerformanceTests
         }
     }
 
-    [SimpleJob(1, 10, 10, 2_000_000_000)]
+    [SimpleJob(1, 10, 10, 1_000_000)]
     public class ListAccess
     {
         private List<int> normalList = new List<int> { 10, 15, 20, 25, 30 };
@@ -79,15 +80,13 @@ namespace DeeZ.PerformanceTests
         [Benchmark(Baseline = true)]
         public void AccessList()
         {
-            _ = normalList[0]; _ = normalList[1]; _ = normalList[2]; _ = normalList[3]; _ = normalList[4];
-            _ = normalList[0]; _ = normalList[1]; _ = normalList[2]; _ = normalList[3]; _ = normalList[4];
+            _ = normalList[0];
         }
 
         [Benchmark]
         public void AccessQuickList()
         {
-            _ = quickList.Array[0]; _ = quickList.Array[1]; _ = quickList.Array[2]; _ = quickList.Array[3]; _ = quickList.Array[4];
-            _ = quickList.Array[0]; _ = quickList.Array[1]; _ = quickList.Array[2]; _ = quickList.Array[3]; _ = quickList.Array[4];
+            _ = quickList.Array[0];
         }
 
         [GlobalCleanup]

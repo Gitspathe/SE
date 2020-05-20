@@ -5,8 +5,8 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using SE.Attributes;
 using SE.Core.Internal;
-using SE.Engine.Utility;
 using SE.Core.Extensions.Internal;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Serialization

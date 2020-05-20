@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using SE.Engine.Utility;
+using SE.Utility;
 
 namespace SE.Rendering
 {

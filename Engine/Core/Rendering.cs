@@ -4,10 +4,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Components;
 using SE.Core.Exceptions;
-using SE.Engine.Utility;
 using SE.Rendering;
 using SE.World.Partitioning;
 using SE.Core.Extensions;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core

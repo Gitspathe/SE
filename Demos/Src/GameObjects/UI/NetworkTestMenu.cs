@@ -6,7 +6,7 @@ using SE.Editor.UI;
 using SE.Engine.Networking;
 using SE.UI;
 using Button = SE.UI.Button;
-using Random = SE.Random;
+using Random = SE.Utility.Random;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SEDemos.GameObjects.UI

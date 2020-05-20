@@ -1,8 +1,8 @@
 ﻿#if EDITOR
 #endif
 using Microsoft.Xna.Framework;
-using SE.Engine.Utility;
 using SE.Rendering;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.UI

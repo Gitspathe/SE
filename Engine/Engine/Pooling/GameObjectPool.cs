@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using SE.Common;
-using SE.Engine.Utility;
+using SE.Utility;
 
 namespace SE.Pooling
 {

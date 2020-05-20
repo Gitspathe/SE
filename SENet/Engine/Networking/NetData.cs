@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using SE.Core.Exceptions;
-using SE.Engine.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Engine.Networking

@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using SE.Engine.Utility;
+using SE.Utility;
 
 namespace SE.Serialization
 {

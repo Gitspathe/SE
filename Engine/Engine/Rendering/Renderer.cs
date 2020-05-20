@@ -8,9 +8,9 @@ using SE.Common;
 using SE.Components;
 using SE.Core;
 using SE.Engine.Components;
-using SE.Engine.Utility;
 using SE.Particles;
 using SE.UI;
+using SE.Utility;
 using SE.World.Partitioning;
 using SEParticles;
 using Console = SE.Core.Console;
@@ -342,8 +342,9 @@ namespace SE.Rendering
                             pEmitter.SourceRect.Width / 2.0f,
                             pEmitter.SourceRect.Width / 2.0f);
 
-                        System.Numerics.Vector4* particleC = &particle->Color;
-                        Color c = new Color(particleC->X, particleC->Y, particleC->Z, particleC->W);
+                        System.Numerics.Vector4 particleC = particle->ColorRGBA;
+
+                        Color c = new Color(particleC.X, particleC.Y, particleC.Z, particleC.W);
 
                         Core.Rendering.SpriteBatch.Draw(tex,
                             particle->Position - camPos,

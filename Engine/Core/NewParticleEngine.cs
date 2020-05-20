@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using SE.Engine.Components;
-using SE.Engine.Utility;
+using SE.Utility;
 using SEParticles;
 
 namespace SE.Core
@@ -25,6 +25,16 @@ namespace SE.Core
 
         public static bool Synchronous { get; set; } = false;
 
+        public static int ParticleCount { 
+            get  { 
+                int total = 0;
+                foreach (NewTestParticleEmitter emitter in Emitters) {
+                    total += emitter.Emitter.ActiveParticles.Length;
+                }
+                return total;
+            }
+        }
+
         private static Task updateTask;
 
         public static void Update(float deltaTime)
@@ -39,7 +49,7 @@ namespace SE.Core
                     WaitForThreads();
             } else {
                 for (int i = 0; i < Emitters.Count; i++) {
-                    Emitters[i].Emitter.Update(deltaTime);
+                    Emitters.Array[i].Emitter.Update(deltaTime);
                 }
             }
         }

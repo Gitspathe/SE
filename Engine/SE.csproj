@@ -164,8 +164,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SEParticles\SEParticles.csproj" />
-  </ItemGroup>
-
 </Project>

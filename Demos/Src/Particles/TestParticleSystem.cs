@@ -5,7 +5,7 @@ using SE.Particles;
 using SE.Particles.Modules;
 using SE.Physics;
 using SE.Rendering;
-using Random = SE.Random;
+using Random = SE.Utility.Random;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SEDemos.Particles

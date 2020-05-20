@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using SE.Common;
-using SE.Engine.Utility;
 using SE.Physics;
+using SE.Utility;
 using BodyType = SE.Physics.BodyType;
 using Vector2 = System.Numerics.Vector2;
 

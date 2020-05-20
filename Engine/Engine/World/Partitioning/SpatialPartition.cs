@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using SE.Components;
 using SE.Core;
-using SE.Engine.Utility;
+using SE.Utility;
+using Random = System.Random;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.World.Partitioning
@@ -41,7 +42,7 @@ namespace SE.World.Partitioning
                     GridPartitionTiles[x][y] = new PartitionTile(b, this, tSize, extensions);
                 }
             }
-            pruneOffset = Random.Next(0, 120);
+            pruneOffset = SE.Utility.Random.Next(0, 120);
         }
 
         internal void UpdatePosition(Point newPos)

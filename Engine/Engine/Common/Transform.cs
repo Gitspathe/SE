@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using SE.Engine.Utility;
+using SE.Utility;
 using Quaternion = System.Numerics.Quaternion;
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;

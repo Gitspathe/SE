@@ -1,4 +1,4 @@
-﻿namespace SE
+﻿namespace SE.Utility
 {
     public static class Random
     {

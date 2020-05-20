@@ -8,8 +8,7 @@ using SE.Core;
 using SE.Pooling;
 using SE.Rendering;
 using Vector2 = System.Numerics.Vector2;
-using Random = SE.Random;
-
+using Random = SE.Utility.Random;
 namespace SEDemos.GameObjects
 {
 

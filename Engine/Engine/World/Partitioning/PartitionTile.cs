@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using SE.Core;
-using SE.Engine.Utility;
+using SE.Utility;
 
 namespace SE.World.Partitioning
 {
