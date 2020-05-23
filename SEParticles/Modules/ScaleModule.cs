@@ -1,18 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
-using SE.Core.Extensions;
+using System.Text;
+using SE.Engine.Utility;
 using SE.Utility;
 using Random = SE.Utility.Random;
 using static SEParticles.ParticleMath;
 
 namespace SEParticles.Modules
 {
-    public unsafe class ForwardVelocityModule : ParticleModule
+    public unsafe class ScaleModule : ParticleModule
     {
         private Configuration config;
         private float[] rand;
 
-        public ForwardVelocityModule()
+        public ScaleModule()
         {
             config = new Configuration();
         }
@@ -86,63 +88,45 @@ namespace SEParticles.Modules
             }
         }
 
-        public override ParticleModule DeepCopy()
-        {
-            return new ForwardVelocityModule {
-                config = config.DeepCopy()
-            };
-        }
-
         private void Process(float deltaTime, int size, Particle* ptr)
         {
             Particle* particle = ptr;
             switch (config.TransitionType) {
                 case TransitionType.Constant: {
                     for (int i = 0; i < size; i++) {
-                        Vector2 velocityVector = particle->Rotation.ToDirectionVector() * config.Start;
-                        particle->Position += velocityVector * deltaTime;
+                        particle->Scale = new Vector2(config.Start, config.Start);
                         particle++;
                     }
                 } break;
                 case TransitionType.Lerp: {
                     for (int i = 0; i < size; i++) {
-                        float velocity = ParticleMath.Lerp(
-                            config.Start,
-                            config.End,
-                            particle->TimeAlive / particle->InitialLife);
-
-                        Vector2 velocityVector = particle->Rotation.ToDirectionVector() * velocity;
-                        particle->Position += velocityVector * deltaTime;
+                        float scale = Between(config.Start, config.End, particle->TimeAlive / particle->InitialLife);
+                        particle->Scale = new Vector2(scale, scale);
                         particle++;
                     }
                 } break;
                 case TransitionType.Curve: {
                     for (int i = 0; i < size; i++) {
-                        float lifeRatio = particle->TimeAlive / particle->InitialLife;
-                        float velocity = config.Curve.Evaluate(lifeRatio);
-                        Vector2 velocityVector = particle->Rotation.ToDirectionVector() * velocity;
-                        particle->Position += velocityVector * deltaTime;
+                        float scale = config.Curve.Evaluate(particle->TimeAlive / particle->InitialLife);
+                        particle->Scale = new Vector2(scale, scale);
                         particle++;
                     }
                 } break;
                 case TransitionType.RandomConstant: {
                     for (int i = 0; i < size; i++) {
-                        float velocity = Between(
+                        float scale = Between(
                             config.Start, 
                             config.End, 
                             rand[i]);
 
-                        Vector2 velocityVector = particle->Rotation.ToDirectionVector() * velocity; 
-                        particle->Position += velocityVector * deltaTime;
+                        particle->Scale = new Vector2(scale, scale);
                         particle++;
                     }
                 } break;
                 case TransitionType.RandomCurve: {
                     for (int i = 0; i < size; i++) {
-                        float velocity = config.Curve.Evaluate(rand[i]);
-                        Vector2 velocityVector = particle->Rotation.ToDirectionVector() * velocity;
-                        particle->Position += velocityVector * deltaTime;
-
+                        float scale = config.Curve.Evaluate(rand[i]);
+                        particle->Scale = new Vector2(scale, scale);
                         particle++;
                     }
                 } break;
@@ -151,59 +135,66 @@ namespace SEParticles.Modules
             }
         }
 
-        public static ForwardVelocityModule Constant(float val)
+        public override ParticleModule DeepCopy()
         {
-            ForwardVelocityModule module = new ForwardVelocityModule();
+            return new ScaleModule {
+                config = config.DeepCopy()
+            };
+        }
+
+        public static ScaleModule Constant(float val)
+        {
+            ScaleModule module = new ScaleModule();
             module.SetConstant(val);
             return module;
         }
 
-        public static ForwardVelocityModule Lerp(float start, float end)
+        public static ScaleModule Lerp(float start, float end)
         {
-            ForwardVelocityModule module = new ForwardVelocityModule();
+            ScaleModule module = new ScaleModule();
             module.SetLerp(start, end);
             return module;
         }
 
-        public static ForwardVelocityModule Curve(Curve curve)
+        public static ScaleModule Curve(Curve curve)
         {
-            ForwardVelocityModule module = new ForwardVelocityModule();
+            ScaleModule module = new ScaleModule();
             module.SetCurve(curve);
             return module;
         }
 
-        public static ForwardVelocityModule RandomConstant(float min, float max)
+        public static ScaleModule RandomConstant(float min, float max)
         {
-            ForwardVelocityModule module = new ForwardVelocityModule();
+            ScaleModule module = new ScaleModule();
             module.SetRandomConstant(min, max);
             return module;
         }
 
-        public static ForwardVelocityModule RandomCurve(Curve curve)
+        public static ScaleModule RandomCurve(Curve curve)
         {
-            ForwardVelocityModule module = new ForwardVelocityModule();
+            ScaleModule module = new ScaleModule();
             module.SetRandomCurve(curve);
             return module;
         }
-    }
 
-    public class Configuration
-    {
-        public TransitionType TransitionType;
-        public float Start, End;
-        public Curve Curve;
-
-        public bool IsRandom => TransitionType == TransitionType.RandomConstant ||
-                                TransitionType == TransitionType.RandomCurve;
-
-        public Configuration DeepCopy()
+        public class Configuration
         {
-            return new Configuration {
-                TransitionType = TransitionType,
-                Start = Start,
-                End = End,
-                Curve = Curve.Clone()
-            };
+            public TransitionType TransitionType;
+            public float Start, End;
+            public Curve Curve;
+
+            public bool IsRandom => TransitionType == TransitionType.RandomConstant ||
+                                    TransitionType == TransitionType.RandomCurve;
+
+            public Configuration DeepCopy()
+            {
+                return new Configuration {
+                    TransitionType = TransitionType,
+                    Start = Start,
+                    End = End,
+                    Curve = Curve.Clone()
+                };
+            }
         }
     }
 }

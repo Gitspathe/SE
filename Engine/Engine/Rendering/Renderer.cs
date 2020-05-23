@@ -327,37 +327,77 @@ namespace SE.Rendering
             }
         }
 
+        public static BlendState Alpha => new BlendState
+        {
+            ColorSourceBlend = Blend.SourceAlpha,
+            AlphaSourceBlend = Blend.SourceAlpha,
+            ColorDestinationBlend = Blend.InverseSourceAlpha,
+            AlphaDestinationBlend = Blend.InverseSourceAlpha,
+        };
+
+        public static BlendState AlphaSubtract => new BlendState
+        {
+            ColorBlendFunction = BlendFunction.ReverseSubtract,
+            ColorSourceBlend = Blend.SourceAlpha,
+            AlphaSourceBlend = Blend.SourceAlpha,
+            ColorDestinationBlend = Blend.InverseSourceAlpha,
+            AlphaDestinationBlend = Blend.InverseSourceAlpha
+        };
+
         public unsafe void DrawNewParticles(Camera2D cam)
         {
-            ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, null);
+            AlphaSubtract.IndependentBlendEnable = true;
+            ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
+            Vector2 camPos = cam.Position;
+
             foreach (NewTestParticleEmitter pEmitter in NewParticleEngine.Emitters) {
-                //ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, null);
-                Vector2 camPos = cam.Position;
-                Emitter emitter = pEmitter.Emitter;
-                Span<SEParticles.Particle> particles = emitter.ActiveParticles;
-                for (int i = 0; i < particles.Length; i++) {
-                    fixed (SEParticles.Particle* particle = &particles[i]) {
-                        Texture2D tex = pEmitter.Texture;
-                        Vector2 origin = new Vector2(
-                            pEmitter.SourceRect.Width / 2.0f,
-                            pEmitter.SourceRect.Width / 2.0f);
+                Span<SEParticles.Particle> particles = pEmitter.Emitter.ActiveParticles;
+                
+                Texture2D tex = pEmitter.Texture;
+                Vector2 origin = new Vector2(
+                    pEmitter.SourceRect.Width / 2.0f,
+                    pEmitter.SourceRect.Width / 2.0f);
+                Rectangle sourceRect = pEmitter.SourceRect;
 
-                        System.Numerics.Vector4 particleC = particle->ColorRGBA;
+                fixed (SEParticles.Particle* ptr = particles) {
+                    int size = particles.Length;
+                    SEParticles.Particle* particle = ptr;
 
-                        Color c = new Color(particleC.X, particleC.Y, particleC.Z, particleC.W);
+                    for (int i = 0; i < size; i++) {
+                        System.Numerics.Vector4 particleC = particle->Color;
+                        Color color = new Color(particleC.X / 360, particleC.Y, particleC.Z, particleC.W);
 
                         Core.Rendering.SpriteBatch.Draw(tex,
                             particle->Position - camPos,
-                            pEmitter.SourceRect,
-                            c,
+                            sourceRect,
+                            color,
                             particle->Rotation,
                             origin,
                             particle->Scale,
-                            SpriteEffects.None,
                             1.0f);
+                        
+                        particle++;
                     }
                 }
             }
+
+            //Texture2D texture = GameEngine.EngineContent.Load<Texture2D>("tileset");
+
+            //ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
+            //TestEffect.CurrentTechnique.Passes[0].Apply();
+
+
+            //Core.Rendering.SpriteBatch.Draw(texture,
+            //    new Vector2(0, 0) - camPos,
+            //    new Rectangle(0, 0, texture.Width, texture.Height),
+            //    Color.White,
+            //    0f,
+            //    new Vector2(0, 0),
+            //    new Vector2(0, 0),
+            //    1.0f);
+
+           // Core.Rendering.SpriteBatch.Draw(texture, new Microsoft.Xna.Framework.Vector2(0 - camPos.X, 0 - camPos.Y), new Color(0.5f, 1.0f, 0.5f, 1.0f));
+            //EndDrawCall();
         }
 
         public struct DepthComparer : IComparer<IRenderable>

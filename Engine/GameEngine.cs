@@ -166,6 +166,13 @@ namespace SE
             if (Screen.IsFullHeadless) 
                 return;
 
+            // Particle shader.
+            AssetManager.Add(new AssetBuilder<Effect>()
+               .ID("testshader")
+               .Create(() => EngineContent.Load<Effect>("shader"))
+               .FromContent(EngineContent)
+            );
+
             // Texture2Ds
             AssetManager.Add(new AssetBuilder<Texture2D>()
                .ID("tileset")

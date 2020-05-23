@@ -10,7 +10,7 @@
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
     <PublishTrimmed>false</PublishTrimmed>
     <TieredCompilation>false</TieredCompilation>
-    <Platforms>AnyCPU</Platforms>
+    <Platforms>AnyCPU;x64</Platforms>
     <Configurations>Debug;Release</Configurations>
     <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
   </PropertyGroup>
@@ -35,6 +35,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
   <ItemGroup>
     <MonoGameContentReference Include="**\*.mgcb" />
   </ItemGroup>
@@ -50,68 +54,69 @@
     <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
   </ItemGroup>
 
+
   <Choose>
-    <When Condition=" '$(Configuration)'=='Debug' ">
+    <When Condition=" '$(Platform)'!='AnyCPU' ">
       <ItemGroup>
         <Reference Include="LiteNetLib">
-          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\Debug\netstandard2.0\LiteNetLib.dll</HintPath>
+          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\$(Platform)\$(Configuration)\netstandard2.0\LiteNetLib.dll</HintPath>
         </Reference>
         <Reference Include="FastMember">
-          <HintPath>..\_DEPENDENCIES\fast-member\FastMember\bin\Debug\netstandard2.1\FastMember.dll</HintPath>
+          <HintPath>..\_DEPENDENCIES\fast-member\FastMember\bin\$(Platform)\$(Configuration)\netstandard2.1\FastMember.dll</HintPath>
         </Reference>
         <Reference Include="SEInput">
-          <HintPath>..\SEInput\bin\Debug\netstandard2.0\SEInput.dll</HintPath>
+          <HintPath>..\SEInput\bin\$(Platform)\$(Configuration)\netstandard2.0\SEInput.dll</HintPath>
         </Reference>
         <Reference Include="SENet">
-          <HintPath>..\SENet\bin\Debug\netstandard2.1\SENet.dll</HintPath>
+          <HintPath>..\SENet\bin\$(Platform)\$(Configuration)\netstandard2.1\SENet.dll</HintPath>
         </Reference>
         <Reference Include="SEUtility">
-          <HintPath>..\SEUtility\bin\Debug\netstandard2.1\SEUtility.dll</HintPath>
+          <HintPath>..\SEUtility\bin\$(Platform)\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
         </Reference>
         <Reference Include="MonoGame.Penumbra">
-          <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\Debug\DesktopGL\MonoGame.Penumbra.dll</HintPath>
+          <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\$(Platform)\$(Configuration)\MonoGame.Penumbra.dll</HintPath>
         </Reference>
         <Reference Include="Aether.Physics2D.NETSTANDARD.MG">
-          <HintPath>..\_DEPENDENCIES\Aether.Physics2D\bin\Debug\netstandard2.1\Aether.Physics2D.NETSTANDARD.MG.dll</HintPath>
+          <HintPath>..\_DEPENDENCIES\Aether.Physics2D\bin\$(Configuration)\netstandard2.1\Aether.Physics2D.NETSTANDARD.MG.dll</HintPath>
         </Reference>
       </ItemGroup>
     </When>
-    <When Condition=" '$(Configuration)'=='Release' ">
+    <When Condition=" '$(Platform)'=='AnyCPU' ">
       <ItemGroup>
         <Reference Include="LiteNetLib">
-          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\Release\netstandard2.0\LiteNetLib.dll</HintPath>
+          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\$(Configuration)\netstandard2.0\LiteNetLib.dll</HintPath>
         </Reference>
         <Reference Include="FastMember">
-          <HintPath>..\_DEPENDENCIES\fast-member\FastMember\bin\Release\netstandard2.1\FastMember.dll</HintPath>
+          <HintPath>..\_DEPENDENCIES\fast-member\FastMember\bin\$(Configuration)\netstandard2.1\FastMember.dll</HintPath>
         </Reference>
         <Reference Include="SEInput">
-          <HintPath>..\SEInput\bin\Release\netstandard2.0\SEInput.dll</HintPath>
+          <HintPath>..\SEInput\bin\$(Configuration)\netstandard2.0\SEInput.dll</HintPath>
         </Reference>
         <Reference Include="SENet">
-          <HintPath>..\SENet\bin\Release\netstandard2.1\SENet.dll</HintPath>
+          <HintPath>..\SENet\bin\$(Configuration)\netstandard2.1\SENet.dll</HintPath>
         </Reference>
         <Reference Include="SEUtility">
-          <HintPath>..\SEUtility\bin\Release\netstandard2.1\SEUtility.dll</HintPath>
+          <HintPath>..\SEUtility\bin\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
         </Reference>
         <Reference Include="MonoGame.Penumbra">
-          <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\Release\DesktopGL\MonoGame.Penumbra.dll</HintPath>
+          <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\$(Configuration)\DesktopGL\MonoGame.Penumbra.dll</HintPath>
         </Reference>
         <Reference Include="Aether.Physics2D.NETSTANDARD.MG">
-          <HintPath>..\_DEPENDENCIES\Aether.Physics2D\bin\Release\netstandard2.1\Aether.Physics2D.NETSTANDARD.MG.dll</HintPath>
+          <HintPath>..\_DEPENDENCIES\Aether.Physics2D\bin\$(Configuration)\netstandard2.1\Aether.Physics2D.NETSTANDARD.MG.dll</HintPath>
         </Reference>
       </ItemGroup>
     </When>
   </Choose>
 
   <ItemGroup>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="SE">
       <HintPath>..\Engine\bin\netstandard2.1\SE.dll</HintPath>
     </Reference>
     <Reference Include="SEDemos">
       <HintPath>..\Demos\bin\netstandard2.1\SEDemos.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="StbImageSharp">
       <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\StbImageSharp.dll</HintPath>

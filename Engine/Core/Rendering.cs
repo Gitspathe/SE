@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using SE.AssetManagement;
 using SE.Components;
 using SE.Core.Exceptions;
 using SE.Rendering;
@@ -45,6 +47,8 @@ namespace SE.Core
         public static RenderTarget2D FinalRender { get; private set; }
         internal static QuickList<Camera2D> cameras { get; } = new QuickList<Camera2D>();
 
+        public static Effect TestEffect;
+
         public static void Update()
         {
             if (Screen.IsFullHeadless)
@@ -77,6 +81,7 @@ namespace SE.Core
             GraphicsDeviceManager = gdm;
             GraphicsDevice = gd;
             SpriteBatch = new SpriteBatch(gd);
+            TestEffect = GameEngine.EngineContent.Load<Effect>("shader");
         }
 
         public static void ResetRenderTargets()

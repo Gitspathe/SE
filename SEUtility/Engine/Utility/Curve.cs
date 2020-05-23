@@ -93,10 +93,11 @@ namespace SE.Utility
         /// <returns>Value at the position on this <see cref="Curve"/>.</returns>
         public float Evaluate(float position)
         {
+            int keysCount = keys.Count;
             CurveKey[] array = keys.Keys.Array;
 
             CurveKey first = array[0];
-            CurveKey last = array[keys.Count - 1];
+            CurveKey last = array[keysCount - 1];
 
             if (position < first.Position) {
                 switch (PreLoop) {
@@ -187,7 +188,8 @@ namespace SE.Utility
         /// <param name="tangentOutType">The tangent out-type. <see cref="CurveKey.TangentOut"/> for more details.</param>
         public void ComputeTangents(CurveTangent tangentInType, CurveTangent tangentOutType)
         {
-            for (var i = 0; i < Keys.Count; ++i) {
+            int keysCount = keys.Count;
+            for (var i = 0; i < keysCount; ++i) {
                 ComputeTangent(i, tangentInType, tangentOutType);
             }
         }
@@ -210,6 +212,7 @@ namespace SE.Utility
         /// <param name="tangentOutType">The tangent out-type. <see cref="CurveKey.TangentOut"/> for more details.</param>
         public void ComputeTangent(int keyIndex, CurveTangent tangentInType, CurveTangent tangentOutType)
         {
+            int keysCount = keys.Count;
             // See http://msdn.microsoft.com/en-us/library/microsoft.xna.framework.curvetangent.aspx
 
             CurveKey[] array = keys.Keys.Array;
@@ -227,7 +230,7 @@ namespace SE.Utility
                 v0 = array[keyIndex - 1].Value;
             }
 
-            if (keyIndex < keys.Count - 1) {
+            if (keyIndex < keysCount - 1) {
                 p1 = array[keyIndex + 1].Position;
                 v1 = array[keyIndex + 1].Value;
             }
@@ -288,9 +291,10 @@ namespace SE.Utility
         private float GetCurvePosition(float position)
         {
             //only for position in curve
+            int keysCount = keys.Count;
             CurveKey[] array = keys.Keys.Array;
             CurveKey prev = array[0];
-            for (int i = 1; i < keys.Count; ++i) {
+            for (int i = 1; i < keysCount; ++i) {
                 CurveKey next = array[i];
                 if (next.Position >= position) {
                     if (prev.Continuity == CurveContinuity.Step) {
@@ -540,6 +544,10 @@ namespace SE.Utility
             return Keys.GetEnumerator();
         }
 
+        public void Add(float position, float value)
+        {
+            Add(new CurveKey(position, value));
+        }
 
         /// <summary>
         /// Adds a key to this collection.

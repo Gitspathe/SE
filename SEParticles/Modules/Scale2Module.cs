@@ -1,43 +1,50 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Text;
+using SE.Engine.Utility;
 using SE.Utility;
 using Random = SE.Utility.Random;
 using static SEParticles.ParticleMath;
 
 namespace SEParticles.Modules
 {
-    public unsafe class AngleModule : ParticleModule
+    public unsafe class Scale2Module : ParticleModule
     {
         private Configuration config;
-        private float[] rand;
+        private Vector2[] rand;
 
-        public AngleModule()
+        public Scale2Module()
         {
             config = new Configuration();
         }
 
-        public void SetConstant(float val)
+        public void SetConstant(Vector2 val)
         {
             config.Start = val;
             config.TransitionType = TransitionType.Constant;
         }
 
-        public void SetLerp(float start, float end)
+        public void SetLerp(Vector2 start, Vector2 end)
         {
             config.Start = start;
             config.End = end;
             config.TransitionType = TransitionType.Lerp;
         }
 
-        public void SetCurve(Curve curve)
+        public void SetCurve(Curve x, Curve y)
         {
-            config.Curve = curve;
+            config.CurveX = x;
+            config.CurveY = y;
             config.TransitionType = TransitionType.Curve;
         }
 
-        public void SetRandomConstant(float min, float max)
+        public void SetRandomConstant(Vector2 min, Vector2 max)
         {
-            if (min > max)
-                Swap(ref min, ref max);
+            if (min.X > max.X)
+                Swap(ref min.X, ref max.X);
+            if (min.Y > max.Y)
+                Swap(ref min.Y, ref max.Y);
 
             config.Start = min;
             config.End = max;
@@ -45,9 +52,10 @@ namespace SEParticles.Modules
             RegenerateRandom();
         }
 
-        public void SetRandomCurve(Curve curve)
+        public void SetRandomCurve(Curve x, Curve y)
         {
-            config.Curve = curve;
+            config.CurveX = x;
+            config.CurveY = y;
             config.TransitionType = TransitionType.RandomCurve;
             RegenerateRandom();
         }
@@ -62,9 +70,9 @@ namespace SEParticles.Modules
             if (!config.IsRandom || Emitter == null) 
                 return;
 
-            rand = new float[Emitter.ParticlesLength];
+            rand = new Vector2[Emitter.ParticlesLength];
             for (int i = 0; i < rand.Length; i++) {
-                rand[i] = Random.Next(0.0f, 1.0f);
+                rand[i] = new Vector2(Random.Next(0.0f, 1.0f), Random.Next(0.0f, 1.0f));
             }
         }
 
@@ -72,7 +80,9 @@ namespace SEParticles.Modules
         {
             if (config.IsRandom) {
                 for (int i = 0; i < particlesIndex.Length; i++) {
-                    rand[particlesIndex[i]] = Random.Next(0.0f, 1.0f);
+                    rand[particlesIndex[i]] = new Vector2(
+                        Random.Next(0.0f, 1.0f),
+                        Random.Next(0.0f, 1.0f));
                 }
             }
         }
@@ -84,57 +94,53 @@ namespace SEParticles.Modules
             }
         }
 
-        public override ParticleModule DeepCopy()
-        {
-            return new AngleModule {
-                config = config.DeepCopy(),
-            };
-        }
-
         private void Process(float deltaTime, int size, Particle* ptr)
         {
             Particle* particle = ptr;
             switch (config.TransitionType) {
                 case TransitionType.Constant: {
                     for (int i = 0; i < size; i++) {
-                        particle->Rotation += config.Start * deltaTime;
+                        particle->Scale = config.Start;
                         particle++;
                     }
                 } break;
                 case TransitionType.Lerp: {
                     for (int i = 0; i < size; i++) {
-                        float angleDelta = ParticleMath.Lerp(
-                            config.Start,
-                            config.End,
-                            particle->TimeAlive / particle->InitialLife);
+                        float lifeRatio = particle->TimeAlive / particle->InitialLife;
+                        particle->Scale = new Vector2(
+                            Between(config.Start.X, config.End.X, lifeRatio),
+                            Between(config.Start.Y, config.End.Y, lifeRatio));
 
-                        particle->Rotation += angleDelta * deltaTime;
                         particle++;
                     }
                 } break;
                 case TransitionType.Curve: {
                     for (int i = 0; i < size; i++) {
                         float lifeRatio = particle->TimeAlive / particle->InitialLife;
-                        float angleDelta = config.Curve.Evaluate(lifeRatio);
-                        particle->Rotation += angleDelta * deltaTime;
+                        particle->Scale = new Vector2(
+                            config.CurveX.Evaluate(lifeRatio),
+                            config.CurveY.Evaluate(lifeRatio));
+
                         particle++;
                     }
                 } break;
                 case TransitionType.RandomConstant: {
                     for (int i = 0; i < size; i++) {
-                        float randDelta = Between(
-                            config.Start, 
-                            config.End, 
-                            rand[i]);
+                        Vector2 partcleSeed = rand[i];
+                        particle->Scale = new Vector2(
+                            Between(config.Start.X, config.End.X, partcleSeed.X),
+                            Between(config.Start.Y, config.End.Y, partcleSeed.Y));
 
-                        particle->Rotation += randDelta * deltaTime;
                         particle++;
                     }
                 } break;
                 case TransitionType.RandomCurve: {
                     for (int i = 0; i < size; i++) {
-                        float randDelta = config.Curve.Evaluate(rand[i]);
-                        particle->Rotation += randDelta * deltaTime;
+                        Vector2 partcleSeed = rand[i];
+                        particle->Scale = new Vector2(
+                            config.CurveX.Evaluate(partcleSeed.X),
+                            config.CurveY.Evaluate(partcleSeed.Y));
+
                         particle++;
                     }
                 } break;
@@ -143,46 +149,67 @@ namespace SEParticles.Modules
             }
         }
 
-        public static AngleModule Constant(float val)
+        public override ParticleModule DeepCopy()
         {
-            AngleModule module = new AngleModule();
+            return new Scale2Module {
+                config = config.DeepCopy()
+            };
+        }
+
+        public static Scale2Module Constant(Vector2 val)
+        {
+            Scale2Module module = new Scale2Module();
             module.SetConstant(val);
             return module;
         }
 
-        public static AngleModule Lerp(float start, float end)
+        public static Scale2Module Lerp(Vector2 start, Vector2 end)
         {
-            AngleModule module = new AngleModule();
+            Scale2Module module = new Scale2Module();
             module.SetLerp(start, end);
             return module;
         }
 
-        public static AngleModule Curve(Curve curve)
+        public static Scale2Module Curve(Curve x, Curve y)
         {
-            AngleModule module = new AngleModule();
-            module.SetCurve(curve);
+            Scale2Module module = new Scale2Module();
+            module.SetCurve(x, y);
             return module;
         }
 
-        public static AngleModule RandomConstant(float min, float max)
+        public static Scale2Module Curve(Curve2 curve)
         {
-            AngleModule module = new AngleModule();
+            Scale2Module module = new Scale2Module();
+            module.SetCurve(curve.X, curve.Y);
+            return module;
+        }
+
+        public static Scale2Module RandomConstant(Vector2 min, Vector2 max)
+        {
+            Scale2Module module = new Scale2Module();
             module.SetRandomConstant(min, max);
             return module;
         }
 
-        public static AngleModule RandomCurve(Curve curve)
+        public static Scale2Module RandomCurve(Curve x, Curve y)
         {
-            AngleModule module = new AngleModule();
-            module.SetRandomCurve(curve);
+            Scale2Module module = new Scale2Module();
+            module.SetRandomCurve(x, y);
+            return module;
+        }
+
+        public static Scale2Module RandomCurve(Curve2 curve)
+        {
+            Scale2Module module = new Scale2Module();
+            module.SetRandomCurve(curve.X, curve.Y);
             return module;
         }
 
         public class Configuration
         {
             public TransitionType TransitionType;
-            public float Start, End;
-            public Curve Curve;
+            public Vector2 Start, End;
+            public Curve CurveX, CurveY;
 
             public bool IsRandom => TransitionType == TransitionType.RandomConstant ||
                                     TransitionType == TransitionType.RandomCurve;
@@ -193,7 +220,8 @@ namespace SEParticles.Modules
                     TransitionType = TransitionType,
                     Start = Start,
                     End = End,
-                    Curve = Curve.Clone()
+                    CurveX = CurveX.Clone(),
+                    CurveY = CurveY.Clone()
                 };
             }
         }

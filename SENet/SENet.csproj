@@ -3,26 +3,27 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <RootNamespace>SE</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <Choose>
-    <When Condition=" '$(Configuration)'=='Debug' ">
+    <When Condition=" '$(Platform)'!='AnyCPU' ">
       <ItemGroup>
         <Reference Include="LiteNetLib">
-          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\Debug\netstandard2.0\LiteNetLib.dll</HintPath>
+          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\$(Platform)\$(Configuration)\netstandard2.0\LiteNetLib.dll</HintPath>
         </Reference>
         <Reference Include="SEUtility">
-          <HintPath>..\SEUtility\bin\Debug\netstandard2.1\SEUtility.dll</HintPath>
+          <HintPath>..\SEUtility\bin\$(Platform)\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
         </Reference>
       </ItemGroup>
     </When>
-    <When Condition=" '$(Configuration)'=='Release' ">
+    <When Condition=" '$(Platform)'=='AnyCPU' ">
       <ItemGroup>
         <Reference Include="LiteNetLib">
-          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\Release\netstandard2.0\LiteNetLib.dll</HintPath>
+          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\$(Configuration)\netstandard2.0\LiteNetLib.dll</HintPath>
         </Reference>
         <Reference Include="SEUtility">
-          <HintPath>..\SEUtility\bin\Release\netstandard2.1\SEUtility.dll</HintPath>
+          <HintPath>..\SEUtility\bin\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
         </Reference>
       </ItemGroup>
     </When>

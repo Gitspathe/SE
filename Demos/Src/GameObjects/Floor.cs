@@ -22,6 +22,7 @@ namespace SEDemos.GameObjects
             base.OnInitialize();
             Sprite sprite = GetComponent<Sprite>();
             sprite.SpriteTexture = AssetManager.Get<SpriteTexture>(this, "floor");
+            //Disable();
             //base.Initialize();
         }
 

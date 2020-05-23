@@ -168,11 +168,6 @@ namespace SEDemos
                    .Create(() => content.Load<SoundEffect>("assaultrifle"))
                    .FromContent(content)
                 );
-                AssetManager.Add(new AssetBuilder<Effect>()
-                   .ID("shader")
-                   .Create(() => content.Load<Effect>("testshader"))
-                   .FromContent(content)
-                );
             }
 
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()

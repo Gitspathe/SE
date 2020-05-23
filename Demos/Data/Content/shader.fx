@@ -8,7 +8,6 @@
 #endif
 
 Texture2D SpriteTexture;
-float4 c;
 
 sampler2D SpriteTextureSampler = sampler_state
 {
@@ -22,9 +21,16 @@ struct VertexShaderOutput
 	float2 TextureCoordinates : TEXCOORD0;
 };
 
+float4 hsl2rgb(float4 c)
+{
+    float3 rgb = clamp( abs(fmod(c.x*6.0+float3(0.0,4.0,2.0),6.0)-3.0)-1.0, 0.0, 1.0);
+    float3 thing = c.z + c.y * (rgb-0.5)*(1.0-abs(2.0*c.z-1.0));
+    return float4(thing, c.w);
+}
+
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-	return tex2D(SpriteTextureSampler,input.TextureCoordinates) * input.Color * c;
+	return tex2D(SpriteTextureSampler,input.TextureCoordinates) * hsl2rgb(input.Color);
 }
 
 technique SpriteDrawing

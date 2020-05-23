@@ -9,9 +9,20 @@ namespace SEParticles
 {
     public static class ParticleMath
     {
-        public static float PI = MathF.PI;
-        public static float PIOver180 = MathF.PI / 180;
-        public static float _180OverPI = 180 / MathF.PI;
+#if NETSTANDARD2_1
+        public const float _PI = MathF.PI;
+        public const float _PI_OVER180 = MathF.PI / 180;
+        public const float _180_OVER_PI = 180 / MathF.PI;
+#else
+        public const float _PI = (float)Math.PI;
+        public const float _PI_OVER180 = (float)Math.PI / 180;
+        public const float _180_OVER_PI = (float)(180 / Math.PI);
+#endif
+
+        private const float _ONE_OVER_THREE = 1.0f / 3.0f;
+        private const float _TWO_OVER_THREE = 2.0f / 3.0f;
+        private const float _ONE_OVER_TWO = 1.0f / 2.0f;
+        private const float _ONE_OVER_SIX = 1.0f / 6.0f;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Lerp(float value1, float value2, float amount)
@@ -31,11 +42,11 @@ namespace SEParticles
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ToRadians(float degrees)
-            => PIOver180 * degrees;
+            => _PI_OVER180 * degrees;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ToDegrees(float radians)
-            => radians * _180OverPI;
+            => radians * _180_OVER_PI;
 
         // Color helper methods are thanks to Jiagg.
         // https://github.com/Jjagg/MgMercury/blob/master/Core/ColorHelper.cs
@@ -43,7 +54,6 @@ namespace SEParticles
         public static Vector4 ToRgba(this Vector4 hsl) 
             => ToRgba(hsl.X, hsl.Y, hsl.Z, hsl.W);
 
-        private const float OneOverThree = 1.0f / 3.0f;
         private static Vector4 ToRgba(float h, float s, float l, float a)
         {
             if (s == 0)
@@ -54,15 +64,11 @@ namespace SEParticles
             float min = 2f * l - max;
 
             return new Vector4(
-                ComponentFromHue(min, max, h + OneOverThree),
+                ComponentFromHue(min, max, h + _ONE_OVER_THREE),
                 ComponentFromHue(min, max, h),
-                ComponentFromHue(min, max, h - OneOverThree),
+                ComponentFromHue(min, max, h - _ONE_OVER_THREE),
                 a);
         }
-
-        private const float TwoOverThree = 2.0f / 3.0f;
-        private const float OneOverTwo = 1.0f / 2.0f;
-        private const float OneOverSix = 1.0f / 6.0f;
 
         // https://github.com/craftworkgames/MonoGame.Extended/blob/develop/Source/MonoGame.Extended/ColorHelper.cs
 
@@ -73,12 +79,12 @@ namespace SEParticles
             if (t > 1.0f) 
                 t -= 1.0f;
 
-            if (t < OneOverSix) 
+            if (t < _ONE_OVER_SIX) 
                 return p + (q - p) * 6.0f * t;
-            if (t < OneOverTwo) 
+            if (t < _ONE_OVER_TWO) 
                 return q;
-            if (t < TwoOverThree) 
-                return p + (q - p) * (TwoOverThree - t) * 6.0f;
+            if (t < _TWO_OVER_THREE) 
+                return p + (q - p) * (_TWO_OVER_THREE - t) * 6.0f;
             
             return p;
         }
@@ -92,8 +98,13 @@ namespace SEParticles
             b /= 255.0f;
             g /= 255.0f;
 
+#if NETSTANDARD2_1
             float max = MathF.Max(MathF.Max(r, g), b);
             float min = MathF.Min(MathF.Min(r, g), b);
+#else
+            float max = Math.Max(Math.Max(r, g), b);
+            float min = Math.Min(Math.Min(r, g), b);
+#endif
             float chroma = max - min;
             float sum = max + min;
 

@@ -1,14 +1,19 @@
 ﻿using System;
+using System.Numerics;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Common;
 using SE.Core;
+using SE.Engine.Utility;
 using SE.Rendering;
 using SEParticles;
 using SEParticles.Modules;
 using Curve = SE.Utility.Curve;
+using CurveKey = SE.Utility.CurveKey;
+using Vector4 = System.Numerics.Vector4;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Engine.Components
 {
@@ -25,24 +30,36 @@ namespace SE.Engine.Components
         protected override void OnInitialize()
         {
             Emitter = new Emitter();
-            Emitter.AddModule(new ColorModule(
-                new System.Numerics.Vector4(1.0f, 0.0f, 0.0f, 1.0f), 
-                new System.Numerics.Vector4(1.0f, 0.0f, 0.0f, 0.0f)));
 
             Curve angleCurve = new Curve();
-            angleCurve.Keys.Add(new Utility.CurveKey(0.0f, 0.0f));
-            angleCurve.Keys.Add(new Utility.CurveKey(0.25f, 0.1f));
-            angleCurve.Keys.Add(new Utility.CurveKey(0.5f, 1.0f));
-            angleCurve.Keys.Add(new Utility.CurveKey(1.0f, 10.0f));
+            angleCurve.Keys.Add(0.0f, 0.0f);
+            angleCurve.Keys.Add(0.25f, 0.1f);
+            angleCurve.Keys.Add(0.5f, 1.0f);
+            angleCurve.Keys.Add(1.0f, 10.0f);
 
             Curve forwardVelocityCurve = new Curve();
-            forwardVelocityCurve.Keys.Add(new Utility.CurveKey(0.0f, 0.0f));
-            forwardVelocityCurve.Keys.Add(new Utility.CurveKey(0.20f, 128.0f));
-            forwardVelocityCurve.Keys.Add(new Utility.CurveKey(0.5f, 512.0f));
-            forwardVelocityCurve.Keys.Add(new Utility.CurveKey(1.0f, 3000.0f));
+            forwardVelocityCurve.Keys.Add(0.0f, 0.0f);
+            forwardVelocityCurve.Keys.Add(0.20f, 128.0f);
+            forwardVelocityCurve.Keys.Add(0.5f, 512.0f);
+            forwardVelocityCurve.Keys.Add(1.0f, 3000.0f);
+
+            Curve4 colorCurve = new Curve4();
+            colorCurve.Add(0.0f, new Vector4(0.0f, 1.0f, 0.5f, 1.0f));
+            colorCurve.Add(0.25f, new Vector4(30.0f, 1.0f, 0.5f, 1.0f));
+            colorCurve.Add(0.5f, new Vector4(120.0f, 1.0f, 0.5f, 1.0f));
+            colorCurve.Add(0.8f, new Vector4(240.0f, 1.0f, 0.5f, 1.0f));
+            colorCurve.Add(1.0f, new Vector4(360.0f, 1.0f, 0.5f, 0.0f));
 
             Emitter.AddModule(AngleModule.RandomCurve(angleCurve));
-            Emitter.AddModule(new ForwardVelocityModule(forwardVelocityCurve));
+            Emitter.AddModule(ForwardVelocityModule.RandomConstant(0.0f, 512.0f));
+            Emitter.AddModule(ScaleModule.RandomConstant(1.0f, 0.0f));
+
+            ColorModule baseColorModule = ColorModule.Lerp(
+                new Vector4(0f, 1.0f, 0.5f, 1.0f),
+                new Vector4(360f, 1.0f, 0.5f, 0.0f));
+
+            //Emitter.AddModule(baseColorModule);
+            Emitter.AddModule(baseColorModule);
 
             NewParticleEngine.AddEmitter(this);
         }
