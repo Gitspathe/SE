@@ -10,6 +10,7 @@ using SE.Engine.Utility;
 using SE.Rendering;
 using SEParticles;
 using SEParticles.Modules;
+using SEParticles.Shapes;
 using Curve = SE.Utility.Curve;
 using CurveKey = SE.Utility.CurveKey;
 using Vector4 = System.Numerics.Vector4;
@@ -29,7 +30,7 @@ namespace SE.Engine.Components
 
         protected override void OnInitialize()
         {
-            Emitter = new Emitter();
+            Emitter = new Emitter(shape: new CircleShape(64.0f, EmissionDirection.In, true, true));
 
             Curve angleCurve = new Curve();
             angleCurve.Keys.Add(0.0f, 0.0f);
@@ -50,9 +51,9 @@ namespace SE.Engine.Components
             colorCurve.Add(0.8f, new Vector4(240.0f, 1.0f, 0.5f, 1.0f));
             colorCurve.Add(1.0f, new Vector4(360.0f, 1.0f, 0.5f, 0.0f));
 
-            Emitter.AddModule(AngleModule.RandomCurve(angleCurve));
-            Emitter.AddModule(ForwardVelocityModule.RandomConstant(0.0f, 512.0f));
-            Emitter.AddModule(ScaleModule.RandomConstant(1.0f, 0.0f));
+            //Emitter.AddModule(AngleModule.RandomCurve(angleCurve));
+            Emitter.AddModule(ForwardVelocityModule.Constant(64.0f));
+            Emitter.AddModule(ScaleModule.Constant(0.5f));
 
             ColorModule baseColorModule = ColorModule.Lerp(
                 new Vector4(0f, 1.0f, 0.5f, 1.0f),

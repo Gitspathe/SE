@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using SE.Utility;
+using SEParticles.Shapes;
 using Vector2 = System.Numerics.Vector2;
 using Vector4 = System.Numerics.Vector4;
 using Random = SE.Utility.Random;
@@ -17,9 +18,10 @@ namespace SEParticles
     {
         public QuickList<ParticleModule> Modules = new QuickList<ParticleModule>();
 
+        public EmitterShape Shape;
+
         // TODO: Random start color, rotation, etc.
         public Vector4 StartColor = Vector4.One;
-        public float StartRotation;
         public Vector2 StartScale = new Vector2(1.0f, 1.0f);
         public float Life = 2.0f;
         public Vector2 Position;
@@ -71,23 +73,24 @@ namespace SEParticles
 
         public void DeactivateParticle(int index)
         {
+            numActive--;
             if (index != numActive) {
                 particles[index] = particles[numActive];
             }
-            numActive--;
+            //numActive--;
         }
 
         public void Emit(int amount = 1)
         {
             // TODO: Emitter shapes.
             for (int i = 0; i < amount; i++) {
-                if (numActive + 1 > particles.Length - 1)
+                if (numActive + 1 > particles.Length) //was -1
                     return;
                 
-                numActive++;
+                //numActive++;
                 fixed (Particle* particle = &particles[numActive]) {
-                    particle->Position = Position; // Temp, replace when adding emitter shapes.
-                    particle->Rotation = StartRotation;
+                    Shape.Get(out particle->Position, out particle->Rotation, (float)i / amount);
+                    particle->Position += Position;
                     particle->Color = StartColor;
                     particle->Scale = StartScale;
                     particle->TimeAlive = 0.0f;
@@ -96,6 +99,8 @@ namespace SEParticles
                     particle->SourceRectangle = new Rectangle(0, 0, Texture.Width, Texture.Height);
 #endif
                 }
+
+                numActive++;
 
                 newParticles[numNew++] = numActive;
             }
@@ -108,8 +113,10 @@ namespace SEParticles
             module.OnInitialize();
         }
 
-        public Emitter(int capacity = 512)
+        public Emitter(int capacity = 512, EmitterShape shape = null)
         {
+            Shape = shape ?? new PointShape();
+
             Position = Vector2.Zero;
             particles = new Particle[capacity];
             newParticles = new int[capacity];
@@ -122,7 +129,6 @@ namespace SEParticles
         {
             Emitter emitter = new Emitter(particles.Length) {
                 StartColor = StartColor,
-                StartRotation = StartRotation,
                 StartScale = StartScale,
                 Life = Life,
                 Position = Position
