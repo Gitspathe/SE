@@ -10,7 +10,6 @@ using SE.Engine.Networking;
 using SE.Physics;
 using SE.Rendering;
 using SE.Core.Extensions;
-using SE.Engine.Components;
 using SE.Networking.Internal;
 using Random = SE.Utility.Random;
 using TestParticleSystem = SEDemos.Particles.TestParticleSystem;

@@ -17,8 +17,9 @@ namespace SEParticles
         // TODO: Separate 'velocity' rotation, and sprite rotations???
         public Vector2 Position;
         public Vector2 Scale;
-        public Vector2 Heading;
+        public Vector2 Direction;
         public Vector4 Color;      // H, S, L, A
+        public float Speed;
         public float Rotation;     // Sprite rotation
         public float InitialLife;
         public float TimeAlive;
@@ -35,8 +36,9 @@ namespace SEParticles
         { 
             Position = position;
             Scale = scale;
-            Heading = Vector2.Zero;
+            Direction = Vector2.Zero;
             Color = color;
+            Speed = 0.0f;
             Rotation = rotation;
             TimeAlive = timeAlive;
             InitialLife = timeAlive;

@@ -7,7 +7,6 @@ using Microsoft.Xna.Framework.Graphics;
 using SE.Common;
 using SE.Components;
 using SE.Core;
-using SE.Engine.Components;
 using SE.Particles;
 using SE.UI;
 using SE.Utility;

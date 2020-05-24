@@ -12,21 +12,15 @@ namespace SEParticles.Modules
     {
         private Configuration config;
         private Vector4[] rand;
+        private Vector4[] startingColors;
 
         public ColorModule()
         {
             config = new Configuration();
         }
 
-        public void SetConstant(Vector4 val)
+        public void SetLerp(Vector4 end)
         {
-            config.Start = val;
-            config.TransitionType = TransitionType.Constant;
-        }
-
-        public void SetLerp(Vector4 start, Vector4 end)
-        {
-            config.Start = start;
             config.End = end;
             config.TransitionType = TransitionType.Lerp;
         }
@@ -40,33 +34,6 @@ namespace SEParticles.Modules
             config.TransitionType = TransitionType.Curve;
         }
 
-        public void SetRandomConstant(Vector4 min, Vector4 max)
-        {
-            if (min.X > max.X)
-                Swap(ref min.X, ref max.X);
-            if (min.Y > max.Y)
-                Swap(ref min.Y, ref max.Y);
-            if (min.Z > max.Z)
-                Swap(ref min.Z, ref max.Z);
-            if (min.W > max.W)
-                Swap(ref min.W, ref max.W);
-
-            config.Start = min;
-            config.End = max;
-            config.TransitionType = TransitionType.RandomConstant;
-            RegenerateRandom();
-        }
-
-        public void SetRandomCurve(Curve H, Curve S, Curve L, Curve A)
-        {
-            config.CurveH = H;
-            config.CurveS = S;
-            config.CurveL = L;
-            config.CurveA = A;
-            config.TransitionType = TransitionType.RandomCurve;
-            RegenerateRandom();
-        }
-
         public override ParticleModule DeepCopy()
         {
             return new ColorModule {
@@ -76,6 +43,7 @@ namespace SEParticles.Modules
 
         public override void OnInitialize()
         {
+            startingColors = new Vector4[Emitter.ParticlesLength];
             RegenerateRandom();
         }
 
@@ -105,6 +73,10 @@ namespace SEParticles.Modules
                         Random.Next(0.0f, 1.0f));
                 }
             }
+            for (int i = 0; i < particlesIndex.Length; i++) {
+                int index = particlesIndex[i];
+                startingColors[index] = Emitter.Particles[index].Color;
+            }
         }
 
         public override void OnUpdate(float deltaTime, Span<Particle> particles)
@@ -118,16 +90,10 @@ namespace SEParticles.Modules
         {
             Particle* particle = ptr;
             switch (config.TransitionType) {
-                case TransitionType.Constant: {
-                    for (int i = 0; i < size; i++) {
-                        particle->Color = config.Start;
-                        particle++;
-                    }
-                } break;
                 case TransitionType.Lerp: {
                     for (int i = 0; i < size; i++) {
                         Vector4 color = Vector4.Lerp(
-                            config.Start,
+                            startingColors[i],
                             config.End,
                             particle->TimeAlive / particle->InitialLife);
 
@@ -148,18 +114,6 @@ namespace SEParticles.Modules
                         particle++;
                     }
                 } break;
-                case TransitionType.RandomConstant: {
-                    for (int i = 0; i < size; i++) {
-                        Vector4 randData = rand[i];
-                        float colorH = Between(config.Start.X, config.End.X, randData.X);
-                        float colorS = Between(config.Start.Y, config.End.Y, randData.Y);
-                        float colorL = Between(config.Start.Z, config.End.Z, randData.Z);
-                        float colorA = Between(config.Start.W, config.End.W, randData.W);
-                        particle->Color = new Vector4(colorH, colorS, colorL, colorA);
-
-                        particle++;
-                    }
-                } break;
                 case TransitionType.RandomCurve: {
                     for (int i = 0; i < size; i++) {
                         Vector4 randData = rand[i];
@@ -177,17 +131,10 @@ namespace SEParticles.Modules
             }
         }
 
-        public static ColorModule Constant(Vector4 val)
+        public static ColorModule Lerp(Vector4 end)
         {
             ColorModule module = new ColorModule();
-            module.SetConstant(val);
-            return module;
-        }
-
-        public static ColorModule Lerp(Vector4 start, Vector4 end)
-        {
-            ColorModule module = new ColorModule();
-            module.SetLerp(start, end);
+            module.SetLerp(end);
             return module;
         }
 
@@ -205,31 +152,10 @@ namespace SEParticles.Modules
             return module;
         }
 
-        public static ColorModule RandomConstant(Vector4 min, Vector4 max)
-        {
-            ColorModule module = new ColorModule();
-            module.SetRandomConstant(min, max);
-            return module;
-        }
-
-        public static ColorModule RandomCurve(Curve H, Curve S, Curve L, Curve A)
-        {
-            ColorModule module = new ColorModule();
-            module.SetRandomCurve(H, S, L, A);
-            return module;
-        }
-
-        public static ColorModule RandomCurve(Curve4 curve)
-        {
-            ColorModule module = new ColorModule();
-            module.SetRandomCurve(curve.X, curve.Y, curve.Z, curve.W);
-            return module;
-        }
-
         public class Configuration
         {
             public TransitionType TransitionType;
-            public Vector4 Start, End;
+            public Vector4 End;
             public Curve CurveH, CurveS, CurveL, CurveA;
 
             public bool IsRandom => TransitionType == TransitionType.RandomConstant ||
@@ -239,7 +165,6 @@ namespace SEParticles.Modules
             {
                 return new Configuration {
                     TransitionType = TransitionType,
-                    Start = Start,
                     End = End,
                     CurveH = CurveH.Clone(),
                     CurveS = CurveS.Clone(),

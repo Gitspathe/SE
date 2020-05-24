@@ -99,7 +99,7 @@ namespace SEParticles.Modules
             switch (config.TransitionType) {
                 case TransitionType.Constant: {
                     for (int i = 0; i < size; i++) {
-                        Vector2 velocityVector = particle->Heading * config.Start;
+                        Vector2 velocityVector = particle->Direction * config.Start;
                         particle->Position += velocityVector * deltaTime;
                         particle++;
                     }
@@ -111,7 +111,7 @@ namespace SEParticles.Modules
                             config.End,
                             particle->TimeAlive / particle->InitialLife);
 
-                        Vector2 velocityVector = particle->Heading * velocity;
+                        Vector2 velocityVector = particle->Direction * velocity;
                         particle->Position += velocityVector * deltaTime;
                         particle++;
                     }
@@ -120,7 +120,7 @@ namespace SEParticles.Modules
                     for (int i = 0; i < size; i++) {
                         float lifeRatio = particle->TimeAlive / particle->InitialLife;
                         float velocity = config.Curve.Evaluate(lifeRatio);
-                        Vector2 velocityVector = particle->Heading * velocity;
+                        Vector2 velocityVector = particle->Direction * velocity;
                         particle->Position += velocityVector * deltaTime;
                         particle++;
                     }
@@ -132,7 +132,7 @@ namespace SEParticles.Modules
                             config.End, 
                             rand[i]);
 
-                        Vector2 velocityVector = particle->Heading * velocity; 
+                        Vector2 velocityVector = particle->Direction * velocity; 
                         particle->Position += velocityVector * deltaTime;
                         particle++;
                     }
@@ -140,7 +140,7 @@ namespace SEParticles.Modules
                 case TransitionType.RandomCurve: {
                     for (int i = 0; i < size; i++) {
                         float velocity = config.Curve.Evaluate(rand[i]);
-                        Vector2 velocityVector = particle->Heading * velocity;
+                        Vector2 velocityVector = particle->Direction * velocity;
                         particle->Position += velocityVector * deltaTime;
 
                         particle++;

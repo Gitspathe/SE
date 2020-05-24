@@ -7,7 +7,7 @@ namespace SE.Utility
     {
         private static System.Random random = new System.Random();
 
-        public static float Next(float max)
+        public static float Next(float max = 1.0f)
         {
             lock(random) 
                 return (float)(random.NextDouble() * max);

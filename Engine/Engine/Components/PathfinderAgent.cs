@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using SE.Common;
-using SE.Components;
 using SE.Core;
-using SE.Physics;
 using SE.Core.Extensions;
+using SE.Physics;
 using Vector2 = System.Numerics.Vector2;
 
-namespace SE.Engine.Components
+namespace SE.Components
 {
     // TODO: Replace this with a much better version eventually. This is just a shitty temporary, untested version.
     public class PathfinderAgent : Component

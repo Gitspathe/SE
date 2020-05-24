@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using SE.Engine.Components;
+using SE.Components;
 using SE.Utility;
 using SEParticles;
 

@@ -1,22 +1,15 @@
-﻿using System;
-using System.Numerics;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Common;
 using SE.Core;
 using SE.Engine.Utility;
-using SE.Rendering;
 using SEParticles;
 using SEParticles.Modules;
 using SEParticles.Shapes;
 using Curve = SE.Utility.Curve;
-using CurveKey = SE.Utility.CurveKey;
 using Vector4 = System.Numerics.Vector4;
-using Vector2 = System.Numerics.Vector2;
 
-namespace SE.Engine.Components
+namespace SE.Components
 {
     public class NewTestParticleEmitter : Component
     {
@@ -51,16 +44,23 @@ namespace SE.Engine.Components
             colorCurve.Add(0.8f, new Vector4(240.0f, 1.0f, 0.5f, 1.0f));
             colorCurve.Add(1.0f, new Vector4(360.0f, 1.0f, 0.5f, 0.0f));
 
+            Emitter.Config.Color.SetRandomBetween(
+                new Vector4(0.0f, 1.0f, 0.5f, 1.0f),
+                new Vector4(360.0f, 1.0f, 0.5f, 1.0f));
+            Emitter.Config.Scale.SetRandomBetween(0.25f, 0.667f);
+            Emitter.Config.Life.SetRandomBetween(0.2f, 1.0f);
+            Emitter.Config.Speed.SetRandomBetween(32.0f, 128.0f);
+
             //Emitter.AddModule(RotationModule.RandomCurve(angleCurve));
-            Emitter.AddModule(ForwardVelocityModule.RandomConstant(64.0f, 128.0f));
-            Emitter.AddModule(ScaleModule.RandomConstant(0.333f, 0.667f));
+            //Emitter.AddModule(ForwardVelocityModule.RandomConstant(64.0f, 128.0f));
+            //Emitter.AddModule(ScaleModule.RandomConstant(0.333f, 0.667f));
+            //Emitter.AddModule(AttractorModule.Basic(new Vector2(512.0f, 512.0f), 64.0f, 1024.0f));
 
             ColorModule baseColorModule = ColorModule.Lerp(
-                new Vector4(0f, 1.0f, 0.5f, 1.0f),
-                new Vector4(360f, 1.0f, 0.5f, 0.0f));
+                new Vector4(0f, 1.0f, 0.5f, 0.0f));
 
-            //Emitter.AddModule(baseColorModule);
             Emitter.AddModule(baseColorModule);
+            //Emitter.AddModule(baseColorModule);
 
             NewParticleEngine.AddEmitter(this);
         }

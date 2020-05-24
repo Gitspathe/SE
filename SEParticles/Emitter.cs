@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SE.Engine.Utility;
 using SE.Utility;
 using SEParticles.Shapes;
 using Vector2 = System.Numerics.Vector2;
 using Vector4 = System.Numerics.Vector4;
 using Random = SE.Utility.Random;
+using static SEParticles.ParticleMath;
 
 #if MONOGAME
 using Microsoft.Xna.Framework;
@@ -20,23 +22,21 @@ namespace SEParticles
 
         public EmitterShape Shape;
 
-        // TODO: Random start color, rotation, etc.
-        public Vector4 StartColor = Vector4.One;
-        public Vector2 StartScale = new Vector2(1.0f, 1.0f);
-        public float Life = 2.0f;
+        public EmitterConfig Config;
         public Vector2 Position;
 #if MONOGAME
         public Texture2D Texture;
 #endif
 
-        private Particle[] particles;
+        internal Particle[] Particles;
         private int[] newParticles;
 
         private int numActive;
         private int numNew;
 
-        public int ParticlesLength => particles.Length;
-        public Span<Particle> ActiveParticles => new Span<Particle>(particles, 0, numActive);
+        public int ParticlesLength => Particles.Length;
+        public ref Particle GetParticle(int index) => ref Particles[index];
+        public Span<Particle> ActiveParticles => new Span<Particle>(Particles, 0, numActive);
         public Span<int> NewParticlesIndex => new Span<int>(newParticles, 0, numNew);
 
         public void Update(float deltaTime)
@@ -56,8 +56,7 @@ namespace SEParticles
                 Particle* particle = ptr;
                 for (int i = 0; i < size; i++) {
                     particle->TimeAlive += deltaTime;
-                    if (particle->TimeAlive >= Life) {
-                        particle->TimeAlive = Life;
+                    if (particle->TimeAlive >= particle->InitialLife) {
                         DeactivateParticle(i);
                     }
                     particle++;
@@ -69,38 +68,133 @@ namespace SEParticles
             for (int i = 0; i < Modules.Count; i++) {
                 modules[i].OnUpdate(deltaTime, activeParticles);
             }
+
+            // Update particle positions.
+            activeParticles = ActiveParticles;
+            size = activeParticles.Length;
+            fixed (Particle* ptr = activeParticles) {
+                Particle* particle = ptr;
+                for (int i = 0; i < size; i++) {
+                    particle->Position += particle->Direction * particle->Speed * deltaTime;
+                    particle++;
+                }
+            }
         }
 
         public void DeactivateParticle(int index)
         {
             numActive--;
             if (index != numActive) {
-                particles[index] = particles[numActive];
+                Particles[index] = Particles[numActive];
             }
-            //numActive--;
         }
 
         public void Emit(int amount = 1)
         {
             // TODO: Emitter shapes.
             for (int i = 0; i < amount; i++) {
-                if (numActive + 1 > particles.Length) //was -1
+                if (numActive + 1 > Particles.Length)
                     return;
                 
-                //numActive++;
-                fixed (Particle* particle = &particles[numActive]) {
-                    Shape.Get(out particle->Position, out particle->Heading, (float)i / amount);
+                fixed (Particle* particle = &Particles[numActive++]) {
+                    Shape.Get(out particle->Position, out particle->Direction, (float)i / amount);
                     particle->Position += Position;
-                    particle->Color = StartColor;
-                    particle->Scale = StartScale;
+
+                    // Configure particle speed.
+                    EmitterConfig.SpeedConfig speed = Config.Speed;
+                    switch (Config.Color.StartValueType) {
+                        case EmitterConfig.StartingValue.Normal: {
+                            particle->Speed = speed.Min;
+                        } break;
+                        case EmitterConfig.StartingValue.Random: {
+                            particle->Speed = Between(speed.Min, speed.Max, Random.Next());
+                        } break;
+                        case EmitterConfig.StartingValue.RandomCurve: {
+                            particle->Speed = speed.Curve.Evaluate(Random.Next());
+                        } break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+
+                    // Configure particle scale.
+                    EmitterConfig.ScaleConfig scale = Config.Scale;
+                    switch (Config.Color.StartValueType) {
+                        case EmitterConfig.StartingValue.Normal: {
+                            particle->Scale = scale.Min;
+                        } break;
+                        case EmitterConfig.StartingValue.Random: {
+                            if (scale.TwoDimensions) {
+                                particle->Scale = new Vector2(
+                                    Between(scale.Min.X, scale.Max.X, Random.Next()),
+                                    Between(scale.Min.Y, scale.Max.Y, Random.Next()));
+                            } else {
+                                float s = Random.Next();
+                                particle->Scale = new Vector2(
+                                    Between(scale.Min.X, scale.Max.X, s),
+                                    Between(scale.Min.Y, scale.Max.Y, s));
+                            }
+                        } break;
+                        case EmitterConfig.StartingValue.RandomCurve: {
+                            if (scale.TwoDimensions) {
+                                particle->Scale = new Vector2(
+                                    scale.Curve.X.Evaluate(Random.Next()),
+                                    scale.Curve.Y.Evaluate(Random.Next()));
+                            } else {
+                                float s = Random.Next();
+                                particle->Scale = new Vector2(
+                                    scale.Curve.X.Evaluate(s),
+                                    scale.Curve.Y.Evaluate(s));
+                            }
+                        } break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+
+                    // Configure particle color.
+                    EmitterConfig.ColorConfig color = Config.Color;
+                    switch (Config.Color.StartValueType) {
+                        case EmitterConfig.StartingValue.Normal: {
+                            particle->Color = color.Min;
+                        } break;
+                        case EmitterConfig.StartingValue.Random: {
+                            particle->Color = new Vector4(
+                                Between(color.Min.X, color.Max.X, Random.Next()),
+                                Between(color.Min.Y, color.Max.Y, Random.Next()),
+                                Between(color.Min.Z, color.Max.Z, Random.Next()),
+                                Between(color.Min.W, color.Max.W, Random.Next()));
+                        } break;
+                        case EmitterConfig.StartingValue.RandomCurve: {
+                            particle->Color = new Vector4(
+                                color.Curve.X.Evaluate(Random.Next()), 
+                                color.Curve.Y.Evaluate(Random.Next()),
+                                color.Curve.Z.Evaluate(Random.Next()),
+                                color.Curve.W.Evaluate(Random.Next()));
+                        } break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+
+                    // Configure particle life.
+                    EmitterConfig.LifeConfig life = Config.Life;
+                    switch (Config.Color.StartValueType) {
+                        case EmitterConfig.StartingValue.Normal: {
+                            particle->InitialLife = life.Min;
+                        } break;
+                        case EmitterConfig.StartingValue.Random: {
+                            particle->InitialLife = Between(life.Min, life.Max, Random.Next());
+                        } break;
+                        case EmitterConfig.StartingValue.RandomCurve: {
+                            particle->InitialLife = life.Curve.Evaluate(Random.Next());
+                        } break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+
                     particle->TimeAlive = 0.0f;
-                    particle->InitialLife = Life;
 #if MONOGAME
                     particle->SourceRectangle = new Rectangle(0, 0, Texture.Width, Texture.Height);
 #endif
                 }
-
-                numActive++;
 
                 newParticles[numNew++] = numActive;
             }
@@ -115,22 +209,21 @@ namespace SEParticles
 
         public Emitter(int capacity = 2048, EmitterShape shape = null)
         {
+            Config = new EmitterConfig();
             Shape = shape ?? new PointShape();
 
             Position = Vector2.Zero;
-            particles = new Particle[capacity];
+            Particles = new Particle[capacity];
             newParticles = new int[capacity];
             for (int i = 0; i < capacity; i++) {
-                particles[i] = Particle.Default;
+                Particles[i] = Particle.Default;
             }
         }
 
         public Emitter DeepCopy()
         {
-            Emitter emitter = new Emitter(particles.Length) {
-                StartColor = StartColor,
-                StartScale = StartScale,
-                Life = Life,
+            Emitter emitter = new Emitter(Particles.Length) {
+                Config = Config.DeepCopy(),
                 Position = Position
             };
             for (int i = 0; i < Modules.Count; i++) {
@@ -138,5 +231,6 @@ namespace SEParticles
             }
             return emitter;
         }
+
     }
 }

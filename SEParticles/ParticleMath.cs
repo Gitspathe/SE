@@ -41,6 +41,10 @@ namespace SEParticles
             => (min + ((max - min) * ratio));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetRatio(float min, float max, float val) 
+            => (val - min) / (max - min);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ToRadians(float degrees)
             => _PI_OVER180 * degrees;
 
