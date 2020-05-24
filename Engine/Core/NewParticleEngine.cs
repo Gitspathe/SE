@@ -21,7 +21,7 @@ namespace SE.Core
                 multiThreaded = value;
             }
         }
-        private static bool multiThreaded = false;
+        private static bool multiThreaded = true;
 
         public static bool Synchronous { get; set; } = false;
 

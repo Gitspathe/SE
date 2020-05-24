@@ -13,6 +13,6 @@ namespace SEParticles
         /// <param name="position">Position for the new particle.</param>
         /// <param name="rotation">Rotation for the new particle.</param>
         /// <param name="uniformRatio">Ratio for uniform emission.</param>
-        public abstract void Get(out Vector2 position, out float rotation, float uniformRatio);
+        public abstract void Get(out Vector2 position, out Vector2 velocity, float uniformRatio);
     }
 }

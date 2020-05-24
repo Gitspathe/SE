@@ -8,10 +8,10 @@ namespace SEParticles.Shapes
 {
     public class PointShape : EmitterShape
     {
-        public override void Get(out Vector2 position, out float rotation, float uniformRatio)
+        public override void Get(out Vector2 position, out Vector2 velocity, float uniformRatio)
         {
             position = Vector2.Zero;
-            rotation = Random.NextAngle();
+            Random.NextUnitVector(out velocity);
         }
     }
 }

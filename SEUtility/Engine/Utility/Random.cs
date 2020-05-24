@@ -9,22 +9,26 @@ namespace SE.Utility
 
         public static float Next(float max)
         {
-            return (float)(random.NextDouble() * max);
+            lock(random) 
+                return (float)(random.NextDouble() * max);
         }
 
         public static int Next(int max)
         {
-            return random.Next(max);
+            lock(random)
+                return random.Next(max);
         }
 
         public static float Next(float min, float max)
         {
-            return (float)random.NextDouble() * (max - min) + min;
+            lock(random)
+                return (float)random.NextDouble() * (max - min) + min;
         }
 
         public static int Next(int min, int max)
         {
-            return random.Next(min, max);
+            lock(random)
+                return random.Next(min, max);
         }
 
         public static float NextAngle()
@@ -44,6 +48,16 @@ namespace SE.Utility
 #else
             vector = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
 #endif
+        }
+
+        public static Vector2 NextUnitVector()
+        {
+            float angle = NextAngle();
+        #if NETSTANDARD2_1
+            return new Vector2(MathF.Cos(angle), MathF.Sin(angle));
+        #else
+            return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+        #endif
         }
     }
 }

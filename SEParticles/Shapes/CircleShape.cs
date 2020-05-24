@@ -15,22 +15,22 @@ namespace SEParticles.Shapes
         public bool EdgeOnly;
         public bool Uniform;
 
-        public override void Get(out Vector2 position, out float rotation, float uniformRatio)
+        public override void Get(out Vector2 position, out Vector2 velocity, float uniformRatio)
         {
             float distance = EdgeOnly 
                 ? Radius 
                 : Random.Next(0.0f, Radius);
-            rotation = Uniform 
+            float rotation = Uniform 
                 ? Between(-_PI, _PI, uniformRatio) 
                 : Random.NextAngle();
 
-            Vector2 heading = rotation.ToDirectionVector();
+            velocity = rotation.ToDirectionVector();
             position = Direction == EmissionDirection.In
-                ? new Vector2(-heading.X * distance, -heading.Y * distance)
-                : new Vector2(heading.X * distance, heading.Y * distance);
+                ? new Vector2(-velocity.X * distance, -velocity.Y * distance)
+                : new Vector2(velocity.X * distance, velocity.Y * distance);
 
             if (Direction == EmissionDirection.None)
-                rotation = Random.NextAngle();
+                velocity = Random.NextUnitVector();
         }
 
         public CircleShape(float radius, EmissionDirection direction = EmissionDirection.None, bool edgeOnly = false, bool uniform = false)

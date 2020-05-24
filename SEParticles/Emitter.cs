@@ -89,7 +89,7 @@ namespace SEParticles
                 
                 //numActive++;
                 fixed (Particle* particle = &particles[numActive]) {
-                    Shape.Get(out particle->Position, out particle->Rotation, (float)i / amount);
+                    Shape.Get(out particle->Position, out particle->Heading, (float)i / amount);
                     particle->Position += Position;
                     particle->Color = StartColor;
                     particle->Scale = StartScale;
@@ -113,7 +113,7 @@ namespace SEParticles
             module.OnInitialize();
         }
 
-        public Emitter(int capacity = 512, EmitterShape shape = null)
+        public Emitter(int capacity = 2048, EmitterShape shape = null)
         {
             Shape = shape ?? new PointShape();
 

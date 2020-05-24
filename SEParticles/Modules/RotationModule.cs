@@ -5,12 +5,12 @@ using static SEParticles.ParticleMath;
 
 namespace SEParticles.Modules
 {
-    public unsafe class AngleModule : ParticleModule
+    public unsafe class RotationModule : ParticleModule
     {
         private Configuration config;
         private float[] rand;
 
-        public AngleModule()
+        public RotationModule()
         {
             config = new Configuration();
         }
@@ -86,7 +86,7 @@ namespace SEParticles.Modules
 
         public override ParticleModule DeepCopy()
         {
-            return new AngleModule {
+            return new RotationModule {
                 config = config.DeepCopy(),
             };
         }
@@ -143,37 +143,37 @@ namespace SEParticles.Modules
             }
         }
 
-        public static AngleModule Constant(float val)
+        public static RotationModule Constant(float val)
         {
-            AngleModule module = new AngleModule();
+            RotationModule module = new RotationModule();
             module.SetConstant(val);
             return module;
         }
 
-        public static AngleModule Lerp(float start, float end)
+        public static RotationModule Lerp(float start, float end)
         {
-            AngleModule module = new AngleModule();
+            RotationModule module = new RotationModule();
             module.SetLerp(start, end);
             return module;
         }
 
-        public static AngleModule Curve(Curve curve)
+        public static RotationModule Curve(Curve curve)
         {
-            AngleModule module = new AngleModule();
+            RotationModule module = new RotationModule();
             module.SetCurve(curve);
             return module;
         }
 
-        public static AngleModule RandomConstant(float min, float max)
+        public static RotationModule RandomConstant(float min, float max)
         {
-            AngleModule module = new AngleModule();
+            RotationModule module = new RotationModule();
             module.SetRandomConstant(min, max);
             return module;
         }
 
-        public static AngleModule RandomCurve(Curve curve)
+        public static RotationModule RandomCurve(Curve curve)
         {
-            AngleModule module = new AngleModule();
+            RotationModule module = new RotationModule();
             module.SetRandomCurve(curve);
             return module;
         }

@@ -72,7 +72,7 @@ namespace SE
 
             if (!Screen.IsFullHeadless) {
                 Add(DefaultEnum.StartParticles, ParticleEngine.Update);
-                Add(DefaultEnum.StartParticles-1, () => NewParticleEngine.Update(Time.DeltaTime));
+                Add(DefaultEnum.StartNewParticles, () => NewParticleEngine.Update(Time.DeltaTime));
 
                 Add(DefaultEnum.InputManager, () => InputManager.Update(Time.UnscaledDeltaTime));
                 Add(DefaultEnum.UIManager, UIManager.Update);
@@ -102,6 +102,7 @@ namespace SE
             UIManager = 500,
             NewPhysics = 650,
             UpdateDynamicGameObjects = 700,
+            StartNewParticles = 701,
             Networking = 800,
             UpdateLevelManager = 900,
             SpatialPartition = 1000,
