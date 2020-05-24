@@ -72,7 +72,7 @@ namespace SE
 
             if (!Screen.IsFullHeadless) {
                 Add(DefaultEnum.StartParticles, ParticleEngine.Update);
-                Add(DefaultEnum.StartNewParticles, () => NewParticleEngine.Update(Time.DeltaTime));
+                Add(DefaultEnum.StartNewParticles, () => SEParticles.ParticleEngine.Update(Time.DeltaTime));
 
                 Add(DefaultEnum.InputManager, () => InputManager.Update(Time.UnscaledDeltaTime));
                 Add(DefaultEnum.UIManager, UIManager.Update);

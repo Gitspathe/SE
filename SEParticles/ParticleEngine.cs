@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using SE.Components;
 using SE.Utility;
-using SEParticles;
 
-namespace SE.Core
+namespace SEParticles
 {
-    public static class NewParticleEngine
+    public static class ParticleEngine
     {
-        public static QuickList<NewTestParticleEmitter> Emitters = new QuickList<NewTestParticleEmitter>();
+        public static QuickList<Emitter> Emitters = new QuickList<Emitter>();
 
         public static bool MultiThreaded {
             get => multiThreaded;
@@ -28,8 +26,8 @@ namespace SE.Core
         public static int ParticleCount { 
             get  { 
                 int total = 0;
-                foreach (NewTestParticleEmitter emitter in Emitters) {
-                    total += emitter.Emitter.ActiveParticles.Length;
+                foreach (Emitter emitter in Emitters) {
+                    total += emitter.ActiveParticles.Length;
                 }
                 return total;
             }
@@ -42,14 +40,14 @@ namespace SE.Core
             if (MultiThreaded) {
                 updateTask = Task.Factory.StartNew(() => {
                     Parallel.ForEach(Emitters, emitter => {
-                        emitter.Emitter.Update(deltaTime);
+                        emitter.Update(deltaTime);
                     });
                 });
                 if (Synchronous)
                     WaitForThreads();
             } else {
                 for (int i = 0; i < Emitters.Count; i++) {
-                    Emitters.Array[i].Emitter.Update(deltaTime);
+                    Emitters.Array[i].Update(deltaTime);
                 }
             }
         }
@@ -61,25 +59,22 @@ namespace SE.Core
             }
         }
 
-        internal static void AddEmitter(NewTestParticleEmitter emitter)
+        internal static void AddEmitter(Emitter emitter)
         {
-            if(emitter.AddedToParticleEngine)
+            if(emitter.ParticleEngineIndex != -1)
                 return;
 
             emitter.ParticleEngineIndex = Emitters.Count;
             Emitters.Add(emitter);
-            emitter.AddedToParticleEngine = true;
         }
 
-        internal static void RemoveEmitter(NewTestParticleEmitter emitter)
+        internal static void RemoveEmitter(Emitter emitter)
         {
             if(emitter.ParticleEngineIndex == -1)
                 return;
 
             Emitters.RemoveAt(emitter.ParticleEngineIndex);
-            emitter.AddedToParticleEngine = false;
             emitter.ParticleEngineIndex = -1;
         }
-
     }
 }

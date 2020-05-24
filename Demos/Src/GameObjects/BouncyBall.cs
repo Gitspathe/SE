@@ -11,6 +11,8 @@ using SE.Physics;
 using SE.Rendering;
 using SE.Core.Extensions;
 using SE.Networking.Internal;
+using SEParticles;
+using SEParticles.Shapes;
 using Random = SE.Utility.Random;
 using TestParticleSystem = SEDemos.Particles.TestParticleSystem;
 using Vector2 = System.Numerics.Vector2;
@@ -23,7 +25,7 @@ namespace SEDemos.GameObjects
         typeof(NetTransform),
         typeof(Sprite),
         typeof(PhysicsObject),
-        typeof(NewTestParticleEmitter),
+        typeof(ParticleSystem),
         typeof(ParticleEmitter),
         typeof(LightComponent)
         )]
@@ -56,9 +58,9 @@ namespace SEDemos.GameObjects
 
             SpriteTexture tex = AssetManager.Get<SpriteTexture>(this, "circle");
 
-            NewTestParticleEmitter emitter = GetComponent<NewTestParticleEmitter>();
-            emitter.Texture = tex.Texture;
-            emitter.SourceRect = tex.SourceRectangle;
+            ParticleSystem system = GetComponent<ParticleSystem>();
+            system.Texture = tex.Texture;
+            system.SourceRect = tex.SourceRectangle;
 
             //GetComponent<ParticleEmitter>().ParticleSystem = new TestParticleSystem();
 

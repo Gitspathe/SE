@@ -16,6 +16,7 @@ using Console = SE.Core.Console;
 using static SE.Core.Rendering;
 using Color = Microsoft.Xna.Framework.Color;
 using Particle = SE.Particles.Particle;
+using ParticleSystem = SE.Components.ParticleSystem;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Rendering
@@ -349,20 +350,21 @@ namespace SE.Rendering
             ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
             Vector2 camPos = cam.Position;
 
-            foreach (NewTestParticleEmitter pEmitter in NewParticleEngine.Emitters) {
-                Span<SEParticles.Particle> particles = pEmitter.Emitter.ActiveParticles;
+            foreach (Emitter pEmitter in SEParticles.ParticleEngine.Emitters) {
+                Span<SEParticles.Particle> particles = pEmitter.ActiveParticles;
                 
                 Texture2D tex = pEmitter.Texture;
-                Vector2 origin = new Vector2(
-                    pEmitter.SourceRect.Width / 2.0f,
-                    pEmitter.SourceRect.Width / 2.0f);
-                Rectangle sourceRect = pEmitter.SourceRect;
 
                 fixed (SEParticles.Particle* ptr = particles) {
                     int size = particles.Length;
                     SEParticles.Particle* particle = ptr;
 
                     for (int i = 0; i < size; i++) {
+                        Rectangle sourceRect = particle->SourceRectangle;
+                        Vector2 origin = new Vector2(
+                            sourceRect.Width / 2.0f,
+                            sourceRect.Width / 2.0f);
+
                         System.Numerics.Vector4 particleC = particle->Color;
                         Color color = new Color(particleC.X / 360, particleC.Y, particleC.Z, particleC.W);
 

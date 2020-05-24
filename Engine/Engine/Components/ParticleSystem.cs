@@ -11,19 +11,21 @@ using Vector4 = System.Numerics.Vector4;
 
 namespace SE.Components
 {
-    public class NewTestParticleEmitter : Component
+    public class ParticleSystem : Component
     {
         public Texture2D Texture;
         public Rectangle SourceRect;
 
-        internal Emitter Emitter;
+        public Emitter Emitter;
 
         public bool AddedToParticleEngine { get; internal set; } = false;
         public int ParticleEngineIndex { get; internal set; } = -1;
 
         protected override void OnInitialize()
         {
-            Emitter = new Emitter(shape: new CircleShape(64.0f, EmissionDirection.In, true, true));
+            Emitter = new Emitter(shape: new CircleShape(16.0f, EmissionDirection.Out, true, true));
+            Emitter.Texture = Texture;
+            Emitter.StartRect = SourceRect;
 
             Curve angleCurve = new Curve();
             angleCurve.Keys.Add(0.0f, 0.0f);
@@ -62,22 +64,22 @@ namespace SE.Components
             Emitter.AddModule(baseColorModule);
             //Emitter.AddModule(baseColorModule);
 
-            NewParticleEngine.AddEmitter(this);
+            Emitter.Enabled = true;
         }
 
         protected override void OnEnable()
         {
-            NewParticleEngine.AddEmitter(this);
+            Emitter.Enabled = true;
         }
 
         protected override void OnDestroy()
         {
-            NewParticleEngine.RemoveEmitter(this);
+            Emitter.Enabled = false;
         }
 
         protected override void OnDisable()
         {
-            NewParticleEngine.RemoveEmitter(this);
+            Emitter.Enabled = false;
         }
 
         private float time;
@@ -88,7 +90,7 @@ namespace SE.Components
             time -= Time.DeltaTime;
             while (time <= 0.0f) {
                 Emitter.Emit(32);
-                time += 0.25f;
+                time += 0.1f;
             }
         }
     }

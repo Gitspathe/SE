@@ -66,7 +66,7 @@ namespace SE.Rendering
             Add(LoopEnum.LightingStart, _ => Render.StartLighting());
 
             Add(LoopEnum.FinalizeParticles, _ => ParticleEngine.FinalizeThreads());
-            Add(LoopEnum.FinalizeParticles-1, _ => NewParticleEngine.WaitForThreads());
+            Add(LoopEnum.FinalizeParticles-1, _ => SEParticles.ParticleEngine.WaitForThreads());
 
             Add(LoopEnum.RenderAlphaParticles, cam
                 => Render.RenderAlphaParticles(cam, ParticleEngine.AlphaParticles));

@@ -14,13 +14,12 @@ namespace SEParticles
     [StructLayout(LayoutKind.Sequential)]
     public struct Particle
     {
-        // TODO: Separate 'velocity' rotation, and sprite rotations???
         public Vector2 Position;
         public Vector2 Scale;
-        public Vector2 Direction;
-        public Vector4 Color;      // H, S, L, A
+        public Vector2 Direction;         // Direction the particle travels in
+        public Vector4 Color;             // H, S, L, A
         public float Speed;
-        public float Rotation;     // Sprite rotation
+        public float Rotation;            // Sprite rotation
         public float InitialLife;
         public float TimeAlive;
 #if MONOGAME

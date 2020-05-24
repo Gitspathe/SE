@@ -8,8 +8,8 @@ namespace SE.Components
     [ExecuteInEditor]
     public class ParticleEmitter : Component
     {
-        private ParticleSystem particleSystem;
-        public ParticleSystem ParticleSystem {
+        private Particles.ParticleSystem particleSystem;
+        public Particles.ParticleSystem ParticleSystem {
             get => particleSystem;
             set {
                 if (particleSystem != null) {
@@ -81,7 +81,7 @@ namespace SE.Components
             particleSystem = null;
         }
 
-        public ParticleEmitter(ParticleSystem particleSystem)
+        public ParticleEmitter(Particles.ParticleSystem particleSystem)
         {
             ParticleSystem = particleSystem;
         }

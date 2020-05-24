@@ -242,14 +242,14 @@ namespace SE
             //}
 
             if (InputManager.KeyCodePressed(Keys.L)) {
-                NewParticleEngine.MultiThreaded = !NewParticleEngine.MultiThreaded;
-                Console.WriteLine("Multithreaded particles: " + (NewParticleEngine.MultiThreaded ? "on" : "off"));
+                SEParticles.ParticleEngine.MultiThreaded = !SEParticles.ParticleEngine.MultiThreaded;
+                Console.WriteLine("Multithreaded particles: " + (SEParticles.ParticleEngine.MultiThreaded ? "on" : "off"));
             }
 
             time -= Time.DeltaTime;
             if (time <= 0.0f) {
                 time = 2.0f;
-                Console.WriteLine("NEW: " + NewParticleEngine.ParticleCount + ", OLD: " + ParticleEngine.ParticleCount);
+                Console.WriteLine("NEW: " + SEParticles.ParticleEngine.ParticleCount + ", OLD: " + ParticleEngine.ParticleCount);
             }
 
             // Multithreaded render test.

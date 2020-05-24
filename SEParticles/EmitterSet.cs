@@ -9,11 +9,10 @@ namespace SEParticles
     {
         public QuickList<Emitter> Emitters { get; } = new QuickList<Emitter>();
 
-        public void Update(float deltaTime)
-        {
-            Emitter[] emitterArray = Emitters.Array;
-            for (int i = 0; i < emitterArray.Length; i++) {
-                emitterArray[i].Update(deltaTime);
+        public bool Enabled {
+            set {
+                for (int i = 0; i < Emitters.Count; i++)
+                    Emitters.Array[i].Enabled = value;
             }
         }
 

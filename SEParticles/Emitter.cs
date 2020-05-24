@@ -20,12 +20,15 @@ namespace SEParticles
     {
         public QuickList<ParticleModule> Modules = new QuickList<ParticleModule>();
 
+        internal int ParticleEngineIndex = -1;
+        public IAdditionalData AdditionalData;
         public EmitterShape Shape;
 
         public EmitterConfig Config;
         public Vector2 Position;
 #if MONOGAME
         public Texture2D Texture;
+        public Rectangle StartRect; // Temp.
 #endif
 
         internal Particle[] Particles;
@@ -38,6 +41,19 @@ namespace SEParticles
         public ref Particle GetParticle(int index) => ref Particles[index];
         public Span<Particle> ActiveParticles => new Span<Particle>(Particles, 0, numActive);
         public Span<int> NewParticlesIndex => new Span<int>(newParticles, 0, numNew);
+
+        public bool Enabled {
+            get => enabled;
+            set {
+                if (value)
+                    ParticleEngine.AddEmitter(this);
+                else
+                    ParticleEngine.RemoveEmitter(this);
+
+                enabled = value;
+            }
+        }
+        private bool enabled;
 
         public void Update(float deltaTime)
         {
@@ -91,7 +107,6 @@ namespace SEParticles
 
         public void Emit(int amount = 1)
         {
-            // TODO: Emitter shapes.
             for (int i = 0; i < amount; i++) {
                 if (numActive + 1 > Particles.Length)
                     return;
@@ -99,6 +114,10 @@ namespace SEParticles
                 fixed (Particle* particle = &Particles[numActive++]) {
                     Shape.Get(out particle->Position, out particle->Direction, (float)i / amount);
                     particle->Position += Position;
+                    particle->TimeAlive = 0.0f;
+#if MONOGAME
+                    particle->SourceRectangle = StartRect;
+#endif
 
                     // Configure particle speed.
                     EmitterConfig.SpeedConfig speed = Config.Speed;
@@ -189,11 +208,6 @@ namespace SEParticles
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-
-                    particle->TimeAlive = 0.0f;
-#if MONOGAME
-                    particle->SourceRectangle = new Rectangle(0, 0, Texture.Width, Texture.Height);
-#endif
                 }
 
                 newParticles[numNew++] = numActive;

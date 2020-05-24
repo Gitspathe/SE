@@ -10,6 +10,8 @@ namespace SEParticles.Modules
 {
     public unsafe class ColorModule : ParticleModule
     {
+        // TODO: Per module TransitionTypes enum.
+
         private Configuration config;
         private Vector4[] rand;
         private Vector4[] startingColors;
