@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
-namespace SE.Core.Extensions
+namespace SE.Core
 {
     public static class MonoGameExtensions
     {

@@ -81,10 +81,7 @@ namespace SEParticles.Modules
             switch (transitionType) {
                 case Transition.Lerp: {
                     for (int i = 0; i < size; i++) {
-                        float velocity = ParticleMath.Lerp(
-                            start,
-                            end,
-                            particle->TimeAlive / particle->InitialLife);
+                        float velocity = ParticleMath.Lerp(start, end, particle->TimeAlive / particle->InitialLife);
                         particle->Speed = AbsoluteValue
                             ? velocity
                             : particle->Speed + (velocity * deltaTime);
@@ -93,8 +90,7 @@ namespace SEParticles.Modules
                 } break;
                 case Transition.Curve: {
                     for (int i = 0; i < size; i++) {
-                        float lifeRatio = particle->TimeAlive / particle->InitialLife;
-                        float velocity = curve.Evaluate(lifeRatio);
+                        float velocity = curve.Evaluate(particle->TimeAlive / particle->InitialLife);
                         particle->Speed = AbsoluteValue
                             ? velocity
                             : particle->Speed + (velocity * deltaTime);

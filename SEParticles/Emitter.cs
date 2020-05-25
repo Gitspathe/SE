@@ -117,7 +117,7 @@ namespace SEParticles
 #if MONOGAME
                     particle->SourceRectangle = StartRect;
 #endif
-
+    
                     // Configure particle speed.
                     EmitterConfig.SpeedConfig speed = Config.Speed;
                     switch (Config.Color.StartValueType) {

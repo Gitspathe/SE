@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using SE.Components;
-using SE.Core.Extensions;
+using SE.Core;
 using tainicom.Aether.Physics2D.Collision.Shapes;
 using tainicom.Aether.Physics2D.Dynamics;
 using tainicom.Aether.Physics2D.Dynamics.Contacts;

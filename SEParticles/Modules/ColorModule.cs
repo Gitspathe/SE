@@ -11,29 +11,29 @@ namespace SEParticles.Modules
     public unsafe class ColorModule : ParticleModule
     {
         private Vector4[] rand;
-        private Vector4[] startingColors;
-        private Vector4[] randomEndingColors;
+        private Vector4[] startColors;
+        private Vector4[] randEndColors;
 
-        private Transition TransitionType;
-        private Vector4 End1;
-        private Vector4 End2;
-        private Curve CurveH, CurveS, CurveL, CurveA;
+        private Transition transitionType;
+        private Vector4 end1;
+        private Vector4 end2;
+        private Curve curveH, curveS, curveL, curveA;
 
-        private bool IsRandom => TransitionType == Transition.RandomLerp;
+        private bool IsRandom => transitionType == Transition.RandomLerp;
 
         public void SetLerp(Vector4 end)
         {
-            End1 = end;
-            TransitionType = Transition.Lerp;
+            end1 = end;
+            transitionType = Transition.Lerp;
         }
 
-        public void SetCurve(Curve H, Curve S, Curve L, Curve A)
+        public void SetCurve(Curve h, Curve s, Curve l, Curve a)
         {
-            CurveH = H;
-            CurveS = S;
-            CurveL = L;
-            CurveA = A;
-            TransitionType = Transition.Curve;
+            curveH = h;
+            curveS = s;
+            curveL = l;
+            curveA = a;
+            transitionType = Transition.Curve;
         }
 
         public void SetRandomLerp(Vector4 min, Vector4 max)
@@ -47,25 +47,25 @@ namespace SEParticles.Modules
             if (min.W > max.W)
                 Swap(ref min.W, ref max.W);
 
-            End1 = min;
-            End2 = max;
-            TransitionType = Transition.RandomLerp;
+            end1 = min;
+            end2 = max;
+            transitionType = Transition.RandomLerp;
         }
 
         public override ParticleModule DeepCopy() 
             => new ColorModule {
-                TransitionType = TransitionType,
-                End1 = End1,
-                End2 = End2,
-                CurveH = CurveH.Clone(),
-                CurveS = CurveS.Clone(),
-                CurveL = CurveL.Clone(),
-                CurveA = CurveA.Clone()
+                transitionType = transitionType,
+                end1 = end1,
+                end2 = end2,
+                curveH = curveH.Clone(),
+                curveS = curveS.Clone(),
+                curveL = curveL.Clone(),
+                curveA = curveA.Clone()
             };
 
         public override void OnInitialize()
         {
-            startingColors = new Vector4[Emitter.ParticlesLength];
+            startColors = new Vector4[Emitter.ParticlesLength];
             RegenerateRandom();
         }
 
@@ -75,14 +75,14 @@ namespace SEParticles.Modules
                 return;
 
             rand = new Vector4[Emitter.ParticlesLength];
-            randomEndingColors = new Vector4[Emitter.ParticlesLength];
+            randEndColors = new Vector4[Emitter.ParticlesLength];
         }
 
         public override void OnParticlesActivated(Span<int> particlesIndex)
         {
             for (int i = 0; i < particlesIndex.Length; i++) {
                 int index = particlesIndex[i];
-                startingColors[index] = Emitter.Particles[index].Color;
+                startColors[index] = Emitter.Particles[index].Color;
                 if (!IsRandom) 
                     continue;
 
@@ -91,11 +91,11 @@ namespace SEParticles.Modules
                     Random.Next(0.0f, 1.0f),
                     Random.Next(0.0f, 1.0f),
                     Random.Next(0.0f, 1.0f));
-                randomEndingColors[i] = new Vector4(
-                    Between(End1.X, End2.X, rand[i].X),
-                    Between(End1.Y, End2.Y, rand[i].Y),
-                    Between(End1.Z, End2.Z, rand[i].Z),
-                    Between(End1.W, End2.W, rand[i].W));
+                randEndColors[i] = new Vector4(
+                    Between(end1.X, end2.X, rand[i].X),
+                    Between(end1.Y, end2.Y, rand[i].Y),
+                    Between(end1.Z, end2.Z, rand[i].Z),
+                    Between(end1.W, end2.W, rand[i].W));
             }
         }
 
@@ -109,13 +109,10 @@ namespace SEParticles.Modules
         private void Process(float deltaTime, int size, Particle* ptr)
         {
             Particle* particle = ptr;
-            switch (TransitionType) {
+            switch (transitionType) {
                 case Transition.Lerp: {
                     for (int i = 0; i < size; i++) {
-                        Vector4 color = Vector4.Lerp(
-                            startingColors[i],
-                            End1,
-                            particle->TimeAlive / particle->InitialLife);
+                        Vector4 color = Vector4.Lerp(startColors[i], end1, particle->TimeAlive / particle->InitialLife);
                         particle->Color = color;
                         particle++;
                     }
@@ -124,20 +121,17 @@ namespace SEParticles.Modules
                     for (int i = 0; i < size; i++) {
                         float lifeRatio = particle->TimeAlive / particle->InitialLife;
                         Vector4 color = new Vector4(
-                            CurveH.Evaluate(lifeRatio),
-                            CurveS.Evaluate(lifeRatio), 
-                            CurveL.Evaluate(lifeRatio),
-                            CurveA.Evaluate(lifeRatio));
+                            curveH.Evaluate(lifeRatio),
+                            curveS.Evaluate(lifeRatio), 
+                            curveL.Evaluate(lifeRatio),
+                            curveA.Evaluate(lifeRatio));
                         particle->Color = color;
                         particle++;
                     }
                 } break;
                 case Transition.RandomLerp: {
                     for (int i = 0; i < size; i++) {
-                        Vector4 color = Vector4.Lerp(
-                            startingColors[i],
-                            randomEndingColors[i],
-                            particle->TimeAlive / particle->InitialLife);
+                        Vector4 color = Vector4.Lerp(startColors[i], randEndColors[i], particle->TimeAlive / particle->InitialLife);
                         particle->Color = color;
                         particle++;
                     }
@@ -154,10 +148,10 @@ namespace SEParticles.Modules
             return module;
         }
 
-        public static ColorModule Curve(Curve H, Curve S, Curve L, Curve A)
+        public static ColorModule Curve(Curve h, Curve s, Curve l, Curve a)
         {
             ColorModule module = new ColorModule();
-            module.SetCurve(H, S, L, A);
+            module.SetCurve(h, s, l, a);
             return module;
         }
 
