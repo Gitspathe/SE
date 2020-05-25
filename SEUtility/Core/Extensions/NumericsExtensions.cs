@@ -35,7 +35,6 @@ namespace SE.Core.Extensions
 #endif
         }
 
-#if MONOGAME
         public static Microsoft.Xna.Framework.Vector2 ToMonoGameVector2(this Vector2 vector)
         {
             return new Microsoft.Xna.Framework.Vector2(vector.X, vector.Y);
@@ -45,7 +44,6 @@ namespace SE.Core.Extensions
         {
             return new Microsoft.Xna.Framework.Point((int)vector.X, (int)vector.Y);
         }
-#endif
 
         public static Vector2 GetRotationVector(this float degrees, float length = 1.0f)
         {

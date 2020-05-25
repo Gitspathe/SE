@@ -80,7 +80,7 @@ namespace SE.Core
                 Light l = pointLights.Array[i];
                 Vector2 unscaledPos = l.Position + l.Offset;
                 MonoGameVector2 pos = new MonoGameVector2(unscaledPos.X - camPosition.X, unscaledPos.Y - camPosition.Y) * camera.Zoom;
-                l.PenumbraLight.Scale = Vector2Extensions.ToMonoGameVector2(l.Size) * camera.Zoom;
+                l.PenumbraLight.Scale = l.Size.ToMonoGameVector2() * camera.Zoom;
                 l.PenumbraLight.Radius = 10 * camera.Zoom;
                 l.PenumbraLight.Position = pos;
                 l.PenumbraLight.Rotation = l.Rotation;
@@ -97,7 +97,7 @@ namespace SE.Core
                 Hull h = s.Hull;
                 h.Position = (s.Position - camera.Position).ToMonoGameVector2() * camera.Zoom;
 
-                h.Scale = Vector2Extensions.ToMonoGameVector2(s.Scale) * camera.Zoom;
+                h.Scale = s.Scale.ToMonoGameVector2() * camera.Zoom;
                 h.Rotation = s.Rotation;
                 penumbraHulls.Add(h);
             }
