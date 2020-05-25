@@ -35,16 +35,6 @@ namespace SE.Core.Extensions
 #endif
         }
 
-        public static Microsoft.Xna.Framework.Vector2 ToMonoGameVector2(this Vector2 vector)
-        {
-            return new Microsoft.Xna.Framework.Vector2(vector.X, vector.Y);
-        }
-
-        public static Microsoft.Xna.Framework.Point ToPoint(this Vector2 vector)
-        {
-            return new Microsoft.Xna.Framework.Point((int)vector.X, (int)vector.Y);
-        }
-
         public static Vector2 GetRotationVector(this float degrees, float length = 1.0f)
         {
 #if NETSTANDARD2_1
