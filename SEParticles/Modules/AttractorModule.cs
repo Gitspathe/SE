@@ -51,16 +51,14 @@ namespace SEParticles.Modules
         }
 
         public static AttractorModule Basic(Vector2 position, float minDistance, float maxDistance,
-            float intensity = 10.0f, float speedIncrease = 0.0f)
-        {
-            return new AttractorModule {
+            float intensity = 10.0f, float speedIncrease = 0.0f) 
+            => new AttractorModule {
                 Position = position,
                 MinDistance = minDistance,
                 MaxDistance = maxDistance,
                 Intensity = intensity,
                 SpeedIncrease = speedIncrease
             };
-        }
 
         public override ParticleModule DeepCopy()
         {

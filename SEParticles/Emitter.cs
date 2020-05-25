@@ -28,7 +28,7 @@ namespace SEParticles
         public Vector2 Position;
 #if MONOGAME
         public Texture2D Texture;
-        public Rectangle StartRect; // Temp.
+        public Rectangle StartRect; // TODO. Support sprite-sheet animations + random start sprite-sheet source rect.
 #endif
 
         internal Particle[] Particles;
@@ -45,12 +45,11 @@ namespace SEParticles
         public bool Enabled {
             get => enabled;
             set {
-                if (value)
+                enabled = value;
+                if (enabled)
                     ParticleEngine.AddEmitter(this);
                 else
                     ParticleEngine.RemoveEmitter(this);
-
-                enabled = value;
             }
         }
         private bool enabled;

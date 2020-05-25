@@ -10,38 +10,58 @@ namespace SEParticles.Modules
 {
     public unsafe class ColorModule : ParticleModule
     {
-        // TODO: Per module TransitionTypes enum.
-
-        private Configuration config;
         private Vector4[] rand;
         private Vector4[] startingColors;
+        private Vector4[] randomEndingColors;
 
-        public ColorModule()
-        {
-            config = new Configuration();
-        }
+        private Transition TransitionType;
+        private Vector4 End1;
+        private Vector4 End2;
+        private Curve CurveH, CurveS, CurveL, CurveA;
+
+        private bool IsRandom => TransitionType == Transition.RandomLerp;
 
         public void SetLerp(Vector4 end)
         {
-            config.End = end;
-            config.TransitionType = TransitionType.Lerp;
+            End1 = end;
+            TransitionType = Transition.Lerp;
         }
 
         public void SetCurve(Curve H, Curve S, Curve L, Curve A)
         {
-            config.CurveH = H;
-            config.CurveS = S;
-            config.CurveL = L;
-            config.CurveA = A;
-            config.TransitionType = TransitionType.Curve;
+            CurveH = H;
+            CurveS = S;
+            CurveL = L;
+            CurveA = A;
+            TransitionType = Transition.Curve;
         }
 
-        public override ParticleModule DeepCopy()
+        public void SetRandomLerp(Vector4 min, Vector4 max)
         {
-            return new ColorModule {
-                config = config.DeepCopy()
-            };
+            if (min.X > max.X)
+                Swap(ref min.X, ref max.X);
+            if (min.Y > max.Y)
+                Swap(ref min.Y, ref max.Y);
+            if (min.Z > max.Z)
+                Swap(ref min.Z, ref max.Z);
+            if (min.W > max.W)
+                Swap(ref min.W, ref max.W);
+
+            End1 = min;
+            End2 = max;
+            TransitionType = Transition.RandomLerp;
         }
+
+        public override ParticleModule DeepCopy() 
+            => new ColorModule {
+                TransitionType = TransitionType,
+                End1 = End1,
+                End2 = End2,
+                CurveH = CurveH.Clone(),
+                CurveS = CurveS.Clone(),
+                CurveL = CurveL.Clone(),
+                CurveA = CurveA.Clone()
+            };
 
         public override void OnInitialize()
         {
@@ -51,33 +71,31 @@ namespace SEParticles.Modules
 
         private void RegenerateRandom()
         {
-            if (!config.IsRandom || Emitter == null) 
+            if (!IsRandom || Emitter == null) 
                 return;
 
             rand = new Vector4[Emitter.ParticlesLength];
-            for (int i = 0; i < rand.Length; i++) {
-                rand[i] = new Vector4(
-                    Random.Next(0.0f, 1.0f),
-                    Random.Next(0.0f, 1.0f),
-                    Random.Next(0.0f, 1.0f),
-                    Random.Next(0.0f, 1.0f));
-            }
+            randomEndingColors = new Vector4[Emitter.ParticlesLength];
         }
 
         public override void OnParticlesActivated(Span<int> particlesIndex)
         {
-            if (config.IsRandom) {
-                for (int i = 0; i < particlesIndex.Length; i++) {
-                    rand[particlesIndex[i]] = new Vector4(
-                        Random.Next(0.0f, 1.0f),
-                        Random.Next(0.0f, 1.0f),
-                        Random.Next(0.0f, 1.0f),
-                        Random.Next(0.0f, 1.0f));
-                }
-            }
             for (int i = 0; i < particlesIndex.Length; i++) {
                 int index = particlesIndex[i];
                 startingColors[index] = Emitter.Particles[index].Color;
+                if (!IsRandom) 
+                    continue;
+
+                rand[particlesIndex[i]] = new Vector4(
+                    Random.Next(0.0f, 1.0f),
+                    Random.Next(0.0f, 1.0f),
+                    Random.Next(0.0f, 1.0f),
+                    Random.Next(0.0f, 1.0f));
+                randomEndingColors[i] = new Vector4(
+                    Between(End1.X, End2.X, rand[i].X),
+                    Between(End1.Y, End2.Y, rand[i].Y),
+                    Between(End1.Z, End2.Z, rand[i].Z),
+                    Between(End1.W, End2.W, rand[i].W));
             }
         }
 
@@ -91,40 +109,36 @@ namespace SEParticles.Modules
         private void Process(float deltaTime, int size, Particle* ptr)
         {
             Particle* particle = ptr;
-            switch (config.TransitionType) {
-                case TransitionType.Lerp: {
+            switch (TransitionType) {
+                case Transition.Lerp: {
                     for (int i = 0; i < size; i++) {
                         Vector4 color = Vector4.Lerp(
                             startingColors[i],
-                            config.End,
+                            End1,
                             particle->TimeAlive / particle->InitialLife);
-
                         particle->Color = color;
                         particle++;
                     }
                 } break;
-                case TransitionType.Curve: {
+                case Transition.Curve: {
                     for (int i = 0; i < size; i++) {
                         float lifeRatio = particle->TimeAlive / particle->InitialLife;
                         Vector4 color = new Vector4(
-                            config.CurveH.Evaluate(lifeRatio),
-                            config.CurveS.Evaluate(lifeRatio), 
-                            config.CurveL.Evaluate(lifeRatio),
-                            config.CurveA.Evaluate(lifeRatio)
-                        );
+                            CurveH.Evaluate(lifeRatio),
+                            CurveS.Evaluate(lifeRatio), 
+                            CurveL.Evaluate(lifeRatio),
+                            CurveA.Evaluate(lifeRatio));
                         particle->Color = color;
                         particle++;
                     }
                 } break;
-                case TransitionType.RandomCurve: {
+                case Transition.RandomLerp: {
                     for (int i = 0; i < size; i++) {
-                        Vector4 randData = rand[i];
-                        float colorH = config.CurveH.Evaluate(randData.X);
-                        float colorS = config.CurveS.Evaluate(randData.Y);
-                        float colorL = config.CurveL.Evaluate(randData.Z);
-                        float colorA = config.CurveA.Evaluate(randData.W);
-                        particle->Color = new Vector4(colorH, colorS, colorL, colorA);
-
+                        Vector4 color = Vector4.Lerp(
+                            startingColors[i],
+                            randomEndingColors[i],
+                            particle->TimeAlive / particle->InitialLife);
+                        particle->Color = color;
                         particle++;
                     }
                 } break;
@@ -154,26 +168,18 @@ namespace SEParticles.Modules
             return module;
         }
 
-        public class Configuration
+        public static ColorModule RandomLerp(Vector4 min, Vector4 max)
         {
-            public TransitionType TransitionType;
-            public Vector4 End;
-            public Curve CurveH, CurveS, CurveL, CurveA;
+            ColorModule module = new ColorModule();
+            module.SetRandomLerp(min, max);
+            return module;
+        }
 
-            public bool IsRandom => TransitionType == TransitionType.RandomConstant ||
-                                    TransitionType == TransitionType.RandomCurve;
-
-            public Configuration DeepCopy()
-            {
-                return new Configuration {
-                    TransitionType = TransitionType,
-                    End = End,
-                    CurveH = CurveH.Clone(),
-                    CurveS = CurveS.Clone(),
-                    CurveL = CurveL.Clone(),
-                    CurveA = CurveA.Clone()
-                };
-            }
+        private enum Transition
+        {
+            Lerp,
+            Curve,
+            RandomLerp
         }
     }
 }

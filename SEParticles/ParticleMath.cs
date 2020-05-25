@@ -9,15 +9,9 @@ namespace SEParticles
 {
     public static class ParticleMath
     {
-#if NETSTANDARD2_1
-        public const float _PI = MathF.PI;
-        public const float _PI_OVER180 = MathF.PI / 180;
-        public const float _180_OVER_PI = 180 / MathF.PI;
-#else
         public const float _PI = (float)Math.PI;
         public const float _PI_OVER180 = (float)Math.PI / 180;
         public const float _180_OVER_PI = (float)(180 / Math.PI);
-#endif
 
         private const float _ONE_OVER_THREE = 1.0f / 3.0f;
         private const float _TWO_OVER_THREE = 2.0f / 3.0f;
@@ -51,9 +45,11 @@ namespace SEParticles
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ToDegrees(float radians)
             => radians * _180_OVER_PI;
-
-        // Color helper methods are thanks to Jiagg.
-        // https://github.com/Jjagg/MgMercury/blob/master/Core/ColorHelper.cs
+        
+        /* Color helper methods are thanks to Jiagg.
+             https://github.com/Jjagg/MgMercury/blob/master/Core/ColorHelper.cs
+           And MonoGame.Extended.
+             https://github.com/craftworkgames/MonoGame.Extended/blob/develop/Source/MonoGame.Extended/ColorHelper.cs */
 
         public static Vector4 ToRgba(this Vector4 hsl) 
             => ToRgba(hsl.X, hsl.Y, hsl.Z, hsl.W);
@@ -73,8 +69,6 @@ namespace SEParticles
                 ComponentFromHue(min, max, h - _ONE_OVER_THREE),
                 a);
         }
-
-        // https://github.com/craftworkgames/MonoGame.Extended/blob/develop/Source/MonoGame.Extended/ColorHelper.cs
 
         private static float ComponentFromHue(float p, float q, float t)
         {

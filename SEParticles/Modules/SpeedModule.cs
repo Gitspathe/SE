@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
-using SE.Engine.Utility;
+using SE.Core.Extensions;
 using SE.Utility;
 using Random = SE.Utility.Random;
-using static SEParticles.ParticleMath;
 
 namespace SEParticles.Modules
 {
-    public unsafe class ScaleModule : ParticleModule
+    public unsafe class SpeedModule : ParticleModule
     {
         public bool AbsoluteValue = false;
-
-        private Vector2[] startScales;
+        
         private float[] rand;
 
         private Transition transitionType;
@@ -45,7 +41,6 @@ namespace SEParticles.Modules
         public override void OnInitialize()
         {
             RegenerateRandom();
-            startScales = new Vector2[Emitter.ParticlesLength];
         }
 
         private void RegenerateRandom()
@@ -58,11 +53,9 @@ namespace SEParticles.Modules
 
         public override void OnParticlesActivated(Span<int> particlesIndex)
         {
-            for (int i = 0; i < particlesIndex.Length; i++) {
-                int index = particlesIndex[i];
-                startScales[index] = Emitter.Particles[index].Scale;
-                if (IsRandom) {
-                    rand[index] = Random.Next(0.0f, 1.0f);
+            if (IsRandom) {
+                for (int i = 0; i < particlesIndex.Length; i++) {
+                    rand[particlesIndex[i]] = Random.Next(0.0f, 1.0f);
                 }
             }
         }
@@ -74,34 +67,46 @@ namespace SEParticles.Modules
             }
         }
 
+        public override ParticleModule DeepCopy()
+            => new SpeedModule {
+                transitionType = transitionType,
+                start = start,
+                end = end,
+                curve = curve.Clone()
+            };
+
         private void Process(float deltaTime, int size, Particle* ptr)
         {
             Particle* particle = ptr;
             switch (transitionType) {
                 case Transition.Lerp: {
                     for (int i = 0; i < size; i++) {
-                        float scale = Between(start, end, particle->TimeAlive / particle->InitialLife);
-                        particle->Scale = AbsoluteValue
-                            ? new Vector2(scale, scale)
-                            : new Vector2(scale, scale) * startScales[i];
+                        float velocity = ParticleMath.Lerp(
+                            start,
+                            end,
+                            particle->TimeAlive / particle->InitialLife);
+                        particle->Speed = AbsoluteValue
+                            ? velocity
+                            : particle->Speed + (velocity * deltaTime);
                         particle++;
                     }
                 } break;
                 case Transition.Curve: {
                     for (int i = 0; i < size; i++) {
-                        float scale = curve.Evaluate(particle->TimeAlive / particle->InitialLife);
-                        particle->Scale = AbsoluteValue
-                            ? new Vector2(scale, scale)
-                            : new Vector2(scale, scale) * startScales[i];
+                        float lifeRatio = particle->TimeAlive / particle->InitialLife;
+                        float velocity = curve.Evaluate(lifeRatio);
+                        particle->Speed = AbsoluteValue
+                            ? velocity
+                            : particle->Speed + (velocity * deltaTime);
                         particle++;
                     }
                 } break;
                 case Transition.RandomCurve: {
                     for (int i = 0; i < size; i++) {
-                        float scale = curve.Evaluate(rand[i]);
-                        particle->Scale = AbsoluteValue
-                            ? new Vector2(scale, scale)
-                            : new Vector2(scale, scale) * startScales[i];
+                        float velocity = curve.Evaluate(rand[i]);
+                        particle->Speed = AbsoluteValue
+                            ? velocity
+                            : particle->Speed + (velocity * deltaTime);
                         particle++;
                     }
                 } break;
@@ -110,31 +115,23 @@ namespace SEParticles.Modules
             }
         }
 
-        public override ParticleModule DeepCopy() 
-            => new ScaleModule {
-                transitionType = transitionType,
-                start = start,
-                end = end,
-                curve = curve.Clone()
-            };
-
-        public static ScaleModule Lerp(float start, float end)
+        public static SpeedModule Lerp(float start, float end)
         {
-            ScaleModule module = new ScaleModule();
+            SpeedModule module = new SpeedModule();
             module.SetLerp(start, end);
             return module;
         }
 
-        public static ScaleModule Curve(Curve curve)
+        public static SpeedModule Curve(Curve curve)
         {
-            ScaleModule module = new ScaleModule();
+            SpeedModule module = new SpeedModule();
             module.SetCurve(curve);
             return module;
         }
 
-        public static ScaleModule RandomCurve(Curve curve)
+        public static SpeedModule RandomCurve(Curve curve)
         {
-            ScaleModule module = new ScaleModule();
+            SpeedModule module = new SpeedModule();
             module.SetRandomCurve(curve);
             return module;
         }

@@ -187,15 +187,13 @@ namespace SEParticles.Modules
             public bool IsRandom => TransitionType == TransitionType.RandomConstant ||
                                     TransitionType == TransitionType.RandomCurve;
 
-            public Configuration DeepCopy()
-            {
-                return new Configuration {
+            public Configuration DeepCopy() 
+                => new Configuration {
                     TransitionType = TransitionType,
                     Start = Start,
                     End = End,
                     Curve = Curve.Clone()
                 };
-            }
         }
     }
 }

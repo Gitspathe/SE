@@ -45,14 +45,12 @@ namespace SEParticles
             }
 
             public ColorConfig DeepCopy()
-            {
-                return new ColorConfig {
+                => new ColorConfig {
                     StartValueType = StartValueType,
                     Min = Min,
                     Max = Max,
                     Curve = Curve
                 };
-            }
         }
 
         public class ScaleConfig
@@ -112,15 +110,13 @@ namespace SEParticles
                 StartValueType = StartingValue.RandomCurve;
             }
 
-            public ScaleConfig DeepCopy()
-            {
-                return new ScaleConfig {
+            public ScaleConfig DeepCopy() 
+                => new ScaleConfig {
                     StartValueType = StartValueType,
                     Min = Min,
                     Max = Max,
                     Curve = Curve
                 };
-            }
         }
 
         public class LifeConfig
@@ -148,15 +144,13 @@ namespace SEParticles
                 StartValueType = StartingValue.RandomCurve;
             }
 
-            public LifeConfig DeepCopy()
-            {
-                return new LifeConfig {
+            public LifeConfig DeepCopy() 
+                => new LifeConfig {
                     StartValueType = StartValueType,
                     Min = Min,
                     Max = Max,
                     Curve = Curve
                 };
-            }
         }
 
         public class SpeedConfig
@@ -184,15 +178,13 @@ namespace SEParticles
                 StartValueType = StartingValue.RandomCurve;
             }
 
-            public SpeedConfig DeepCopy()
-            {
-                return new SpeedConfig {
+            public SpeedConfig DeepCopy() 
+                => new SpeedConfig {
                     StartValueType = StartValueType,
                     Min = Min,
                     Max = Max,
                     Curve = Curve
                 };
-            }
         }
 
         public enum StartingValue
@@ -202,15 +194,13 @@ namespace SEParticles
             RandomCurve
         }
 
-        public EmitterConfig DeepCopy()
-        {
-            return new EmitterConfig {
+        public EmitterConfig DeepCopy() 
+            => new EmitterConfig {
                 Color = Color.DeepCopy(),
                 Life = Life.DeepCopy(),
                 Scale = Scale.DeepCopy(),
                 Speed = Speed.DeepCopy()
             };
-        }
     }
 
 }

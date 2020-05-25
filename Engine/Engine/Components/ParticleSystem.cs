@@ -8,6 +8,7 @@ using SEParticles.Modules;
 using SEParticles.Shapes;
 using Curve = SE.Utility.Curve;
 using Vector4 = System.Numerics.Vector4;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components
 {
@@ -54,12 +55,13 @@ namespace SE.Components
             Emitter.Config.Speed.SetRandomBetween(32.0f, 128.0f);
 
             //Emitter.AddModule(RotationModule.RandomCurve(angleCurve));
-            //Emitter.AddModule(ForwardVelocityModule.RandomConstant(64.0f, 128.0f));
-            //Emitter.AddModule(ScaleModule.RandomConstant(0.333f, 0.667f));
-            //Emitter.AddModule(AttractorModule.Basic(new Vector2(512.0f, 512.0f), 64.0f, 1024.0f));
+            //Emitter.AddModule(SpeedModule.Lerp(64.0f, 512.0f));
+            Emitter.AddModule(ScaleModule.Lerp(1.0f, 0.0f));
+            //Emitter.AddModule(AttractorModule.Basic(new Vector2(512.0f, 512.0f), 64.0f, 1024.0f, 10, 8.0f));
 
-            ColorModule baseColorModule = ColorModule.Lerp(
-                new Vector4(0f, 1.0f, 0.5f, 0.0f));
+            ColorModule baseColorModule = ColorModule.RandomLerp(
+                new Vector4(0f, 1.0f, 0.5f, 0.0f), 
+                new Vector4(360f, 1.0f, 0.5f, 0.0f));
 
             Emitter.AddModule(baseColorModule);
             //Emitter.AddModule(baseColorModule);
@@ -89,8 +91,8 @@ namespace SE.Components
 
             time -= Time.DeltaTime;
             while (time <= 0.0f) {
-                Emitter.Emit(32);
-                time += 0.1f;
+                Emitter.Emit(64);
+                time += 0.05f;
             }
         }
     }
