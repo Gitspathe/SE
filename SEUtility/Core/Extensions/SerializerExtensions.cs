@@ -51,7 +51,5 @@ namespace SE.Core.Extensions
                 DefaultValueHandling = DefaultValueHandling.Ignore
             };
         }
-
     }
-
 }

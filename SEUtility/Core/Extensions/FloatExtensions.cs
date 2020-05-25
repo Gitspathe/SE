@@ -4,10 +4,8 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core.Extensions
 {
-
     public static class FloatExtensions
     {
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 ToDirectionVector(this float angle)
         {
@@ -27,7 +25,5 @@ namespace SE.Core.Extensions
             vector = new Vector2((float)Math.Sin(angle), (float)-Math.Cos(angle));
 #endif
         }
-
     }
-
 }

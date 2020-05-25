@@ -1,10 +1,31 @@
 ﻿using System;
-using Vector2 = System.Numerics.Vector2;
+using System.Numerics;
 
 namespace SE.Core.Extensions
 {
-    public static class Vector2Extensions
+    public static class NumericsExtensions
     {
+#if NETSTANDARD2_1
+        public const float _PI_OVER180 = MathF.PI / 180;
+#else
+        public const float _PI_OVER180 = (float)Math.PI / 180;
+#endif
+
+        public static double ToRadians(this double val)
+        {
+            return _PI_OVER180 * val;
+        }
+
+        public static float ToRadians(this float val)
+        {
+            return _PI_OVER180 * val;
+        }
+
+        public static int Round(this int i, int increment)
+        {
+            return ((int)(i / (float)increment) * increment);
+        }
+
         public static float ToRotation(this Vector2 vector)
         {
 #if NETSTANDARD2_1
@@ -14,6 +35,7 @@ namespace SE.Core.Extensions
 #endif
         }
 
+#if MONOGAME
         public static Microsoft.Xna.Framework.Vector2 ToMonoGameVector2(this Vector2 vector)
         {
             return new Microsoft.Xna.Framework.Vector2(vector.X, vector.Y);
@@ -23,6 +45,7 @@ namespace SE.Core.Extensions
         {
             return new Microsoft.Xna.Framework.Point((int)vector.X, (int)vector.Y);
         }
+#endif
 
         public static Vector2 GetRotationVector(this float degrees, float length = 1.0f)
         {
