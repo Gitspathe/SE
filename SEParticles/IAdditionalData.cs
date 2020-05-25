@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SEParticles
+﻿namespace SEParticles
 {
     /// <summary>
     /// Represents additional data for an emitter.
     /// </summary>
-    public interface IAdditionalData
-    {
-    }
+    public interface IAdditionalData { }
 }

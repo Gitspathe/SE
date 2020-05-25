@@ -35,20 +35,14 @@ namespace SEParticles
 
         public EmitterSet() { }
 
-        public EmitterSet(Emitter emitter)
-        {
-            Emitters.Add(emitter);
-        }
+        public EmitterSet(Emitter emitter) 
+            => Emitters.Add(emitter);
 
-        public EmitterSet(Emitter[] emitters)
-        {
-            Emitters.AddRange(emitters);
-        }
+        public EmitterSet(Emitter[] emitters) 
+            => Emitters.AddRange(emitters);
 
-        public EmitterSet(IEnumerable<Emitter> emitters)
-        {
-            Emitters.AddRange(emitters);
-        }
+        public EmitterSet(IEnumerable<Emitter> emitters) 
+            => Emitters.AddRange(emitters);
 
         public EmitterSet DeepCopy()
         {

@@ -60,11 +60,9 @@ namespace SEParticles.Modules
             }
         }
 
-        public override void OnUpdate(float deltaTime, Span<Particle> particles)
+        public override void OnUpdate(float deltaTime, Particle* arrayPtr, int length)
         {
-            fixed (Particle* ptr = particles) {
-                Process(deltaTime, particles.Length, ptr);
-            }
+            Process(deltaTime, length, arrayPtr);
         }
 
         public override ParticleModule DeepCopy()

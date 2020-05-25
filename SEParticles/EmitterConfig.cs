@@ -22,6 +22,7 @@ namespace SEParticles
 
             public ColorConfig()
             {
+                Min = new Vector4(0, 1.0f, 1.0f, 1.0f);
                 StartValueType = StartingValue.Normal;
             }
 

@@ -67,11 +67,9 @@ namespace SEParticles.Modules
             }
         }
 
-        public override void OnUpdate(float deltaTime, Span<Particle> particles)
+        public override void OnUpdate(float deltaTime, Particle* arrayPtr, int length)
         {
-            fixed (Particle* ptr = particles) {
-                Process(deltaTime, particles.Length, ptr);
-            }
+            Process(deltaTime, length, arrayPtr);
         }
 
         private void Process(float deltaTime, int size, Particle* ptr)

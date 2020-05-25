@@ -8,14 +8,14 @@ using static SEParticles.ParticleMath;
 
 namespace SEParticles.Shapes
 {
-    public class CircleShape : EmitterShape
+    public class CircleShape : IEmitterShape
     {
         public float Radius;
         public EmissionDirection Direction;
         public bool EdgeOnly;
         public bool Uniform;
 
-        public override void Get(out Vector2 position, out Vector2 velocity, float uniformRatio)
+        public void Get(out Vector2 position, out Vector2 velocity, float uniformRatio)
         {
             float distance = EdgeOnly 
                 ? Radius 
@@ -40,12 +40,5 @@ namespace SEParticles.Shapes
             EdgeOnly = edgeOnly;
             Uniform = uniform;
         }
-    }
-
-    public enum EmissionDirection
-    {
-        None,
-        In,
-        Out
     }
 }

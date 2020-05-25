@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using SE.Engine.Utility;
 using SE.Utility;
 using SEParticles.Shapes;
 using Vector2 = System.Numerics.Vector2;
@@ -19,10 +17,8 @@ namespace SEParticles
     public unsafe class Emitter
     {
         public QuickList<ParticleModule> Modules = new QuickList<ParticleModule>();
-
-        internal int ParticleEngineIndex = -1;
         public IAdditionalData AdditionalData;
-        public EmitterShape Shape;
+        public IEmitterShape Shape;
 
         public EmitterConfig Config;
         public Vector2 Position;
@@ -31,9 +27,10 @@ namespace SEParticles
         public Rectangle StartRect; // TODO. Support sprite-sheet animations + random start sprite-sheet source rect.
 #endif
 
+        internal int ParticleEngineIndex = -1;
         internal Particle[] Particles;
+        
         private int[] newParticles;
-
         private int numActive;
         private int numNew;
 
@@ -64,34 +61,27 @@ namespace SEParticles
             }
             numNew = 0;
 
-            // Update the particles, and deactivate those whose TTL <= 0.
-            Span<Particle> activeParticles = ActiveParticles;
-            int size = activeParticles.Length;
-            fixed (Particle* ptr = activeParticles) {
-                Particle* particle = ptr;
-                for (int i = 0; i < size; i++) {
+            fixed (Particle* ptr = Particles) {
+                Particle* end = ptr + numActive;
+                int i = 0;
+
+                // Update the particles, and deactivate those whose TTL <= 0.
+                for (Particle* particle = ptr; particle < end; particle++, i++) {
                     particle->TimeAlive += deltaTime;
                     if (particle->TimeAlive >= particle->InitialLife) {
                         DeactivateParticle(i);
                     }
-                    particle++;
                 }
-            }
 
-            // Update the modules.
-            activeParticles = ActiveParticles;
-            for (int i = 0; i < Modules.Count; i++) {
-                modules[i].OnUpdate(deltaTime, activeParticles);
-            }
+                // Update the modules.
+                for (Particle* particle = ptr; particle < end; particle++) {
+                    modules[i].OnUpdate(deltaTime, ptr, numActive);
+                }
 
-            // Update particle positions.
-            activeParticles = ActiveParticles;
-            size = activeParticles.Length;
-            fixed (Particle* ptr = activeParticles) {
-                Particle* particle = ptr;
-                for (int i = 0; i < size; i++) {
+                // Update particle positions.
+                end = ptr + numActive;
+                for (Particle* particle = ptr; particle < end; particle++) {
                     particle->Position += particle->Direction * particle->Speed * deltaTime;
-                    particle++;
                 }
             }
         }
@@ -106,10 +96,13 @@ namespace SEParticles
 
         public void Emit(int amount = 1)
         {
+            if (!enabled)
+                return;
+
             for (int i = 0; i < amount; i++) {
                 if (numActive + 1 > Particles.Length)
                     return;
-                
+
                 fixed (Particle* particle = &Particles[numActive++]) {
                     Shape.Get(out particle->Position, out particle->Direction, (float)i / amount);
                     particle->Position += Position;
@@ -220,7 +213,7 @@ namespace SEParticles
             module.OnInitialize();
         }
 
-        public Emitter(int capacity = 2048, EmitterShape shape = null)
+        public Emitter(int capacity = 2048, IEmitterShape shape = null)
         {
             Config = new EmitterConfig();
             Shape = shape ?? new PointShape();

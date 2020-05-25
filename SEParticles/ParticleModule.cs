@@ -36,7 +36,7 @@ namespace SEParticles
         /// </summary>
         /// <param name="deltaTime">Time in seconds elapsed since last update.</param>
         /// <param name="particles">Span of active particles.</param>
-        public abstract void OnUpdate(float deltaTime, Span<Particle> particles);
+        public unsafe abstract void OnUpdate(float deltaTime, Particle* arrayPtr, int length);
 
         /// <summary>
         /// Copies the particle module.
