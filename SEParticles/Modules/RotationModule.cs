@@ -79,7 +79,45 @@ namespace SEParticles.Modules
 
         public override void OnUpdate(float deltaTime, Particle* arrayPtr, int length)
         {
-            Process(deltaTime, length, arrayPtr);
+            // Initialize locals here to use ldloc.n instead of ldloc.s in IL.
+            Particle* particle;
+            Particle* tail = arrayPtr + length;
+            int i = 0;
+
+            switch (config.TransitionType) {
+                case TransitionType.Constant: {
+                    for (particle = arrayPtr; particle < tail; particle++) {
+                        particle->Rotation += config.Start * deltaTime;
+                    }
+                } break;
+                case TransitionType.Lerp: {
+                    for (particle = arrayPtr; particle < tail; particle++) {
+                        float angleDelta = ParticleMath.Lerp(
+                            config.Start,
+                            config.End,
+                            particle->TimeAlive / particle->InitialLife);
+
+                        particle->Rotation += angleDelta * deltaTime;
+                    }
+                } break;
+                case TransitionType.Curve: {
+                    for (particle = arrayPtr; particle < tail; particle++) {
+                        particle->Rotation += config.Curve.Evaluate(particle->TimeAlive / particle->InitialLife) * deltaTime;
+                    }
+                } break;
+                case TransitionType.RandomConstant: {
+                    for (particle = arrayPtr; particle < tail; particle++, i++) {
+                        particle->Rotation += Between(config.Start, config.End, rand[i]) * deltaTime;
+                    }
+                } break;
+                case TransitionType.RandomCurve: {
+                    for (particle = arrayPtr; particle < tail; particle++, i++) {
+                        particle->Rotation += config.Curve.Evaluate(rand[i]) * deltaTime;
+                    }
+                } break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public override ParticleModule DeepCopy()
@@ -87,58 +125,6 @@ namespace SEParticles.Modules
             return new RotationModule {
                 config = config.DeepCopy(),
             };
-        }
-
-        private void Process(float deltaTime, int size, Particle* ptr)
-        {
-            Particle* particle = ptr;
-            switch (config.TransitionType) {
-                case TransitionType.Constant: {
-                    for (int i = 0; i < size; i++) {
-                        particle->Rotation += config.Start * deltaTime;
-                        particle++;
-                    }
-                } break;
-                case TransitionType.Lerp: {
-                    for (int i = 0; i < size; i++) {
-                        float angleDelta = ParticleMath.Lerp(
-                            config.Start,
-                            config.End,
-                            particle->TimeAlive / particle->InitialLife);
-
-                        particle->Rotation += angleDelta * deltaTime;
-                        particle++;
-                    }
-                } break;
-                case TransitionType.Curve: {
-                    for (int i = 0; i < size; i++) {
-                        float lifeRatio = particle->TimeAlive / particle->InitialLife;
-                        float angleDelta = config.Curve.Evaluate(lifeRatio);
-                        particle->Rotation += angleDelta * deltaTime;
-                        particle++;
-                    }
-                } break;
-                case TransitionType.RandomConstant: {
-                    for (int i = 0; i < size; i++) {
-                        float randDelta = Between(
-                            config.Start, 
-                            config.End, 
-                            rand[i]);
-
-                        particle->Rotation += randDelta * deltaTime;
-                        particle++;
-                    }
-                } break;
-                case TransitionType.RandomCurve: {
-                    for (int i = 0; i < size; i++) {
-                        float randDelta = config.Curve.Evaluate(rand[i]);
-                        particle->Rotation += randDelta * deltaTime;
-                        particle++;
-                    }
-                } break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
 
         public static RotationModule Constant(float val)

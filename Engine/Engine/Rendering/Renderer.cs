@@ -381,24 +381,7 @@ namespace SE.Rendering
                     }
                 }
             }
-
-            //Texture2D texture = GameEngine.EngineContent.Load<Texture2D>("tileset");
-
-            //ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
-            //TestEffect.CurrentTechnique.Passes[0].Apply();
-
-
-            //Core.Rendering.SpriteBatch.Draw(texture,
-            //    new Vector2(0, 0) - camPos,
-            //    new Rectangle(0, 0, texture.Width, texture.Height),
-            //    Color.White,
-            //    0f,
-            //    new Vector2(0, 0),
-            //    new Vector2(0, 0),
-            //    1.0f);
-
-           // Core.Rendering.SpriteBatch.Draw(texture, new Microsoft.Xna.Framework.Vector2(0 - camPos.X, 0 - camPos.Y), new Color(0.5f, 1.0f, 0.5f, 1.0f));
-            //EndDrawCall();
+            EndDrawCall();
         }
 
         public struct DepthComparer : IComparer<IRenderable>

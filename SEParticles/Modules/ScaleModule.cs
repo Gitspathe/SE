@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using Microsoft.Xna.Framework;
 using SE.Engine.Utility;
 using SE.Utility;
 using Random = SE.Utility.Random;
+using Curve = SE.Utility.Curve;
 using static SEParticles.ParticleMath;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SEParticles.Modules
 {
@@ -69,38 +72,35 @@ namespace SEParticles.Modules
 
         public override void OnUpdate(float deltaTime, Particle* arrayPtr, int length)
         {
-            Process(deltaTime, length, arrayPtr);
-        }
+            // Initialize locals here to use ldloc.n instead of ldloc.s in IL.
+            Particle* particle;
+            Particle* tail = arrayPtr + length;
+            float scale;
+            int i = 0;
 
-        private void Process(float deltaTime, int size, Particle* ptr)
-        {
-            Particle* particle = ptr;
             switch (transitionType) {
                 case Transition.Lerp: {
-                    for (int i = 0; i < size; i++) {
-                        float scale = Between(start, end, particle->TimeAlive / particle->InitialLife);
+                    for (particle = arrayPtr; particle < tail; particle++, i++) {
+                        scale = Between(start, end, particle->TimeAlive / particle->InitialLife);
                         particle->Scale = AbsoluteValue
                             ? new Vector2(scale, scale)
                             : new Vector2(scale, scale) * startScales[i];
-                        particle++;
                     }
                 } break;
                 case Transition.Curve: {
-                    for (int i = 0; i < size; i++) {
-                        float scale = curve.Evaluate(particle->TimeAlive / particle->InitialLife);
+                    for (particle = arrayPtr; particle < tail; particle++, i++) {
+                        scale = curve.Evaluate(particle->TimeAlive / particle->InitialLife);
                         particle->Scale = AbsoluteValue
                             ? new Vector2(scale, scale)
                             : new Vector2(scale, scale) * startScales[i];
-                        particle++;
                     }
                 } break;
                 case Transition.RandomCurve: {
-                    for (int i = 0; i < size; i++) {
-                        float scale = curve.Evaluate(rand[i]);
+                    for (particle = arrayPtr; particle < tail; particle++, i++) {
+                        scale = curve.Evaluate(rand[i]);
                         particle->Scale = AbsoluteValue
                             ? new Vector2(scale, scale)
                             : new Vector2(scale, scale) * startScales[i];
-                        particle++;
                     }
                 } break;
                 default:

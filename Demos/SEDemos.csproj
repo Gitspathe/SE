@@ -30,6 +30,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutputPath>bin\</OutputPath>
+    <DefineConstants />
   </PropertyGroup>
 
   <ItemGroup>

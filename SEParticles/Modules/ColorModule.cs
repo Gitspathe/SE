@@ -101,37 +101,30 @@ namespace SEParticles.Modules
 
         public override void OnUpdate(float deltaTime, Particle* arrayPtr, int length)
         {
-            Process(deltaTime, length, arrayPtr);
-        }
+            // Initialize locals here to use ldloc.n instead of ldloc.s in IL.
+            Particle* particle;
+            Particle* tail = arrayPtr + length;
+            int i = 0;
 
-        private void Process(float deltaTime, int size, Particle* ptr)
-        {
-            Particle* particle = ptr;
             switch (transitionType) {
                 case Transition.Lerp: {
-                    for (int i = 0; i < size; i++) {
-                        Vector4 color = Vector4.Lerp(startColors[i], end1, particle->TimeAlive / particle->InitialLife);
-                        particle->Color = color;
-                        particle++;
+                    for (particle = arrayPtr; particle < tail; particle++, i++) {
+                        particle->Color = Vector4.Lerp(startColors[i], end1, particle->TimeAlive / particle->InitialLife);
                     }
                 } break;
                 case Transition.Curve: {
-                    for (int i = 0; i < size; i++) {
+                    for (particle = arrayPtr; particle < tail; particle++) {
                         float lifeRatio = particle->TimeAlive / particle->InitialLife;
-                        Vector4 color = new Vector4(
+                        particle->Color = new Vector4(
                             curveH.Evaluate(lifeRatio),
-                            curveS.Evaluate(lifeRatio), 
+                            curveS.Evaluate(lifeRatio),
                             curveL.Evaluate(lifeRatio),
                             curveA.Evaluate(lifeRatio));
-                        particle->Color = color;
-                        particle++;
                     }
                 } break;
                 case Transition.RandomLerp: {
-                    for (int i = 0; i < size; i++) {
-                        Vector4 color = Vector4.Lerp(startColors[i], randEndColors[i], particle->TimeAlive / particle->InitialLife);
-                        particle->Color = color;
-                        particle++;
+                    for (particle = arrayPtr; particle < tail; particle++, i++) {
+                        particle->Color = Vector4.Lerp(startColors[i], randEndColors[i], particle->TimeAlive / particle->InitialLife);
                     }
                 } break;
                 default:

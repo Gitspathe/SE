@@ -1,6 +1,7 @@
 ﻿#if EDITOR
 #endif
 using System;
+using System.IO;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -40,6 +41,8 @@ namespace SE.Core
                 statsUI.SetActive(value);
             }
         }
+
+        private static StreamWriter outputWriter = new StreamWriter("log.txt");
 
         private static bool showGrid = false;
         private static bool showNavGrid = false;
@@ -112,6 +115,8 @@ namespace SE.Core
                     consoleUI.Disable(true);
                 }
             }
+
+            outputWriter.AutoFlush = true;
         }
 
         public static void InitializeStats(SpriteBatch spriteBatch)
@@ -224,6 +229,7 @@ namespace SE.Core
                 }
                 System.Console.ForegroundColor = ConsoleColor.White;
             }
+            outputWriter.WriteLine(output);
         }
 
         private static string GetExceptionInfo(Exception e)
@@ -339,7 +345,7 @@ namespace SE.Core
 
         public static void DrawUnderlay(Camera2D camera, SpriteBatch spriteBatch)
         {
-            Core.Rendering.ChangeDrawCall(SpriteSortMode.Deferred, camera.ScaleMatrix);
+            Rendering.ChangeDrawCall(SpriteSortMode.Deferred, camera.ScaleMatrix);
 
             // Initialize the sprite texture if it's null.
             if (spriteTex.Texture == null)
@@ -351,7 +357,7 @@ namespace SE.Core
             if (showGrid) {
                 SpatialPartitionManager.DrawBoundingRectangle(camera);
             }
-            Core.Rendering.EndDrawCall();
+            Rendering.EndDrawCall();
         }
 
         /// <summary>

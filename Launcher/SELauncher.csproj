@@ -24,7 +24,7 @@
     <DefineConstants>TRACE;DEBUG;LINUX</DefineConstants>
     <DebugType>full</DebugType>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -33,6 +33,7 @@
     <DebugType>pdbonly</DebugType>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -40,7 +41,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <DefineConstants>TRACE;MONOGAME;</DefineConstants>
+    <DefineConstants>MONOGAME;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

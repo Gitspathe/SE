@@ -54,19 +54,21 @@ namespace SEParticles
         public void Update(float deltaTime)
         {
             ParticleModule[] modules = Modules.Array;
+            int i;
 
             // Inform the modules of newly activated particles.
-            for (int i = 0; i < Modules.Count; i++) {
+            for (i = 0; i < Modules.Count; i++) {
                 modules[i].OnParticlesActivated(NewParticlesIndex);
             }
             numNew = 0;
 
             fixed (Particle* ptr = Particles) {
+                Particle* particle;
                 Particle* end = ptr + numActive;
-                int i = 0;
+                i = 0;
 
                 // Update the particles, and deactivate those whose TTL <= 0.
-                for (Particle* particle = ptr; particle < end; particle++, i++) {
+                for (particle = ptr; particle < end; particle++, i++) {
                     particle->TimeAlive += deltaTime;
                     if (particle->TimeAlive >= particle->InitialLife) {
                         DeactivateParticle(i);
@@ -74,13 +76,13 @@ namespace SEParticles
                 }
 
                 // Update the modules.
-                for (Particle* particle = ptr; particle < end; particle++) {
+                for (i = 0; i < Modules.Count; i++) {
                     modules[i].OnUpdate(deltaTime, ptr, numActive);
                 }
 
                 // Update particle positions.
                 end = ptr + numActive;
-                for (Particle* particle = ptr; particle < end; particle++) {
+                for (particle = ptr; particle < end; particle++) {
                     particle->Position += particle->Direction * particle->Speed * deltaTime;
                 }
             }
