@@ -72,32 +72,29 @@ namespace SEParticles.Modules
 
         public override void OnUpdate(float deltaTime, Particle* arrayPtr, int length)
         {
-            // Initialize locals here to use ldloc.n instead of ldloc.s in IL.
-            Particle* particle;
             Particle* tail = arrayPtr + length;
-            float scale;
             int i = 0;
 
             switch (transitionType) {
                 case Transition.Lerp: {
-                    for (particle = arrayPtr; particle < tail; particle++, i++) {
-                        scale = Between(start, end, particle->TimeAlive / particle->InitialLife);
+                    for (Particle* particle = arrayPtr; particle < tail; particle++, i++) {
+                        float scale = Between(start, end, particle->TimeAlive / particle->InitialLife);
                         particle->Scale = AbsoluteValue
                             ? new Vector2(scale, scale)
                             : new Vector2(scale, scale) * startScales[i];
                     }
                 } break;
                 case Transition.Curve: {
-                    for (particle = arrayPtr; particle < tail; particle++, i++) {
-                        scale = curve.Evaluate(particle->TimeAlive / particle->InitialLife);
+                    for (Particle* particle = arrayPtr; particle < tail; particle++, i++) {
+                        float scale = curve.Evaluate(particle->TimeAlive / particle->InitialLife);
                         particle->Scale = AbsoluteValue
                             ? new Vector2(scale, scale)
                             : new Vector2(scale, scale) * startScales[i];
                     }
                 } break;
                 case Transition.RandomCurve: {
-                    for (particle = arrayPtr; particle < tail; particle++, i++) {
-                        scale = curve.Evaluate(rand[i]);
+                    for (Particle* particle = arrayPtr; particle < tail; particle++, i++) {
+                        float scale = curve.Evaluate(rand[i]);
                         particle->Scale = AbsoluteValue
                             ? new Vector2(scale, scale)
                             : new Vector2(scale, scale) * startScales[i];

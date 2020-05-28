@@ -45,7 +45,7 @@ namespace SE.Core
         public static RenderTarget2D SceneRender { get; private set; }
         public static RenderTarget2D UIRender { get; private set; }
         public static RenderTarget2D FinalRender { get; private set; }
-        internal static QuickList<Camera2D> cameras { get; } = new QuickList<Camera2D>();
+        internal static QuickList<Camera2D> Cameras { get; } = new QuickList<Camera2D>();
 
         public static Effect TestEffect;
 
@@ -55,10 +55,10 @@ namespace SE.Core
                 throw new HeadlessNotSupportedException("Cannot update rendering in fully headless display mode.");
 
             // Show message if there are no cameras being rendered.
-            if (cameras.Count < 1) {
+            if (Cameras.Count < 1) {
                 DrawNoCamerasMessage();
             } else {
-                foreach (Camera2D cam in cameras) {
+                foreach (Camera2D cam in Cameras) {
                     foreach (Action<Camera2D> renderAction in RenderLoop.Loop.Values) {
                         renderAction.Invoke(cam);
                         if (RenderLoop.IsDirty) {
@@ -134,9 +134,9 @@ namespace SE.Core
             int screenWidth = GraphicsDeviceManager.PreferredBackBufferWidth;
             int screenHeight = GraphicsDeviceManager.PreferredBackBufferHeight;
 
-            cameras.Sort(new CameraQueueComparer());
+            Cameras.Sort(new CameraQueueComparer());
             ChangeDrawCall(SpriteSortMode.Deferred, null, BlendState.AlphaBlend, SamplerState.LinearClamp, null, RasterizerState.CullNone);
-            foreach (Camera2D camera in cameras) {
+            foreach (Camera2D camera in Cameras) {
                 Rectangle renderRegion = new Rectangle((int)(camera.RenderRegion.X * screenWidth), 
                     (int)(camera.RenderRegion.Y * screenHeight), 
                     (int)(camera.RenderRegion.Width * screenWidth), 
@@ -190,13 +190,13 @@ namespace SE.Core
 
         public static void AddCamera(Camera2D camera)
         {
-            if (!cameras.Contains(camera))
-                cameras.Add(camera);
+            if (!Cameras.Contains(camera))
+                Cameras.Add(camera);
         }
 
         public static void RemoveCamera(Camera2D camera)
         {
-            cameras.Remove(camera);
+            Cameras.Remove(camera);
         }
 
         private static void DrawNoCamerasMessage()

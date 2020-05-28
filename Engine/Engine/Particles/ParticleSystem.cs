@@ -162,7 +162,7 @@ namespace SE.Particles
                 Point sizeValue = BoundsSize.Value;
                 Rectangle bounds = new Rectangle((int)Position.X - sizeValue.X / 2, (int)Position.Y - sizeValue.Y / 2, sizeValue.X, sizeValue.Y);
                 IsVisible = false;
-                foreach (Camera2D camera in Core.Rendering.cameras) {
+                foreach (Camera2D camera in Core.Rendering.Cameras) {
                     if (camera.ViewBounds.Intersects(bounds)) {
                         IsVisible = true;
                     }

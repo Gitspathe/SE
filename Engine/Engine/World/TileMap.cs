@@ -22,7 +22,7 @@ namespace SE.World
         public Scene Scene { get; internal set; }
         public string FolderPath => Path.Combine(Scene.FolderPath, Scene.LevelName + ".tilemap");
 
-        public Dictionary<uint, Func<Vector2, GameObject>> TileSet { get; private set; }
+        public Dictionary<uint, ITileProvider> TileSet { get; private set; }
 
         public List<TileChunk> Chunks { get; } = new List<TileChunk>();
 

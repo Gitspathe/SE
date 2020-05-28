@@ -62,23 +62,20 @@ namespace SEParticles.Modules
 
         public override void OnUpdate(float deltaTime, Particle* arrayPtr, int length)
         {
-            // Initialize locals here to use ldloc.n instead of ldloc.s in IL.
-            Particle* particle;
             Particle* tail = arrayPtr + length;
-            float velocity;
 
             switch (transitionType) {
                 case Transition.Lerp: {
-                    for (particle = arrayPtr; particle < tail; particle++) {
-                        velocity = ParticleMath.Lerp(start, end, particle->TimeAlive / particle->InitialLife);
+                    for (Particle* particle = arrayPtr; particle < tail; particle++) {
+                        float velocity = ParticleMath.Lerp(start, end, particle->TimeAlive / particle->InitialLife);
                         particle->Speed = AbsoluteValue
                             ? velocity
                             : particle->Speed + (velocity * deltaTime);
                     }
                 } break;
                 case Transition.Curve: {
-                    for (particle = arrayPtr; particle < tail; particle++) {
-                        velocity = curve.Evaluate(particle->TimeAlive / particle->InitialLife);
+                    for (Particle* particle = arrayPtr; particle < tail; particle++) {
+                        float velocity = curve.Evaluate(particle->TimeAlive / particle->InitialLife);
                         particle->Speed = AbsoluteValue
                             ? velocity
                             : particle->Speed + (velocity * deltaTime);
@@ -86,8 +83,8 @@ namespace SEParticles.Modules
                 } break;
                 case Transition.RandomCurve: {
                     int i = 0;
-                    for (particle = arrayPtr; particle < tail; particle++, i++) {
-                        velocity = curve.Evaluate(rand[i]);
+                    for (Particle* particle = arrayPtr; particle < tail; particle++, i++) {
+                        float velocity = curve.Evaluate(rand[i]);
                         particle->Speed = AbsoluteValue 
                             ? velocity
                             : particle->Speed + (velocity * deltaTime);

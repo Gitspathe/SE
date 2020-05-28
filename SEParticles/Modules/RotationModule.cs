@@ -79,19 +79,17 @@ namespace SEParticles.Modules
 
         public override void OnUpdate(float deltaTime, Particle* arrayPtr, int length)
         {
-            // Initialize locals here to use ldloc.n instead of ldloc.s in IL.
-            Particle* particle;
             Particle* tail = arrayPtr + length;
             int i = 0;
 
             switch (config.TransitionType) {
                 case TransitionType.Constant: {
-                    for (particle = arrayPtr; particle < tail; particle++) {
+                    for (Particle* particle = arrayPtr; particle < tail; particle++) {
                         particle->Rotation += config.Start * deltaTime;
                     }
                 } break;
                 case TransitionType.Lerp: {
-                    for (particle = arrayPtr; particle < tail; particle++) {
+                    for (Particle* particle = arrayPtr; particle < tail; particle++) {
                         float angleDelta = ParticleMath.Lerp(
                             config.Start,
                             config.End,
@@ -101,17 +99,17 @@ namespace SEParticles.Modules
                     }
                 } break;
                 case TransitionType.Curve: {
-                    for (particle = arrayPtr; particle < tail; particle++) {
+                    for (Particle* particle = arrayPtr; particle < tail; particle++) {
                         particle->Rotation += config.Curve.Evaluate(particle->TimeAlive / particle->InitialLife) * deltaTime;
                     }
                 } break;
                 case TransitionType.RandomConstant: {
-                    for (particle = arrayPtr; particle < tail; particle++, i++) {
+                    for (Particle* particle = arrayPtr; particle < tail; particle++, i++) {
                         particle->Rotation += Between(config.Start, config.End, rand[i]) * deltaTime;
                     }
                 } break;
                 case TransitionType.RandomCurve: {
-                    for (particle = arrayPtr; particle < tail; particle++, i++) {
+                    for (Particle* particle = arrayPtr; particle < tail; particle++, i++) {
                         particle->Rotation += config.Curve.Evaluate(rand[i]) * deltaTime;
                     }
                 } break;

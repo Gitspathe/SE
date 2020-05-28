@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.World
@@ -8,7 +9,7 @@ namespace SE.World
     {
         public TileMap TileMap { get; private set; }
         public TileChunk Chunk { get; internal set; }
-        public List<TileTemplate> Tiles { get; internal set; } = new List<TileTemplate>();
+        public QuickList<TileTemplate> Tiles { get; internal set; } = new QuickList<TileTemplate>();
 
         public bool IsActive => Tiles.Count > 0;
 
@@ -36,9 +37,9 @@ namespace SE.World
         public void RemoveTile(uint tileID)
         {
             for (int i = 0; i < Tiles.Count; i++) {
-                if (Tiles[i].TileID == tileID) {
-                    Tiles[i].DestroyTile();
-                    Tiles.Remove(Tiles[i]);
+                if (Tiles.Array[i].TileID == tileID) {
+                    Tiles.Array[i].DestroyTile();
+                    Tiles.Remove(Tiles.Array[i]);
                 }
             }
         }
@@ -49,14 +50,14 @@ namespace SE.World
                 DestroyTiles();
 
             for (int i = 0; i < Tiles.Count; i++) {
-                Tiles[i].Instantiate();
+                Tiles.Array[i].Instantiate();
             }
         }
 
         public void DestroyTiles()
         {
             for (int i = 0; i < Tiles.Count; i++) {
-                Tiles[i].DestroyTile();
+                Tiles.Array[i].DestroyTile();
             }
             Tiles.Clear();
         }
@@ -64,7 +65,7 @@ namespace SE.World
         public bool Contains(uint tileID)
         {
             for (int i = 0; i < Tiles.Count; i++) {
-                if (Tiles[i].TileID == tileID) {
+                if (Tiles.Array[i].TileID == tileID) {
                     return true;
                 }
             }

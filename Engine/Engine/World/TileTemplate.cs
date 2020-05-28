@@ -4,13 +4,13 @@ namespace SE.World
 {
     public struct TileTemplate : IEquatable<TileTemplate>
     {
-        public Tile Tile { get; private set; }
+        public ITileProvider Provider { get; private set; }
         public uint TileID { get; private set; }
         public TileSpot Spot { get; internal set; }
         public TileMap TileMap => Spot.TileMap;
         public TileChunk Chunk => Spot.Chunk;
 
-        public bool IsActive => Tile != null;
+        //public bool IsActive => Tile != null;
 
         public void Change(TileSpot tileSpot, uint tileID)
         {
@@ -22,30 +22,29 @@ namespace SE.World
 
         public void Instantiate()
         {
-            Tile = (Tile) TileMap.TileSet[TileID].Invoke(Spot.WorldPosition);
-            Tile.Template = this;
+            Provider.Activate(ref this);
         }
 
         public void DestroyTile()
         {
-            Tile.Destroy();
-            Tile = null;
+            Provider.Deactivate(ref this);
         }
 
         public TileTemplate(TileSpot tileSpot, uint tileID)
         {
-            Tile = null;
+            Provider = null;
             Spot = tileSpot;
             TileID = tileID;
+            Provider = TileMap.TileSet[tileID];
         }
 
         public bool Equals(TileTemplate other) 
-            => Equals(Tile, other.Tile) && TileID == other.TileID && Equals(Spot, other.Spot);
+            => Provider == other.Provider && TileID == other.TileID && Equals(Spot, other.Spot);
 
         public override bool Equals(object obj) 
             => obj is TileTemplate other && Equals(other);
 
         public override int GetHashCode() 
-            => HashCode.Combine(Tile, TileID, Spot);
+            => HashCode.Combine(Provider, TileID, Spot);
     }
 }

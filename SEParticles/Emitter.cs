@@ -63,12 +63,11 @@ namespace SEParticles
             numNew = 0;
 
             fixed (Particle* ptr = Particles) {
-                Particle* particle;
                 Particle* end = ptr + numActive;
                 i = 0;
 
                 // Update the particles, and deactivate those whose TTL <= 0.
-                for (particle = ptr; particle < end; particle++, i++) {
+                for (Particle* particle = ptr; particle < end; particle++, i++) {
                     particle->TimeAlive += deltaTime;
                     if (particle->TimeAlive >= particle->InitialLife) {
                         DeactivateParticle(i);
@@ -82,7 +81,7 @@ namespace SEParticles
 
                 // Update particle positions.
                 end = ptr + numActive;
-                for (particle = ptr; particle < end; particle++) {
+                for (Particle* particle = ptr; particle < end; particle++) {
                     particle->Position += particle->Direction * particle->Speed * deltaTime;
                 }
             }

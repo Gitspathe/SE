@@ -6,6 +6,7 @@ using SE.Core.Extensions;
 
 namespace SE.World
 {
+    // TODO: Chunk pooling.
     public class TileChunk
     {
         public TileMap TileMap { get; private set; }
@@ -82,7 +83,7 @@ namespace SE.World
                     for (int y = 0; y < chunkSize; y++) {
                         TileData[x][y] = new List<uint>();
                         for (int tile = 0; tile < chunk.TileTemplates[x][y].Tiles.Count; tile++) {
-                            uint tileID = chunk.TileTemplates[x][y].Tiles[tile].TileID;
+                            uint tileID = chunk.TileTemplates[x][y].Tiles.Array[tile].TileID;
                             TileData[x][y].Add(tileID);
                         }
                     }

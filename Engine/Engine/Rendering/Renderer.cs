@@ -357,9 +357,9 @@ namespace SE.Rendering
 
                 fixed (SEParticles.Particle* ptr = particles) {
                     int size = particles.Length;
-                    SEParticles.Particle* particle = ptr;
+                    SEParticles.Particle* tail = ptr + size;
 
-                    for (int i = 0; i < size; i++) {
+                    for (SEParticles.Particle* particle = ptr; particle < tail; particle++) {
                         Rectangle sourceRect = particle->SourceRectangle;
                         Vector2 origin = new Vector2(
                             sourceRect.Width / 2.0f,
@@ -376,8 +376,6 @@ namespace SE.Rendering
                             origin,
                             particle->Scale,
                             1.0f);
-                        
-                        particle++;
                     }
                 }
             }
