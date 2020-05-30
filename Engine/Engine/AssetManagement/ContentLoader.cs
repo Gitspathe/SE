@@ -12,15 +12,20 @@ namespace SE.AssetManagement
 
         /// <summary>Holds current asset references.</summary>
         internal HashSet<IAsset> References = new HashSet<IAsset>();
-
         /// <summary>Holds all asset references, including ones which aren't active.</summary>
         internal HashSet<IAsset> AllRefs = new HashSet<IAsset>();
+
+        public bool Inactive => timeInactive >= 10.0f;
 
         private bool loaded;
         private float timeInactive;
         private List<IAsset> orderedReferences = new List<IAsset>();
 
-        public bool Inactive => timeInactive >= 10.0f;
+        public ContentLoader(IServiceProvider serviceProvider, string id, string rootDirectory) : base(serviceProvider, rootDirectory)
+        {
+            ID = id;
+            AssetManager.AddContentManager(this);
+        }
 
         public override T Load<T>(string name)
         {
@@ -102,12 +107,5 @@ namespace SE.AssetManagement
             }
             base.Unload();
         }
-
-        public ContentLoader(IServiceProvider serviceProvider, string id, string rootDirectory) : base(serviceProvider, rootDirectory)
-        {
-            ID = id;
-            AssetManager.AddContentManager(this);
-        }
-
     }
 }

@@ -10,6 +10,11 @@ namespace SE.AssetManagement
     {
         private Dictionary<string, Asset<TValue>> data;
 
+        public AssetDictionary(int initialCapacity = 1)
+        {
+            data = new Dictionary<string, Asset<TValue>>(initialCapacity);
+        }
+
         public Dictionary<string, TValue> GetData(IAssetConsumer consumer)
         {
             Dictionary<string, TValue> dict = new Dictionary<string, TValue>();
@@ -61,10 +66,5 @@ namespace SE.AssetManagement
 
         public Asset<TValue> GetAsset(string key) 
             => data.TryGetValue(key, out Asset<TValue> asset) ? asset : default;
-
-        public AssetDictionary(int initialCapacity = 1)
-        {
-            data = new Dictionary<string, Asset<TValue>>(initialCapacity);
-        }
     }
 }
