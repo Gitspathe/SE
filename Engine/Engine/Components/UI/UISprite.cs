@@ -6,10 +6,8 @@ using Vector2 = System.Numerics.Vector2;
 namespace SE.Components.UI
 {
 
-    public sealed class UISprite : SpriteBase
+    public class UISprite : SpriteBase, IUISprite
     {
-        public override bool IsUISprite => true;
-
         public override void Render(Camera2D camera, Space space)
         {
             Rectangle bounds = this.bounds;
@@ -67,4 +65,6 @@ namespace SE.Components.UI
             Origin = Vector2.Zero;
         }
     }
+
+    public interface IUISprite { }
 }

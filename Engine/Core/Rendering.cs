@@ -179,7 +179,7 @@ namespace SE.Core
             VisibleSprites.Clear();
             //Rectangle viewRect = camera.Zoom > 1.0f ? camera.UnscaledViewBounds : camera.Bounds;
             Rectangle viewRect = camera.ViewBounds;
-            SpatialPartitionManager.GetFromRegionRaw<SpriteBase>(VisibleSprites, viewRect);
+            SpatialPartitionManager.GetFromRegionRaw<IRenderable>(VisibleSprites, viewRect);
         }
 
         public static void Prepare()

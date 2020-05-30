@@ -7,10 +7,8 @@ using Vector2 = System.Numerics.Vector2;
 namespace SE.Components.UI
 {
     // TODO: Support border coloring.
-    public sealed class UISlicedSprite : SpriteBase
+    public sealed class UISlicedSprite : SpriteBase, IUISprite
     {
-        public override bool IsUISprite => true;
-
         private SlicedImage slicedImage;
         public SlicedImage SlicedImage {
             get => slicedImage;

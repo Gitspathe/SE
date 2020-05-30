@@ -5,15 +5,13 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components.UI
 {
-    public sealed class TextSprite : SpriteBase
+    public sealed class TextSprite : SpriteBase, IUISprite
     {
         /// <summary>Text used to render this sprite.</summary>
         public string Text;
 
         /// <summary>Font used to render this sprite.</summary>
         public SpriteFont SpriteFont;
-
-        public override bool IsUISprite => true;
 
         public override void Render(Camera2D camera, Space space)
         {

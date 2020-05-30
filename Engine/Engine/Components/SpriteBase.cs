@@ -20,13 +20,11 @@ namespace SE.Components
         // when not dealing with the core rendering system.
 
         public Vector2 PartitionPosition => Owner.Transform.GlobalPositionInternal;
-        public Type PartitionObjectType => typeof(SpriteBase);
-        public SpriteBase PartitionObject => this;
+        public Type PartitionObjectType => typeof(IRenderable);
+        public IRenderable PartitionObject => this;
         public PartitionTile CurrentPartitionTile { get; set; }
 
         public override int Queue => 100;
-
-        public abstract bool IsUISprite { get; }
 
         internal BlendMode blendMode;
         public BlendMode BlendMode {

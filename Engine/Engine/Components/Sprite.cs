@@ -49,8 +49,6 @@ namespace SE.Components
 
         public ShadowCaster Shadow { get; set; }
 
-        public override bool IsUISprite => false;
-
         public override void RecalculateBounds()
         {
             Rectangle bounds = Bounds;

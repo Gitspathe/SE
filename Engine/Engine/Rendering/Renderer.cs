@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Common;
 using SE.Components;
+using SE.Components.UI;
 using SE.Core;
 using SE.Particles;
 using SE.UI;
@@ -93,11 +94,11 @@ namespace SE.Rendering
 
             IPartitionObject[] spriteArray = renderedSprites.Array;
             for (int i = 0; i < renderedSprites.Count; i++) {
-                SpriteBase sprite = (SpriteBase)spriteArray[i];
-                if (excludeUI && sprite.IsUISprite)
+                IRenderable renderObj = (IRenderable)spriteArray[i];
+                if (excludeUI && renderObj is IUISprite)
                     continue;
 
-                RenderContainer.Add(sprite);
+                RenderContainer.Add(renderObj);
             }
         }
 
@@ -108,11 +109,11 @@ namespace SE.Rendering
 
             OrderablePartitioner<IPartitionObject> partitioner = Partitioner.Create(renderedSprites);
             Parallel.ForEach(partitioner, (obj, loopstate) => {
-                SpriteBase sprite = (SpriteBase)obj;
-                if (excludeUI && sprite.IsUISprite)
+                IRenderable renderObj = (IRenderable) obj;
+                if (excludeUI && renderObj is IUISprite)
                     return;
 
-                RenderContainer.Add(sprite, true);
+                RenderContainer.Add(renderObj, true);
             });
         }
 
