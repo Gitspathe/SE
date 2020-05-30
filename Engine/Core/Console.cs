@@ -42,7 +42,7 @@ namespace SE.Core
             }
         }
 
-        private static StreamWriter outputWriter = new StreamWriter("log.txt");
+        private static StreamWriter outputWriter;
 
         private static bool showGrid = false;
         private static bool showNavGrid = false;
@@ -116,7 +116,11 @@ namespace SE.Core
                 }
             }
 
-            outputWriter.AutoFlush = true;
+            try {
+                outputWriter = new StreamWriter("log.txt") {
+                    AutoFlush = true
+                };
+            } catch(IOException) { } 
         }
 
         public static void InitializeStats(SpriteBatch spriteBatch)
@@ -229,7 +233,8 @@ namespace SE.Core
                 }
                 System.Console.ForegroundColor = ConsoleColor.White;
             }
-            outputWriter.WriteLine(output);
+
+            outputWriter?.WriteLine(output);
         }
 
         private static string GetExceptionInfo(Exception e)
