@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SE.Engine.AssetManagement
+﻿namespace SE.AssetManagement
 {
     public interface IAssetProcessor<out TOutput> : IAssetProcessor
     {

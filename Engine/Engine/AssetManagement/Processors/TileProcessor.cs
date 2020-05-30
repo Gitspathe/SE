@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 using SE.Common;
 
-namespace SE.Engine.AssetManagement.Processors
+namespace SE.AssetManagement.Processors
 {
     public class TileProcessor : IAssetProcessor<Func<Vector2, GameObject>>
     {

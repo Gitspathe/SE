@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using SE.Common;
 using SE.Core;
-using SE.Engine.AssetManagement;
 using SE.Rendering;
 
 namespace SE.AssetManagement

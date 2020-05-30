@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SE.AssetManagement;
 using SE.Core;
 
-namespace SE.Engine.AssetManagement.Processors
+namespace SE.AssetManagement.Processors
 {
     public class GeneralContentProcessor<T> : IAssetProcessor<T>
     {

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SE.AssetManagement;
 using SE.Core;
 using SE.Rendering;
 
-namespace SE.Engine.AssetManagement.Processors
+namespace SE.AssetManagement.Processors
 {
     public class SpriteTextureProcessor : IAssetProcessor<SpriteTexture>
     {
