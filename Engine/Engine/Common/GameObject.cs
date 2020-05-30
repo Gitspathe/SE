@@ -21,7 +21,7 @@ namespace SE.Common
     /// <summary>
     /// GameObjects are containers for logic and components.
     /// </summary>
-    public class GameObject : INetLogicProxy, IAssetConsumer, IPartitionObjectExtended
+    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IPartitionObjectExtended
     {
         public string EngineName { get; set; }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SE.Engine.AssetManagement;
 
 namespace SE.AssetManagement
 {
@@ -10,7 +11,7 @@ namespace SE.AssetManagement
     public class AssetBuilder<T>
     {
         private string id;
-        private Func<T> createFunc;
+        private IAssetProcessor processor;
         private ContentLoader contentLoader;
         private HashSet<IAsset> references = new HashSet<IAsset>();
 
@@ -23,11 +24,11 @@ namespace SE.AssetManagement
         /// <summary>
         /// Initializes the asset's load function.
         /// </summary>
-        /// <param name="loadFunction">Function called whenever the asset is reloaded.</param>
+        /// <param name="processor">Function called whenever the asset is reloaded.</param>
         /// <returns>Asset builder.</returns>
-        public AssetBuilder<T> Create(Func<T> loadFunction)
+        public AssetBuilder<T> Create(IAssetProcessor processor)
         {
-            createFunc = loadFunction;
+            this.processor = processor;
             return this;
         }
 
@@ -62,16 +63,16 @@ namespace SE.AssetManagement
         /// <returns>Asset instance.</returns>
         public Asset<T> Finish()
         {
-            if (createFunc == null)
+            if (processor == null)
                 throw new Exception("Asset creation function wasn't set.");
             if (contentLoader == null)
                 throw new Exception("Asset wasn't bound to a ContentLoader.");
 
-            Asset<T> asset = new Asset<T>(id, createFunc, contentLoader, references);
+            Asset<T> asset = new Asset<T>(id, processor, contentLoader, references);
             references.Clear();
             references = null;
             contentLoader = null;
-            createFunc = null;
+            processor = null;
             return asset;
         }
     }

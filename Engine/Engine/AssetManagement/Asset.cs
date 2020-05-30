@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using SE.Common;
 using SE.Core;
+using SE.Engine.AssetManagement;
 using SE.Rendering;
 
 namespace SE.AssetManagement
 {
-    public class Asset<T> : IAsset, IAssetConsumer
+    public class Asset<T> : SEObject, IAsset, IAssetConsumer
     {
+        public ulong AssetID { get; internal set; }
+
         /// <value>Returns the inner resource of the asset.</value>
         /// <exception cref="NullReferenceException">Thrown when the asset isn't loaded into memory.</exception>
         internal T Value {
@@ -29,7 +33,7 @@ namespace SE.AssetManagement
 
         uint IAsset.LoadOrder { get; set; }
         bool IAsset.Loaded { 
-            get => isLoaded; 
+            get => isLoaded;
             set => isLoaded = value;
         }
         private bool isLoaded; // Optimization.
@@ -39,7 +43,7 @@ namespace SE.AssetManagement
 
         HashSet<IAssetConsumer> IAsset.References { get; set; } = new HashSet<IAssetConsumer>();
 
-        private Func<T> function;
+        private IAssetProcessor processor;
         private IAsset iAsset;
         private IAssetConsumer iAssetConsumer;
 
@@ -93,7 +97,7 @@ namespace SE.AssetManagement
 
         void IAsset.Load()
         {
-            Value = function.Invoke();
+            value = (T) processor.Construct();
             iAsset.Loaded = true;
         }
 
@@ -141,10 +145,10 @@ namespace SE.AssetManagement
         /// <summary>
         /// Creates a new asset.
         /// </summary>
-        /// <param name="loadFunction">Function called whenever the asset is reloaded.</param>
+        /// <param name="processor">Function called whenever the asset is reloaded.</param>
         /// <param name="contentLoader">Content loader the asset will be added to.</param>
         /// <param name="referencedAssets">Asset dependencies.</param>
-        public Asset(string id, Func<T> loadFunction, ContentLoader contentLoader, HashSet<IAsset> referencedAssets = null)
+        public Asset(string id, IAssetProcessor processor, ContentLoader contentLoader, HashSet<IAsset> referencedAssets = null)
         {
             ID = id;
             SetupInterfaces();
@@ -152,7 +156,7 @@ namespace SE.AssetManagement
             AssetManager.CurrentAssetPriority++;
 
             ContentLoader = contentLoader;
-            function = loadFunction;
+            this.processor = processor;
             if (referencedAssets == null) 
                 return;
 
@@ -167,16 +171,16 @@ namespace SE.AssetManagement
         /// <param name="loadFunction">Function called whenever the asset is reloaded.</param>
         /// <param name="contentLoader">Content loader the asset will be added to.</param>
         /// <param name="referencedAsset">Asset dependency.</param>
-        public Asset(string id, Func<T> loadFunction, ContentLoader contentLoader, IAsset referencedAsset = null) 
-            : this(id, loadFunction, contentLoader, new HashSet<IAsset> { referencedAsset }) { }
+        public Asset(string id, IAssetProcessor processor, ContentLoader contentLoader, IAsset referencedAsset = null) 
+            : this(id, processor, contentLoader, new HashSet<IAsset> { referencedAsset }) { }
 
         /// <summary>
         /// Creates a new asset.
         /// </summary>
         /// <param name="loadFunction">Function called whenever the asset is reloaded.</param>
         /// <param name="contentLoader">Content loader the asset will be added to.</param>
-        public Asset(string id, Func<T> loadFunction, ContentLoader contentLoader) 
-            : this(id, loadFunction, contentLoader, new HashSet<IAsset>()) { }
+        public Asset(string id, IAssetProcessor processor, ContentLoader contentLoader) 
+            : this(id, processor, contentLoader, new HashSet<IAsset>()) { }
 
         private void SetupInterfaces()
         {

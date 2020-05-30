@@ -13,6 +13,7 @@ using SE.Engine.Networking;
 using SE.Networking.Internal;
 using SE.Rendering;
 using SE.Core.Extensions;
+using SE.Engine.AssetManagement.Processors;
 using SE.Engine.Input;
 using SEDemos.GameObjects;
 using SEDemos.GameObjects.UI;
@@ -102,62 +103,62 @@ namespace SEDemos
         protected override void LoadAssets()
         {
             base.LoadAssets();
-            content = new ContentLoader(Content.ServiceProvider, "Data/_MAIN/Content");
-            ContentLoader content2 = new ContentLoader(Content.ServiceProvider, "Data/_MAIN/Content");
+            content = new ContentLoader(Content.ServiceProvider, "Content1", "Data/_MAIN/Content");
+            ContentLoader content2 = new ContentLoader(Content.ServiceProvider, "Content2", "Data/_MAIN/Content");
 
             if (!Screen.IsFullHeadless) {
                 AssetManager.Add(new AssetBuilder<Texture2D>()
                    .ID("tileset2")
-                   .Create(() => content2.Load<Texture2D>("tileset2"))
+                   .Create(new GeneralContentProcessor<Texture2D>("Content1", "tileset2"))
                    .FromContent(content2)
                 );
             }
 
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("unload_test")
-               .Create(() => new SpriteTexture(AssetManager.GetAsset<Texture2D>("tileset2"), new Rectangle(0, 0, 64, 64)))
+               .Create(new SpriteTextureProcessor("tileset2", new Rectangle(0, 0, 64, 64)))
                .FromContent(content2)
                .References(AssetManager.GetIAsset<Texture2D>("tileset2"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("floor")
-               .Create(() => new SpriteTexture(AssetManager.GetAsset<Texture2D>("tileset"), new Rectangle(0, 0, 64, 64)))
+               .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 0, 64, 64)))
                .FromContent(content)
                .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("wall_down")
-               .Create(() => new SpriteTexture(AssetManager.GetAsset<Texture2D>("tileset"), new Rectangle(64, 48, 64, 16)))
+               .Create(new SpriteTextureProcessor("tileset", new Rectangle(64, 48, 64, 16)))
                .FromContent(content)
                .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("wall_left")
-               .Create(() => new SpriteTexture(AssetManager.GetAsset<Texture2D>("tileset"), new Rectangle(128, 0, 16, 64)))
+               .Create(new SpriteTextureProcessor("tileset", new Rectangle(128, 0, 16, 64)))
                .FromContent(content)
                .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("wall_right")
-               .Create(() => new SpriteTexture(AssetManager.GetAsset<Texture2D>("tileset"), new Rectangle(240, 0, 16, 64)))
+               .Create(new SpriteTextureProcessor("tileset", new Rectangle(240, 0, 16, 64)))
                .FromContent(content)
                .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("wall_up")
-               .Create(() => new SpriteTexture(AssetManager.GetAsset<Texture2D>("tileset"), new Rectangle(256, 0, 64, 16)))
+               .Create(new SpriteTextureProcessor("tileset", new Rectangle(256, 0, 64, 16)))
                .FromContent(content)
                .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("player")
-               .Create(() => new SpriteTexture(AssetManager.GetAsset<Texture2D>("tileset"), new Rectangle(0, 0, 52, 52)))
+               .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 0, 52, 52)))
                .FromContent(content)
                .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("circle")
-               .Create(() => new SpriteTexture(AssetManager.GetAsset<Texture2D>("tileset"), new Rectangle(0, 128, 32, 32)))
+               .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 128, 32, 32)))
                .FromContent(content)
                .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
@@ -165,63 +166,63 @@ namespace SEDemos
             if (!Screen.IsFullHeadless) {
                 AssetManager.Add(new AssetBuilder<SoundEffect>()
                    .ID("assaultrifle")
-                   .Create(() => content.Load<SoundEffect>("assaultrifle"))
+                   .Create(new GeneralContentProcessor<SoundEffect>("Content1", "assaultrifle"))
                    .FromContent(content)
                 );
             }
 
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("0")
-               .Create(() => pos => { 
+               .Create(new TileProcessor(pos => {
                     Floor obj = new Floor(pos, 0f, Vector2.One); 
                     obj.GetComponent<Sprite>().Color = Color.White;
                     return obj;
-                })
+                }))
                .FromContent(content)
             );
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("1")
-               .Create(() => pos => {
+               .Create(new TileProcessor(pos => {
                     WallUp obj = new WallUp(pos, 0f, Vector2.One);
                     obj.GetComponent<Sprite>().Color = Color.Red; 
                     return obj;
-                })
+                }))
                .FromContent(content)
             );
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("2")
-               .Create(() => pos => {
+               .Create(new TileProcessor(pos => {
                     WallRight obj = new WallRight(pos, 0f, Vector2.One);
                     obj.GetComponent<Sprite>().Color = Color.Blue; 
                     return obj;
-                })
+                }))
                .FromContent(content)
             );
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("3")
-               .Create(() => pos => {
+               .Create(new TileProcessor(pos => {
                     WallDown obj = new WallDown(pos, 0f, Vector2.One);
                     obj.GetComponent<Sprite>().Color = Color.Orange; 
                     return obj;
-                })
+                }))
                .FromContent(content)
             );
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("4")
-               .Create(() => pos => {
+               .Create(new TileProcessor(pos => {
                     WallLeft obj = new WallLeft(pos, 0f, Vector2.One);
                     obj.GetComponent<Sprite>().Color = Color.Purple; 
                     return obj;
-                })
+                }))
                .FromContent(content)
             );
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("5")
-               .Create(() => pos => { 
+               .Create(new TileProcessor(pos => {
                     AnimatedFloor obj = new AnimatedFloor(pos, 0f, Vector2.One);
                     obj.GetComponent<Sprite>().Color = Color.White; 
                     return obj;
-                })
+                }))
                .FromContent(content)
             );
 

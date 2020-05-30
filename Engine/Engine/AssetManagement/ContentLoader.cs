@@ -8,6 +8,8 @@ namespace SE.AssetManagement
 {
     public class ContentLoader : ContentManager
     {
+        public string ID { get; }
+
         /// <summary>Holds current asset references.</summary>
         internal HashSet<IAsset> References = new HashSet<IAsset>();
 
@@ -99,8 +101,9 @@ namespace SE.AssetManagement
             base.Unload();
         }
 
-        public ContentLoader(IServiceProvider serviceProvider, string rootDirectory) : base(serviceProvider, rootDirectory)
+        public ContentLoader(IServiceProvider serviceProvider, string id, string rootDirectory) : base(serviceProvider, rootDirectory)
         {
+            ID = id;
             AssetManager.AddContentManager(this);
         }
 

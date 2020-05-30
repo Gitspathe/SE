@@ -14,6 +14,7 @@ using SE.Core;
 using SE.Core.Internal;
 using SE.Rendering;
 using SE.Core.Extensions;
+using SE.Engine.AssetManagement.Processors;
 using SE.Utility;
 using static SE.Core.SceneManager;
 using Console = SE.Core.Console;
@@ -162,50 +163,50 @@ namespace SE
 
         private void LoadEngineContent()
         {
-            EngineContent = new ContentLoader(Content.ServiceProvider, "Data/_MAIN/Content");
+            EngineContent = new ContentLoader(Content.ServiceProvider, "EngineContent", "Data/_MAIN/Content");
             if (Screen.IsFullHeadless) 
                 return;
 
             // Particle shader.
             AssetManager.Add(new AssetBuilder<Effect>()
                .ID("testshader")
-               .Create(() => EngineContent.Load<Effect>("shader"))
+               .Create(new GeneralContentProcessor<Effect>("EngineContent", "shader"))
                .FromContent(EngineContent)
             );
 
             // Texture2Ds
             AssetManager.Add(new AssetBuilder<Texture2D>()
                .ID("tileset")
-               .Create(() => EngineContent.Load<Texture2D>("tileset"))
+               .Create(new GeneralContentProcessor<Texture2D>("EngineContent", "tileset"))
                .FromContent(EngineContent)
             );
             AssetManager.Add(new AssetBuilder<Texture2D>()
                .ID("UI")
-               .Create(() => EngineContent.Load<Texture2D>("UI"))
+               .Create(new GeneralContentProcessor<Texture2D>("EngineContent", "UI"))
                .FromContent(EngineContent)
             );
             AssetManager.Add(new AssetBuilder<Texture2D>()
                .ID("EditorUI")
-               .Create(() => EngineContent.Load<Texture2D>("EditorUI"))
+               .Create(new GeneralContentProcessor<Texture2D>("EngineContent", "EditorUI"))
                .FromContent(EngineContent)
             );
 
             // Sprite Textures
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("uiRect")
-               .Create(() => new SpriteTexture(AssetManager.GetAsset<Texture2D>("tileset"), new Rectangle(0, 0, 64, 64)))
+               .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 0, 64, 64)))
                .References(AssetManager.GetIAsset<Texture2D>("tileset"))
                .FromContent(EngineContent)
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("leveleditorcursor")
-               .Create(() => new SpriteTexture(AssetManager.GetAsset<Texture2D>("tileset"), new Rectangle(0, 64, 64, 64)))
+               .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 64, 64, 64)))
                .References(AssetManager.GetIAsset<Texture2D>("tileset"))
                .FromContent(EngineContent)
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("debugsmallsquare")
-               .Create(() => new SpriteTexture(AssetManager.GetAsset<Texture2D>("tileset"), new Rectangle(0, 128, 16, 16)))
+               .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 128, 16, 16)))
                .References(AssetManager.GetIAsset<Texture2D>("tileset"))
                .FromContent(EngineContent)
             );
@@ -213,17 +214,17 @@ namespace SE
             // Sprite Fonts
             AssetManager.Add(new AssetBuilder<SpriteFont>()
                .ID("editor")
-               .Create(() => EngineContent.Load<SpriteFont>("fonts/editor"))
+               .Create(new GeneralContentProcessor<SpriteFont>("EngineContent", "fonts/editor"))
                .FromContent(EngineContent)
             );
             AssetManager.Add(new AssetBuilder<SpriteFont>()
                .ID("editor_subheading")
-               .Create(() => EngineContent.Load<SpriteFont>("fonts/editor"))
+               .Create(new GeneralContentProcessor<SpriteFont>("EngineContent", "fonts/editor"))
                .FromContent(EngineContent)
             );
             AssetManager.Add(new AssetBuilder<SpriteFont>()
                .ID("editor_heading")
-               .Create(() => EngineContent.Load<SpriteFont>("fonts/editor_heading"))
+               .Create(new GeneralContentProcessor<SpriteFont>("EngineContent", "fonts/editor_heading"))
                .FromContent(EngineContent)
             );
         }

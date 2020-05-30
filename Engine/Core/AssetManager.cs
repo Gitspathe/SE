@@ -16,13 +16,19 @@ namespace SE.Core
         //Increments for each new Asset instance.
         internal static uint CurrentAssetPriority;
 
-        private static List<ContentLoader> contentManagers = new List<ContentLoader>();
+        private static Dictionary<string, ContentLoader> contentManagers = new Dictionary<string, ContentLoader>();
+
+        internal static ContentLoader GetLoader(string id)
+        {
+            if (contentManagers.TryGetValue(id, out ContentLoader val)) {
+                return val;
+            }
+            return null;
+        }
 
         internal static void AddContentManager(ContentLoader wrapper)
         {
-            if (!contentManagers.Contains(wrapper)) {
-                contentManagers.Add(wrapper);
-            }
+            contentManagers.Add(wrapper.ID, wrapper);
         }
 
         public static Asset<TValue> Add<TValue>(Asset<TValue> value, bool replace = true)
@@ -114,9 +120,9 @@ namespace SE.Core
 
         public static void Unload()
         {
-            for (int i = 0; i < contentManagers.Count; i++) {
-                contentManagers[i].Unload();
-                contentManagers[i].Dispose();
+            foreach (KeyValuePair<string, ContentLoader> pair in contentManagers) {
+                pair.Value.Unload();
+                pair.Value.Dispose();
             }
             contentManagers.Clear();
             foreach (KeyValuePair<Type, dynamic> pair in LookupDictionary) {
