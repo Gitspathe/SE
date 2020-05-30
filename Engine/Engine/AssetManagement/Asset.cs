@@ -109,7 +109,7 @@ namespace SE.AssetManagement
             Value = default;
         }
 
-        void IAsset.Purge(bool unload = false)
+        void IAsset.Purge(bool unload)
         {
             if (iAsset.References.Count < 1) {
                 if (unload)

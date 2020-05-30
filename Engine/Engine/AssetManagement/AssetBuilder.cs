@@ -68,10 +68,10 @@ namespace SE.AssetManagement
                 throw new Exception("Asset wasn't bound to a ContentLoader.");
 
             Asset<T> asset = new Asset<T>(id, processor, contentLoader, references);
-            references.Clear();
-            references = null;
-            contentLoader = null;
-            processor = null;
+            //references.Clear();
+            //references = null;
+            //contentLoader = null;
+            //processor = null;
             return asset;
         }
     }

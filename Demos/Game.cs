@@ -65,7 +65,7 @@ namespace SEDemos
                 }
             };
 
-            //LevelManager.SetCurrentLevel("_DEMOS\\menu");
+            //SceneManager.SetCurrentScene("_DEMOS\\menu");
             SceneManager.SetCurrentScene("_DEMOS\\networktest");
 
             backToMenu = new BackButton();

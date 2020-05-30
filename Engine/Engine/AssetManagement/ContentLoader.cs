@@ -25,7 +25,7 @@ namespace SE.AssetManagement
         public override T Load<T>(string name)
         {
             try {
-                loaded = true;
+                //loaded = true;
                 ContentAssets.Add((typeof(T), name));
                 return base.Load<T>(name);
             } catch (ArgumentNullException e) {
@@ -41,11 +41,11 @@ namespace SE.AssetManagement
         public void Reload()
         {
             // Old reflection code doesn't seem necessary.
-            //foreach ((Type type, string str) in contentAssets) {
+            //foreach ((Type type, string str) in ContentAssets) {
             //    typeof(ContentLoader)
             //       .GetMethod("LoadInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             //       .MakeGenericMethod(type)
-            //       .Invoke(this, new object[] { str } );
+            //       .Invoke(this, new object[] { str });
             //}
             loaded = true;
 
@@ -70,7 +70,8 @@ namespace SE.AssetManagement
         {
             References.Add(reference);
             AllRefs.Add(reference);
-            if (!loaded && References.Count > 0) {
+            //if (!loaded && References.Count > 0) { // TODO: THE LOADED STATE IS BUGGED?!
+            if (References.Count > 0) {
                 Reload();
             }
         }
@@ -78,7 +79,8 @@ namespace SE.AssetManagement
         internal void RemoveReference(IAsset reference)
         {
             References.Remove(reference);
-            if (loaded && References.Count < 1) {
+            //if (loaded && References.Count < 1) { // TODO: THE LOADED STATE IS BUGGED?!
+            if (References.Count < 1) {
                 Unload();
             }
 
