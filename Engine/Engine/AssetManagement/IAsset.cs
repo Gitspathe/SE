@@ -5,7 +5,6 @@ namespace SE.AssetManagement
     public interface IAsset
     {
         public uint LoadOrder { get; internal set; }
-        public bool Active { get; internal set; }
         public bool Loaded { get; internal set; }
         internal HashSet<IAssetConsumer> References { get; set; }
 
@@ -13,8 +12,6 @@ namespace SE.AssetManagement
         internal void AddReference(IAssetConsumer reference);
         internal void Load();
         internal void Unload();
-        internal void Activate();
-        internal void Deactivate();
-        internal void Purge(bool unload = false);
+        internal void Purge();
     }
 }

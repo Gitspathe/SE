@@ -18,6 +18,13 @@ namespace SE.Core
 
         private static Dictionary<string, ContentLoader> contentManagers = new Dictionary<string, ContentLoader>();
 
+        public static void Update(float deltaTime)
+        {
+            foreach (var pair in contentManagers) {
+                pair.Value.Update(deltaTime);
+            }
+        }
+
         internal static ContentLoader GetLoader(string id)
         {
             if (contentManagers.TryGetValue(id, out ContentLoader val)) {

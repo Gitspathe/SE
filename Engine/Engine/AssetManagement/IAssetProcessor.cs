@@ -2,7 +2,7 @@
 {
     public interface IAssetProcessor<out TOutput> : IAssetProcessor
     {
-        public TOutput Construct();
+        new TOutput Construct();
     }
 
     public interface IAssetProcessor

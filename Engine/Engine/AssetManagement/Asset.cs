@@ -17,7 +17,7 @@ namespace SE.AssetManagement
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get {
                 if (!isLoaded)
-                    throw new NullReferenceException("The asset is not loaded.");
+                    iAsset.Load();
 
                 return value;
             }
@@ -37,7 +37,6 @@ namespace SE.AssetManagement
         }
         private bool isLoaded; // Optimization.
 
-        bool IAsset.Active { get; set; }
         HashSet<IAsset> IAssetConsumer.ReferencedAssets { get; set; } = new HashSet<IAsset>();
 
         HashSet<IAssetConsumer> IAsset.References { get; set; } = new HashSet<IAssetConsumer>();
@@ -59,9 +58,7 @@ namespace SE.AssetManagement
 
         internal T GetNoRef()
         {
-            if (!iAsset.Loaded)
-                iAsset.Load();
-
+            iAsset.Load();
             return Value;
         }
 
@@ -72,8 +69,8 @@ namespace SE.AssetManagement
 
             iAsset.References.Remove(consumer);
             consumer.RemoveReference(this);
-            if (iAsset.Active && iAsset.References.Count < 1) {
-                iAsset.Deactivate();
+            if (iAsset.References.Count < 1) {
+                iAsset.Unload();
             }
         }
 
@@ -86,57 +83,39 @@ namespace SE.AssetManagement
 
             iAsset.References.Add(consumer);
             consumer.AddReference(this);
-            if (!iAsset.Active && iAsset.References.Count > 0) {
-                if (!iAsset.Loaded)
-                    iAsset.Load();
-
-                iAsset.Activate();
+            if (iAsset.References.Count > 0) {
+                iAsset.Load();
             }
         }
 
         void IAsset.Load()
         {
+            if(isLoaded)
+                return;
+
             value = (T) processor.Construct();
+            iAssetConsumer.ReferenceAssets();
             iAsset.Loaded = true;
+            ContentLoader.AddReference(this);
         }
 
         void IAsset.Unload()
         {
-            iAsset.Loaded = false;
-            if (iAsset.Active)
-                iAsset.Deactivate();
+            if(!isLoaded)
+                return;
 
+            DrawCallDatabase.PruneAsset(Value);
+            iAsset.Loaded = false;
+            iAssetConsumer.DereferenceAssets();
+            ContentLoader.RemoveReference(this);
             Value = default;
         }
 
-        void IAsset.Purge(bool unload)
+        void IAsset.Purge()
         {
             if (iAsset.References.Count < 1) {
-                if (unload)
-                    iAsset.Unload();
-                else
-                    iAsset.Deactivate();
+                iAsset.Unload();
             }
-        }
-
-        void IAsset.Deactivate()
-        {
-            // Remove references from DrawCallDatabase.
-            DrawCallDatabase.PruneAsset(Value);
-
-            iAsset.Active = false;
-            iAssetConsumer.DereferenceAssets();
-            ContentLoader.RemoveReference(this);
-        }
-
-        void IAsset.Activate()
-        {
-            iAsset.Active = true;
-            if (!iAsset.Loaded)
-                iAsset.Load();
-
-            iAssetConsumer.ReferenceAssets();
-            ContentLoader.AddReference(this);
         }
 
         public IAsset AsIAsset() => this;
@@ -151,8 +130,7 @@ namespace SE.AssetManagement
         {
             ID = id;
             SetupInterfaces();
-            iAsset.LoadOrder = AssetManager.CurrentAssetPriority;
-            AssetManager.CurrentAssetPriority++;
+            iAsset.LoadOrder = AssetManager.CurrentAssetPriority++;
 
             ContentLoader = contentLoader;
             this.processor = processor;
@@ -167,7 +145,7 @@ namespace SE.AssetManagement
         /// <summary>
         /// Creates a new asset.
         /// </summary>
-        /// <param name="loadFunction">Function called whenever the asset is reloaded.</param>
+        /// <param name="processor">Asset processor used to construct the asset instance.</param>
         /// <param name="contentLoader">Content loader the asset will be added to.</param>
         /// <param name="referencedAsset">Asset dependency.</param>
         public Asset(string id, IAssetProcessor processor, ContentLoader contentLoader, IAsset referencedAsset = null) 
@@ -176,7 +154,7 @@ namespace SE.AssetManagement
         /// <summary>
         /// Creates a new asset.
         /// </summary>
-        /// <param name="loadFunction">Function called whenever the asset is reloaded.</param>
+        /// <param name="processor">Asset processor used to construct the asset instance.</param>
         /// <param name="contentLoader">Content loader the asset will be added to.</param>
         public Asset(string id, IAssetProcessor processor, ContentLoader contentLoader) 
             : this(id, processor, contentLoader, new HashSet<IAsset>()) { }

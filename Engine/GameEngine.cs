@@ -242,6 +242,8 @@ namespace SE
             //    GC.Collect();
             //}
 
+            AssetManager.Update(Time.DeltaTime);
+
             if (InputManager.KeyCodePressed(Keys.L)) {
                 SEParticles.ParticleEngine.MultiThreaded = !SEParticles.ParticleEngine.MultiThreaded;
                 Console.WriteLine("Multithreaded particles: " + (SEParticles.ParticleEngine.MultiThreaded ? "on" : "off"));

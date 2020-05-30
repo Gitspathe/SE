@@ -16,17 +16,15 @@ namespace SE.AssetManagement
         /// <summary>Holds all asset references, including ones which aren't active.</summary>
         internal HashSet<IAsset> AllRefs = new HashSet<IAsset>();
 
-        internal List<(Type, string)> ContentAssets = new List<(Type, string)>();
-
         private bool loaded;
-        private HashSet<IAsset> refCopy = new HashSet<IAsset>();
+        private float timeInactive;
         private List<IAsset> orderedReferences = new List<IAsset>();
+
+        public bool Inactive => timeInactive >= 10.0f;
 
         public override T Load<T>(string name)
         {
             try {
-                //loaded = true;
-                ContentAssets.Add((typeof(T), name));
                 return base.Load<T>(name);
             } catch (ArgumentNullException e) {
                 if (Screen.IsFullHeadless) {
@@ -38,16 +36,24 @@ namespace SE.AssetManagement
 
         private T LoadInternal<T>(string name) => base.Load<T>(name);
 
+        public void Update(float deltaTime)
+        {
+            if(Inactive)
+                return;
+
+            if (References.Count < 1)
+                timeInactive += deltaTime;
+            else
+                timeInactive = 0.0f;
+
+            if (Inactive && loaded)
+                Unload();
+        }
+
         public void Reload()
         {
-            // Old reflection code doesn't seem necessary.
-            //foreach ((Type type, string str) in ContentAssets) {
-            //    typeof(ContentLoader)
-            //       .GetMethod("LoadInternal", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            //       .MakeGenericMethod(type)
-            //       .Invoke(this, new object[] { str });
-            //}
             loaded = true;
+            timeInactive = 0.0f;
 
             // Sort all references.
             orderedReferences.Clear();
@@ -70,8 +76,7 @@ namespace SE.AssetManagement
         {
             References.Add(reference);
             AllRefs.Add(reference);
-            //if (!loaded && References.Count > 0) { // TODO: THE LOADED STATE IS BUGGED?!
-            if (References.Count > 0) {
+            if (!loaded && References.Count > 0) {
                 Reload();
             }
         }
@@ -79,10 +84,6 @@ namespace SE.AssetManagement
         internal void RemoveReference(IAsset reference)
         {
             References.Remove(reference);
-            //if (loaded && References.Count < 1) { // TODO: THE LOADED STATE IS BUGGED?!
-            if (References.Count < 1) {
-                Unload();
-            }
 
             // Clear stale entries.
             HashSet<IAsset> copy = new HashSet<IAsset>(References);
@@ -97,8 +98,7 @@ namespace SE.AssetManagement
 
             // Unload all assets from this content loader from memory.
             foreach (IAsset asset in AllRefs) {
-                if(asset.Loaded)
-                    asset.Unload();
+                asset.Unload();
             }
             base.Unload();
         }
