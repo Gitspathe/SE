@@ -46,7 +46,7 @@ namespace SE.World
         /// <summary>Amount of tiles in the X and Y axis.</summary>
         public Point TilesCount { get; private set; } = new Point(-1, -1);
 
-        HashSet<IAsset> IAssetConsumer.ReferencedAssets { get; set; }
+        public AssetConsumer AssetConsumer { get; } = new AssetConsumer();
 
         internal void Update()
         {
@@ -347,7 +347,7 @@ namespace SE.World
                 script?.BeforeSceneUnload();
             }
 
-            ((IAssetConsumer) this).DereferenceAssets();
+            AssetConsumer.DereferenceAssets();
             RemoveAndDestroyAllTiles();
             foreach (GameObject go in AttachedGameObjects) {
                 go.Destroy();

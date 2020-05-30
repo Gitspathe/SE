@@ -31,7 +31,7 @@ namespace SE.Particles
 
         public virtual ParticleRenderType ParticleRenderType => ParticleRenderType.Additive;
 
-        HashSet<IAsset> IAssetConsumer.ReferencedAssets { get; set; }
+        public AssetConsumer AssetConsumer {get; } = new AssetConsumer();
 
         private bool enabled;
         public bool Enabled {
@@ -137,7 +137,7 @@ namespace SE.Particles
 
         public void Dispose()
         {
-            ((IAssetConsumer) this).DereferenceAssets();
+            AssetConsumer.DereferenceAssets();
         }
 
         public virtual Particle GenerateParticle()

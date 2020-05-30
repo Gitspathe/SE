@@ -47,7 +47,7 @@ namespace SE.Common
         public Type PartitionObjectType => typeof(GameObject);
         public PartitionTile CurrentPartitionTile { get; set; }
 
-        HashSet<IAsset> IAssetConsumer.ReferencedAssets { get; set; }
+        public AssetConsumer AssetConsumer { get; } = new AssetConsumer();
 
         /// <summary>Dynamic state of a GameObject. Dynamic GameObjects have their Update methods called while static
         ///          GameObjects do not.</summary>
@@ -363,7 +363,7 @@ namespace SE.Common
                 Transform.Children[i].GameObject?.Destroy();
             }
 
-            ((IAssetConsumer)this).DereferenceAssets();
+            AssetConsumer.DereferenceAssets();
             Transform.Dispose();
             Dispose();
             Transform = null;
@@ -608,7 +608,7 @@ namespace SE.Common
                 SpatialPartitionManager.Remove(pObj);
                 PartitionObjects.Remove(pObj);
             }
-            ((IAssetConsumer)component).DereferenceAssets();
+            component.AssetConsumer.DereferenceAssets();
             Components.Remove(component);
             SerializedComponents.Remove(component);
 

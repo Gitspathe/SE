@@ -25,7 +25,7 @@ namespace SE.Common
         /// <summary>The component's order in which it is processed. Lower = earlier update loop and initialize.</summary>
         public virtual int Queue { get; } = 0;
 
-        HashSet<IAsset> IAssetConsumer.ReferencedAssets { get; set; }
+        public AssetConsumer AssetConsumer { get; } = new AssetConsumer();
 
         /// <summary>The component's enabled state.</summary>
         [NoSerialize] public bool Enabled {

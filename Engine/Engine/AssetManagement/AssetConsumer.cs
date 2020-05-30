@@ -2,11 +2,11 @@
 
 namespace SE.AssetManagement
 {
-    public interface IAssetConsumer
+    public class AssetConsumer
     {
-        internal HashSet<IAsset> ReferencedAssets { get; set; }
+        public HashSet<IAsset> ReferencedAssets { get; set; }
 
-        internal void ReferenceAssets()
+        public void ReferenceAssets()
         {
             if(ReferencedAssets == null)
                 ReferencedAssets = new HashSet<IAsset>();
@@ -17,7 +17,7 @@ namespace SE.AssetManagement
             }
         }
 
-        internal void DereferenceAssets()
+        public void DereferenceAssets()
         {
             if (ReferencedAssets == null)
                 ReferencedAssets = new HashSet<IAsset>();
@@ -28,7 +28,7 @@ namespace SE.AssetManagement
             }
         }
 
-        internal void AddReference(IAsset reference)
+        public void AddReference(IAsset reference)
         {
             if (ReferencedAssets == null)
                 ReferencedAssets = new HashSet<IAsset>();
@@ -36,12 +36,17 @@ namespace SE.AssetManagement
             ReferencedAssets.Add(reference);
         }
 
-        internal void RemoveReference(IAsset reference)
+        public void RemoveReference(IAsset reference)
         {
             if (ReferencedAssets == null)
                 ReferencedAssets = new HashSet<IAsset>();
 
             ReferencedAssets.Remove(reference);
         }
+    }
+
+    public interface IAssetConsumer
+    {
+        public AssetConsumer AssetConsumer { get; }
     }
 }

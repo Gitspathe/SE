@@ -16,7 +16,7 @@ namespace SE.Physics
     /// </summary>
     public class NavigationGrid : IAssetConsumer
     {
-        HashSet<IAsset> IAssetConsumer.ReferencedAssets { get; set; }
+        public AssetConsumer AssetConsumer { get; } = new AssetConsumer();
 
         public LayerType[] Layers;
         public int NodeSize, NodesX, NodesY;
