@@ -15,6 +15,7 @@ using SE.Networking.Internal;
 using SE.Rendering;
 using SE.Core.Extensions;
 using SE.Engine.Input;
+using SE.Utility;
 using SEDemos.GameObjects;
 using SEDemos.GameObjects.UI;
 using Vector2 = System.Numerics.Vector2;
@@ -235,8 +236,18 @@ namespace SEDemos
             //}
         }
 
+        private float timer = 1.0f;
         protected override void OnUpdate(GameTime gameTime)
         {
+            timer -= Time.DeltaTime;
+            if (timer <= 0.0f && Network.IsServer) {
+                for (int i = 0; i < 20; i++) {
+                    NetHelper.Instantiate("bouncy", "SERVER", 
+                        new Vector2(128 + SE.Utility.Random.Next(0.0f, 1024.0f), 128 + SE.Utility.Random.Next(0.0f, 1024.0f)));
+                }
+                timer = 0.05f;
+            }
+
             if (IsEditor) {
                 if (InputManager.KeyCodePressed(Keys.F3)) {
                     SceneManager.SetCurrentScene("_DEMOS\\networktest");

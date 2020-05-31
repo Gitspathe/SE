@@ -373,7 +373,7 @@ namespace SE.Rendering
                             particle->Position - camPos,
                             sourceRect,
                             color,
-                            particle->Rotation,
+                            particle->SpriteRotation,
                             origin,
                             particle->Scale,
                             1.0f);

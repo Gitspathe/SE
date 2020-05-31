@@ -63,7 +63,7 @@ namespace SE.Components
                 new Vector4(0f, 1.0f, 0.5f, 0.0f), 
                 new Vector4(360f, 1.0f, 0.5f, 0.0f));
 
-            Emitter.AddModule(baseColorModule);
+            //Emitter.AddModule(baseColorModule);
             //Emitter.AddModule(baseColorModule);
 
             Emitter.Enabled = true;
@@ -76,7 +76,7 @@ namespace SE.Components
 
         protected override void OnDestroy()
         {
-            Emitter.Enabled = false;
+            Emitter.Dispose();
         }
 
         protected override void OnDisable()

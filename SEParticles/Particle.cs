@@ -19,7 +19,7 @@ namespace SEParticles
         public Vector2 Direction;         // Direction the particle travels in
         public Vector4 Color;             // H, S, L, A
         public float Speed;
-        public float Rotation;            // Sprite rotation
+        public float SpriteRotation;      // Sprite rotation
         public float InitialLife;
         public float TimeAlive;
 #if MONOGAME
@@ -31,14 +31,14 @@ namespace SEParticles
         public static Particle Default 
             => new Particle(Vector2.Zero, Vector2.One, Vector4.Zero, 0f, 1.0f);
 
-        public Particle(Vector2 position, Vector2 scale, Vector4 color, float rotation, float timeAlive)
+        public Particle(Vector2 position, Vector2 scale, Vector4 color, float spriteRotation, float timeAlive)
         { 
             Position = position;
             Scale = scale;
             Direction = Vector2.Zero;
             Color = color;
             Speed = 0.0f;
-            Rotation = rotation;
+            SpriteRotation = spriteRotation;
             TimeAlive = timeAlive;
             InitialLife = timeAlive;
 #if MONOGAME

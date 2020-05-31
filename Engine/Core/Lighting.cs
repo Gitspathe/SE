@@ -21,6 +21,8 @@ namespace SE.Core
         private static ObservableCollection<Hull> penumbraHulls;
         private static ObservableCollection<Penumbra.Light> penumbraLights;
 
+        private static object lightManagerLock = new object();
+
         private static bool enabled;
         public static bool Enabled
         {
@@ -121,19 +123,21 @@ namespace SE.Core
             if (Screen.IsFullHeadless)
                 throw new HeadlessNotSupportedException("Cannot reset lighting in fully headless display mode.");
 
-            Hull[] copyHulls = new Hull[penumbraHulls.Count];
-            Penumbra.Light[] copyLights = new Penumbra.Light[penumbraLights.Count];
-            penumbraHulls.CopyTo(copyHulls, 0);
-            penumbraLights.CopyTo(copyLights, 0);
+            lock (lightManagerLock) {
+                Hull[] copyHulls = new Hull[penumbraHulls.Count];
+                Penumbra.Light[] copyLights = new Penumbra.Light[penumbraLights.Count];
+                penumbraHulls.CopyTo(copyHulls, 0);
+                penumbraLights.CopyTo(copyLights, 0);
 
-            Penumbra?.Dispose();
-            Penumbra = new PenumbraComponent(GameEngine.Engine);
-            Penumbra.Initialize();
-            Penumbra.AmbientColor = Color.Black;
-            penumbraHulls = Penumbra.Hulls;
-            penumbraLights = Penumbra.Lights;
-            penumbraHulls.AddRange(copyHulls);
-            penumbraLights.AddRange(copyLights);
+                Penumbra?.Dispose();
+                Penumbra = new PenumbraComponent(GameEngine.Engine);
+                Penumbra.Initialize();
+                Penumbra.AmbientColor = Color.Black;
+                penumbraHulls = Penumbra.Hulls;
+                penumbraLights = Penumbra.Lights;
+                penumbraHulls.AddRange(copyHulls);
+                penumbraLights.AddRange(copyLights);
+            }
         }
 
         public static void AddLight(Light pointLight)
@@ -141,8 +145,10 @@ namespace SE.Core
             if (pointLight.AddedToLighting || Screen.IsFullHeadless)
                 return;
 
-            pointLights.Add(pointLight);
-            penumbraLights.Add(pointLight.PenumbraLight);
+            lock (lightManagerLock) {
+                pointLights.Add(pointLight);
+                penumbraLights.Add(pointLight.PenumbraLight);
+            }
             pointLight.AddedToLighting = true;
         }
 
@@ -151,9 +157,10 @@ namespace SE.Core
             if(Screen.IsFullHeadless)
                 return;
 
-            pointLights.Remove(pointLight);
-            Penumbra.Lights.Remove(pointLight.PenumbraLight);
-            penumbraLights.Remove(pointLight.PenumbraLight);
+            lock (lightManagerLock) {
+                pointLights.Remove(pointLight);
+                penumbraLights.Remove(pointLight.PenumbraLight);
+            }
             pointLight.AddedToLighting = false;
         }
     }

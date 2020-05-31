@@ -5,33 +5,34 @@ using static SEParticles.ParticleMath;
 
 namespace SEParticles.Modules
 {
-    public unsafe class RotationModule : ParticleModule
+    public unsafe class SpriteRotationModule : ParticleModule
     {
-        private Configuration config;
         private float[] rand;
 
-        public RotationModule()
-        {
-            config = new Configuration();
-        }
+        private TransitionType transitionType;
+        private float start, end;
+        private Curve curve;
+
+        private bool IsRandom => transitionType == TransitionType.RandomConstant ||
+                                 transitionType == TransitionType.RandomCurve;
 
         public void SetConstant(float val)
         {
-            config.Start = val;
-            config.TransitionType = TransitionType.Constant;
+            start = val;
+            transitionType = TransitionType.Constant;
         }
 
         public void SetLerp(float start, float end)
         {
-            config.Start = start;
-            config.End = end;
-            config.TransitionType = TransitionType.Lerp;
+            this.start = start;
+            this.end = end;
+            transitionType = TransitionType.Lerp;
         }
 
         public void SetCurve(Curve curve)
         {
-            config.Curve = curve;
-            config.TransitionType = TransitionType.Curve;
+            this.curve = curve;
+            transitionType = TransitionType.Curve;
         }
 
         public void SetRandomConstant(float min, float max)
@@ -39,16 +40,16 @@ namespace SEParticles.Modules
             if (min > max)
                 Swap(ref min, ref max);
 
-            config.Start = min;
-            config.End = max;
-            config.TransitionType = TransitionType.RandomConstant;
+            start = min;
+            end = max;
+            transitionType = TransitionType.RandomConstant;
             RegenerateRandom();
         }
 
         public void SetRandomCurve(Curve curve)
         {
-            config.Curve = curve;
-            config.TransitionType = TransitionType.RandomCurve;
+            this.curve = curve;
+            transitionType = TransitionType.RandomCurve;
             RegenerateRandom();
         }
 
@@ -59,7 +60,7 @@ namespace SEParticles.Modules
 
         private void RegenerateRandom()
         {
-            if (!config.IsRandom || Emitter == null) 
+            if (!IsRandom || Emitter == null) 
                 return;
 
             rand = new float[Emitter.ParticlesLength];
@@ -70,7 +71,7 @@ namespace SEParticles.Modules
 
         public override void OnParticlesActivated(Span<int> particlesIndex)
         {
-            if (config.IsRandom) {
+            if (IsRandom) {
                 for (int i = 0; i < particlesIndex.Length; i++) {
                     rand[particlesIndex[i]] = Random.Next(0.0f, 1.0f);
                 }
@@ -82,35 +83,35 @@ namespace SEParticles.Modules
             Particle* tail = arrayPtr + length;
             int i = 0;
 
-            switch (config.TransitionType) {
+            switch (transitionType) {
                 case TransitionType.Constant: {
                     for (Particle* particle = arrayPtr; particle < tail; particle++) {
-                        particle->Rotation += config.Start * deltaTime;
+                        particle->SpriteRotation += start * deltaTime;
                     }
                 } break;
                 case TransitionType.Lerp: {
                     for (Particle* particle = arrayPtr; particle < tail; particle++) {
                         float angleDelta = ParticleMath.Lerp(
-                            config.Start,
-                            config.End,
+                            start,
+                            end,
                             particle->TimeAlive / particle->InitialLife);
 
-                        particle->Rotation += angleDelta * deltaTime;
+                        particle->SpriteRotation += angleDelta * deltaTime;
                     }
                 } break;
                 case TransitionType.Curve: {
                     for (Particle* particle = arrayPtr; particle < tail; particle++) {
-                        particle->Rotation += config.Curve.Evaluate(particle->TimeAlive / particle->InitialLife) * deltaTime;
+                        particle->SpriteRotation += curve.Evaluate(particle->TimeAlive / particle->InitialLife) * deltaTime;
                     }
                 } break;
                 case TransitionType.RandomConstant: {
                     for (Particle* particle = arrayPtr; particle < tail; particle++, i++) {
-                        particle->Rotation += Between(config.Start, config.End, rand[i]) * deltaTime;
+                        particle->SpriteRotation += Between(start, end, rand[i]) * deltaTime;
                     }
                 } break;
                 case TransitionType.RandomCurve: {
                     for (Particle* particle = arrayPtr; particle < tail; particle++, i++) {
-                        particle->Rotation += config.Curve.Evaluate(rand[i]) * deltaTime;
+                        particle->SpriteRotation += curve.Evaluate(rand[i]) * deltaTime;
                     }
                 } break;
                 default:
@@ -120,62 +121,56 @@ namespace SEParticles.Modules
 
         public override ParticleModule DeepCopy()
         {
-            return new RotationModule {
-                config = config.DeepCopy(),
+            return new SpriteRotationModule {
+                transitionType = transitionType,
+                start = start,
+                end = end,
+                curve = curve.Clone()
             };
         }
 
-        public static RotationModule Constant(float val)
+        public static SpriteRotationModule Constant(float val)
         {
-            RotationModule module = new RotationModule();
+            SpriteRotationModule module = new SpriteRotationModule();
             module.SetConstant(val);
             return module;
         }
 
-        public static RotationModule Lerp(float start, float end)
+        public static SpriteRotationModule Lerp(float start, float end)
         {
-            RotationModule module = new RotationModule();
+            SpriteRotationModule module = new SpriteRotationModule();
             module.SetLerp(start, end);
             return module;
         }
 
-        public static RotationModule Curve(Curve curve)
+        public static SpriteRotationModule Curve(Curve curve)
         {
-            RotationModule module = new RotationModule();
+            SpriteRotationModule module = new SpriteRotationModule();
             module.SetCurve(curve);
             return module;
         }
 
-        public static RotationModule RandomConstant(float min, float max)
+        public static SpriteRotationModule RandomConstant(float min, float max)
         {
-            RotationModule module = new RotationModule();
+            SpriteRotationModule module = new SpriteRotationModule();
             module.SetRandomConstant(min, max);
             return module;
         }
 
-        public static RotationModule RandomCurve(Curve curve)
+        public static SpriteRotationModule RandomCurve(Curve curve)
         {
-            RotationModule module = new RotationModule();
+            SpriteRotationModule module = new SpriteRotationModule();
             module.SetRandomCurve(curve);
             return module;
         }
 
-        public class Configuration
+        private enum TransitionType
         {
-            public TransitionType TransitionType;
-            public float Start, End;
-            public Curve Curve;
-
-            public bool IsRandom => TransitionType == TransitionType.RandomConstant ||
-                                    TransitionType == TransitionType.RandomCurve;
-
-            public Configuration DeepCopy() 
-                => new Configuration {
-                    TransitionType = TransitionType,
-                    Start = Start,
-                    End = End,
-                    Curve = Curve.Clone()
-                };
+            Constant,
+            Lerp,
+            Curve,
+            RandomConstant,
+            RandomCurve
         }
     }
 }

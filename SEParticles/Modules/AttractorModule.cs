@@ -31,7 +31,7 @@ namespace SEParticles.Modules
                     GetAngle(particle->Position, Position, out Vector2 direction, out float angle);
 
                     particle->Direction = Vector2.Lerp(particle->Direction, direction, ratio * Intensity * deltaTime);
-                    particle->Rotation = Lerp(particle->Rotation, angle, ratio * Intensity * deltaTime);
+                    particle->SpriteRotation = Lerp(particle->SpriteRotation, angle, ratio * Intensity * deltaTime);
                     particle->Speed += speedDelta;
                 }
                 particle++;

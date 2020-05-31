@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SE.Utility;
 using SEParticles.Shapes;
+using System.Buffers;
 using Vector2 = System.Numerics.Vector2;
 using Vector4 = System.Numerics.Vector4;
 using Random = SE.Utility.Random;
@@ -14,31 +15,41 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace SEParticles
 {
-    public unsafe class Emitter
+    /// <summary>
+    /// Core of the particle engine. Emitters hold a buffer of particles, and a list of <see cref="ParticleModule"/>.
+    /// </summary>
+    public unsafe class Emitter : IDisposable
     {
-        public QuickList<ParticleModule> Modules = new QuickList<ParticleModule>();
         public IAdditionalData AdditionalData;
         public IEmitterShape Shape;
 
         public EmitterConfig Config;
         public Vector2 Position;
+        public Vector2 Size;
 #if MONOGAME
         public Texture2D Texture;
         public Rectangle StartRect; // TODO. Support sprite-sheet animations + random start sprite-sheet source rect.
 #endif
 
+        internal HashSet<AreaModule> AreaModules = new HashSet<AreaModule>();
         internal int ParticleEngineIndex = -1;
         internal Particle[] Particles;
         
+        private QuickList<ParticleModule> modules = new QuickList<ParticleModule>();
         private int[] newParticles;
         private int numActive;
         private int numNew;
 
+        public Vector4 Bounds { get; private set; } // X, Y, Width, Height
         public int ParticlesLength => Particles.Length;
         public ref Particle GetParticle(int index) => ref Particles[index];
         public Span<Particle> ActiveParticles => new Span<Particle>(Particles, 0, numActive);
-        public Span<int> NewParticlesIndex => new Span<int>(newParticles, 0, numNew);
+        private Span<int> NewParticleIndexes => new Span<int>(newParticles, 0, numNew);
 
+        /// <summary>Controls whether or not the emitter will emit new particles.</summary>
+        public bool EmissionEnabled { get; set; } = true;
+
+        /// <summary>Enabled/Disabled state. Disabled emitters are not updated or registered to the particle engine.</summary>
         public bool Enabled {
             get => enabled;
             set {
@@ -51,44 +62,99 @@ namespace SEParticles
         }
         private bool enabled;
 
-        public void Update(float deltaTime)
+        public Emitter(Vector2 size, int capacity = 2048, IEmitterShape shape = null)
         {
-            ParticleModule[] modules = Modules.Array;
-            int i;
+            Config = new EmitterConfig();
+            Shape = shape ?? new PointShape();
+            Size = size;
+
+            Position = Vector2.Zero;
+            Particles = ArrayPool<Particle>.Shared.Rent(capacity);
+            newParticles = ArrayPool<int>.Shared.Rent(capacity);
+            for (int i = 0; i < capacity; i++) {
+                Particles[i] = Particle.Default;
+            }
+        }
+
+        public Emitter(int capacity = 2048, IEmitterShape shape = null) 
+            : this(new Vector2(512.0f, 512.0f), capacity, shape) { }
+
+        internal void Update(float deltaTime)
+        {
+            ParticleModule[] modules = this.modules.Array;
+
+            // Update shape center.
+            Shape.Center = Position;
+            Bounds = new Vector4(Position.X - (Size.X / 2), Position.Y - (Size.Y / 2), Size.X, Size.Y);
 
             // Inform the modules of newly activated particles.
-            for (i = 0; i < Modules.Count; i++) {
-                modules[i].OnParticlesActivated(NewParticlesIndex);
+            for (int i = 0; i < this.modules.Count; i++) {
+                modules[i].OnParticlesActivated(NewParticleIndexes);
             }
             numNew = 0;
 
             fixed (Particle* ptr = Particles) {
-                Particle* end = ptr + numActive;
-                i = 0;
+                Particle* tail = ptr + numActive;
+                int i = 0;
 
                 // Update the particles, and deactivate those whose TTL <= 0.
-                for (Particle* particle = ptr; particle < end; particle++, i++) {
+                for (Particle* particle = ptr; particle < tail; particle++, i++) {
                     particle->TimeAlive += deltaTime;
                     if (particle->TimeAlive >= particle->InitialLife) {
-                        DeactivateParticle(i);
+                        DeactivateParticleInternal(particle, i);
                     }
                 }
 
-                // Update the modules.
-                for (i = 0; i < Modules.Count; i++) {
+                // Update enabled modules.
+                for (i = 0; i < this.modules.Count; i++) {
+                    if(!modules[i].Enabled)
+                        continue;
+
                     modules[i].OnUpdate(deltaTime, ptr, numActive);
                 }
 
                 // Update particle positions.
-                end = ptr + numActive;
-                for (Particle* particle = ptr; particle < end; particle++) {
+                tail = ptr + numActive;
+                for (Particle* particle = ptr; particle < tail; particle++) {
                     particle->Position += particle->Direction * particle->Speed * deltaTime;
+                }
+
+                foreach (AreaModule areaModule in AreaModules) {
+                    areaModule.OnUpdate(deltaTime, ptr, numActive);
                 }
             }
         }
 
+        internal void CheckParticleIntersections(QuickList<Particle> list, AreaModule areaModule)
+        {
+            Span<Particle> particles = ActiveParticles;
+            for (int i = 0; i < particles.Length; i++) {
+                ref Particle particle = ref particles[i];
+                if (areaModule.Shape.Intersects(particle.Position)) {
+                    list.Add(particle);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deactivates a particles at specified index.
+        /// </summary>
+        /// <param name="index">Index of particle to deactivate.</param>
         public void DeactivateParticle(int index)
         {
+            if (index > numActive || index < 0)
+                throw new IndexOutOfRangeException(nameof(index));
+
+            numActive--;
+            if (index != numActive) {
+                Particles[index] = Particles[numActive];
+            }
+        }
+
+        // Higher performance deactivation function with fewer safety checks.
+        private void DeactivateParticleInternal(Particle* particle, int index)
+        {
+            particle->Position = new Vector2(-float.MaxValue, -float.MaxValue);
             numActive--;
             if (index != numActive) {
                 Particles[index] = Particles[numActive];
@@ -97,7 +163,7 @@ namespace SEParticles
 
         public void Emit(int amount = 1)
         {
-            if (!enabled)
+            if (!enabled || !EmissionEnabled)
                 return;
 
             for (int i = 0; i < amount; i++) {
@@ -207,24 +273,53 @@ namespace SEParticles
             }
         }
 
-        public void AddModule(ParticleModule module)
+        public T GetModule<T>() where T : ParticleModule 
+            => (T) GetModule(typeof(T));
+
+        public ParticleModule GetModule(Type moduleType)
         {
-            Modules.Add(module);
-            module.Emitter = this;
-            module.OnInitialize();
+            if (moduleType == null)
+                throw new ArgumentNullException(nameof(moduleType));
+            if (!moduleType.IsSubclassOf(typeof(ParticleModule)))
+                throw new ArgumentException("Type is not of particle module.", nameof(moduleType));
+
+            ParticleModule[] arr = modules.Array;
+            for (int i = 0; i < modules.Count; i++) {
+                if (arr[i].GetType() == moduleType) {
+                    return arr[i];
+                }
+            }
+            return null;
         }
 
-        public Emitter(int capacity = 2048, IEmitterShape shape = null)
-        {
-            Config = new EmitterConfig();
-            Shape = shape ?? new PointShape();
+        public IEnumerable<T> GetModules<T>() where T : ParticleModule 
+            => GetModules(typeof(T)) as IEnumerable<T>;
 
-            Position = Vector2.Zero;
-            Particles = new Particle[capacity];
-            newParticles = new int[capacity];
-            for (int i = 0; i < capacity; i++) {
-                Particles[i] = Particle.Default;
+        public IEnumerable<ParticleModule> GetModules(Type moduleType)
+        {
+            if (moduleType == null)
+                throw new ArgumentNullException(nameof(moduleType));
+            if (!moduleType.IsSubclassOf(typeof(ParticleModule)))
+                throw new ArgumentException("Type is not of particle module.", nameof(moduleType));
+
+            QuickList<ParticleModule> tmpModules = new QuickList<ParticleModule>();
+            ParticleModule[] arr = modules.Array;
+            for (int i = 0; i < modules.Count; i++) {
+                if (arr[i].GetType() == moduleType) {
+                    tmpModules.Add(arr[i]);
+                }
             }
+            return tmpModules;
+        }
+
+        public void AddModule(ParticleModule module)
+        {
+            if (module == null)
+                throw new ArgumentException(nameof(module));
+
+            modules.Add(module);
+            module.Emitter = this;
+            module.OnInitialize();
         }
 
         public Emitter DeepCopy()
@@ -233,11 +328,17 @@ namespace SEParticles
                 Config = Config.DeepCopy(),
                 Position = Position
             };
-            for (int i = 0; i < Modules.Count; i++) {
-                emitter.AddModule(Modules.Array[i].DeepCopy());
+            for (int i = 0; i < modules.Count; i++) {
+                emitter.AddModule(modules.Array[i].DeepCopy());
             }
             return emitter;
         }
 
+        public void Dispose()
+        {
+            Enabled = false;
+            ArrayPool<Particle>.Shared.Return(Particles, true);
+            ArrayPool<int>.Shared.Return(newParticles, true);
+        }
     }
 }

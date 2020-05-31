@@ -7,7 +7,18 @@ namespace SEParticles
 {
     public class EmitterSet
     {
-        public QuickList<Emitter> Emitters { get; } = new QuickList<Emitter>();
+        private QuickList<Emitter> Emitters { get; } = new QuickList<Emitter>();
+
+        public EmitterSet() { }
+
+        public EmitterSet(Emitter emitter) 
+            => Emitters.Add(emitter);
+
+        public EmitterSet(Emitter[] emitters) 
+            => Emitters.AddRange(emitters);
+
+        public EmitterSet(IEnumerable<Emitter> emitters) 
+            => Emitters.AddRange(emitters);
 
         public bool Enabled {
             set {
@@ -32,17 +43,6 @@ namespace SEParticles
 
         public void Clear() 
             => Emitters.Clear();
-
-        public EmitterSet() { }
-
-        public EmitterSet(Emitter emitter) 
-            => Emitters.Add(emitter);
-
-        public EmitterSet(Emitter[] emitters) 
-            => Emitters.AddRange(emitters);
-
-        public EmitterSet(IEnumerable<Emitter> emitters) 
-            => Emitters.AddRange(emitters);
 
         public EmitterSet DeepCopy()
         {

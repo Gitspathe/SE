@@ -39,6 +39,8 @@ namespace SE
 
         private static bool gcFrame;
 
+        private static object gameObjectHandlerLock = new object();
+
     #if EDITOR
         public bool LevelEditMode = true;
     #endif
@@ -307,8 +309,10 @@ namespace SE
         {
             // If the GameObject isn't networked, initialize it immediately after creation.
             // Otherwise, wait for the network manager to set up the GameObject.
-            if (go.NetIdentity == null) {
-                go.Initialize();
+            lock (gameObjectHandlerLock) {
+                if (go.NetIdentity == null) {
+                    go.Initialize();
+                }
             }
         }
 
@@ -318,24 +322,28 @@ namespace SE
         /// <param name="go">GameObject which was created.</param>
         internal static void AddGameObject(GameObject go)
         {
-            if (go.AddedToGameManager)
-                return;
+            lock (gameObjectHandlerLock) {
+                if (go.AddedToGameManager)
+                    return;
 
-            AllGameObjects.Add(go);
-            CurrentScene.GameObjectsToRemove.Remove(go);
-            if (go.IgnoreCulling) {
-                SpatialPartitionManager.AddIgnoredObject(go);
+                AllGameObjects.Add(go);
+                CurrentScene.GameObjectsToRemove.Remove(go);
+                if (go.IgnoreCulling) {
+                    SpatialPartitionManager.AddIgnoredObject(go);
+                }
+
+                if (go.IsDynamic) {
+                    DynamicGameObjects.Add(go);
+                } else if (!go.IgnoreCulling) {
+                    SpatialPartitionManager.Insert(go);
+                }
+
+                if (go.DestroyOnLoad) {
+                    CurrentScene.AttachedGameObjects.Add(go);
+                }
+                go.AddedToGameManager = true;
+                EngineUtility.TransformHierarchyDirty = true;
             }
-            if (go.IsDynamic) {
-                DynamicGameObjects.Add(go);
-            } else if(!go.IgnoreCulling) {
-                SpatialPartitionManager.Insert(go);
-            }
-            if (go.DestroyOnLoad) {
-                CurrentScene.AttachedGameObjects.Add(go);
-            }
-            go.AddedToGameManager = true;
-            EngineUtility.TransformHierarchyDirty = true;
         }
 
         /// <summary>
@@ -345,14 +353,16 @@ namespace SE
         /// <param name="destroyed">If the GameObject was destroyed.</param>
         internal static void RemoveGameObject(GameObject go, bool destroyed = false)
         {
-            DynamicGameObjects.Remove(go);
-            CurrentScene.GameObjectsToRemove.Add(go);
-            SpatialPartitionManager.Remove(go);
-            if (destroyed) {
-                AllGameObjects.Remove(go);
+            lock (gameObjectHandlerLock) {
+                DynamicGameObjects.Remove(go);
+                CurrentScene.GameObjectsToRemove.Add(go);
+                SpatialPartitionManager.Remove(go);
+                if (destroyed) {
+                    AllGameObjects.Remove(go);
+                }
+                go.AddedToGameManager = false;
+                EngineUtility.TransformHierarchyDirty = true;
             }
-            go.AddedToGameManager = false;
-            EngineUtility.TransformHierarchyDirty = true;
         }
 
         // SE methods.

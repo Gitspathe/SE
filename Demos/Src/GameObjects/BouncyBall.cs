@@ -25,8 +25,8 @@ namespace SEDemos.GameObjects
         typeof(NetTransform),
         typeof(Sprite),
         typeof(PhysicsObject),
-        typeof(ParticleSystem),
-        typeof(ParticleEmitter),
+        //typeof(ParticleSystem),
+        //typeof(ParticleEmitter),
         typeof(LightComponent)
         )]
 
@@ -49,7 +49,7 @@ namespace SEDemos.GameObjects
                 myPhysics.Body.SetRestitution(0.5f);
                 myPhysics.Body.SetFriction(0.0f);
 
-                //myPhysics.Body.OnCollision += Body_OnCollision; // Test event code.
+                myPhysics.Body.OnCollision += Body_OnCollision; // Test event code.
                 SetV(new Vector2(Random.Next(256, 512), Random.Next(256, 512)));
                 c = new Color(Random.Next(100, 255), Random.Next(100, 255), Random.Next(100, 255));
             } else {
@@ -58,9 +58,9 @@ namespace SEDemos.GameObjects
 
             SpriteTexture tex = AssetManager.Get<SpriteTexture>(this, "circle");
 
-            ParticleSystem system = GetComponent<ParticleSystem>();
-            system.Texture = tex.Texture;
-            system.SourceRect = tex.SourceRectangle;
+            //ParticleSystem system = GetComponent<ParticleSystem>();
+            //system.Texture = tex.Texture;
+            //system.SourceRect = tex.SourceRectangle;
 
             //GetComponent<ParticleEmitter>().ParticleSystem = new TestParticleSystem();
 
@@ -95,7 +95,7 @@ namespace SEDemos.GameObjects
         private bool Body_OnCollision(Fixture sender, Fixture other, Contact contact)
         {
             if (other.GameObject is WallDown) {
-                NetHelper.Instantiate("bouncy", position: new Vector2(Transform.Position.X, Transform.Position.Y - 24));
+                //NetHelper.Instantiate("bouncy", position: new Vector2(Transform.Position.X, Transform.Position.Y - 24));
                 Destroy();
             }
             return true;

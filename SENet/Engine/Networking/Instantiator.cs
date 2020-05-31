@@ -34,22 +34,24 @@ namespace SE.Engine.Networking
         public void Update()
         {
             for (int i = 0; i < clearBuffer.Count; i++) {
-                //if (CleanNetObject(ClearBuffer[i])) {
-                    clearBuffer.RemoveAt(i);
-                //}
+                clearBuffer.RemoveAt(i);
             }
         }
 
         public void OnPeerConnected(NetPeer peer)
         {
-            foreach (uint i in SpawnedNetObjects.Keys) {
-                InstantiateFromBuffer(SpawnedNetObjects[i], peer, i);
+            lock (SpawnedNetObjects) {
+                foreach (uint i in SpawnedNetObjects.Keys) {
+                    InstantiateFromBuffer(SpawnedNetObjects[i], peer, i);
+                }
             }
         }
 
         internal bool CleanNetObject(SpawnedNetObject netObj)
         {
-            SpawnedNetObjects.Remove(netObj.NetworkID);
+            lock (SpawnedNetObjects) {
+                SpawnedNetObjects.Remove(netObj.NetworkID);
+            }
             if (netObj.NetLogic is INetInstantiatable instantiatable)
                 instantiatable.NetClean();
 
@@ -70,7 +72,7 @@ namespace SE.Engine.Networking
             }
             if (netObj.NetLogic is INetPersistable persist)
                 netState = persist.SerializeNetworkState();
-
+            
             SendRPC(instantiateMethod, conn, netObj.SpawnableID, conn.GetUniqueID() == netObj.Owner, netObj.NetworkID, netState ?? new byte[0], data ?? new byte[0], instantiateParams ?? "");
         }
 
@@ -96,7 +98,10 @@ namespace SE.Engine.Networking
                     throw new Exception("NetLogic not found.");
 
                 SetupNetLogic(logic, owner == "SERVER");
-                SpawnedNetObjects.Add(logic.ID, new SpawnedNetObject(logic, logic.ID, type, owner));
+                lock (SpawnedNetObjects) {
+                    SpawnedNetObjects.Add(logic.ID, new SpawnedNetObject(logic, logic.ID, type, owner));
+                }
+
                 byte[] returned = null;
                 byte[] netState = null;
                 string paramsData = parameters?.Serialize();
@@ -111,7 +116,7 @@ namespace SE.Engine.Networking
                     SendRPC(instantiateMethod, Connections[playerID], type, playerID == owner, logic.ID, netState ?? new byte[0], returned ?? new byte[0], paramsData ?? "");
                 }
             } catch (Exception e) {
-                LogError(exception: e);
+                LogError(null, new Exception("OOF!" ,e));
             }
         }
 
@@ -132,8 +137,8 @@ namespace SE.Engine.Networking
                 }
             }
 
-            object obj = instantiateParameters != null 
-                ? Activator.CreateInstance(t, instantiateParameters) 
+            object obj = instantiateParameters != null
+                ? Activator.CreateInstance(t, instantiateParameters)
                 : Activator.CreateInstance(t);
 
             INetLogic logic = null;
@@ -146,8 +151,11 @@ namespace SE.Engine.Networking
                 throw new Exception("NetLogic not found.");
 
             SetupNetLogic(logic, netID, isOwner, netState);
-            SpawnedNetObjects.Add(logic.ID, new SpawnedNetObject(logic, logic.ID, type));
-            if (logic is INetInstantiatable instantiatable) 
+            lock (SpawnedNetObjects) {
+                SpawnedNetObjects.Add(logic.ID, new SpawnedNetObject(logic, logic.ID, type));
+            }
+
+            if (logic is INetInstantiatable instantiatable)
                 instantiatable.OnNetworkInstantiatedClient(type, isOwner, data);
         }
 
@@ -161,17 +169,19 @@ namespace SE.Engine.Networking
                 Destroy_CLIENT(netID);
                 SendRPC(destroyMethod, netID);
             } catch (Exception e) {
-                //Console.LogError(e, Core.LogSource.Network);
+                LogError(exception: e);
             }
         }
 
         [ClientRPC(frequent: true)]
         public void Destroy_CLIENT(uint netID)
         {
-            if (SpawnedNetObjects.TryGetValue(netID, out SpawnedNetObject netObj)) {
-                CleanNetObject(netObj);
-            } else {
-                clearBuffer.Add(netID);
+            lock (SpawnedNetObjects) {
+                if (SpawnedNetObjects.TryGetValue(netID, out SpawnedNetObject netObj)) {
+                    CleanNetObject(netObj);
+                } else {
+                    clearBuffer.Add(netID);
+                }
             }
         }
 

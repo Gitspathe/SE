@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SE.Utility;
+using Vector4 = System.Numerics.Vector4;
 
 namespace SEParticles
 {
@@ -15,10 +17,13 @@ namespace SEParticles
                 if (emitter != null)
                     throw new InvalidOperationException("Individual particle modules may only be added to one emitter.");
 
-                emitter = value;
+                emitter = value ?? throw new NullReferenceException();
             }
         }
         private Emitter emitter;
+
+        /// <summary>Determines if the module is processed by it's emitter.</summary>
+        public bool Enabled { get; set; } = true;
 
         /// <summary>
         /// Called when the module is added to an emitter.
@@ -35,22 +40,14 @@ namespace SEParticles
         /// Updates the particle module.
         /// </summary>
         /// <param name="deltaTime">Time in seconds elapsed since last update.</param>
-        /// <param name="particles">Span of active particles.</param>
-        public unsafe abstract void OnUpdate(float deltaTime, Particle* arrayPtr, int length);
+        /// <param name="arrayPtr">Pointer to an array of particles.</param>
+        /// <param name="length">Length of the particle array.</param>
+        public abstract unsafe void OnUpdate(float deltaTime, Particle* arrayPtr, int length);
 
         /// <summary>
         /// Copies the particle module.
         /// </summary>
         /// <returns>A deep copy.</returns>
         public abstract ParticleModule DeepCopy();
-    }
-
-    public enum TransitionType
-    {
-        Constant,
-        Lerp,
-        Curve,
-        RandomConstant,
-        RandomCurve
     }
 }
