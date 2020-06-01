@@ -60,6 +60,7 @@ namespace SE.Common
 
         protected virtual GameObject OwnerProp { get; set; }
 
+        /// <summary>Serializer for the component. Only valid when in the editor.</summary>
         public EngineSerializerBase Serializer { get; private set; }
 
         /// <summary>
@@ -70,17 +71,21 @@ namespace SE.Common
         internal void InitializeInternal(GameObject owner)
         {
             Owner = owner;
+            if (GameEngine.IsEditor) {
+                GenerateSerializer();
+            }
+            OnInitializeInternal();
+        }
+
+        private void GenerateSerializer()
+        {
             Serializer = SerializerReflection.GetEngineSerializer(GetType(), this);
             if (Serializer != null) {
-                // Custom
-                Serializer.Initialize();
+                Serializer.Initialize(); // Custom
             } else {
-                // Default
                 Serializer = new EngineSerializerDefault(this);
-                Serializer.Initialize();
+                Serializer.Initialize(); // Default
             }
-
-            OnInitializeInternal();
         }
 
         protected virtual void OnAwake() { }
@@ -174,8 +179,16 @@ namespace SE.Common
             ComponentData data = new ComponentData {
                 Type = GetType()
             };
-            if (Serializer != null) {
-                data.AdditionalData = new EngineSerializerData(Serializer.ValueWrappers);
+            
+            // If serializer is null, initialize it.
+            if (Serializer == null) {
+                GenerateSerializer();
+            }
+            data.AdditionalData = new EngineSerializerData(Serializer.ValueWrappers);
+            
+            // Clear the serializer if the engine is not in editor mode.
+            if (!GameEngine.IsEditor) {
+                Serializer = null;
             }
             return data;
         }
@@ -185,8 +198,17 @@ namespace SE.Common
 
         public void Deserialize(ComponentData data)
         {
+            // If serializer is null, initialize it.
+            if (Serializer == null) {
+                GenerateSerializer();
+            }
             if (data.AdditionalData != null) {
                 Serializer.Restore(data.AdditionalData);
+            }
+            
+            // Clear the serializer if the engine is not in editor mode.
+            if (!GameEngine.IsEditor) {
+                Serializer = null;
             }
         }
     }

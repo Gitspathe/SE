@@ -20,7 +20,7 @@ namespace SE.Serialization
         }
 
         // Cached values from reflection.
-        public Cache ReflectionInfo;
+        //public Cache ReflectionInfo;
 
         internal void Restore(SerializedValueData serializedData)
         {

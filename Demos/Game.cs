@@ -20,6 +20,7 @@ using SEDemos.GameObjects;
 using SEDemos.GameObjects.UI;
 using Vector2 = System.Numerics.Vector2;
 using DisplayMode = SE.DisplayMode;
+using SEParticles;
 
 namespace SEDemos
 {
@@ -242,7 +243,7 @@ namespace SEDemos
             timer -= Time.DeltaTime;
             if (timer <= 0.0f && Network.IsServer) {
                 for (int i = 0; i < 20; i++) {
-                    NetHelper.Instantiate("bouncy", "SERVER", 
+                    NetHelper.Instantiate("bouncy", "SERVER",
                         new Vector2(128 + SE.Utility.Random.Next(0.0f, 1024.0f), 128 + SE.Utility.Random.Next(0.0f, 1024.0f)));
                 }
                 timer = 0.05f;
