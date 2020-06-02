@@ -18,6 +18,7 @@ namespace SEParticles
         public Vector2 Scale;
         public Vector2 Direction;         // Direction the particle travels in
         public Vector4 Color;             // H, S, L, A
+        public float Mass;                // Used for repel and attract type functionality
         public float Speed;
         public float SpriteRotation;      // Sprite rotation
         public float InitialLife;
@@ -37,6 +38,7 @@ namespace SEParticles
             Scale = scale;
             Direction = Vector2.Zero;
             Color = color;
+            Mass = 0.0f;
             Speed = 0.0f;
             SpriteRotation = spriteRotation;
             TimeAlive = timeAlive;

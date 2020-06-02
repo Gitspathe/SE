@@ -6,6 +6,7 @@ using System.Text.Encodings;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 using SE.Engine.Utility;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
 using Vector4 = System.Numerics.Vector4;

@@ -6,8 +6,14 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SE", "..\Engine\SE.csproj", "{59AEADB7-F92E-4E93-9D69-C85AF262556B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SEDemos", "..\Demos\SEDemos.csproj", "{8A590E6C-46F3-4A10-AEE4-AC4C96196C28}"
+	ProjectSection(ProjectDependencies) = postProject
+		{59AEADB7-F92E-4E93-9D69-C85AF262556B} = {59AEADB7-F92E-4E93-9D69-C85AF262556B}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SEEditor", "SEEditor.csproj", "{5666892F-E2B1-44C5-9119-32E303581BD8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8A590E6C-46F3-4A10-AEE4-AC4C96196C28} = {8A590E6C-46F3-4A10-AEE4-AC4C96196C28}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

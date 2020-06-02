@@ -5,6 +5,7 @@ using ImGuiNET;
 using SE.Common;
 using SE.Core.Extensions;
 using SE.Engine.Utility;
+using SE.Utility;
 
 namespace DeeZ.Editor.GUI.Hierarchy
 {

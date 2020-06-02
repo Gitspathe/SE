@@ -66,12 +66,12 @@ namespace SEParticles
             }
 
             // TODO: Temp code. Remove when done.
-            //if (AreaModules.Count == 0) {
-            //    ScaleModule s = ScaleModule.Lerp(5.0f, 1.0f);
-            //    s.AbsoluteValue = true;
-            //    AreaParticleModule mod = new AreaParticleModule(new CircleShape(1024.0f));
-            //    AreaModules.Add(mod);
-            //}
+            if (AreaModules.Count == 0) {
+                ScaleModule s = ScaleModule.Lerp(5.0f, 1.0f);
+                s.AbsoluteValue = true;
+                AreaParticleModule mod = new AreaParticleModule(new CircleShape(1024.0f));
+                AreaModules.Add(mod);
+            }
         }
 
         public static void WaitForThreads()

@@ -60,7 +60,7 @@ namespace DeeZ
             ImGuiRenderer.AfterLayout();
 
             // TEST: Create game instance.
-            // TODO: Implement properly. Needs to dynamically open any type of DeeZEngine Game.
+            // TODO: Implement properly. Needs to dynamically open any type of SE Game.
             if (InputManager.KeyCodePressed(Microsoft.Xna.Framework.Input.Keys.F2)) {
                 SceneManager.CurrentScene.Unload();
 

@@ -5,7 +5,7 @@ using SE.Utility;
 
 namespace SEParticles
 {
-    public class EmitterSet
+    public class EmitterSet : IDisposable
     {
         private QuickList<Emitter> Emitters { get; } = new QuickList<Emitter>();
 
@@ -51,6 +51,13 @@ namespace SEParticles
                 set.Emitters.Add(Emitters.Array[i].DeepCopy());
             }
             return set;
+        }
+
+        public void Dispose()
+        {
+            foreach (IDisposable disposable in Emitters) {
+                disposable.Dispose();
+            }
         }
     }
 }

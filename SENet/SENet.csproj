@@ -3,39 +3,26 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <RootNamespace>SE</RootNamespace>
-    <Platforms>AnyCPU;x64</Platforms>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|x64'">
-    <DefineConstants />
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
     <DefineConstants />
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
-  <Choose>
-    <When Condition=" '$(Platform)'!='AnyCPU' ">
-      <ItemGroup>
-        <Reference Include="LiteNetLib">
-          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\$(Platform)\$(Configuration)\netstandard2.0\LiteNetLib.dll</HintPath>
-        </Reference>
-        <Reference Include="SEUtility">
-          <HintPath>..\SEUtility\bin\$(Platform)\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <When Condition=" '$(Platform)'=='AnyCPU' ">
-      <ItemGroup>
-        <Reference Include="LiteNetLib">
-          <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\$(Configuration)\netstandard2.0\LiteNetLib.dll</HintPath>
-        </Reference>
-        <Reference Include="SEUtility">
-          <HintPath>..\SEUtility\bin\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="LiteNetLib">
+      <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\$(Configuration)\netstandard2.0\LiteNetLib.dll</HintPath>
+    </Reference>
+    <Reference Include="SEUtility">
+      <HintPath>..\SEUtility\bin\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="SEUtility">

@@ -113,14 +113,15 @@ namespace SEParticles
                     modules[i].OnUpdate(deltaTime, ptr, numActive);
                 }
 
+                // Update the area modules influencing this emitter.
+                foreach (AreaModule areaModule in AreaModules) {
+                    areaModule.ProcessParticles(deltaTime, ptr, numActive);
+                }
+
                 // Update particle positions.
                 tail = ptr + numActive;
                 for (Particle* particle = ptr; particle < tail; particle++) {
                     particle->Position += particle->Direction * particle->Speed * deltaTime;
-                }
-
-                foreach (AreaModule areaModule in AreaModules) {
-                    areaModule.OnUpdate(deltaTime, ptr, numActive);
                 }
             }
         }

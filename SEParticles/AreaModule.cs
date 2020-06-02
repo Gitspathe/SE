@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace SEParticles
@@ -8,6 +9,11 @@ namespace SEParticles
     {
         internal bool AddedToEngine = false;
         internal HashSet<Emitter> AttachedEmitters = new HashSet<Emitter>();
+
+        public Vector2 Position {
+            get => Shape.Center;
+            set => Shape.Center = value;
+        }
 
         public bool Enabled {
             get => enabled;
@@ -23,17 +29,20 @@ namespace SEParticles
 
         public IIntersectable Shape { get; set; }
 
-        public AreaModule(IIntersectable shape)
+        public AreaModule(IIntersectable shape, Vector2? position = null)
         {
             Shape = shape;
+            if (position.HasValue) {
+                Position = position.Value;
+            }
         }
 
-        public abstract unsafe void OnUpdate(float deltaTime, Particle* particles, int length);
+        public abstract unsafe void ProcessParticles(float deltaTime, Particle* particles, int length);
     }
 
     public class AreaParticleModule : AreaModule
     {
-        public override unsafe void OnUpdate(float deltaTime, Particle* particles, int length)
+        public override unsafe void ProcessParticles(float deltaTime, Particle* particles, int length)
         {
             Particle* tail = particles + length;
             for (Particle* particle = particles; particle < tail; particle++) {
@@ -43,6 +52,6 @@ namespace SEParticles
             }
         }
 
-        public AreaParticleModule(IIntersectable shape) : base(shape) { }
+        public AreaParticleModule(IIntersectable shape, Vector2? position = null) : base(shape, position) { }
     }
 }

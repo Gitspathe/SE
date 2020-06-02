@@ -3,6 +3,7 @@ using ImGuiNET;
 using SE.Common;
 using SE.Core;
 using SE.Engine.Utility;
+using SE.Utility;
 
 namespace DeeZ.Editor.GUI.Properties.Views
 {

@@ -35,6 +35,9 @@ namespace SE.Core
 
         internal static void AddContentManager(ContentLoader wrapper)
         {
+            if (contentManagers.ContainsKey(wrapper.ID)) {
+                contentManagers.Remove(wrapper.ID);
+            }
             contentManagers.Add(wrapper.ID, wrapper);
         }
 
