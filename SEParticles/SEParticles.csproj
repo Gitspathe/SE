@@ -32,10 +32,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="LICENSE" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="SEUtility">
       <HintPath>..\SEUtility\bin\$(Configuration)\$(TargetFramework)\SEUtility.dll</HintPath>
     </Reference>
