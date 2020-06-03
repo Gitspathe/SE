@@ -19,3 +19,6 @@
 [submodule "SEInput"]
 	path = SEInput
 	url = https://github.com/Gitspathe/SEInput
+[submodule "SEUtility"]
+	path = SEUtility
+	url = https://github.com/Gitspathe/SEUtility
