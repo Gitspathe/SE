@@ -22,3 +22,6 @@
 [submodule "SEUtility"]
 	path = SEUtility
 	url = https://github.com/Gitspathe/SEUtility
+[submodule "SEParticles"]
+	path = SEParticles
+	url = https://github.com/Gitspathe/SEParticles
