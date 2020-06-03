@@ -4,22 +4,23 @@
     <TargetFrameworks>net45;netstandard2.0;netstandard2.1</TargetFrameworks>
     <Platforms>AnyCPU</Platforms>
     <Authors>Gitspathe</Authors>
-    <Description>Fast 2D CPU particles with optional MonoGame support.</Description>
+    <Description>Fast 2D CPU particles.</Description>
     <Copyright>Gitspathe © 2020</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <PackageTags>MonoGame particles SEParticles</PackageTags>
+    <PackageTags>particles SEParticles</PackageTags>
+    <RootNamespace>SEParticles</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;MONOGAME;</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>MONOGAME;</DefineConstants>
+    <DefineConstants></DefineConstants>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SE.Utility;
-using Vector4 = System.Numerics.Vector4;
 
-namespace SEParticles
+namespace SEParticles.Modules
 {
     /// <summary>
     /// An object which modifies particles.

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
+using SEParticles.Shapes;
 
-namespace SEParticles
+namespace SEParticles.AreaModules
 {
     public abstract class AreaModule
     {
@@ -38,20 +37,5 @@ namespace SEParticles
         }
 
         public abstract unsafe void ProcessParticles(float deltaTime, Particle* particles, int length);
-    }
-
-    public class AreaParticleModule : AreaModule
-    {
-        public override unsafe void ProcessParticles(float deltaTime, Particle* particles, int length)
-        {
-            Particle* tail = particles + length;
-            for (Particle* particle = particles; particle < tail; particle++) {
-                if (Shape.Intersects(particle->Position)) {
-                    particle->Color.X = 0.0f;
-                }
-            }
-        }
-
-        public AreaParticleModule(IIntersectable shape, Vector2? position = null) : base(shape, position) { }
     }
 }

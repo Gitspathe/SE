@@ -14,7 +14,7 @@ namespace SEParticles.Shapes
 
         public float Radius {
             get => radius;
-            set => radius = Math.Clamp(value, 0.0f, float.MaxValue);
+            set => radius = Clamp(value, 1.0f, float.MaxValue);
         }
         private float radius;
 

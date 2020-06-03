@@ -9,15 +9,19 @@ namespace SEParticles
     {
         private QuickList<Emitter> Emitters { get; } = new QuickList<Emitter>();
 
-        public EmitterSet() { }
+        public EmitterSet()
+        {
+            if (!ParticleEngine.Initialized)
+                throw new InvalidOperationException("Particle engine has not been initialized. Call ParticleEngine.Initialize() first.");
+        }
 
-        public EmitterSet(Emitter emitter) 
+        public EmitterSet(Emitter emitter) : this()
             => Emitters.Add(emitter);
 
-        public EmitterSet(Emitter[] emitters) 
+        public EmitterSet(Emitter[] emitters) : this()
             => Emitters.AddRange(emitters);
 
-        public EmitterSet(IEnumerable<Emitter> emitters) 
+        public EmitterSet(IEnumerable<Emitter> emitters) : this()
             => Emitters.AddRange(emitters);
 
         public bool Enabled {

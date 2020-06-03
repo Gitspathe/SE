@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace SEParticles
+namespace SEParticles.Shapes
 {
     /// <summary>
     /// Represents a shape.

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Xml.Schema;
 
 namespace SEParticles
 {
@@ -28,6 +29,17 @@ namespace SEParticles
             float tmpX = x;
             x = y;
             y = tmpX;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Clamp(float val, float min, float max)
+        {
+            if(val < min)
+                return min;
+            if(val > max)
+                return max;
+
+            return val;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

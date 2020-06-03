@@ -18,6 +18,7 @@ using SE.Core.Extensions;
 using SE.Utility;
 using static SE.Core.SceneManager;
 using Console = SE.Core.Console;
+using SParticles = SEParticles.ParticleEngine;
 
 [assembly: InternalsVisibleTo("SEEditor")]
 namespace SE
@@ -155,6 +156,7 @@ namespace SE
                 Editor.OnInitialize(this);
             }
 
+            SEParticles.ParticleEngine.Initialize();
             OnInitialize();
         }
 
@@ -247,14 +249,17 @@ namespace SE
             AssetManager.Update(Time.DeltaTime);
 
             if (InputManager.KeyCodePressed(Keys.L)) {
-                SEParticles.ParticleEngine.MultiThreaded = !SEParticles.ParticleEngine.MultiThreaded;
-                Console.WriteLine("Multithreaded particles: " + (SEParticles.ParticleEngine.MultiThreaded ? "on" : "off"));
+                SParticles.UpdateMode = SParticles.UpdateMode == SEParticles.UpdateMode.ParallelAsynchronous 
+                    ? SEParticles.UpdateMode.Synchronous 
+                    : SEParticles.UpdateMode.ParallelAsynchronous;
+
+                Console.WriteLine("Multithreaded particles: " + (SParticles.UpdateMode == SEParticles.UpdateMode.ParallelAsynchronous ? "on" : "off"));
             }
 
             time -= Time.DeltaTime;
             if (time <= 0.0f) {
                 time = 2.0f;
-                Console.WriteLine("NEW: " + SEParticles.ParticleEngine.ParticleCount + ", OLD: " + ParticleEngine.ParticleCount);
+                Console.WriteLine("NEW: " + SParticles.ParticleCount + ", OLD: " + ParticleEngine.ParticleCount);
             }
 
             // Multithreaded render test.

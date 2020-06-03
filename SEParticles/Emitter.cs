@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using SE.Utility;
 using SEParticles.Shapes;
 using System.Buffers;
+using SEParticles.AreaModules;
+using SEParticles.Modules;
 using Vector2 = System.Numerics.Vector2;
 using Vector4 = System.Numerics.Vector4;
 using Random = SE.Utility.Random;
@@ -24,7 +26,7 @@ namespace SEParticles
         public IEmitterShape Shape;
 
         public EmitterConfig Config;
-        public Vector2 Position;
+
         public Vector2 Size;
 #if MONOGAME
         public Texture2D Texture;
@@ -39,6 +41,11 @@ namespace SEParticles
         private int[] newParticles;
         private int numActive;
         private int numNew;
+
+        public Vector2 Position {
+            get => Shape.Center;
+            set => Shape.Center = value;
+        }
 
         public Vector4 Bounds { get; private set; } // X, Y, Width, Height
         public int ParticlesLength => Particles.Length;
@@ -64,13 +71,26 @@ namespace SEParticles
 
         public Emitter(Vector2 size, int capacity = 2048, IEmitterShape shape = null)
         {
+            if (!ParticleEngine.Initialized)
+                throw new InvalidOperationException("Particle engine has not been initialized. Call ParticleEngine.Initialize() first.");
+
             Config = new EmitterConfig();
             Shape = shape ?? new PointShape();
             Size = size;
 
             Position = Vector2.Zero;
-            Particles = ArrayPool<Particle>.Shared.Rent(capacity);
-            newParticles = ArrayPool<int>.Shared.Rent(capacity);
+            switch (ParticleEngine.AllocationMode) {
+                case ParticleAllocationMode.ArrayPool:
+                    Particles = ArrayPool<Particle>.Shared.Rent(capacity);
+                    newParticles = ArrayPool<int>.Shared.Rent(capacity);
+                    break;
+                case ParticleAllocationMode.Array:
+                    Particles = new Particle[capacity];
+                    newParticles = new int[capacity];
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             for (int i = 0; i < capacity; i++) {
                 Particles[i] = Particle.Default;
             }
@@ -338,8 +358,16 @@ namespace SEParticles
         public void Dispose()
         {
             Enabled = false;
-            ArrayPool<Particle>.Shared.Return(Particles, true);
-            ArrayPool<int>.Shared.Return(newParticles, true);
+            switch (ParticleEngine.AllocationMode) {
+                case ParticleAllocationMode.ArrayPool:
+                    ArrayPool<Particle>.Shared.Return(Particles, true);
+                    ArrayPool<int>.Shared.Return(newParticles, true);
+                    break;
+                case ParticleAllocationMode.Array:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }
