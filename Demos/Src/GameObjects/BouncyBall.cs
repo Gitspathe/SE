@@ -11,10 +11,7 @@ using SE.Physics;
 using SE.Rendering;
 using SE.Core.Extensions;
 using SE.Networking.Internal;
-using SEParticles;
-using SEParticles.Shapes;
 using Random = SE.Utility.Random;
-using TestParticleSystem = SEDemos.Particles.TestParticleSystem;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SEDemos.GameObjects
@@ -26,7 +23,6 @@ namespace SEDemos.GameObjects
         typeof(Sprite),
         typeof(PhysicsObject),
         typeof(ParticleSystem),
-        //typeof(ParticleEmitter),
         typeof(LightComponent)
         )]
 
@@ -61,8 +57,6 @@ namespace SEDemos.GameObjects
             ParticleSystem system = GetComponent<ParticleSystem>();
             system.Texture = tex.Texture;
             system.SourceRect = tex.SourceRectangle;
-
-            //GetComponent<ParticleEmitter>().ParticleSystem = new TestParticleSystem();
 
             networkIdentity.OnSerializeNetworkState += () => {
                 NetDataWriter writer = new NetDataWriter();

@@ -36,7 +36,6 @@ namespace SEDemos.GameObjects.UI
             back.Clicked += (sender, args) => SceneManager.SetCurrentScene("_DEMOS\\menu");
             disableMultithreading.Clicked += (sender, args) => {
                 multithreadingToggle = !multithreadingToggle;
-                ParticleEngine.Multithreaded = multithreadingToggle;
                 disableMultithreading.TextString = multithreadingToggle ? "Disable Multi-threading" : "Enable Multi-threading";
             };
             controls.Clicked += (sender, args) => {

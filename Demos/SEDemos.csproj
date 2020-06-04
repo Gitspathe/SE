@@ -123,4 +123,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Src\Particles\" />
+  </ItemGroup>
+
 </Project>

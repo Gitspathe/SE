@@ -65,22 +65,12 @@ namespace SE.Rendering
             Add(LoopEnum.GenerateRenderLists, cam => Render.GenerateRenderLists());
             Add(LoopEnum.LightingStart, _ => Render.StartLighting());
 
-            Add(LoopEnum.FinalizeParticles, _ => ParticleEngine.FinalizeThreads());
-            Add(LoopEnum.FinalizeParticles-1, _ => SEParticles.ParticleEngine.WaitForThreads());
-
-            Add(LoopEnum.RenderAlphaParticles, cam
-                => Render.RenderAlphaParticles(cam, ParticleEngine.AlphaParticles));
+            Add(LoopEnum.FinalizeParticles, _ => ParticleEngine.WaitForThreads());
 
             Add(LoopEnum.LightingEnd, _
                 => Render.EndLighting());
 
-            Add(LoopEnum.LightingEnd+1, cam => Render.DrawNewParticles(cam));
-
-            Add(LoopEnum.RenderAlphaParticlesUnlit, cam
-                => Render.RenderAlphaParticles(cam, ParticleEngine.AlphaParticlesUnlit));
-
-            Add(LoopEnum.RenderAdditiveParticles, cam
-                => Render.RenderAdditiveParticles(cam, ParticleEngine.AdditiveParticles));
+            Add(LoopEnum.RenderAlphaParticlesUnlit, cam => Render.DrawNewParticles(cam));
 
             Add(LoopEnum.DrawUnderlay, cam => Console.DrawUnderlay(cam, Core.Rendering.SpriteBatch));
             Add(LoopEnum.DrawUI, Render.DrawUI);

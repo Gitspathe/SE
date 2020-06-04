@@ -8,15 +8,12 @@ using SE.Common;
 using SE.Components;
 using SE.Components.UI;
 using SE.Core;
-using SE.Particles;
 using SE.UI;
 using SE.Utility;
 using SE.World.Partitioning;
-using SEParticles;
 using Console = SE.Core.Console;
 using static SE.Core.Rendering;
 using Color = Microsoft.Xna.Framework.Color;
-using Particle = SE.Particles.Particle;
 using ParticleSystem = SE.Components.ParticleSystem;
 using Vector2 = System.Numerics.Vector2;
 
@@ -290,44 +287,6 @@ namespace SE.Rendering
             }
         }
 
-        public void RenderAlphaParticles(Camera2D cam, Dictionary<int, ParticleRendererContainer> particleData)
-        {
-            if (particleData.Count < 1)
-                return;
-
-            foreach ((int drawIndex, ParticleRendererContainer particles) in particleData) {
-                DrawCall drawCall = DrawCallDatabase.LookupArray.Array[drawIndex];
-
-                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilGreater, null, drawCall.Effect);
-                Vector2 camPos = cam.Position;
-                for (int i = 0; i < particles.Length; i++) {
-                    for (int ii = 0; ii < particles.ParticlesRenderData[i].Count; ii++) {
-                        Particle p = particles.ParticlesRenderData[i].Array[ii];
-                        Core.Rendering.SpriteBatch.Draw(drawCall.Texture, p.GlobalPosition - camPos, p.sourceRect, p.CurrentColor, p.CurrentRotation, p.Origin, p.CurrentScale, p.LayerDepth);
-                    }
-                }
-            }
-        }
-
-        public void RenderAdditiveParticles(Camera2D cam, Dictionary<int, ParticleRendererContainer> particleData)
-        {
-            if (particleData.Count < 1)
-                return;
-
-            foreach ((int drawIndex, ParticleRendererContainer particles) in particleData) {
-                DrawCall drawCall = DrawCallDatabase.LookupArray.Array[drawIndex];
-
-                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, DepthStencilGreater, null, drawCall.Effect);
-                Vector2 camPos = cam.Position;
-                for (int i = 0; i < particles.Length; i++) {
-                    for (int ii = 0; ii < particles.ParticlesRenderData[i].Count; ii++) {
-                        Particle p = particles.ParticlesRenderData[i].Array[ii];
-                        Core.Rendering.SpriteBatch.Draw(drawCall.Texture, p.GlobalPosition - camPos, p.sourceRect, p.CurrentColor, p.CurrentRotation, p.Origin, p.CurrentScale, p.LayerDepth);
-                    }
-                }
-            }
-        }
-
         public static BlendState Alpha => new BlendState
         {
             ColorSourceBlend = Blend.SourceAlpha,
@@ -351,16 +310,16 @@ namespace SE.Rendering
             ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
             Vector2 camPos = cam.Position;
 
-            foreach (Emitter pEmitter in SEParticles.ParticleEngine.Emitters) {
-                Span<SEParticles.Particle> particles = pEmitter.ActiveParticles;
+            foreach (Emitter pEmitter in ParticleEngine.Emitters) {
+                Span<Particle> particles = pEmitter.ActiveParticles;
                 
                 Texture2D tex = pEmitter.Texture;
 
-                fixed (SEParticles.Particle* ptr = particles) {
+                fixed (Particle* ptr = particles) {
                     int size = particles.Length;
-                    SEParticles.Particle* tail = ptr + size;
+                    Particle* tail = ptr + size;
 
-                    for (SEParticles.Particle* particle = ptr; particle < tail; particle++) {
+                    for (Particle* particle = ptr; particle < tail; particle++) {
                         Rectangle sourceRect = particle->SourceRectangle;
                         Vector2 origin = new Vector2(
                             sourceRect.Width / 2.0f,

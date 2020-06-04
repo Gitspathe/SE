@@ -20,7 +20,6 @@ using SEDemos.GameObjects;
 using SEDemos.GameObjects.UI;
 using Vector2 = System.Numerics.Vector2;
 using DisplayMode = SE.DisplayMode;
-using SEParticles;
 
 namespace SEDemos
 {

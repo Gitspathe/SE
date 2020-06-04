@@ -18,7 +18,6 @@ using SE.Core.Extensions;
 using SE.Utility;
 using static SE.Core.SceneManager;
 using Console = SE.Core.Console;
-using SParticles = SEParticles.ParticleEngine;
 
 [assembly: InternalsVisibleTo("SEEditor")]
 namespace SE
@@ -119,7 +118,6 @@ namespace SE
 
             SpatialPartitionManager.Initialize(192, 192 * 8);
             Core.Physics.Initialize();
-            ParticleEngine.Initialize();
             SetCurrentScene("_MAIN\\empty");
             if (!Screen.IsFullHeadless) {
                 Core.Rendering.Initialize(GraphicsDeviceManager, GraphicsDevice);
@@ -156,7 +154,7 @@ namespace SE
                 Editor.OnInitialize(this);
             }
 
-            SEParticles.ParticleEngine.Initialize();
+            ParticleEngine.Initialize();
             OnInitialize();
         }
 
@@ -249,17 +247,17 @@ namespace SE
             AssetManager.Update(Time.DeltaTime);
 
             if (InputManager.KeyCodePressed(Keys.L)) {
-                SParticles.UpdateMode = SParticles.UpdateMode == SEParticles.UpdateMode.ParallelAsynchronous 
-                    ? SEParticles.UpdateMode.Synchronous 
-                    : SEParticles.UpdateMode.ParallelAsynchronous;
+                ParticleEngine.UpdateMode = ParticleEngine.UpdateMode == UpdateMode.ParallelAsynchronous 
+                    ? UpdateMode.Synchronous 
+                    : UpdateMode.ParallelAsynchronous;
 
-                Console.WriteLine("Multithreaded particles: " + (SParticles.UpdateMode == SEParticles.UpdateMode.ParallelAsynchronous ? "on" : "off"));
+                Console.WriteLine("Multithreaded particles: " + (ParticleEngine.UpdateMode == UpdateMode.ParallelAsynchronous ? "on" : "off"));
             }
 
             time -= Time.DeltaTime;
             if (time <= 0.0f) {
                 time = 2.0f;
-                Console.WriteLine("NEW: " + SParticles.ParticleCount + ", OLD: " + ParticleEngine.ParticleCount);
+                Console.WriteLine("NEW: " + ParticleEngine.ParticleCount + ", OLD: " + ParticleEngine.ParticleCount);
             }
 
             // Multithreaded render test.
