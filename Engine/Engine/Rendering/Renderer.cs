@@ -8,6 +8,7 @@ using SE.Common;
 using SE.Components;
 using SE.Components.UI;
 using SE.Core;
+using SE.Particles;
 using SE.UI;
 using SE.Utility;
 using SE.World.Partitioning;
@@ -320,7 +321,7 @@ namespace SE.Rendering
                     Particle* tail = ptr + size;
 
                     for (Particle* particle = ptr; particle < tail; particle++) {
-                        Rectangle sourceRect = particle->SourceRectangle;
+                        Rectangle sourceRect = particle->SourceRectangle.ToRectangle();
                         Vector2 origin = new Vector2(
                             sourceRect.Width / 2.0f,
                             sourceRect.Width / 2.0f);

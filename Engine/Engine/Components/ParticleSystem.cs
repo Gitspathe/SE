@@ -3,8 +3,9 @@ using Microsoft.Xna.Framework.Graphics;
 using SE.Common;
 using SE.Core;
 using SE.Engine.Utility;
-using SE.Modules;
-using SE.Shapes;
+using SE.Particles;
+using SE.Particles.Modules;
+using SE.Particles.Shapes;
 using Curve = SE.Utility.Curve;
 using Vector4 = System.Numerics.Vector4;
 using Vector2 = System.Numerics.Vector2;
@@ -23,9 +24,9 @@ namespace SE.Components
 
         protected override void OnInitialize()
         {
-            Emitter = new Emitter(shape: new CircleShape(16.0f, EmissionDirection.Out, true, true));
+            Emitter = new Emitter(shape: new CircleEmitterShape(64.0f, EmissionDirection.Out, true, true, 0.5f));
             Emitter.Texture = Texture;
-            Emitter.StartRect = SourceRect;
+            Emitter.StartRect = SourceRect.ToVector4();
 
             Curve angleCurve = new Curve();
             angleCurve.Keys.Add(0.0f, 0.0f);
@@ -49,23 +50,30 @@ namespace SE.Components
             Emitter.Config.Color.SetRandomBetween(
                 new Vector4(0.0f, 1.0f, 0.5f, 1.0f),
                 new Vector4(360.0f, 1.0f, 0.5f, 1.0f));
+
+            //Emitter.Config.Color.SetNormal(new Vector4(0f, 1.0f, 0.5f, 1.0f));
+
             Emitter.Config.Scale.SetRandomBetween(0.25f, 0.667f);
             Emitter.Config.Life.SetRandomBetween(0.2f, 1.0f);
             Emitter.Config.Speed.SetRandomBetween(32.0f, 128.0f);
 
+            ScaleModule s = ScaleModule.Lerp(1.0f, 0.0f);
+
             //Emitter.AddModule(RotationModule.RandomCurve(angleCurve));
             //Emitter.AddModule(SpeedModule.Lerp(64.0f, 512.0f));
-            Emitter.AddModule(ScaleModule.Lerp(1.0f, 0.0f));
+            Emitter.AddModule(s);
             //Emitter.AddModule(AttractorModule.Basic(new Vector2(512.0f, 512.0f), 64.0f, 1024.0f, 10, 8.0f));
 
             ColorModule baseColorModule = ColorModule.RandomLerp(
-                new Vector4(0f, 1.0f, 0.5f, 0.0f), 
+                new Vector4(0f, 1.0f, 0.5f, 0.0f),
                 new Vector4(360f, 1.0f, 0.5f, 0.0f));
 
             //Emitter.AddModule(baseColorModule);
             //Emitter.AddModule(baseColorModule);
 
-            Emitter.Enabled = true;
+            //Emitter.RemoveModules(s, baseColorModule);
+
+            //Emitter.Enabled = true;
         }
 
         protected override void OnEnable()
@@ -87,6 +95,7 @@ namespace SE.Components
         protected override void OnUpdate()
         {
             Emitter.Position = Owner.Transform.GlobalPositionInternal;
+            Emitter.Rotation += MathHelper.TwoPi * Time.DeltaTime;
 
             time -= Time.DeltaTime;
             while (time <= 0.0f) {
