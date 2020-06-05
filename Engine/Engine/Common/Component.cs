@@ -5,6 +5,7 @@ using SE.Core;
 using SE.Serialization;
 using SE.World.Partitioning;
 using SE.Core.Extensions;
+using System;
 
 namespace SE.Common
 {
@@ -163,6 +164,9 @@ namespace SE.Common
         public void Destroy()
         {
             OnDestroy();
+            if (this is IDisposable disposable) {
+                disposable.Dispose();
+            }
         }
 
         /// <summary>

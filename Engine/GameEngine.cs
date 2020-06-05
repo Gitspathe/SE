@@ -101,6 +101,8 @@ namespace SE
             LoadEngineContent();
             LoadAssets();
 
+            Config.Initialize();
+
             InputManager.Initialize(this);
             Reflection.Initialize();
             ModLoader.Initialize();
@@ -154,7 +156,11 @@ namespace SE
                 Editor.OnInitialize(this);
             }
 
+            ParticleEngine.AllocationMode = Config.UseArrayPoolCore
+                ? ParticleAllocationMode.ArrayPool
+                : ParticleAllocationMode.Array;
             ParticleEngine.Initialize();
+
             OnInitialize();
         }
 
@@ -243,6 +249,9 @@ namespace SE
             //if (InputManager.KeyCodePressed(Keys.A)) {
             //    GC.Collect();
             //}
+
+            if (!Config.Initialized)
+                throw new InvalidOperationException("Config was not initialized!");
 
             AssetManager.Update(Time.DeltaTime);
 

@@ -9,10 +9,11 @@ using SE.Particles.Shapes;
 using Curve = SE.Utility.Curve;
 using Vector4 = System.Numerics.Vector4;
 using Vector2 = System.Numerics.Vector2;
+using System;
 
 namespace SE.Components
 {
-    public class ParticleSystem : Component
+    public class ParticleSystem : Component, IDisposable
     {
         public Texture2D Texture;
         public Rectangle SourceRect;
@@ -24,7 +25,16 @@ namespace SE.Components
 
         protected override void OnInitialize()
         {
-            Emitter = new Emitter(shape: new CircleEmitterShape(64.0f, EmissionDirection.Out, true, true, 0.5f));
+            //Emitter = new Emitter(shape: new CircleEmitterShape(64.0f, EmissionDirection.Out, true, true, 0.5f));
+
+            CircleEmitterShape circleShape = new CircleEmitterShape(42.0f, EmissionDirection.Out, true, true);
+            RectangleEmitterShape rectangleShape = new RectangleEmitterShape(
+                new Vector2(128.0f, 128.0f), 
+                EmissionDirection.Out, 
+                true, 
+                true);
+
+            Emitter = new Emitter(shape: circleShape);
             Emitter.Texture = Texture;
             Emitter.StartRect = SourceRect.ToVector4();
 
@@ -56,6 +66,7 @@ namespace SE.Components
             Emitter.Config.Scale.SetRandomBetween(0.25f, 0.667f);
             Emitter.Config.Life.SetRandomBetween(0.2f, 1.0f);
             Emitter.Config.Speed.SetRandomBetween(32.0f, 128.0f);
+            Emitter.Config.Speed.SetNormal(256.0f);
 
             ScaleModule s = ScaleModule.Lerp(1.0f, 0.0f);
 
@@ -102,6 +113,11 @@ namespace SE.Components
                 Emitter.Emit(64);
                 time += 0.05f;
             }
+        }
+
+        public void Dispose()
+        {
+            Emitter?.Dispose();
         }
     }
 }
