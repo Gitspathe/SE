@@ -10,7 +10,8 @@ namespace SE.Core
     {
         internal static bool Initialized { get; private set; }
 
-        private static ConfigObj configObj;
+        private static ConfigData configData;
+        private const string _CONFIG_FILE_NAME = "SE_CONFIG.json";
 
         private static JsonSerializerSettings jsonSettings {
             get {
@@ -21,51 +22,60 @@ namespace SE.Core
             }
         }
 
-        public static bool UseArrayPoolCore {
-            get => configObj.UseArrayPoolCore;
-            set {
-                if (Initialized) 
-                    ThrowInitialized();
-
-                configObj.UseArrayPoolCore = value;
-            }
-        }
-
-        public static bool UseArrayPoolParticles {
-            get => configObj.useArrayPoolParticles;
-            set {
-                if (Initialized) 
-                    ThrowInitialized();
-
-                configObj.useArrayPoolParticles = value;
-            }
-        }
-
-        private static void ThrowInitialized()
-            => throw new InvalidOperationException("Cannot modify engine config after Initialize() has been called.");
+        private static void ThrowInitialized(string name)
+            => throw new InvalidOperationException($"Cannot modify engine parameter '{name}' after Initialize() has been called.");
 
         public static void Initialize()
         {
-            if (FileIO.FileExists("SE_CONFIG")) {
+            if (FileIO.FileExists(_CONFIG_FILE_NAME)) {
                 Load();
             } else {
-                configObj = new ConfigObj();
+                configData = new ConfigData();
                 Save();
             }
             Initialized = true;
         }
 
         public static void Save() 
-            => FileIO.SaveFile(configObj.Serialize(false, jsonSettings), "SE_CONFIG");
+            => FileIO.SaveFile(configData.Serialize(false, jsonSettings), _CONFIG_FILE_NAME);
 
         public static void Load()
-            => configObj = FileIO.ReadFile("SE_CONFIG").Deserialize<ConfigObj>(false, jsonSettings);
+            => configData = FileIO.ReadFile(_CONFIG_FILE_NAME).Deserialize<ConfigData>(false, jsonSettings);
+
+        public static class Performance
+        {
+            public static bool UseArrayPoolCore {
+                get => configData.Performance.UseArrayPoolCore;
+                set {
+                    if (Initialized) 
+                        ThrowInitialized(nameof(UseArrayPoolParticles));
+
+                    configData.Performance.UseArrayPoolCore = value;
+                }
+            }
+
+            public static bool UseArrayPoolParticles {
+                get => configData.Performance.UseArrayPoolParticles;
+                set {
+                    if (Initialized) 
+                        ThrowInitialized(nameof(UseArrayPoolParticles));
+
+                    configData.Performance.UseArrayPoolParticles = value;
+                }
+            }
+        }
+    }
+
+    [JsonObject(MemberSerialization.OptOut)]
+    internal class ConfigData
+    {
+        public PerformanceConfigData Performance = new PerformanceConfigData();
 
         [JsonObject(MemberSerialization.OptOut)]
-        private class ConfigObj
+        public class PerformanceConfigData
         {
             public bool UseArrayPoolCore = true;
-            public bool useArrayPoolParticles = true;
+            public bool UseArrayPoolParticles = true;
         }
     }
 }

@@ -82,6 +82,7 @@ namespace SE.Core
         };
 
         private static AssetConsumerContext assetConsumerContext = new AssetConsumerContext();
+        public static string LogPath { get; } = FileIO.DataDirectory + "\\LOG.txt";
 
         static Console()
         {
@@ -117,7 +118,7 @@ namespace SE.Core
             }
 
             try {
-                outputWriter = new StreamWriter("log.txt") {
+                outputWriter = new StreamWriter(LogPath) {
                     AutoFlush = true
                 };
             } catch(IOException) { } 

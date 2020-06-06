@@ -156,17 +156,12 @@ namespace SE
                 Editor.OnInitialize(this);
             }
 
-            ParticleEngine.AllocationMode = Config.UseArrayPoolCore
+            ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolCore
                 ? ParticleAllocationMode.ArrayPool
                 : ParticleAllocationMode.Array;
             ParticleEngine.Initialize();
 
             OnInitialize();
-        }
-
-        private void Network_OnLogInfo(string msg, bool important = false)
-        {
-            throw new NotImplementedException();
         }
 
         private void LoadEngineContent()
