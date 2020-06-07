@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Newtonsoft.Json;
+using SE.Utility;
 
 namespace SE.Serialization
 {
     [JsonObject(MemberSerialization.OptOut)]
-    public class GameObjectData
+    public class GameObjectData : IDisposable
     {
         public string EngineName;
         public Type Type;
@@ -15,6 +16,22 @@ namespace SE.Serialization
         public Vector2 Scale;
         public float Rotation;
 
-        public List<ComponentData> componentData;
+        public PooledList<ComponentData> componentData;
+
+        private bool isDisposed;
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing = true)
+        {
+            if(isDisposed)
+                return;
+
+            componentData?.Dispose();
+            isDisposed = true;
+        }
     }
 }

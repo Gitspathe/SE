@@ -13,7 +13,7 @@ namespace SE.Common
     /// Containers for logic which are added to GameObjects.
     /// </summary>
     [ExecuteInEditor]
-    public class Component : SEObject, IAssetConsumer
+    public class Component : SEObject, IAssetConsumer, IDisposable
     {
         public bool Serialized => !NeverSerialize && InstantiatedFromAttribute;
 
@@ -45,6 +45,9 @@ namespace SE.Common
         }
         private bool enabled = true;
 
+        /// <summary>True if the component is being destroyed.</summary>
+        public bool PendingDestroy { get; private set; }
+
         /// <summary>True if Initialize was called on the component.</summary>
         public bool Initialized { get; private set; }
 
@@ -64,6 +67,8 @@ namespace SE.Common
         /// <summary>Serializer for the component. Only valid when in the editor.</summary>
         public EngineSerializerBase Serializer { get; private set; }
 
+        private bool isDisposed;
+
         /// <summary>
         /// Runs before initialize.
         /// </summary>
@@ -80,6 +85,13 @@ namespace SE.Common
 
         private void GenerateSerializer()
         {
+            // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO  |
+            // TODO --------------------------------------------------------------------------------------|
+            // TODO |  Serializer causes a memory leak WITH and WITHOUT using ArrayPool!!! WTF!?!??!?!?!? |
+            // TODO --------------------------------------------------------------------------------------|
+            // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO  |
+
+            Serializer?.Dispose();       // Dispose if serializer already exists.
             Serializer = SerializerReflection.GetEngineSerializer(GetType(), this);
             if (Serializer != null) {
                 Serializer.Initialize(); // Custom
@@ -163,6 +175,7 @@ namespace SE.Common
 
         public void Destroy()
         {
+            PendingDestroy = true;
             OnDestroy();
             if (this is IDisposable disposable) {
                 disposable.Dispose();
@@ -209,11 +222,26 @@ namespace SE.Common
             if (data.AdditionalData != null) {
                 Serializer.Restore(data.AdditionalData);
             }
+            data.Dispose();
             
             // Clear the serializer if the engine is not in editor mode.
             if (!GameEngine.IsEditor) {
                 Serializer = null;
             }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing = true)
+        {
+            if(isDisposed)
+                return;
+
+            Serializer?.Dispose();
+            isDisposed = true;
         }
     }
 }

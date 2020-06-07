@@ -8,32 +8,50 @@ namespace SE.Core
 {
     public static class Config
     {
+        private const string _CONFIG_FILE_NAME = "SE_CONFIG.json";
+
+        public static bool RequireSave { get; private set; }
+        public static bool RequireRestart { get; private set; }
         internal static bool Initialized { get; private set; }
 
         private static ConfigData configData;
-        private const string _CONFIG_FILE_NAME = "SE_CONFIG.json";
-
-        private static JsonSerializerSettings jsonSettings {
-            get {
-                JsonSerializerSettings settings = new JsonSerializerSettings {
-                    Formatting = Formatting.Indented
-                };
-                return settings;
-            }
-        }
-
-        private static void ThrowInitialized(string name)
-            => throw new InvalidOperationException($"Cannot modify engine parameter '{name}' after Initialize() has been called.");
+        private static JsonSerializerSettings jsonSettings;
 
         public static void Initialize()
         {
+            jsonSettings = new JsonSerializerSettings {
+                Formatting = Formatting.Indented
+            };
+
             if (FileIO.FileExists(_CONFIG_FILE_NAME)) {
                 Load();
             } else {
                 configData = new ConfigData();
                 Save();
             }
+            // Set up values that cannot be changed after initialization.
+            // These use dummy variables after initialization.
+            Performance.Setup();
+
             Initialized = true;
+        }
+
+        public static void Update()
+        {
+            if (!RequireSave) 
+                return;
+
+            Save();
+            RequireSave = false;
+        }
+
+        private static void SettingChanged(bool requireRestart = false)
+        {
+            if(!Initialized)
+                return;
+
+            RequireRestart = requireRestart;
+            RequireSave = true;
         }
 
         public static void Save() 
@@ -45,23 +63,27 @@ namespace SE.Core
         public static class Performance
         {
             public static bool UseArrayPoolCore {
-                get => configData.Performance.UseArrayPoolCore;
+                get => useArrayPoolCoreVal;
                 set {
-                    if (Initialized) 
-                        ThrowInitialized(nameof(UseArrayPoolParticles));
-
                     configData.Performance.UseArrayPoolCore = value;
+                    SettingChanged(Initialized);
                 }
             }
+            private static bool useArrayPoolCoreVal;
 
             public static bool UseArrayPoolParticles {
-                get => configData.Performance.UseArrayPoolParticles;
+                get => useArrayPoolParticlesVal;
                 set {
-                    if (Initialized) 
-                        ThrowInitialized(nameof(UseArrayPoolParticles));
-
                     configData.Performance.UseArrayPoolParticles = value;
+                    SettingChanged(Initialized);
                 }
+            }
+            private static bool useArrayPoolParticlesVal;
+
+            internal static void Setup()
+            {
+                useArrayPoolCoreVal = configData.Performance.UseArrayPoolCore;
+                useArrayPoolParticlesVal = configData.Performance.UseArrayPoolParticles;
             }
         }
     }

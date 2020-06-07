@@ -13,15 +13,12 @@ using System;
 
 namespace SE.Components
 {
-    public class ParticleSystem : Component, IDisposable
+    public class ParticleSystem : Component
     {
         public Texture2D Texture;
         public Rectangle SourceRect;
 
         public Emitter Emitter;
-
-        public bool AddedToParticleEngine { get; internal set; } = false;
-        public int ParticleEngineIndex { get; internal set; } = -1;
 
         protected override void OnInitialize()
         {
@@ -34,9 +31,10 @@ namespace SE.Components
                 true, 
                 true);
 
-            Emitter = new Emitter(shape: circleShape);
+            Emitter = new Emitter(shape: rectangleShape);
             Emitter.Texture = Texture;
             Emitter.StartRect = SourceRect.ToVector4();
+            //Emitter.Space = Space.Local;
 
             Curve angleCurve = new Curve();
             angleCurve.Keys.Add(0.0f, 0.0f);
@@ -94,12 +92,15 @@ namespace SE.Components
 
         protected override void OnDestroy()
         {
+            //Emitter.DisposeAfter();
             Emitter.Dispose();
+            Emitter = null; // Fix weird memory leak.
         }
 
         protected override void OnDisable()
         {
-            Emitter.Enabled = false;
+            if(!PendingDestroy)
+                Emitter.Enabled = false;
         }
 
         private float time;
@@ -110,14 +111,16 @@ namespace SE.Components
 
             time -= Time.DeltaTime;
             while (time <= 0.0f) {
-                Emitter.Emit(64);
-                time += 0.05f;
+                Emitter.Emit(12);
+                time += 0.1f;
             }
         }
 
-        public void Dispose()
+        protected override void Dispose(bool disposing = true)
         {
-            Emitter?.Dispose();
+            base.Dispose(disposing);
+            if(!PendingDestroy)
+                Emitter?.Dispose();
         }
     }
 }

@@ -15,31 +15,29 @@ using SE.Engine.Networking;
 using SE.Networking.Internal;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
+using System.Data.Common;
 
 namespace SE.Common
 {
     /// <summary>
     /// GameObjects are containers for logic and components.
     /// </summary>
-    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IPartitionObjectExtended
+    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IPartitionObjectExtended, IDisposable
     {
         public string EngineName { get; set; }
 
         /// <summary>If true, GameObject will be serialized to the scene.</summary>
         public virtual bool SerializeToScene { get; set; } = true;
-
         /// <summary>If true, GameObject is attached to the level it spawns in, and is destroyed when a new level is loaded.</summary>
         public virtual bool DestroyOnLoad { get; set; } = true;
-
         /// <summary>True if Initialize has been called on the GameObject.</summary>
         public bool Initialized { get; internal set; }
-
         /// <summary>True if Awake has been called on the GameObject.</summary>
         public bool AwakeCalled { get; internal set; }
-
         /// <summary>The enabled state.</summary>
         public bool Enabled { get; protected set; }
-
+        /// <summary>True if the GameObject is being destroyed.</summary>
+        public bool PendingDestroy { get; private set; }
         /// <summary>True if Destroy() was called on the GameObject this frame.</summary>
         public bool Destroyed { get; private set; }
 
@@ -92,7 +90,6 @@ namespace SE.Common
                 (int) (value.Height * Transform.Scale.Y));
         }
 
-        private RectangleF unscaledBounds = RectangleF.Empty;
         public RectangleF UnscaledBounds {
             get => unscaledBounds;
             set {
@@ -101,6 +98,7 @@ namespace SE.Common
                 UpdateSpriteBounds();
             }
         }
+        private RectangleF unscaledBounds = RectangleF.Empty;
 
         public INetLogic NetLogic => NetIdentity;
 
@@ -109,11 +107,40 @@ namespace SE.Common
         protected virtual Transform TransformProp { get; set; }
 
         internal bool AddedToGameManager;
-        internal SpriteBase[] Sprites = new SpriteBase[0];
-        internal QuickList<IPartitionObject> PartitionObjects = new QuickList<IPartitionObject>();
+        internal PooledList<SpriteBase> Sprites = new PooledList<SpriteBase>(Config.Performance.UseArrayPoolCore);
+        internal PooledList<IPartitionObject> PartitionObjects = new PooledList<IPartitionObject>(Config.Performance.UseArrayPoolCore);
+        internal PooledList<Component> Components = new PooledList<Component>(Config.Performance.UseArrayPoolCore);
+        internal PooledList<Component> SerializedComponents = new PooledList<Component>(Config.Performance.UseArrayPoolCore);
         internal PhysicsObject PhysicsObject = null;
-        protected internal QuickList<Component> Components = new QuickList<Component>();
-        protected internal QuickList<Component> SerializedComponents = new QuickList<Component>();
+        private bool isDisposed;
+
+        /// <summary>
+        /// Creates a new GameObject instance.
+        /// </summary>
+        /// <param name="pos">Position.</param>
+        /// <param name="rot">Rotation.</param>
+        /// <param name="scale">Scale.</param>
+        public GameObject(Vector2 pos, float rot, Vector2 scale)
+        {
+            // Skip this constructor if the GameObject is a UIObject.
+            if (!(this is UIObject)) {
+                Transform = new Transform(pos, scale, rot, this);
+                GameEngine.GameObjectConstructorCallback(this);
+            }
+        }
+
+        public GameObject() : this(Vector2.Zero, 0f, Vector2.One) { }
+
+        /// <summary>
+        /// Create a new GameObject instance from a type.
+        /// </summary>
+        /// <param name="gameObjectType">GameObject type.</param>
+        /// <param name="position">2D position.</param>
+        /// <param name="rotation">Rotation in degrees.</param>
+        /// <param name="scale">Scale.</param>
+        /// <returns>GameObject which was instantiated.</returns>
+        public static GameObject Instantiate(Type gameObjectType, Vector2 position, float rotation, Vector2 scale)
+            => (GameObject)Activator.CreateInstance(gameObjectType, position, rotation, scale);
 
         /// <summary>
         /// Throws exceptions if the GameObject cannot be accessed.
@@ -124,26 +151,20 @@ namespace SE.Common
                 throw new InvalidOperationException("Attempted to access destroyed GameObject.");
         }
 
-        internal void AddSprite(SpriteBase s)
-        {
-            List<SpriteBase> tmpSprites = new List<SpriteBase>();
-            tmpSprites.AddRange(Sprites);
-            tmpSprites.Add(s);
-            Sprites = tmpSprites.ToArray();
-        }
+        public bool ExecuteIsValid(Component component) 
+            => !GameEngine.IsEditor || GameEngine.IsEditor && Reflection.GetComponentInfo(component.GetType()).RunInEditor;
 
-        internal void RemoveSprite(SpriteBase s)
-        {
-            List<SpriteBase> tmpSprites = new List<SpriteBase>();
-            tmpSprites.AddRange(Sprites);
-            tmpSprites.Remove(s);
-            Sprites = tmpSprites.ToArray();
-        }
+        internal void AddSprite(SpriteBase s) 
+            => Sprites.Add(s);
+
+        internal void RemoveSprite(SpriteBase s) 
+            => Sprites.Remove(s);
 
         internal void UpdateSpriteBounds()
         {
-            for (int i = 0; i < Sprites.Length; i++) {
-                Sprites[i].RecalculateBounds();
+            SpriteBase[] array = Sprites.Array;
+            for (int i = 0; i < Sprites.Count; i++) {
+                array[i].RecalculateBounds();
             }
         }
 
@@ -153,23 +174,24 @@ namespace SE.Common
                 return;
 
             UpdateSpriteBounds();
-            if (!AutoBounds || Sprites.Length < 1) {
+            if (!AutoBounds || Sprites.Count < 1) {
                 unscaledBounds = new RectangleF(Transform.GlobalPositionInternal.X, Transform.GlobalPositionInternal.Y,
                     unscaledBounds.Width, unscaledBounds.Height);
                 return;
             }
 
             float largestWidth = 0, largestHeight = 0, minX = int.MaxValue, minY = int.MaxValue;
-            for (int i = 0; i < Sprites.Length; i++) {
-                Rectangle bounds = Sprites[i].Bounds;
+            for (int i = 0; i < Sprites.Count; i++) {
+                SpriteBase sprite = Sprites.Array[i];
+                Rectangle bounds = sprite.Bounds;
                 if (bounds.X < minX)
                     minX = bounds.X;
                 if (bounds.Y < minY)
                     minY = bounds.Y;
-                if (bounds.Width + Sprites[i].Offset.X > largestWidth)
-                    largestWidth = bounds.Width + Sprites[i].Offset.X;
-                if (bounds.Height + Sprites[i].Offset.Y > largestHeight)
-                    largestHeight = bounds.Height + Sprites[i].Offset.Y;
+                if (bounds.Width + sprite.Offset.X > largestWidth)
+                    largestWidth = bounds.Width + sprite.Offset.X;
+                if (bounds.Height + sprite.Offset.Y > largestHeight)
+                    largestHeight = bounds.Height + sprite.Offset.Y;
             }
 
             unscaledBounds = new RectangleF(minX, minY, largestWidth, largestHeight);
@@ -236,6 +258,7 @@ namespace SE.Common
             if(Destroyed)
                 return;
 
+            PendingDestroy = true;
             if (GameEngine.IsEditor) {
                 OnDestroyEditor();
             } else {
@@ -248,7 +271,6 @@ namespace SE.Common
                         poolable.MyPool.DestroyedCallback(this);
                     }
                 }
-
                 if (wasPooled)
                     return;
 
@@ -611,7 +633,6 @@ namespace SE.Common
             component.AssetConsumer.DereferenceAssets();
             Components.Remove(component);
             SerializedComponents.Remove(component);
-
             component.Destroy();
             SortComponents();
         }
@@ -627,14 +648,6 @@ namespace SE.Common
                     RemoveComponent(Components.Array[i]);
                 }
             }
-        }
-
-        /// <summary>
-        /// Called after the object is destroyed. Unmanaged resources and events should be dealt with here.
-        /// </summary>
-        protected virtual void Dispose()
-        {
-            // Unregister events here when I add them.
         }
 
         public void InsertedIntoPartition(PartitionTile tile)
@@ -662,39 +675,13 @@ namespace SE.Common
         protected internal void SortComponents() 
             => Components.Sort(new ComponentQueueComparer());
 
-        public bool ExecuteIsValid(Component component) 
-            => !GameEngine.IsEditor || GameEngine.IsEditor && Reflection.GetComponentInfo(component.GetType()).RunInEditor;
-
-        /// <summary>
-        /// Creates a new GameObject instance.
-        /// </summary>
-        /// <param name="pos">Position.</param>
-        /// <param name="rot">Rotation.</param>
-        /// <param name="scale">Scale.</param>
-        public GameObject(Vector2 pos, float rot, Vector2 scale)
+        public string SerializeJson()
         {
-            // Skip this constructor if the GameObject is a UIObject.
-            if (!(this is UIObject)) {
-                Transform = new Transform(pos, scale, rot, this);
-                GameEngine.GameObjectConstructorCallback(this);
-            }
+            GameObjectData data = Serialize();
+            string str = data.Serialize();
+            data.Dispose();
+            return str;
         }
-
-        public GameObject() : this(Vector2.Zero, 0f, Vector2.One) { }
-
-        /// <summary>
-        /// Create a new GameObject instance from a type.
-        /// </summary>
-        /// <param name="gameObjectType">GameObject type.</param>
-        /// <param name="position">2D position.</param>
-        /// <param name="rotation">Rotation in degrees.</param>
-        /// <param name="scale">Scale.</param>
-        /// <returns>GameObject which was instantiated.</returns>
-        public static GameObject Instantiate(Type gameObjectType, Vector2 position, float rotation, Vector2 scale)
-            => (GameObject)Activator.CreateInstance(gameObjectType, position, rotation, scale);
-
-        public string SerializeJson() 
-            => Serialize().Serialize(); // wtf?
 
         public GameObjectData Serialize()
         {
@@ -704,7 +691,7 @@ namespace SE.Common
                 Position = Transform.Position,
                 Rotation = Transform.Rotation,
                 Scale = Transform.Scale,
-                componentData = new List<ComponentData>()
+                componentData = new PooledList<ComponentData>(Config.Performance.UseArrayPoolCore)
             };
             for (int i = 0; i < SerializedComponents.Count; i++) {
                 Component component = SerializedComponents.Array[i];
@@ -736,6 +723,7 @@ namespace SE.Common
                     component.Deserialize(serializedComponent);
                 }
             }
+            data.Dispose();
         }
 
         protected virtual object SerializeAdditionalData() => null;
@@ -744,6 +732,27 @@ namespace SE.Common
         private struct ComponentQueueComparer : IComparer<Component>
         {
             int IComparer<Component>.Compare(Component x, Component y) => y.Queue.CompareTo(x.Queue);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (isDisposed) 
+                return;
+
+            if (disposing) {
+                if (Config.Performance.UseArrayPoolCore) {
+                    Components.Dispose();
+                    SerializedComponents.Dispose();
+                    Sprites.Dispose();
+                    PartitionObjects.Dispose();
+                }
+            }
+            isDisposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
     }
 }

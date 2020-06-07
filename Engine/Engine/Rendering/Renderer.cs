@@ -215,9 +215,9 @@ namespace SE.Rendering
 
         private void DrawUIElement(UIObject uiObj, Rectangle? scissorRect)
         {
-            int len = uiObj.Sprites.Length;
+            int len = uiObj.Sprites.Count;
             for (int s = 0; s < len; s++) {
-                SpriteBase sprite = uiObj.Sprites[s];
+                SpriteBase sprite = uiObj.Sprites.Array[s];
                 Rectangle bounds = sprite.Bounds;
                 if (scissorRect != null && scissorRect.Value.Intersects(bounds)) {
                     sprite.Render(null, Space.Screen);
@@ -276,9 +276,9 @@ namespace SE.Rendering
 
         private void DrawUIGizmo(UIObject uiObj, Rectangle? scissorRect, Camera2D camera)
         {
-            int len = uiObj.Sprites.Length;
+            int len = uiObj.Sprites.Count;
             for (int s = 0; s < len; s++) {
-                SpriteBase sprite = uiObj.Sprites[s];
+                SpriteBase sprite = uiObj.Sprites.Array[s];
                 Rectangle bounds = sprite.Bounds;
                 bounds.X -= (int)camera.Position.X;
                 bounds.Y -= (int)camera.Position.Y;

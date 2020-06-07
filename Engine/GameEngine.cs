@@ -156,7 +156,7 @@ namespace SE
                 Editor.OnInitialize(this);
             }
 
-            ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolCore
+            ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolParticles
                 ? ParticleAllocationMode.ArrayPool
                 : ParticleAllocationMode.Array;
             ParticleEngine.Initialize();
@@ -232,31 +232,40 @@ namespace SE
             );
         }
 
-        private float time = 2.0f;
-
         /// <summary>
         /// Main update loop, the majority of both the engine's and the game's logic are processed here.
         /// </summary>
         /// <param name="gameTime">Helper class containing timing methods.</param>
         protected sealed override void Update(GameTime gameTime)
         {
-            // GC test. TODO: MAKE SURE THIS IS COMMENTED OUT WHEN NOT NEEDED!!!!!!!!!!!!!!!!!!
-            //if (InputManager.KeyCodePressed(Keys.A)) {
-            //    GC.Collect();
-            //}
-
+            DevelopmentTests();
             if (!Config.Initialized)
                 throw new InvalidOperationException("Config was not initialized!");
 
             AssetManager.Update(Time.DeltaTime);
+            Config.Update();
 
-            if (InputManager.KeyCodePressed(Keys.L)) {
-                ParticleEngine.UpdateMode = ParticleEngine.UpdateMode == UpdateMode.ParallelAsynchronous 
-                    ? UpdateMode.Synchronous 
-                    : UpdateMode.ParallelAsynchronous;
-
-                Console.WriteLine("Multithreaded particles: " + (ParticleEngine.UpdateMode == UpdateMode.ParallelAsynchronous ? "on" : "off"));
+            GameTime = gameTime;
+            foreach (Action action in GameLoop.Loop.Values) {
+                action.Invoke();
             }
+
+            OnUpdate(gameTime);
+            Editor?.OnUpdate(GraphicsDeviceManager.GraphicsDevice, gameTime);
+            if (gcFrame) {
+                GC.Collect();
+                gcFrame = false;
+            }
+            EngineUtility.TransformHierarchyDirty = false;
+        }
+
+        private float time = 2.0f;
+        private void DevelopmentTests()
+        {
+            // GC test. TODO: MAKE SURE THIS IS COMMENTED OUT WHEN NOT NEEDED!!!!!!!!!!!!!!!!!!
+            //if (InputManager.KeyCodePressed(Keys.A)) {
+            //    GC.Collect();
+            //}
 
             time -= Time.DeltaTime;
             if (time <= 0.0f) {
@@ -270,20 +279,15 @@ namespace SE
                 Console.WriteLine("Multithreaded: " + (Renderer.Multithreaded ? "on" : "off"));
             }
 
-            GameTime = gameTime;
-            foreach (Action action in GameLoop.Loop.Values) {
-                action.Invoke();
+            if (InputManager.KeyCodePressed(Keys.L)) {
+                ParticleEngine.UpdateMode = ParticleEngine.UpdateMode == UpdateMode.ParallelAsynchronous 
+                    ? UpdateMode.Synchronous 
+                    : UpdateMode.ParallelAsynchronous;
+
+                Console.WriteLine("Multithreaded particles: " + (ParticleEngine.UpdateMode == UpdateMode.ParallelAsynchronous ? "on" : "off"));
             }
 
             //Debug.WriteLine(SpatialPartitionManager.EntitiesCount);
-
-            OnUpdate(gameTime);
-            Editor?.OnUpdate(GraphicsDeviceManager.GraphicsDevice, gameTime);
-            if (gcFrame) {
-                GC.Collect();
-                gcFrame = false;
-            }
-            EngineUtility.TransformHierarchyDirty = false;
         }
 
         public void UpdateDynamicGameObjects()

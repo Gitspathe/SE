@@ -72,7 +72,7 @@ namespace SE.World
         {
             TileSet = AssetManager.GetDictionary<Func<Vector2, GameObject>>(this);
             LoadingScreen.SetProgress("Reading file system...");
-            string dataString = FileIO.ReadFile(Path.Combine(LevelNamespace, "Levels", LevelName + ".dzmap"));
+            string dataString = FileIO.ReadFile(Path.Combine(LevelNamespace, "Levels", LevelName + ".semap"));
 
             Reflection.SceneInfo sceneInfo = Reflection.GetSceneInfo(LevelNamespace, LevelName);
             script = sceneInfo.SceneScript;
@@ -179,12 +179,12 @@ namespace SE.World
                     MapData[x][y].ShadowTemplates.Clear();
                     for (int z = 0; z < MapData[x][y].Gos.Count; z++) {
                         GameObject go = MapData[x][y].Gos[z];
-                        for (int s = 0; s < go.Sprites.Length; s++) {
-                            SpriteBase spr = go.Sprites[s];
+                        for (int s = 0; s < go.Sprites.Count; s++) {
+                            SpriteBase spr = go.Sprites.Array[s];
                             if (!(spr is ILit) || ((ILit)spr).ShadowType != ShadowCasterType.Map)
                                 continue;
 
-                            Sprite sprite = (Sprite)go.Sprites[s];
+                            Sprite sprite = (Sprite)go.Sprites.Array[s];
                             Rectangle shadowBounds = sprite.Shadow.Bounds;
                             MapData[x][y].ShadowTemplates.Add(new TileSpot.ShadowTemplate(new Point((int)go.Bounds.X, (int)go.Bounds.Y), shadowBounds));
                         }
@@ -195,8 +195,8 @@ namespace SE.World
             for (int x = 0; x < TilesCount.X; x++) {
                 for (int y = 0; y < TilesCount.Y; y++) {
                     for (int z = 0; z < MapData[x][y].Gos.Count; z++) {
-                        for (int s = 0; s < MapData[x][y].Gos[z].Sprites.Length; s++) {
-                            if(((ILit)MapData[x][y].Gos[z].Sprites[s]).ShadowType == ShadowCasterType.Map)
+                        for (int s = 0; s < MapData[x][y].Gos[z].Sprites.Count; s++) {
+                            if(((ILit)MapData[x][y].Gos[z].Sprites.Array[s]).ShadowType == ShadowCasterType.Map)
                                 GenerateShadowsIteration(x, y, z, s);
                         }
                     }

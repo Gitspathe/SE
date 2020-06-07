@@ -76,8 +76,8 @@ namespace SE.UI
             get => color;
             set {
                 color = value;
-                for (int i = 0; i < Sprites.Length; i++) {
-                    Sprites[i].Color = color;
+                for (int i = 0; i < Sprites.Count; i++) {
+                    Sprites.Array[i].Color = color;
                 }
             }
         }
@@ -128,8 +128,8 @@ namespace SE.UI
                     StepIntoChild(child);
                 }
             }
-            for (int i = 0; i < Sprites.Length; i++) {
-                Sprites[i].LayerDepth = Priority * 0.00001f;
+            for (int i = 0; i < Sprites.Count; i++) {
+                Sprites.Array[i].LayerDepth = Priority * 0.00001f;
             }
         }
 
@@ -199,8 +199,9 @@ namespace SE.UI
             UIManager.RemoveGizmo(this);
         }
 
-        protected override void Dispose()
+        protected override void Dispose(bool disposing)
         {
+            base.Dispose(disposing);
             if (Selected != null) {
                 foreach (Delegate d in Selected.GetInvocationList()) {
                     Selected -= d as EventHandler<MouseEventArgs>;
@@ -377,14 +378,14 @@ namespace SE.UI
             Point s;
             if (size.HasValue && size.Value != Point.Zero) {
                 s = size.Value;
-            } else if(Sprites.Length > 0) {
+            } else if(Sprites.Count > 0) {
                 int x = 0, y = 0;
-                for (int i = 0; i < Sprites.Length; i++) {
-                    if (Sprites[i].Size.X > x) {
-                        x = Sprites[i].Size.X;
+                for (int i = 0; i < Sprites.Count; i++) {
+                    if (Sprites.Array[i].Size.X > x) {
+                        x = Sprites.Array[i].Size.X;
                     }
-                    if (Sprites[i].Size.Y > y) {
-                        y = Sprites[i].Size.Y;
+                    if (Sprites.Array[i].Size.Y > y) {
+                        y = Sprites.Array[i].Size.Y;
                     }
                 }
                 s = new Point(x, y);

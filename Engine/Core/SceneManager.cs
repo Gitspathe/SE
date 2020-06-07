@@ -54,7 +54,7 @@ namespace SE.Core
         /// <param name="sceneName">Level name to check.</param>
         /// <returns>True if the level is found.</returns>
         public static bool SceneExists(string nameSpace, string sceneName) 
-            => FileIO.FileExists(Path.Combine(nameSpace, "Levels", sceneName + ".dzmap"));
+            => FileIO.FileExists(Path.Combine(nameSpace, "Levels", sceneName + ".semap"));
 
         internal static void Update()
         {

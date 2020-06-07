@@ -50,40 +50,29 @@ namespace SE.UI
         {
             Vector2 size;
             Vector2 parentSize = ParentSize;
-            SpriteBase s;
             Vector2 origin = Vector2.Zero;
             if ((align & Alignment.Center) == Alignment.Center) {
-                for (int i = 0; i < GameObject.Sprites.Length; i++) {
-                    size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
-                    origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), -(parentSize.Y / 2) + (size.Y / 2));
-                }
+                size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
+                origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), -(parentSize.Y / 2) + (size.Y / 2));
             }
             if ((align & Alignment.Up) == Alignment.Up) {
-                for (int i = 0; i < GameObject.Sprites.Length; i++) {
-                    size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
-                    origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), 0);
-                }
+                size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
+                origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), 0);
             }
             if ((align & Alignment.Right) == Alignment.Right) {
-                for (int i = 0; i < GameObject.Sprites.Length; i++) {
-                    size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
-                    origin += new Vector2(-(parentSize.X) + size.X, -(parentSize.Y / 2) + (size.Y / 2));
-                }
+                size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
+                origin += new Vector2(-(parentSize.X) + size.X, -(parentSize.Y / 2) + (size.Y / 2));
             }
             if ((align & Alignment.Down) == Alignment.Down) {
-                for (int i = 0; i < GameObject.Sprites.Length; i++) {
-                    size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
-                    origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), -(parentSize.Y) + (size.Y / 2));
-                }
+                size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
+                origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), -(parentSize.Y) + (size.Y / 2));
             }
             if ((align & Alignment.Left) == Alignment.Left) {
-                for (int i = 0; i < GameObject.Sprites.Length; i++) {
-                    size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
-                    origin += new Vector2(0, -(parentSize.Y / 2) + (size.Y / 2));
-                }
+                size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
+                origin += new Vector2(0, -(parentSize.Y / 2) + (size.Y / 2));
             }
-            for (int i = 0; i < GameObject.Sprites.Length; i++) {
-                s = GameObject.Sprites[i];
+            for (int i = 0; i < GameObject.Sprites.Count; i++) {
+                SpriteBase s = GameObject.Sprites.Array[i];
                 s.Origin = origin;
             }
         }

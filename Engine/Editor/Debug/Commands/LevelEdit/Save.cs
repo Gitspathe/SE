@@ -17,11 +17,11 @@ namespace SE.Editor.Debug.Commands.LevelEdit
                 nameSpace = SceneManager.CurrentScene.LevelNamespace;
                 name = SceneManager.CurrentScene.LevelName;
                 data = SceneManager.CurrentScene.MakeData().Serialize();
-                SaveFile(data, Path.Combine(nameSpace, "Levels", name + ".dzmap"));
+                SaveFile(data, Path.Combine(nameSpace, "Levels", name + ".semap"));
             } catch(Exception e) {
                 return GetError(e, parameters);
             }
-            return "Saved level to " + Path.Combine(DataDirectory, nameSpace, "Levels", name + ".dzmap") + ".";
+            return "Saved level to " + Path.Combine(DataDirectory, nameSpace, "Levels", name + ".semap") + ".";
         }
 
         public string GetHelp()
