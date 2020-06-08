@@ -40,8 +40,6 @@ namespace DeeZ
 
         public void OnInitialize(Game game)
         {
-
-
             EditorGraphicsDeviceManager = GraphicsDeviceManager;
             EditorGraphicsDevice = GraphicsDeviceManager.GraphicsDevice;
             //ImGuiRenderer = new ImGuiRenderer(game);

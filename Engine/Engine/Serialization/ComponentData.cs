@@ -7,7 +7,18 @@ namespace SE.Serialization
     public class ComponentData : IDisposable
     {
         public ulong ComponentIndex;
-        public EngineSerializerData AdditionalData;
+
+        public EngineSerializerData AdditionalData {
+            get => additionalData;
+            set {
+                if (additionalData != null || (value == null && additionalData != null))
+                    additionalData.Dispose();
+
+                additionalData = value;
+            }
+        }
+        private EngineSerializerData additionalData;
+
         public Type Type;
 
         private bool isDisposed;
@@ -22,7 +33,7 @@ namespace SE.Serialization
             if(isDisposed)
                 return;
 
-            AdditionalData?.Dispose();
+            AdditionalData = null;
         }
     }
 }

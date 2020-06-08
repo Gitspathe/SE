@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using SE.Components;
 using SE.Core;
 using tainicom.Aether.Physics2D.Collision.Shapes;
@@ -10,16 +11,18 @@ using MonoGameVector2 = Microsoft.Xna.Framework.Vector2;
 using AetherBodyType = tainicom.Aether.Physics2D.Dynamics.BodyType;
 using static SE.Core.Physics;
 
+using AetherContact = tainicom.Aether.Physics2D.Dynamics.Contacts.Contact;
+using AetherFixture = tainicom.Aether.Physics2D.Dynamics.Fixture;
+
 namespace SE.Physics
 {
     // TODO: Navigation.
-    public class PhysicsBody : IPhysicsDependencyBody<PhysicsBody>
+    public class PhysicsBody : IPhysicsDependencyBody<PhysicsBody>, IDisposable
     {
         internal Body Body;
         internal bool AddedToPhysics;
 
         public PhysicsObject PhysicsObject { get; internal set; }
-
         public List<Fixture> FixtureList { get; set; } = new List<Fixture>(1);
 
         internal JointEdge JointList => Body.JointList;
@@ -189,6 +192,8 @@ namespace SE.Physics
         public void SetIsSensor(bool isSensor) 
             => Body.SetIsSensor(isSensor);
 
+        private bool isDisposed;
+
         internal void OverridePosition(Vector2 pos) 
         {
             if(!AddedToPhysics || PendingRemove)
@@ -241,17 +246,46 @@ namespace SE.Physics
 
         private void SetupEvents()
         {
-            Body.OnCollision += (sender, other, contact) => {
-                if (ValidState && OnCollisionEventHandler != null) {
-                    return OnCollisionEventHandler.Invoke(sender.DependencyFixture as Fixture, other.DependencyFixture as Fixture, new Contact(contact));
-                }
-                return true;
-            };
-            Body.OnSeparation += (sender, other, contact) => {
-                if (ValidState) {
-                    OnSeparationEventHandler?.Invoke(sender.DependencyFixture as Fixture, other.DependencyFixture as Fixture, new Contact(contact));
-                }
-            };
+            Body.OnCollision += OnBodyCollisionEvent;
+            Body.OnSeparation += OnBodySeperateEvent;
+        }
+
+        private void OnBodySeperateEvent(AetherFixture sender, AetherFixture other, AetherContact contact)
+        {
+            if (ValidState) {
+                OnSeparationEventHandler?.Invoke(
+                    sender.DependencyFixture as Fixture, 
+                    other.DependencyFixture as Fixture, 
+                    new Contact(contact));
+            }
+        }
+
+        private bool OnBodyCollisionEvent(AetherFixture sender, AetherFixture other, AetherContact contact)
+        {
+            if (ValidState && OnCollisionEventHandler != null) {
+                return OnCollisionEventHandler.Invoke(
+                    sender.DependencyFixture as Fixture, 
+                    other.DependencyFixture as Fixture,
+                    new Contact(contact));
+            }
+            return true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing = true)
+        {
+            if(isDisposed)
+                return;
+
+            Body.OnCollision -= OnBodyCollisionEvent;
+            Body.OnSeparation -= OnBodySeperateEvent;
+            OnCollisionEventHandler = null;
+            OnSeparationEventHandler = null;
+            isDisposed = true;
         }
     }
 }

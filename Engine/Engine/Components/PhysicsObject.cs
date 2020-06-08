@@ -13,15 +13,18 @@ namespace SE.Components
         /// <inheritdoc />
         public override int Queue => 50;
 
-        private PhysicsBody body;
         public PhysicsBody Body {
             get => body;
             set {
-                if (body != null) {
-                    body.PhysicsObject = null;
+                if (body != null || (value == null && body != null)) {
                     Core.Physics.Remove(body);
+                    body.Dispose();
+                    body.PhysicsObject = null;
                 }
                 body = value;
+                if (body == null) 
+                    return;
+
                 body.PhysicsObject = this;
                 if (Owner != null) {
                     body.Position = Owner.Transform.GlobalPositionInternal;
@@ -29,6 +32,7 @@ namespace SE.Components
                 Core.Physics.Add(Body);
             }
         }
+        private PhysicsBody body;
 
         protected override void OnInitialize()
         {
@@ -60,9 +64,13 @@ namespace SE.Components
         {
             base.OnDestroy();
             Owner.PhysicsObject = null;
-            if (body != null) {
-                Core.Physics.Remove(Body);
-            }
+            //Body = null;
+        }
+
+        protected override void Dispose(bool disposing = true)
+        {
+            base.Dispose(disposing);
+            Body = null;
         }
 
         protected override void OnDisable()

@@ -94,12 +94,6 @@ namespace SE.Common
 
         private void GenerateSerializer()
         {
-            // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO  |
-            // TODO --------------------------------------------------------------------------------------|
-            // TODO |  Serializer causes a memory leak WITH and WITHOUT using ArrayPool!!! WTF!?!??!?!?!? |
-            // TODO --------------------------------------------------------------------------------------|
-            // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO  |
-
             Serializer = SerializerReflection.GetEngineSerializer(GetType(), this);
             if (Serializer != null) {
                 Serializer.Initialize(); // Custom

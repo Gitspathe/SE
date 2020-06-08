@@ -128,6 +128,20 @@ namespace SE
 
                 SpatialPartitionManager.Initialize(192, 192 * 8);
                 Core.Physics.Initialize();
+
+                Network.OnLogInfo += (msg, important) => Console.LogInfo(msg, important, LogSource.Network);
+                Network.OnLogWarning += (msg, exception) => {
+                    if (!string.IsNullOrEmpty(msg))
+                        Console.LogWarning(msg, LogSource.Network);
+                    else
+                        Console.LogWarning(exception, LogSource.Network);
+                };
+                Network.OnLogError += (msg, exception) => {
+                    if (!string.IsNullOrEmpty(msg))
+                        Console.LogError(msg, LogSource.Network);
+                    else
+                        Console.LogError(exception, LogSource.Network);
+                };
             }
 
             SetCurrentScene("_MAIN\\empty");
@@ -140,20 +154,6 @@ namespace SE
             Console.LogInfo("Core engine loaded.", true);
             Console.LogInfo("Game loop loaded:", true);
             Console.LogInfo(GameLoop.ToString());
-
-            Network.OnLogInfo += (msg, important) => Console.LogInfo(msg, important, LogSource.Network);
-            Network.OnLogWarning += (msg, exception) => {
-                if (!string.IsNullOrEmpty(msg))
-                    Console.LogWarning(msg, LogSource.Network);
-                else
-                    Console.LogWarning(exception, LogSource.Network);
-            };
-            Network.OnLogError += (msg, exception) => {
-                if (!string.IsNullOrEmpty(msg))
-                    Console.LogError(msg, LogSource.Network);
-                else
-                    Console.LogError(exception, LogSource.Network);
-            };
 
             Network.Initialize();
             Screen.Reset();

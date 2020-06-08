@@ -119,7 +119,7 @@ namespace DeeZ.Editor.GUI.Hierarchy
             }
         }
 
-        public HierarchyNode(Editor.GUI.Hierarchy.Hierarchy hierarchy, GameObject go)
+        public HierarchyNode(Hierarchy hierarchy, GameObject go)
         {
             Hierarchy = hierarchy;
             GameObject = go;
