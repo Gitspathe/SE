@@ -92,8 +92,7 @@ namespace SE.Components
 
         protected override void OnDestroy()
         {
-            //Emitter.DisposeAfter();
-            Emitter.Dispose();
+            Emitter.DisposeAfter();
             Emitter = null; // Fix weird memory leak.
         }
 

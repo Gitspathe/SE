@@ -29,7 +29,7 @@ namespace SE
     {
         public static GameEngine Engine;
         public static Action Initalized;
-        public GameLoop GameLoop;
+        public static GameLoop GameLoop;
         public GraphicsDeviceManager GraphicsDeviceManager;
         
         public static QuickList<GameObject> DynamicGameObjects = new QuickList<GameObject>();
@@ -41,9 +41,9 @@ namespace SE
 
         private static object gameObjectHandlerLock = new object();
 
-    #if EDITOR
+#if EDITOR
         public bool LevelEditMode = true;
-    #endif
+#endif
 
         internal static ContentLoader EngineContent { get; private set; }
 
@@ -51,6 +51,8 @@ namespace SE
 
         public static bool IsEditor => Editor != null;
         public static Camera2D EditorCamera { get; protected set; }
+
+        private static bool isInitialized;
 
         /// <summary>
         /// Creates a new instance of SE.
@@ -95,31 +97,39 @@ namespace SE
         /// </summary>
         protected sealed override void Initialize()
         {
-            ThreadPool.SetMinThreads(Environment.ProcessorCount, 8);
-
             Content.RootDirectory = "Data";
             LoadEngineContent();
             LoadAssets();
-
-            Config.Initialize();
-
-            InputManager.Initialize(this);
-            Reflection.Initialize();
-            ModLoader.Initialize();
-            if (GameLoop == null)
-                GameLoop = new GameLoop();
 
             IsMouseVisible = true;
             GraphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
             IsFixedTimeStep = Screen.IsFullHeadless;
             TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 60);
             InactiveSleepTime = IsEditor ? TimeSpan.FromSeconds(1.0f / 2000) : TimeSpan.FromSeconds(1.0f / 60); // Alt-tabbed update rate.
-            UIManager.Initialize();
-            if (!Screen.IsFullHeadless)
-                Core.Lighting.Initialize();
 
-            SpatialPartitionManager.Initialize(192, 192 * 8);
-            Core.Physics.Initialize();
+            // If the engine ISN'T initialized (i.e, in editor mode)...
+            if (!isInitialized) {
+                ThreadPool.SetMinThreads(Environment.ProcessorCount, 8);
+
+                Config.Initialize();
+                InputManager.Initialize(this);
+                Reflection.Initialize();
+                ModLoader.Initialize();
+                GameLoop = new GameLoop();
+
+                ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolParticles
+                    ? ParticleAllocationMode.ArrayPool
+                    : ParticleAllocationMode.Array;
+                ParticleEngine.Initialize();
+
+                UIManager.Initialize();
+                if (!Screen.IsFullHeadless)
+                    Core.Lighting.Initialize();
+
+                SpatialPartitionManager.Initialize(192, 192 * 8);
+                Core.Physics.Initialize();
+            }
+
             SetCurrentScene("_MAIN\\empty");
             if (!Screen.IsFullHeadless) {
                 Core.Rendering.Initialize(GraphicsDeviceManager, GraphicsDevice);
@@ -156,12 +166,8 @@ namespace SE
                 Editor.OnInitialize(this);
             }
 
-            ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolParticles
-                ? ParticleAllocationMode.ArrayPool
-                : ParticleAllocationMode.Array;
-            ParticleEngine.Initialize();
-
             OnInitialize();
+            isInitialized = true;
         }
 
         private void LoadEngineContent()

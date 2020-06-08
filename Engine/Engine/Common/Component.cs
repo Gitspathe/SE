@@ -65,7 +65,16 @@ namespace SE.Common
         protected virtual GameObject OwnerProp { get; set; }
 
         /// <summary>Serializer for the component. Only valid when in the editor.</summary>
-        public EngineSerializerBase Serializer { get; private set; }
+        public EngineSerializerBase Serializer {
+            get => serializer;
+            private set {
+                if (serializer != null || (value == null && serializer != null))
+                    serializer?.Dispose();
+
+                serializer = value;
+            }
+        }
+        private EngineSerializerBase serializer;
 
         private bool isDisposed;
 
@@ -91,7 +100,6 @@ namespace SE.Common
             // TODO --------------------------------------------------------------------------------------|
             // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO  |
 
-            Serializer?.Dispose();       // Dispose if serializer already exists.
             Serializer = SerializerReflection.GetEngineSerializer(GetType(), this);
             if (Serializer != null) {
                 Serializer.Initialize(); // Custom
@@ -177,9 +185,7 @@ namespace SE.Common
         {
             PendingDestroy = true;
             OnDestroy();
-            if (this is IDisposable disposable) {
-                disposable.Dispose();
-            }
+            Dispose(true);
         }
 
         /// <summary>
@@ -240,7 +246,7 @@ namespace SE.Common
             if(isDisposed)
                 return;
 
-            Serializer?.Dispose();
+            Serializer = null;
             isDisposed = true;
         }
     }
