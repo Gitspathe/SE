@@ -40,18 +40,14 @@ namespace SE.Engine.Networking
 
         public void OnPeerConnected(NetPeer peer)
         {
-            lock (SpawnedNetObjects) {
-                foreach (uint i in SpawnedNetObjects.Keys) {
-                    InstantiateFromBuffer(SpawnedNetObjects[i], peer, i);
-                }
+            foreach (uint i in SpawnedNetObjects.Keys) { 
+                InstantiateFromBuffer(SpawnedNetObjects[i], peer, i);
             }
         }
 
         internal bool CleanNetObject(SpawnedNetObject netObj)
         {
-            lock (SpawnedNetObjects) {
-                SpawnedNetObjects.Remove(netObj.NetworkID);
-            }
+            SpawnedNetObjects.TryRemove(netObj.NetworkID, out _);
             if (netObj.NetLogic is INetInstantiatable instantiatable)
                 instantiatable.NetClean();
 
@@ -98,9 +94,7 @@ namespace SE.Engine.Networking
                     throw new Exception("NetLogic not found.");
 
                 SetupNetLogic(logic, owner == "SERVER");
-                lock (SpawnedNetObjects) {
-                    SpawnedNetObjects.Add(logic.ID, new SpawnedNetObject(logic, logic.ID, type, owner));
-                }
+                SpawnedNetObjects.TryAdd(logic.ID, new SpawnedNetObject(logic, logic.ID, type, owner));
 
                 byte[] returned = null;
                 byte[] netState = null;
@@ -151,9 +145,7 @@ namespace SE.Engine.Networking
                 throw new Exception("NetLogic not found.");
 
             SetupNetLogic(logic, netID, isOwner, netState);
-            lock (SpawnedNetObjects) {
-                SpawnedNetObjects.Add(logic.ID, new SpawnedNetObject(logic, logic.ID, type));
-            }
+            SpawnedNetObjects.TryAdd(logic.ID, new SpawnedNetObject(logic, logic.ID, type));
 
             if (logic is INetInstantiatable instantiatable)
                 instantiatable.OnNetworkInstantiatedClient(type, isOwner, data);

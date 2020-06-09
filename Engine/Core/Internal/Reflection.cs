@@ -42,20 +42,30 @@ namespace SE.Core.Internal
             }
                    
             // If an entry isn't found, create one.
-            List<Type> components = new List<Type>();
-            ComponentsAttribute attribute = gameObject
+            GameObjectInfo info = new GameObjectInfo();
+
+            // Components attribute.
+            ComponentsAttribute componentsAttribute = gameObject
                .GetCustomAttributes(typeof(ComponentsAttribute), true)
                .FirstOrDefault() as ComponentsAttribute;
-            if (attribute != null) {
-                foreach (Type t in attribute.Components) {
+            if (componentsAttribute != null) {
+                List<Type> components = new List<Type>();
+                foreach (Type t in componentsAttribute.Components) {
                     components.Add(t);
                 }
+                info.Components = components;
             }
 
-            GameObjectInfo info = new GameObjectInfo();
-            info.Components = components;
+            // Headless attribute.
+            HeadlessModeAttribute headlessAttribute = gameObject
+               .GetCustomAttributes(typeof(HeadlessModeAttribute), true)
+               .FirstOrDefault() as HeadlessModeAttribute;
+            if (headlessAttribute != null) {
+                info.HeadlessSupportMode = headlessAttribute.SupportMode;
+            }
 
             // Add to cache and return components.
+            info.Update();
             Cache.GameObjects.Add(gameObject, info);
             return info;
         }
@@ -70,9 +80,10 @@ namespace SE.Core.Internal
                 return result;
             }
 
+            // If an entry isn't found, create one.
             result = new ComponentInfo();
 
-            // If an entry isn't found, create one.
+            // Execute in editor attribute.
             ExecuteInEditorAttribute attribute = component
                .GetCustomAttributes(typeof(ExecuteInEditorAttribute), true)
                .FirstOrDefault() as ExecuteInEditorAttribute;
@@ -80,7 +91,17 @@ namespace SE.Core.Internal
                 result.RunInEditor = true;
             }
 
+            // Headless attribute.
+            HeadlessModeAttribute headlessAttribute = component
+               .GetCustomAttributes(typeof(HeadlessModeAttribute), true)
+               .FirstOrDefault() as HeadlessModeAttribute;
+            if (headlessAttribute != null) {
+                result.HeadlessSupportMode = headlessAttribute.SupportMode;
+            }
+
+
             // Add to cache and return.
+            result.Update();
             Cache.Components.Add(component, result);
             return result;
         }
@@ -155,11 +176,37 @@ namespace SE.Core.Internal
         public class GameObjectInfo
         {
             public List<Type> Components = new List<Type>();
+            public HeadlessSupportMode HeadlessSupportMode = HeadlessSupportMode.Default;
+            public bool Execute;
+
+            internal void Update()
+            {
+                bool isHeadless = Screen.IsFullHeadless;
+                Execute = true;
+                if(HeadlessSupportMode == HeadlessSupportMode.NoHeadless && isHeadless)
+                    Execute = false;
+                else if(HeadlessSupportMode == HeadlessSupportMode.OnlyHeadless && !isHeadless)
+                    Execute = false;
+            }
         }
 
         public class ComponentInfo
         {
             public bool RunInEditor;
+            public HeadlessSupportMode HeadlessSupportMode = HeadlessSupportMode.Default;
+            public bool Execute;
+
+            internal void Update()
+            {
+                bool isHeadless = Screen.IsFullHeadless;
+                Execute = true;
+                if(HeadlessSupportMode == HeadlessSupportMode.NoHeadless && isHeadless)
+                    Execute = false;
+                else if(HeadlessSupportMode == HeadlessSupportMode.OnlyHeadless && !isHeadless)
+                    Execute = false;
+                else if(GameEngine.IsEditor && !RunInEditor)
+                    Execute = false;
+            }
         }
 
         public class SceneInfo

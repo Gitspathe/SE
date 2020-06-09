@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SE.Attributes;
 using SE.Common;
 using SE.Core;
 using SE.Engine.Utility;
@@ -13,6 +14,7 @@ using System;
 
 namespace SE.Components
 {
+    [HeadlessMode(HeadlessSupportMode.NoHeadless)]
     public class ParticleSystem : Component
     {
         public Texture2D Texture;
@@ -92,7 +94,7 @@ namespace SE.Components
 
         protected override void OnDestroy()
         {
-            Emitter.DisposeAfter();
+            Emitter?.DisposeAfter();
             Emitter = null; // Fix weird memory leak.
         }
 

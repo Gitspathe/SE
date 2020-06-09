@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using SE.AssetManagement;
+using SE.Attributes;
 using SE.Components;
 using SE.Components.Network;
 using SE.Core;
@@ -151,8 +152,15 @@ namespace SE.Common
                 throw new InvalidOperationException("Attempted to access destroyed GameObject.");
         }
 
-        public bool ExecuteIsValid(Component component) 
-            => !GameEngine.IsEditor || GameEngine.IsEditor && Reflection.GetComponentInfo(component.GetType()).RunInEditor;
+        public bool ExecuteIsValid(Component component)
+        {
+            return ExecuteIsValid() && Reflection.GetComponentInfo(component.GetType()).Execute;
+        }
+
+        public bool ExecuteIsValid()
+        {
+            return Reflection.GetGameObjectInfo(GetType()).Execute;
+        }
 
         internal void AddSprite(SpriteBase s) 
             => Sprites.Add(s);
@@ -217,8 +225,9 @@ namespace SE.Common
             // Register GameObject to the core engine, and call OnInitializeInternal() on children.
             GameEngine.AddGameObject(this);
 
+            Transform[] children = Transform.Children.Array;
             for (int i = 0; i < Transform.Children.Count; i++) {
-                Transform child = Transform.Children[i];
+                Transform child = children[i];
                 child.GameObject?.OnInitializeInternal();
             }
         }
@@ -227,7 +236,9 @@ namespace SE.Common
         {
             OnInitializeInternal();
             OnAwakeInternal();
-            OnInitialize();
+
+            if(ExecuteIsValid())
+                OnInitialize();
 
             // Initialize any components from the EngineInitialize() method.
             for (int i = 0; i < Components.Count; i++) {
@@ -237,7 +248,7 @@ namespace SE.Common
 
             // Initialize children.
             for (int i = 0; i < Transform.Children.Count; i++) {
-                Transform t = Transform.Children[i];
+                Transform t = Transform.Children.Array[i];
                 if (t.GameObject != null && !t.GameObject.Initialized) {
                     t.GameObject?.Initialize();
                 }
@@ -250,7 +261,8 @@ namespace SE.Common
         public void Update()
         {
             OnUpdateInternal();
-            OnUpdate();
+            if(ExecuteIsValid())
+                OnUpdate();
         }
 
         public void Destroy()
@@ -317,14 +329,15 @@ namespace SE.Common
 
             // Awaken any components from the EngineInitialize() method.
             for (int i = 0; i < Components.Count; i++) {
-                if (!Components.Array[i].AwakeCalled && ExecuteIsValid(Components.Array[i])) {
-                    Components.Array[i].Awake();
+                Component component = Components.Array[i];
+                if (!component.AwakeCalled && ExecuteIsValid(component)) {
+                    component.Awake();
                 }
             }
 
             // Awaken children.
             for (int i = 0; i < Transform.Children.Count; i++) {
-                Transform t = Transform.Children[i];
+                Transform t = Transform.Children.Array[i];
                 if (t.GameObject != null && !t.GameObject.AwakeCalled) {
                     t.GameObject?.OnAwake();
                 }
@@ -343,13 +356,13 @@ namespace SE.Common
         {
             EnsureValidAccess();
 
+            Component[] components = Components.Array;
             for (int i = 0; i < Components.Count; i++) {
-                Component c = Components.Array[i];
-                c.UpdateInternal();
+                components[i].UpdateInternal();
             }
 
             for (int i = 0; i < Components.Count; i++) {
-                Component c = Components.Array[i];
+                Component c = components[i];
                 if (!c.Enabled || !ExecuteIsValid(c))
                     continue;
 
@@ -381,12 +394,12 @@ namespace SE.Common
             Disable(false);
             Transform.SetParent(null);
 
+            Transform[] children = Transform.Children.Array;
             for (int i = Transform.Children.Count - 1; i >= 0; i--) {
-                Transform.Children[i].GameObject?.Destroy();
+                children[i].GameObject?.Destroy();
             }
 
             AssetConsumer.DereferenceAssets();
-            Transform.Dispose();
             Dispose();
             Transform = null;
             Destroyed = true;
@@ -418,21 +431,28 @@ namespace SE.Common
         protected void OnEnableInternal(bool isRoot = true)
         {
             EnsureValidAccess();
-            if (isRoot && Enabled) {
+            bool execute = ExecuteIsValid();
+            if (isRoot && Enabled && execute) {
                 OnEnable();
                 return;
             }
 
             GameEngine.AddGameObject(this);
-            for (int i = 0; i < Components.Count; i++) {
-                Components.Array[i].Enable();
+            if (execute) {
+                for (int i = 0; i < Components.Count; i++) {
+                    Component component = Components.Array[i];
+                    if (ExecuteIsValid(component)) { 
+                        component.Enable();
+                    }
+                }
             }
             Enabled = true;
             if (isRoot) {
                 Transform.ChildStateTree.Apply();
             }
 
-            OnEnable(isRoot);
+            if(execute)
+                OnEnable(isRoot);
         }
 
         /// <summary>
@@ -443,7 +463,8 @@ namespace SE.Common
         protected void OnDisableInternal(bool isRoot = true)
         {
             EnsureValidAccess();
-            if (isRoot && !Enabled) {
+            bool execute = ExecuteIsValid();
+            if (isRoot && !Enabled && ExecuteIsValid()) {
                 OnDisable();
                 return;
             }
@@ -452,15 +473,22 @@ namespace SE.Common
                 Transform.ChildStateTree.Regenerate();
             }
             GameEngine.RemoveGameObject(this);
-            for (int i = 0; i < Components.Count; i++) {
-                Components.Array[i].Disable();
-            }
-            Enabled = false;
-            for (int i = 0; i < Transform.Children.Count; i++) {
-                Transform.Children[i].GameObject?.OnDisableInternal(false);
+            if (execute) {
+                for (int i = 0; i < Components.Count; i++) {
+                    Component component = Components.Array[i];
+                    if(ExecuteIsValid(component))
+                        component.Disable();
+                }
             }
 
-            OnDisable(isRoot);
+            Enabled = false;
+            Transform[] children = Transform.Children.Array;
+            for (int i = 0; i < Transform.Children.Count; i++) {
+                children[i].GameObject?.OnDisableInternal(false);
+            }
+
+            if(execute)
+                OnDisable(isRoot);
         }
 
         /// <summary>
@@ -546,8 +574,9 @@ namespace SE.Common
         {
             EnsureValidAccess();
             List<T> cList = new List<T>();
+            Transform[] children = Transform.Children.Array;
             for (int i = 0; i < Transform.Children.Count; i++) {
-                cList.AddRange(Transform.Children[i].GameObject.GetAllComponents<T>());
+                cList.AddRange(children[i].GameObject.GetAllComponents<T>());
             }
             cList.AddRange(GetComponents<T>());
             return cList;
@@ -561,8 +590,9 @@ namespace SE.Common
         public void GetAllComponents<T>(List<T> existingList) where T : Component
         {
             EnsureValidAccess();
+            Transform[] children = Transform.Children.Array;
             for (int i = 0; i < Transform.Children.Count; i++) {
-                Transform.Children[i].GameObject.GetAllComponents(existingList);
+                children[i].GameObject.GetAllComponents(existingList);
             }
             GetComponents(existingList);
         }
@@ -746,6 +776,7 @@ namespace SE.Common
                     Sprites.Dispose();
                     PartitionObjects.Dispose();
                 }
+                Transform.Dispose();
             }
             isDisposed = true;
         }

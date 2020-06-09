@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SE.Core;
+using SE.Particles;
 using Console = SE.Core.Console;
 
 namespace SE
@@ -71,7 +72,7 @@ namespace SE
             Add(DefaultEnum.FinalizeTime, Time.FinalizeFixedTimeStep);
 
             if (!Screen.IsFullHeadless) {
-                Add(DefaultEnum.StartNewParticles, () => ParticleEngine.Update(Time.DeltaTime));
+                Add(DefaultEnum.StartNewParticles, () => ParticleEngine.Update(Time.DeltaTime, Core.Rendering.CameraBounds[0]));
 
                 Add(DefaultEnum.InputManager, () => InputManager.Update(Time.UnscaledDeltaTime));
                 Add(DefaultEnum.UIManager, UIManager.Update);

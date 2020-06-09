@@ -7,6 +7,7 @@ using SE.Core;
 using SE.UI.Events;
 using SE.Core.Extensions;
 using SE.Engine.Input;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.UI
@@ -121,7 +122,7 @@ namespace SE.UI
                 Priority = priority;
             }
             for (int i = 0; i < Transform.Children.Count; i++) {
-                Transform child = Transform.Children[i];
+                Transform child = Transform.Children.Array[i];
                 if (child.GameObject is UIObject uiObj) {
                     uiObj.SetPriority(Priority);
                 } else {
@@ -136,10 +137,11 @@ namespace SE.UI
         private void StepIntoChild(Transform child)
         {
             for (int i = 0; i < child.Children.Count; i++) {
-                if (child.Children[i].GameObject is UIObject uiObj) {
+                Transform c = child.Children.Array[i];
+                if (c.GameObject is UIObject uiObj) {
                     uiObj.SetPriority(Priority);
                 } else {
-                    StepIntoChild(child.Children[i]);
+                    StepIntoChild(c);
                 }
             }
         }
@@ -157,9 +159,9 @@ namespace SE.UI
             if (sr.HasValue) {
                 ParentScissorRect = sr;
             }
-            List<Transform> children = Transform.Children;
+            QuickList<Transform> children = Transform.Children;
             for (int i = 0; i < children.Count; i++) {
-                UIObject child = (UIObject)children[i].GameObject;
+                UIObject child = (UIObject)children.Array[i].GameObject;
                 if (child.Enabled) {
                     child.UpdateChildScissorRect(sr);
                 }
@@ -174,7 +176,7 @@ namespace SE.UI
             }
             base.OnInitialize();
             for (int i = 0; i < Transform.Children.Count; i++) {
-                UIObject o = (UIObject)Transform.Children[i].GameObject;
+                UIObject o = (UIObject)Transform.Children.Array[i].GameObject;
                 o.IsInteractable = IsInteractable;
             }
             if (IsRootUIMenu) {

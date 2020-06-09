@@ -11,6 +11,8 @@ using SE.World.Partitioning;
 using SE.Core.Extensions;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
+using Vector4 = System.Numerics.Vector4;
+using SE.Particles;
 
 namespace SE.Core
 {
@@ -46,7 +48,18 @@ namespace SE.Core
         public static RenderTarget2D UIRender { get; private set; }
         public static RenderTarget2D FinalRender { get; private set; }
         internal static QuickList<Camera2D> Cameras { get; } = new QuickList<Camera2D>();
+        
+        public static Span<Vector4> CameraBounds {
+            get {
+                tmpCamBounds.Clear();
+                for (int i = 0; i < Cameras.Count; i++) {
+                    tmpCamBounds.Add(Cameras.Array[i].ViewBounds.ToVector4());
+                }
+                return new Span<Vector4>(tmpCamBounds.Array, 0, tmpCamBounds.Count);
+            }
+        }
 
+        private static QuickList<Vector4> tmpCamBounds = new QuickList<Vector4>();
         public static Effect TestEffect;
 
         public static void Update()

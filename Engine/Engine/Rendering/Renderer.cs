@@ -311,7 +311,7 @@ namespace SE.Rendering
             ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
             Vector2 camPos = cam.Position;
 
-            foreach (Emitter pEmitter in ParticleEngine.Emitters) {
+            foreach (Emitter pEmitter in ParticleEngine.VisibleEmitters) {
                 Span<Particle> particles = pEmitter.ActiveParticles;
                 
                 Texture2D tex = pEmitter.Texture;

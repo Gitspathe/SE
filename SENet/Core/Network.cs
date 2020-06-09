@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -31,8 +32,8 @@ namespace SE.Core
         public static bool IsClient => InstanceType == NetInstanceType.Client;
         public static uint CurrentNetworkID { get; set; } = 1;
 
-        public static Dictionary<uint, SpawnedNetObject> SpawnedNetObjects = new Dictionary<uint, SpawnedNetObject>();
-        public static Dictionary<uint, INetLogic> NetworkObjects = new Dictionary<uint, INetLogic>();
+        public static ConcurrentDictionary<uint, SpawnedNetObject> SpawnedNetObjects = new ConcurrentDictionary<uint, SpawnedNetObject>();
+        public static ConcurrentDictionary<uint, INetLogic> NetworkObjects = new ConcurrentDictionary<uint, INetLogic>();
         public static Dictionary<string, NetPeer> Connections = new Dictionary<string, NetPeer>();
 
         internal static RPCLookupTable<RPCServerInfo> ServerRPCLookupTable;
@@ -45,10 +46,10 @@ namespace SE.Core
         private static object netLogicLock = new object();
 
         // Cache packets to reduce memory allocations and CPU overhead.
+        internal static RPCFunction CacheRPCFunc = new RPCFunction();
         private static EventBasedNetListener listener;
         private static NetDataWriter cachedWriter = new NetDataWriter();
         private static NetDataReader cachedReader = new NetDataReader();
-        internal static RPCFunction CacheRPCFunc = new RPCFunction();
         private static StringBuilder signatureBuilder = new StringBuilder(256);
         private static StringBuilder methodNameBuilder = new StringBuilder(256);
         private static List<NetPeer> recipients = new List<NetPeer>();
@@ -271,7 +272,7 @@ namespace SE.Core
                 if (logic is INetPersistable persist && netState != null)
                     persist.RestoreNetworkState(netState);
 
-                NetworkObjects.Add(CurrentNetworkID, logic);
+                NetworkObjects.TryAdd(CurrentNetworkID, logic);
                 CurrentNetworkID++;
             }
         }
@@ -283,7 +284,7 @@ namespace SE.Core
                 if (logic is INetPersistable persist && netState != null)
                     persist.RestoreNetworkState(netState);
 
-                NetworkObjects.Add(networkID, logic);
+                NetworkObjects.TryAdd(networkID, logic);
                 if (networkID > CurrentNetworkID)
                     CurrentNetworkID = networkID;
                 if (networkID == CurrentNetworkID)

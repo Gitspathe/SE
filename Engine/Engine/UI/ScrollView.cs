@@ -82,9 +82,9 @@ namespace SE.UI
             if(!DisableHidden)
                 return;
 
-            List<Transform> children = Transform.Children;
+            QuickList<Transform> children = Transform.Children;
             for (int i = 0; i < children.Count; i++) {
-                Transform child = children[i];
+                Transform child = children.Array[i];
                 if (child.GameObject.Enabled) {
                     if (!child.GameObject.Bounds.Intersects(ScissorRect.Value)) {
                         child.GameObject.Disable();

@@ -68,7 +68,7 @@ namespace SE.Components.Network
                     continue;
 
                 nComponent.Setup(CurrentNetworkID, owner == "SERVER");
-                NetworkObjects.Add(CurrentNetworkID, nComponent);
+                NetworkObjects.TryAdd(CurrentNetworkID, nComponent);
                 CurrentNetworkID++;
                 if (nComponent is INetPersistable netPersist) {
                     netStates.Add(netPersist.SerializeNetworkState());
@@ -97,7 +97,7 @@ namespace SE.Components.Network
                 if (nComponent is INetPersistable persist && netStates[index] != null)
                     persist.RestoreNetworkState(netStates[index]);
 
-                NetworkObjects.Add(netIDs[index], nComponent);
+                NetworkObjects.TryAdd(netIDs[index], nComponent);
                 index++;
             }
         }
@@ -126,8 +126,8 @@ namespace SE.Components.Network
         {
             List<uint> goNetIDs = NetIDs;
             for (int i = 0; i < goNetIDs.Count; i++) {
-                NetworkObjects.Remove(goNetIDs[i]);
-                SpawnedNetObjects.Remove(goNetIDs[i]);
+                NetworkObjects.TryRemove(goNetIDs[i], out _);
+                SpawnedNetObjects.TryRemove(goNetIDs[i], out _);
             }
             Owner.OnDestroyInternal();
         }

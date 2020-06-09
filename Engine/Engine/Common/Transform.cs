@@ -12,7 +12,7 @@ namespace SE.Common
     /// Contains information about an object's position, rotation and scale. 
     /// Transforms are hierarchical, their positions, rotations and scales are derived from their parent Transform.
     /// </summary>
-    public class Transform
+    public class Transform : IDisposable
     {
         /// <summary>GameObject owner GameObject of this Transform.</summary>
         public GameObject GameObject { get; }
@@ -21,7 +21,7 @@ namespace SE.Common
         public Transform Parent { get; private set; }
 
         /// <summary>Children of this Transform.</summary>
-        public List<Transform> Children { get; } = new List<Transform>();
+        public QuickList<Transform> Children { get; } = new QuickList<Transform>();
 
         /// <summary>Holds child Transforms enable or disabled state.</summary>
         internal StateTree ChildStateTree;
@@ -172,6 +172,7 @@ namespace SE.Common
         private Vector2 localPosition;
         private Vector2 localScale;
         private float localRotation;
+        private bool isDisposed;
 
         /// <summary>
         /// Creates a new Transform instance.
@@ -311,23 +312,19 @@ namespace SE.Common
             return globalTransform;
         }
 
-        internal void Dispose()
+        public void Dispose()
         {
-            if (ParentSet != null) {
-                foreach (Delegate d in ParentSet.GetInvocationList()) {
-                    ParentSet -= d as Action<Transform>;
-                }
-            }
-            if (ChildAdded != null) {
-                foreach (Delegate d in ChildAdded.GetInvocationList()) {
-                    ChildAdded -= d as Action<Transform>;
-                }
-            }
-            if (ChildRemoved != null) {
-                foreach (Delegate d in ChildRemoved.GetInvocationList()) {
-                    ChildRemoved -= d as Action<Transform>;
-                }
-            }
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing = true)
+        {
+            if(isDisposed)
+                return;
+
+            ParentSet = null;
+            ChildAdded = null;
+            ChildRemoved = null;
         }
 
         /// <summary>
@@ -403,8 +400,9 @@ namespace SE.Common
                 Transform = transform;
                 State = transform.GameObject.Enabled;
                 Children = new List<TransformNode>();
+                Transform[] transformChildren = transform.Children.Array;
                 for (int i = 0; i < transform.Children.Count; i++) {
-                    Children.Add(new TransformNode(transform.Children[i]));
+                    Children.Add(new TransformNode(transformChildren[i]));
                 }
             }
 
