@@ -124,10 +124,11 @@ namespace SE.Common
         public GameObject(Vector2 pos, float rot, Vector2 scale)
         {
             // Skip this constructor if the GameObject is a UIObject.
-            if (!(this is UIObject)) {
-                Transform = new Transform(pos, scale, rot, this);
-                GameEngine.GameObjectConstructorCallback(this);
-            }
+            if (this is UIObject) 
+                return;
+
+            Transform = new Transform(pos, scale, rot, this);
+            GameEngine.GameObjectConstructorCallback(this);
         }
 
         public GameObject() : this(Vector2.Zero, 0f, Vector2.One) { }
@@ -236,7 +237,6 @@ namespace SE.Common
         {
             OnInitializeInternal();
             OnAwakeInternal();
-
             if(ExecuteIsValid())
                 OnInitialize();
 
@@ -438,14 +438,13 @@ namespace SE.Common
             }
 
             GameEngine.AddGameObject(this);
-            if (execute) {
-                for (int i = 0; i < Components.Count; i++) {
-                    Component component = Components.Array[i];
-                    if (ExecuteIsValid(component)) { 
-                        component.Enable();
-                    }
+            for (int i = 0; i < Components.Count; i++) {
+                Component component = Components.Array[i];
+                if (ExecuteIsValid(component)) { 
+                    component.Enable();
                 }
             }
+
             Enabled = true;
             if (isRoot) {
                 Transform.ChildStateTree.Apply();
@@ -473,11 +472,10 @@ namespace SE.Common
                 Transform.ChildStateTree.Regenerate();
             }
             GameEngine.RemoveGameObject(this);
-            if (execute) {
-                for (int i = 0; i < Components.Count; i++) {
-                    Component component = Components.Array[i];
-                    if(ExecuteIsValid(component))
-                        component.Disable();
+            for (int i = 0; i < Components.Count; i++) {
+                Component component = Components.Array[i];
+                if (ExecuteIsValid(component)) {
+                    component.Disable();
                 }
             }
 

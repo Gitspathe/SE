@@ -32,14 +32,14 @@ namespace SE.Core.Internal
 
         internal static GameObjectInfo GetGameObjectInfo(Type gameObject)
         {
-            // Throw an error if the Type provided isn't a GameObject.
-            if (gameObject != typeof(GameObject) && !gameObject.IsSubclassOf(typeof(GameObject)))
-                throw new Exception(nameof(gameObject) + " is not a GameObject.");
-
             // Try and fetch the list of components from cache.
             if (Cache.GameObjects.TryGetValue(gameObject, out GameObjectInfo foundInfo)) {
                 return foundInfo;
             }
+
+            // Throw an error if the Type provided isn't a GameObject.
+            if (gameObject != typeof(GameObject) && !gameObject.IsSubclassOf(typeof(GameObject)))
+                throw new Exception(nameof(gameObject) + " is not a GameObject.");
                    
             // If an entry isn't found, create one.
             GameObjectInfo info = new GameObjectInfo();
@@ -72,13 +72,14 @@ namespace SE.Core.Internal
 
         internal static ComponentInfo GetComponentInfo(Type component)
         {
-            if (component != typeof(Component) && !component.IsSubclassOf(typeof(Component)))
-                throw new Exception(nameof(component) + " is not a Component.");
-
             // Try and fetch from cache.
             if (Cache.Components.TryGetValue(component, out ComponentInfo result)) {
                 return result;
             }
+
+            // Throw exception if the Type isn't a component.
+            if (component != typeof(Component) && !component.IsSubclassOf(typeof(Component)))
+                throw new Exception(nameof(component) + " is not a Component.");
 
             // If an entry isn't found, create one.
             result = new ComponentInfo();
