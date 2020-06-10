@@ -7,7 +7,9 @@ using SE.Utility;
 using tainicom.Aether.Physics2D.Dynamics;
 using Vector2 = System.Numerics.Vector2;
 using MonoGameVector2 = Microsoft.Xna.Framework.Vector2;
+using Fixture = SE.Physics.Fixture;
 using AetherFixture = tainicom.Aether.Physics2D.Dynamics.Fixture;
+using AetherContact = tainicom.Aether.Physics2D.Dynamics.Contacts.Contact;
 using BodyType = SE.Physics.BodyType;
 using AetherBodyType = tainicom.Aether.Physics2D.Dynamics.BodyType;
 
@@ -22,6 +24,27 @@ namespace SE.Core
         private static HashSet<PhysicsBody> pendingCreateList = new HashSet<PhysicsBody>();
         private static List<RayCast2DHit> tmpHits = new List<RayCast2DHit>(32);
 
+        internal static QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)> CollisionEvents 
+            = new QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)>();
+
+        internal static QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)> SeparationEvents 
+            = new QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)>();
+
+        public static int VelocityConstraintsMultithreadThreshold {
+            get => world.ContactManager.VelocityConstraintsMultithreadThreshold;
+            set => world.ContactManager.VelocityConstraintsMultithreadThreshold = value;
+        }
+
+        public static int PositionConstraintsMultithreadThreshold {
+            get => world.ContactManager.PositionConstraintsMultithreadThreshold;
+            set => world.ContactManager.PositionConstraintsMultithreadThreshold = value;
+        }
+
+        public static int CollideMultithreadThreshold {
+            get => world.ContactManager.CollideMultithreadThreshold;
+            set => world.ContactManager.CollideMultithreadThreshold = value;
+        }
+
         public static Vector2 Gravity {
             get => world.Gravity.ToNumericsVector2();
             set => world.Gravity = value.ToMonoGameVector2();
@@ -33,19 +56,55 @@ namespace SE.Core
             Gravity = Vector2.Zero;
 
             // Enable multi-threading.
-            world.ContactManager.VelocityConstraintsMultithreadThreshold = 256;
-            world.ContactManager.PositionConstraintsMultithreadThreshold = 256;
-            world.ContactManager.CollideMultithreadThreshold = 256;
+            VelocityConstraintsMultithreadThreshold = 256;
+            PositionConstraintsMultithreadThreshold = 256;
+            CollideMultithreadThreshold = 256;
         }
 
         public static void Update()
         {
             // Increment timer and step.
             int curStep = 0;
+            ProcessPending();
             while (curStep < Time.FixedTimeStepIterations) {
                 world.Step(Time.FixedTimestep);
                 ProcessPending();
+                ProcessEvents();
                 curStep++;
+            }
+            ProcessEvents();
+        }
+
+        private static void ProcessEvents()
+        {
+            foreach ((PhysicsBody body, AetherFixture sender, AetherFixture other, AetherContact contact) in CollisionEvents) {
+                body.OnCollisionEventHandler?.Invoke(
+                    sender.DependencyFixture as Fixture, 
+                    other.DependencyFixture as Fixture, 
+                    new Contact(contact));
+            }
+            foreach ((PhysicsBody body, AetherFixture sender, AetherFixture other, AetherContact contact) in SeparationEvents) {
+                body.OnCollisionEventHandler?.Invoke(
+                    sender.DependencyFixture as Fixture, 
+                    other.DependencyFixture as Fixture, 
+                    new Contact(contact));
+            }
+
+            CollisionEvents.Clear();
+            SeparationEvents.Clear();
+        }
+
+        internal static void AddCollisionEvent(PhysicsBody body, AetherFixture sender, AetherFixture other, AetherContact contact)
+        {
+            lock (CollisionEvents) {
+                CollisionEvents.Add((body, sender, other, contact));
+            }
+        }
+
+        internal static void AddSeparationEvent(PhysicsBody body, AetherFixture sender, AetherFixture other, AetherContact contact)
+        {
+            lock (SeparationEvents) {
+                SeparationEvents.Add((body, sender, other, contact));
             }
         }
 
@@ -110,14 +169,8 @@ namespace SE.Core
             if(obj.AddedToPhysics || obj.PendingCreate)
                 return;
 
-            if (world.IsLocked) {
-                pendingCreateList.Add(obj);
-                obj.PendingCreate = true;
-            } else {
-                world.Add(obj.Body);
-                obj.AddedToPhysics = true;
-                obj.PendingCreate = false;
-            }
+            pendingCreateList.Add(obj);
+            obj.PendingCreate = true;
             pendingRemoveList.Remove(obj);
             obj.PendingRemove = false;
         }
@@ -127,14 +180,8 @@ namespace SE.Core
             if(!obj.AddedToPhysics || obj.PendingRemove)
                 return;
 
-            if (world.IsLocked) {
-                pendingRemoveList.Add(obj);
-                obj.PendingRemove = true;
-            } else {
-                world.Remove(obj.Body);
-                obj.AddedToPhysics = false;
-                obj.PendingRemove = false;
-            }
+            pendingRemoveList.Add(obj); 
+            obj.PendingRemove = true;
             pendingCreateList.Remove(obj);
             obj.PendingCreate = false;
         }

@@ -253,20 +253,14 @@ namespace SE.Physics
         private void OnBodySeperateEvent(AetherFixture sender, AetherFixture other, AetherContact contact)
         {
             if (ValidState) {
-                OnSeparationEventHandler?.Invoke(
-                    sender.DependencyFixture as Fixture, 
-                    other.DependencyFixture as Fixture, 
-                    new Contact(contact));
+                AddSeparationEvent(this, sender, other, contact);
             }
         }
 
         private bool OnBodyCollisionEvent(AetherFixture sender, AetherFixture other, AetherContact contact)
         {
-            if (ValidState && OnCollisionEventHandler != null) {
-                return OnCollisionEventHandler.Invoke(
-                    sender.DependencyFixture as Fixture, 
-                    other.DependencyFixture as Fixture,
-                    new Contact(contact));
+            if (ValidState) {
+                AddCollisionEvent(this, sender, other, contact);
             }
             return true;
         }

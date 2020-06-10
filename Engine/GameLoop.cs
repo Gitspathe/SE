@@ -63,7 +63,7 @@ namespace SE
         #endif
 
             Add(DefaultEnum.Time, () => Time.Update(GameEngine.Engine.GameTime));
-            Add(DefaultEnum.NewPhysics, Core.Physics.Update);
+            Add(DefaultEnum.Physics, Core.Physics.Update);
             Add(DefaultEnum.UpdateDynamicGameObjects, GameEngine.Engine.UpdateDynamicGameObjects);
             Add(DefaultEnum.Networking, () => Network.Update(Time.UnscaledDeltaTime));
             Add(DefaultEnum.UpdateLevelManager, SceneManager.Update);
@@ -100,7 +100,7 @@ namespace SE
             InputManager = 300,
             Screen = 400,
             UIManager = 500,
-            NewPhysics = 650,
+            Physics = 600,
             UpdateDynamicGameObjects = 700,
             StartNewParticles = 701,
             Networking = 800,

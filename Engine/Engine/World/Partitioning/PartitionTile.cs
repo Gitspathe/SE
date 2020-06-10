@@ -12,14 +12,10 @@ namespace SE.World.Partitioning
 
         internal Dictionary<Type, QuickList<IPartitionObject>> PartitionObjects = new Dictionary<Type, QuickList<IPartitionObject>>();
 
-        private SpatialPartition myPartition;
-        private int tileSize;
-
         private object tileLock = new object();
 
-        internal PartitionTile(Rectangle bounds, SpatialPartition partition, int tileSize, QuickList<Type> extensions)
+        internal PartitionTile(Rectangle bounds)
         {
-            myPartition = partition;
             Bounds = bounds;
         }
 

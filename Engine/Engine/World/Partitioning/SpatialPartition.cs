@@ -25,7 +25,7 @@ namespace SE.World.Partitioning
         public Rectangle Bounds { get; private set; }
         public bool IsActive { get; internal set; }
 
-        internal SpatialPartition(int tSize, Rectangle bounds, QuickList<Type> extensions = null)
+        internal SpatialPartition(int tSize, Rectangle bounds)
         {
             Bounds = bounds;
             Position = new Vector2(bounds.X, bounds.Y);
@@ -39,7 +39,7 @@ namespace SE.World.Partitioning
                 GridPartitionTiles[x] = new PartitionTile[partitionTilesX];
                 for (int y = 0; y < partitionTilesY; y++) {
                     Rectangle b = new Rectangle(x * partitionTileSize, y * partitionTileSize, partitionTileSize, partitionTileSize);
-                    GridPartitionTiles[x][y] = new PartitionTile(b, this, tSize, extensions);
+                    GridPartitionTiles[x][y] = new PartitionTile(b);
                 }
             }
             pruneOffset = SE.Utility.Random.Next(0, 120);

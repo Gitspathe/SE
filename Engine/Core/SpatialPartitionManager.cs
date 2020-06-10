@@ -9,6 +9,7 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core
 {
+    // TODO: Move dictionary<Type, list> to TOP level. (so organize partitions by type, not the partition tiles.)
     public static class SpatialPartitionManager
     {
         // Using a list for variable partition size.
@@ -16,7 +17,6 @@ namespace SE.Core
         private static QuickList<SpatialPartition> partitionPool = new QuickList<SpatialPartition>();
 
         private static PartitionTile largeObjectTile;
-        private static QuickList<Type> partitionExtensions = new QuickList<Type>();
 
         internal static QuickList<GameObject> IgnoredGameObjects { get; } = new QuickList<GameObject>(256);
 
@@ -82,7 +82,7 @@ namespace SE.Core
 
         public static void Initialize(int tileSize, int partitionSize)
         {
-            largeObjectTile = new PartitionTile(Rectangle.Empty, null, TileSize, partitionExtensions);
+            largeObjectTile = new PartitionTile(Rectangle.Empty);
             TileSize = tileSize;
             PartitionSize = partitionSize;
 
