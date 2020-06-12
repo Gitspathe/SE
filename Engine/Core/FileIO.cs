@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace SE.Core
 {
@@ -33,17 +34,44 @@ namespace SE.Core
         }
 
         /// <summary>
+        /// Saves a file to the Data directory.
+        /// </summary>
+        /// <param name="data">String data to save.</param>
+        /// <param name="path">Which folder in the Data directory to write the file.</param>
+        public static void SaveFile(byte[] data, string path)
+        {
+            string finalPath = Path.Combine(DataDirectory, path);
+            File.WriteAllBytes(finalPath, data);
+        }
+
+        /// <summary>
         /// Reads a file from the Data directory.
         /// </summary>
         /// <param name="path">Path to the file.</param>
         /// <returns>String data from the file.</returns>
-        public static string ReadFile(string path)
+        public static string ReadFileString(string path)
         {
             string finalPath = Path.Combine(DataDirectory, path);
             try {
                 using (StreamReader sr = new StreamReader(finalPath)) {
                     return sr.ReadToEnd();
                 }
+            } catch (FileNotFoundException) {
+                return null;
+            }
+        }
+
+        
+        /// <summary>
+        /// Reads a file from the Data directory.
+        /// </summary>
+        /// <param name="path">Path to the file.</param>
+        /// <returns>String data from the file.</returns>
+        public static byte[] ReadFileBytes(string path)
+        {
+            string finalPath = Path.Combine(DataDirectory, path);
+            try {
+                return File.ReadAllBytes(finalPath);
             } catch (FileNotFoundException) {
                 return null;
             }

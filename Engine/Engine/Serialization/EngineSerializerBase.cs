@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using FastMember;
 using SE.Core;
 using SE.Core.Extensions;
@@ -8,7 +9,7 @@ namespace SE.Serialization
 {
     public abstract class EngineSerializerBase : IDisposable
     {
-        public PooledList<SerializedValue> ValueWrappers { get; } = new PooledList<SerializedValue>(Config.Performance.UseArrayPoolCore);
+        public QuickList<SerializedValue> ValueWrappers { get; } = new QuickList<SerializedValue>();
         public TypeAccessor Accessor { get; protected set; }
 
         protected bool initialized;
@@ -54,7 +55,7 @@ namespace SE.Serialization
                throw new InvalidOperationException("Not initialized!");
 
             for (int i = 0; i < ValueWrappers.Count; i++) {
-                ValueWrappers.Array[i].Restore(data.ValueData.Array[i]);
+                ValueWrappers[i].Restore(data.ValueData[i]);
             }
         }
 
@@ -73,7 +74,6 @@ namespace SE.Serialization
             if(isDisposed)
                 return;
 
-            ValueWrappers?.Dispose();
             isDisposed = true;
         }
     }

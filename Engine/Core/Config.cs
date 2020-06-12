@@ -49,7 +49,7 @@ namespace SE.Core
             => FileIO.SaveFile(configData.Serialize(false), _CONFIG_FILE_NAME);
 
         public static void Load()
-            => configData = FileIO.ReadFile(_CONFIG_FILE_NAME).Deserialize<ConfigData>(false);
+            => configData = FileIO.ReadFileString(_CONFIG_FILE_NAME).Deserialize<ConfigData>(false);
 
         public static class Performance
         {

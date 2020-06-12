@@ -31,7 +31,7 @@ namespace SE.World
         public bool LoadFromDisk(string path)
         {
             if (File.Exists(path)) {
-                FileIO.ReadFile(path).Deserialize<ChunkData>().Apply(this);
+                FileIO.ReadFileString(path).Deserialize<ChunkData>().Apply(this);
             }
             return false;
         }

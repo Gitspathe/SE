@@ -40,10 +40,10 @@ namespace DeeZ.Editor.GUI
 
         #region IMGUI FUNCTIONS
 
-        public static bool SetDragDropPayload(string type, string data)
+        public static bool SetDragDropPayload(string type, string str)
         {
-            IntPtr ptr = Marshal.StringToHGlobalUni(data);
-            bool b = ImGui.SetDragDropPayload(type, ptr, (uint) data.Length * sizeof(char) + sizeof(int));
+            IntPtr ptr = Marshal.StringToHGlobalUni(str);
+            bool b = ImGui.SetDragDropPayload(type, ptr, (uint) str.Length * sizeof(char) + sizeof(int));
             Marshal.FreeHGlobal(ptr);
             return b;
         }

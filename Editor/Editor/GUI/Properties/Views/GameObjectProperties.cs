@@ -89,7 +89,7 @@ namespace DeeZ.Editor.GUI.Properties.Views
                 FileIO.SaveFile(selectedGameObject.SerializeJson(), "OBJECT");
             }
             if (ImGui.Button("Load")) {
-                selectedGameObject.Deserialize(FileIO.ReadFile("OBJECT"));
+                selectedGameObject.Deserialize(FileIO.ReadFileString("OBJECT"));
             }
 
             GUI.PopID();

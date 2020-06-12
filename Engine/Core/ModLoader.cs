@@ -14,7 +14,7 @@ namespace SE.Core
         {
             string[] modStrings = Directory.GetFiles(FileIO.DataDirectory, "modmanifest", SearchOption.AllDirectories);
             foreach (string s in modStrings) {
-                ModManifest manifest = FileIO.ReadFile(s).Deserialize<ModManifest>();
+                ModManifest manifest = FileIO.ReadFileString(s).Deserialize<ModManifest>();
                 mods.Add(new Mod(manifest));
             }
 

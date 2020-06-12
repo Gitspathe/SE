@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace SE.Serialization
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public class ComponentData : IDisposable
     {
         public ulong ComponentIndex { get; set; }
@@ -17,7 +20,7 @@ namespace SE.Serialization
         }
         private EngineSerializerData additionalData;
 
-        public Type Type;
+        [JsonIgnore] public Type Type;
 
         private bool isDisposed;
 

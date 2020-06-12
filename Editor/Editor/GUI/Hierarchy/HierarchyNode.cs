@@ -99,7 +99,7 @@ namespace DeeZ.Editor.GUI.Hierarchy
             if (GUI.BeginDragDropTarget()) {
                 string payload = GUI.AcceptDragDropPayload("Hierarchy");
 
-                if (!string.IsNullOrEmpty(payload) && GUI.IsMouseReleased(0)) {
+                if (payload != null && GUI.IsMouseReleased(0)) {
                     Data data = payload.Deserialize<Data>();
 
                     GameObject go = Hierarchy.allGameObjects.Array[data.index];

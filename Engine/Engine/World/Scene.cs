@@ -72,7 +72,7 @@ namespace SE.World
         {
             TileSet = AssetManager.GetDictionary<Func<Vector2, GameObject>>(this);
             LoadingScreen.SetProgress("Reading file system...");
-            string dataString = FileIO.ReadFile(Path.Combine(LevelNamespace, "Levels", LevelName + ".semap"));
+            string dataString = FileIO.ReadFileString(Path.Combine(LevelNamespace, "Levels", LevelName + ".semap"));
 
             Reflection.SceneInfo sceneInfo = Reflection.GetSceneInfo(LevelNamespace, LevelName);
             script = sceneInfo.SceneScript;

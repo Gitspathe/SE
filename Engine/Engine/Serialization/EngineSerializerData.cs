@@ -2,16 +2,19 @@
 using SE.Utility;
 using System;
 using System.Buffers;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace SE.Serialization
 {
+    [JsonObject(MemberSerialization.OptOut)]
     public class EngineSerializerData : IDisposable
     {
-        public PooledList<SerializedValueData> ValueData { get; set; } = new PooledList<SerializedValueData>(Config.Performance.UseArrayPoolCore);
+        public QuickList<SerializedValueData> ValueData { get; set; } = new QuickList<SerializedValueData>();
 
         private bool isDisposed;
 
-        public EngineSerializerData(PooledList<SerializedValue> serializerData)
+        public EngineSerializerData(QuickList<SerializedValue> serializerData)
         {
             for (int i = 0; i < serializerData.Count; i++) {
                 ValueData.Add(new SerializedValueData(serializerData.Array[i]));
@@ -30,7 +33,6 @@ namespace SE.Serialization
             if(isDisposed)
                 return;
 
-            ValueData.Dispose();
             isDisposed = true;
         }
     }

@@ -719,7 +719,7 @@ namespace SE.Common
                 Position = Transform.Position,
                 Rotation = Transform.Rotation,
                 Scale = Transform.Scale,
-                componentData = new PooledList<ComponentData>(Config.Performance.UseArrayPoolCore)
+                componentData = new QuickList<ComponentData>()
             };
             for (int i = 0; i < SerializedComponents.Count; i++) {
                 Component component = SerializedComponents.Array[i];
