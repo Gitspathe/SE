@@ -15,7 +15,7 @@ namespace SE.Components.Network
 
         public Func<byte[]> OnSerializeNetworkState;
 
-        public Action<byte[]> OnRestoreNetworkState;
+        public Action<NetDataReader> OnRestoreNetworkState;
 
         public Action<bool> OnSetup;
 
@@ -31,12 +31,12 @@ namespace SE.Components.Network
             Owner.NetIdentity = this;
         }
 
-        public void RestoreNetworkState(byte[] data)
+        public void RestoreNetworkState(NetDataReader reader)
         {
-            OnRestoreNetworkState?.Invoke(data);
+            OnRestoreNetworkState?.Invoke(reader);
         }
 
-        public byte[] SerializeNetworkState()
+        public byte[] SerializeNetworkState(NetDataWriter writer)
         {
             return OnSerializeNetworkState?.Invoke() ?? new byte[0];
         }
@@ -54,12 +54,12 @@ namespace SE.Components.Network
             OnSetup?.Invoke(isOwner);
         }
 
-        public void OnNetworkInstantiatedServer(string type, string owner)
+        public void OnNetworkInstantiatedServer(string type, string owner, NetDataWriter writer)
         {
             netStates.Clear();
             netIDs.Clear();
 
-            netStates.Add(SerializeNetworkState());
+            netStates.Add(SerializeNetworkState(writer));
             netIDs.Add(ID);
 
             foreach (NetComponent nComponent in Owner.GetAllComponents<NetComponent>()) {
@@ -71,7 +71,7 @@ namespace SE.Components.Network
                 NetworkObjects.TryAdd(CurrentNetworkID, nComponent);
                 CurrentNetworkID++;
                 if (nComponent is INetPersistable netPersist) {
-                    netStates.Add(netPersist.SerializeNetworkState());
+                    netStates.Add(NetLogicHelper.SerializePersistable(netPersist));
                 } else {
                     netStates.Add(null); // Padding for deserialization.
                 }
@@ -80,9 +80,9 @@ namespace SE.Components.Network
             }
         }
 
-        public void OnNetworkInstantiatedClient(string type, bool isOwner, byte[] data)
+        public void OnNetworkInstantiatedClient(string type, bool isOwner, NetDataReader reader)
         {
-            InstantiateData buffer = new InstantiateData(data);
+            InstantiateData buffer = new InstantiateData(reader);
             List<byte[]> netStates = buffer.NetStates;
             uint[] netIDs = buffer.NetIDs;
 
@@ -95,23 +95,23 @@ namespace SE.Components.Network
 
                 nComponent.Setup(netIDs[index], isOwner);
                 if (nComponent is INetPersistable persist && netStates[index] != null)
-                    persist.RestoreNetworkState(netStates[index]);
+                    NetLogicHelper.RestorePersistable(persist, netStates[index]);
 
                 NetworkObjects.TryAdd(netIDs[index], nComponent);
                 index++;
             }
         }
 
-        public byte[] GetBufferedData()
+        public byte[] GetBufferedData(NetDataWriter writer)
         {
             netStates.Clear();
             netIDs.Clear();
 
-            netStates.Add(SerializeNetworkState());
+            netStates.Add(SerializeNetworkState(writer));
             netIDs.Add(ID);
             foreach (NetComponent nComponent in Owner.GetAllComponents<NetComponent>()) {
                 if (nComponent is INetPersistable netPersist) {
-                    netStates.Add(netPersist.SerializeNetworkState());
+                    netStates.Add(NetLogicHelper.SerializePersistable(netPersist));
                 } else {
                     netStates.Add(null); // Padding for deserialization.
                 }
@@ -146,9 +146,8 @@ namespace SE.Components.Network
                 NetIDs = netIDs;
             }
 
-            public InstantiateData(byte[] bytes)
+            public InstantiateData(NetDataReader reader)
             {
-                NetDataReader reader = new NetDataReader(bytes);
                 uint len = reader.GetUInt();
                 NetStates = new List<byte[]>();
                 NetIDs = new uint[len];

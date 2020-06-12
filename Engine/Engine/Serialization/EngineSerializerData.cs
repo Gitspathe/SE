@@ -1,15 +1,13 @@
-﻿using Newtonsoft.Json;
-using SE.Core;
+﻿using SE.Core;
 using SE.Utility;
 using System;
 using System.Buffers;
 
 namespace SE.Serialization
 {
-    [JsonObject(MemberSerialization.OptOut)]
     public class EngineSerializerData : IDisposable
     {
-        public PooledList<SerializedValueData> ValueData = new PooledList<SerializedValueData>(Config.Performance.UseArrayPoolCore);
+        public PooledList<SerializedValueData> ValueData { get; set; } = new PooledList<SerializedValueData>(Config.Performance.UseArrayPoolCore);
 
         private bool isDisposed;
 

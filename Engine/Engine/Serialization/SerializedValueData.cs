@@ -1,15 +1,14 @@
 ﻿using System;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace SE.Serialization
 {
-    [JsonObject(MemberSerialization.OptOut)]
     public class SerializedValueData
     {
-        public dynamic Value;
-        public int? ValueConverter;
-        [JsonIgnore] public Type Type;
-        public bool Override;
+        public dynamic Value { get; set; }
+        public int? ValueConverter { get; set; }
+        [IgnoreDataMember] public Type Type { get; set; }
+        public bool Override { get; set; }
 
         public void Setup(dynamic value, bool overRide, Type type)
         {

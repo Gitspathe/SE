@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
-using SE.Core.Extensions;
+﻿using SE.Core.Extensions;
 
 namespace SE.Core
 {
@@ -15,14 +11,9 @@ namespace SE.Core
         internal static bool Initialized { get; private set; }
 
         private static ConfigData configData;
-        private static JsonSerializerSettings jsonSettings;
 
         public static void Initialize()
         {
-            jsonSettings = new JsonSerializerSettings {
-                Formatting = Formatting.Indented
-            };
-
             if (FileIO.FileExists(_CONFIG_FILE_NAME)) {
                 Load();
             } else {
@@ -55,10 +46,10 @@ namespace SE.Core
         }
 
         public static void Save() 
-            => FileIO.SaveFile(configData.Serialize(false, jsonSettings), _CONFIG_FILE_NAME);
+            => FileIO.SaveFile(configData.Serialize(false), _CONFIG_FILE_NAME);
 
         public static void Load()
-            => configData = FileIO.ReadFile(_CONFIG_FILE_NAME).Deserialize<ConfigData>(false, jsonSettings);
+            => configData = FileIO.ReadFile(_CONFIG_FILE_NAME).Deserialize<ConfigData>(false);
 
         public static class Performance
         {
@@ -88,16 +79,14 @@ namespace SE.Core
         }
     }
 
-    [JsonObject(MemberSerialization.OptOut)]
     internal class ConfigData
     {
-        public PerformanceConfigData Performance = new PerformanceConfigData();
+        public PerformanceConfigData Performance { get; set; } = new PerformanceConfigData();
 
-        [JsonObject(MemberSerialization.OptOut)]
         public class PerformanceConfigData
         {
-            public bool UseArrayPoolCore = true;
-            public bool UseArrayPoolParticles = true;
+            public bool UseArrayPoolCore { get; set; } = true;
+            public bool UseArrayPoolParticles { get; set; } = true;
         }
     }
 }

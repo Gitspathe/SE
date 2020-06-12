@@ -54,5 +54,9 @@ namespace SE.UI
             AddComponent(sprite);
             Interactable = false;
         }
+
+        public void TakenFromPool() { }
+        public void ReturnedToPool() { }
+        public void PoolInitialize() { }
     }
 }

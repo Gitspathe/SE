@@ -44,12 +44,13 @@ namespace SE.Core
 
         private static object rpcLock = new object();
         private static object netLogicLock = new object();
+        private static object signatureLock = new object();
 
         // Cache packets to reduce memory allocations and CPU overhead.
         internal static RPCFunction CacheRPCFunc = new RPCFunction();
         private static EventBasedNetListener listener;
-        private static NetDataWriter cachedWriter = new NetDataWriter();
-        private static NetDataReader cachedReader = new NetDataReader();
+        //private static NetDataWriter cachedWriter = new NetDataWriter();
+        //private static NetDataReader cachedReader = new NetDataReader();
         private static StringBuilder signatureBuilder = new StringBuilder(256);
         private static StringBuilder methodNameBuilder = new StringBuilder(256);
         private static List<NetPeer> recipients = new List<NetPeer>();
@@ -150,19 +151,6 @@ namespace SE.Core
         #endregion
 
         #region NETWORK LOOP & MESSAGE HANDLING
-
-        public static NetDataWriter GetWriter()
-        {
-            cachedWriter.Reset();
-            return cachedWriter;
-        }
-
-        public static NetDataReader GetReader(byte[] source)
-        {
-            cachedReader.Clear();
-            cachedReader.SetSource(source);
-            return cachedReader;
-        }
 
         public static void Initialize()
         {
@@ -265,24 +253,24 @@ namespace SE.Core
             }
         }
 
-        internal static void SetupNetLogic(INetLogic logic, bool isOwner, byte[] netState = null)
+        internal static void SetupNetLogic(INetLogic logic, bool isOwner, NetDataReader reader = null)
         {
             lock (netLogicLock) {
                 logic.Setup(CurrentNetworkID, isOwner);
-                if (logic is INetPersistable persist && netState != null)
-                    persist.RestoreNetworkState(netState);
+                if (logic is INetPersistable persist && reader != null)
+                    persist.RestoreNetworkState(reader);
 
                 NetworkObjects.TryAdd(CurrentNetworkID, logic);
                 CurrentNetworkID++;
             }
         }
 
-        internal static void SetupNetLogic(INetLogic logic, uint networkID, bool isOwner, byte[] netState = null)
+        internal static void SetupNetLogic(INetLogic logic, uint networkID, bool isOwner, NetDataReader reader = null)
         {
             lock (netLogicLock) {
                 logic.Setup(networkID, isOwner);
-                if (logic is INetPersistable persist && netState != null)
-                    persist.RestoreNetworkState(netState);
+                if (logic is INetPersistable persist && reader != null)
+                    persist.RestoreNetworkState(reader);
 
                 NetworkObjects.TryAdd(networkID, logic);
                 if (networkID > CurrentNetworkID)
@@ -441,7 +429,7 @@ namespace SE.Core
 
         #endregion
 
-        private static void SendRPCServer(uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender, string method, params object[] parameters)
+        private static void SendRPCServer(NetDataWriter writer, uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender, string method, params object[] parameters)
         {
             if (targets == Scope.None)
                 throw new Exception("Invalid RPC send: server RPC target scope not specified during method " + method + ".");
@@ -459,7 +447,7 @@ namespace SE.Core
             lock (rpcLock) {
                 // Construct NetOutgoingMessage.
                 CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
-                CacheRPCFunc.WriteTo(GetWriter());
+                CacheRPCFunc.WriteTo(writer);
 
                 // Find recipients who should receive the RPC.
                 recipients.Clear();
@@ -478,17 +466,17 @@ namespace SE.Core
                         break;
                 }
                 
-                if (recipients.Count <= 0)
+                if (recipients.Count <= 0) 
                     return;
             }
 
             // Send the RPC message to any recipient(s).
             for (int i = 0; i < recipients.Count; i++) {
-                recipients[i].Send(cachedWriter, channel, deliveryMethod);
+                recipients[i].Send(writer, channel, deliveryMethod);
             }
         }
 
-        private static void SendRPCClient(uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, string method, params object[] parameters)
+        private static void SendRPCClient(NetDataWriter writer, uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, string method, params object[] parameters)
         {
             // TODO: Allow clients to specify scope in some way. Needs to be secure. Maybe use attributes??
             // Get the unique method signature string for the RPC.
@@ -504,7 +492,7 @@ namespace SE.Core
             lock (rpcLock) {
                 // Construct a data writer.
                 CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
-                CacheRPCFunc.WriteTo(GetWriter());
+                CacheRPCFunc.WriteTo(writer);
 
                 // Find recipients.
                 recipients.Clear();
@@ -516,13 +504,14 @@ namespace SE.Core
 
             // Send the RPC message to the server.
             for (int i = 0; i < recipients.Count; i++) {
-                recipients[i].Send(cachedWriter, channel, deliveryMethod);
+                recipients[i].Send(writer, channel, deliveryMethod);
             }
         }
 
         #region RPC METHODS
         internal static void SendRPC(uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender, string method, params object[] parameters)
         {
+            NetDataWriter writer = NetworkPool.GetWriter();
             try {
                 if (!initialized)
                     throw new InvalidOperationException("Network manager is not initialized.");
@@ -530,11 +519,11 @@ namespace SE.Core
                 switch (InstanceType) {
                     // Send server -> client(s) RPC.
                     case NetInstanceType.Server:
-                        SendRPCServer(networkIdentity, deliveryMethod, channel, targets, connections, sender, method, parameters);
+                        SendRPCServer(writer, networkIdentity, deliveryMethod, channel, targets, connections, sender, method, parameters);
                         break;
                     // Send client -> server RPC.
                     case NetInstanceType.Client:
-                        SendRPCClient(networkIdentity, deliveryMethod, channel, method, parameters);
+                        SendRPCClient(writer, networkIdentity, deliveryMethod, channel, method, parameters);
                         break;
 
                     // Invalid network states.
@@ -544,8 +533,10 @@ namespace SE.Core
                         throw new ArgumentOutOfRangeException();
                 }
             } catch (Exception e) {
+                NetworkPool.ReturnWriter(writer);
                 NetProtector.ReportError(e);
             }
+            NetworkPool.ReturnWriter(writer);
         }
 
         public static void SendRPC(RPCMethod method, params object[] parameters)
@@ -625,7 +616,7 @@ namespace SE.Core
         #region UTILITY METHODS
         private static string GetName(MethodInfo info)
         {
-            lock (rpcLock) {
+            lock (signatureLock) {
                 methodNameBuilder.Clear();
                 ParameterInfo[] pInfo = info.GetParameters();
                 methodNameBuilder.Append(info.DeclaringType).Append(info.Name).Append(" (");
@@ -639,7 +630,7 @@ namespace SE.Core
 
         private static string GetMethodSignature(uint networkID, string method, object[] parameters)
         {
-            lock (rpcLock) {
+            lock (signatureLock) {
                 signatureBuilder.Clear();
                 Type t;
                 if (networkID == 0) {

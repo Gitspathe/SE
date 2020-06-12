@@ -54,8 +54,8 @@ namespace SE.Components
             colorCurve.Add(0.0f, new Vector4(0.0f, 1.0f, 0.5f, 1.0f));
             colorCurve.Add(0.25f, new Vector4(30.0f, 1.0f, 0.5f, 1.0f));
             colorCurve.Add(0.5f, new Vector4(120.0f, 1.0f, 0.5f, 1.0f));
-            colorCurve.Add(0.8f, new Vector4(240.0f, 1.0f, 0.5f, 1.0f));
-            colorCurve.Add(1.0f, new Vector4(360.0f, 1.0f, 0.5f, 0.0f));
+            colorCurve.Add(0.8f, new Vector4(30.0f, 1.0f, 0.5f, 1.0f));
+            colorCurve.Add(1.0f, new Vector4(240.0f, 1.0f, 0.5f, 0.0f));
 
             //Emitter.Config.Color.SetNormal(new Vector4(300.0f, 1.0f, 0.5f, 1.0f));
 
@@ -84,7 +84,7 @@ namespace SE.Components
             //Emitter.AddModule(baseColorModule);
             //Emitter.AddModule(baseColorModule);
 
-            //Emitter.AddModule(HueModule.Lerp(360.0f));
+            Emitter.AddModule(HueModule.Lerp(360.0f));
 
             //Emitter.RemoveModules(s, baseColorModule);
 

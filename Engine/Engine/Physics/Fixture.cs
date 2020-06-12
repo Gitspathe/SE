@@ -34,9 +34,10 @@ namespace SE.Physics
         }
 
         public Shape Shape => InternalFixture.Shape;
-        public PhysicsBody PhysicsBody => InternalFixture.DependencyBody as PhysicsBody;
-        public PhysicsObject PhysicsObject => PhysicsBody?.PhysicsObject;
-        public GameObject GameObject => PhysicsObject?.Owner;
+        public PhysicsBody Body => InternalFixture.DependencyBody as PhysicsBody;
+        public IPhysicsBodyProvider BodyProvider => Body?.Provider;
+        public PhysicsObject PhysicsObject => (Body?.Provider as PhysicsObject);
+        public GameObject GameObject => (BodyProvider as PhysicsObject)?.Owner;
 
         public float Friction {
             get => InternalFixture.Friction;

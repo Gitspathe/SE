@@ -29,7 +29,8 @@ namespace SE.Serialization
             // Handle special cases where built-in json deserialization fails (floats for example).
             // If no special case is found, use built-in deserialization.
             if (serializedData.ValueConverter != null) {
-                SerializerReflection.TypeTable.TryGetValue(serializedData.ValueConverter.Value, out serializedData.Type);
+                SerializerReflection.TypeTable.TryGetValue(serializedData.ValueConverter.Value, out Type t);
+                serializedData.Type = t;
                 if (SerializerReflection.RestoreTable.TryGetValue(serializedData.Type, out Action<SerializedValueData, SerializedValue> func)) { 
                     func.Invoke(serializedData, this);
                     return;

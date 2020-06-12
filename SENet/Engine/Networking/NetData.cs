@@ -9,11 +9,61 @@ namespace SE.Engine.Networking
 {
     public static class NetData
     {
-        internal static Dictionary<Type, byte> PacketConverters = new Dictionary<Type, byte>();
+        internal static Dictionary<Type, byte> PacketConverters = new Dictionary<Type, byte>() {
+            {typeof(long), 1},
+            {typeof(ulong), 2},
+            {typeof(int), 3},
+            {typeof(uint), 4},
+            {typeof(short), 5},
+            {typeof(ushort), 6},
+            {typeof(bool), 7},
+            {typeof(byte), 8},
+            {typeof(float), 9},
+            {typeof(double), 10},
+            {typeof(string), 11},
+            {typeof(long[]), 12},
+            {typeof(ulong[]), 13},
+            {typeof(int[]), 14},
+            {typeof(uint[]), 15},
+            {typeof(short[]), 16},
+            {typeof(ushort[]), 17},
+            {typeof(bool[]), 18},
+            {typeof(byte[]), 19},
+            {typeof(float[]), 20},
+            {typeof(double[]), 21},
+            {typeof(string[]), 22},
+            {typeof(Vector2), 23}
+        };
+        internal static Dictionary<byte, Type> PacketBytes = new Dictionary<byte, Type>() {
+            {1, typeof(long)},
+            {2, typeof(ulong)},
+            {3, typeof(int)},
+            {4, typeof(uint)},
+            {5, typeof(short)},
+            {6, typeof(ushort)},
+            {7, typeof(bool)},
+            {8, typeof(byte)},
+            {9, typeof(float)},
+            {10, typeof(double)},
+            {11, typeof(string)},
+            {12, typeof(long[])},
+            {13, typeof(ulong[])},
+            {14, typeof(int[])},
+            {15, typeof(uint[])},
+            {16, typeof(short[])},
+            {17, typeof(ushort[])},
+            {18, typeof(bool[])},
+            {19, typeof(byte[])},
+            {20, typeof(float[])},
+            {21, typeof(double[])},
+            {22, typeof(string[])},
+            {23, typeof(Vector2)}
+        };
+
         internal static Dictionary<byte, IPacketProcessor> Packets = new Dictionary<byte, IPacketProcessor>();
 
         /// <summary>Dictionary used to read an object from a NetIncomingMessage. The byte key identifies which Type the object is.</summary>
-        internal static Dictionary<Type, Func<NetPacketReader, object>> DataReaders = new Dictionary<Type, Func<NetPacketReader, object>> {
+        internal static Dictionary<Type, Func<NetDataReader, object>> DataReaders = new Dictionary<Type, Func<NetDataReader, object>> {
             {typeof(long), message => message.GetLong()},
             {typeof(ulong), message => message.GetULong()},
             {typeof(int), message => message.GetInt()},
@@ -72,7 +122,7 @@ namespace SE.Engine.Networking
 
         private static byte currentPacketIndex;
 
-        public static void AddDataType(Type type, Func<NetPacketReader, object> readFunction, Action<object, NetDataWriter> writeFunction)
+        public static void AddDataType(Type type, Func<NetDataReader, object> readFunction, Action<object, NetDataWriter> writeFunction)
         {
             DataReaders.Add(type, readFunction);
             DataWriters.Add(type, writeFunction);
@@ -84,6 +134,7 @@ namespace SE.Engine.Networking
                 throw new InvalidOperationException("Cannot register packet type. Not enough space.");
 
             PacketConverters.Add(type, currentPacketIndex);
+            PacketBytes.Add(currentPacketIndex, type);
             Packets.Add(currentPacketIndex, processor);
             currentPacketIndex++;
         }
@@ -94,7 +145,7 @@ namespace SE.Engine.Networking
         /// <param name="type">Type of the object to be read.</param>
         /// <param name="reader">NetPacketReader the data will be read from.</param>
         /// <returns>A deserialized object obtained from the NetPacketReader.</returns>
-        public static object Read(Type type, NetPacketReader reader)
+        public static object Read(Type type, NetDataReader reader)
         {
             if (reader == null)
                 throw new ArgumentNullException(nameof(reader));
@@ -120,6 +171,10 @@ namespace SE.Engine.Networking
                 throw new NullReferenceException("No data writer found for type " + type + ".");
             
             func.Invoke(obj, writer);
+        }
+
+        static NetData()
+        {
         }
     }
 }

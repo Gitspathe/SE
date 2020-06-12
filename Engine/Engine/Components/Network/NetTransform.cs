@@ -96,9 +96,8 @@ namespace SE.Components.Network
             Core.Network.SendRPC(updateVelocityMethod, curPosition, curVelocity, curRotation);
         }
 
-        public byte[] SerializeNetworkState()
+        public byte[] SerializeNetworkState(NetDataWriter writer)
         {
-            NetDataWriter writer = Core.Network.GetWriter();
             writer.Put(Owner.Transform.Position.X);
             writer.Put(Owner.Transform.Position.Y);
             writer.Put(curVelocity.X);
@@ -109,9 +108,8 @@ namespace SE.Components.Network
             return writer.CopyData();
         }
 
-        public void RestoreNetworkState(byte[] data)
+        public void RestoreNetworkState(NetDataReader reader)
         {
-            NetDataReader reader = Core.Network.GetReader(data);
             Owner.Transform.Position = new Vector2(reader.GetFloat(), reader.GetFloat());
             curVelocity = new Vector2(reader.GetFloat(), reader.GetFloat());
             Owner.Transform.Scale = new Vector2(reader.GetFloat(), reader.GetFloat());

@@ -94,6 +94,9 @@ namespace SEDemos.GameObjects
         /// <inheritdoc />
         public AnimatedFloor(Vector2 pos, float rot, Vector2 scale) : base(pos, rot, scale) { }
 
+        public void TakenFromPool() { }
+        public void ReturnedToPool() { }
+        public void PoolInitialize() { }
     }
 
 }

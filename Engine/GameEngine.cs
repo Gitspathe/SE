@@ -18,6 +18,7 @@ using SE.Core.Extensions;
 using SE.Utility;
 using static SE.Core.SceneManager;
 using Console = SE.Core.Console;
+using SE.Serialization;
 
 [assembly: InternalsVisibleTo("SEEditor")]
 namespace SE
@@ -109,6 +110,11 @@ namespace SE
 
             // If the engine ISN'T initialized (i.e, in editor mode)...
             if (!isInitialized) {
+
+                // TODO: Move to proper class.
+                //SerializerExtensions.SerializerSettings.Converters.Add(new PointConverter());
+                //SerializerExtensions.SerializerSettings.Converters.Add(new Vector2Converter());
+
                 ThreadPool.SetMinThreads(Environment.ProcessorCount, 8);
 
                 Config.Initialize();

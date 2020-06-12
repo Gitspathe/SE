@@ -47,9 +47,10 @@ namespace SE.Physics
             }
         }
 
-        public PhysicsBody PhysicsBody => Fixture.PhysicsBody;
-        public PhysicsObject PhysicsObject => PhysicsBody?.PhysicsObject;
-        public GameObject GameObject => PhysicsBody?.PhysicsObject?.Owner;
+        public PhysicsBody Body => Fixture.Body;
+        public IPhysicsBodyProvider BodyProvider => Body?.Provider;
+        public PhysicsObject PhysicsObject => (Body?.Provider as PhysicsObject);
+        public GameObject GameObject => (Body?.Provider as PhysicsObject)?.Owner;
 
         internal RayCast2DHit(Fixture fixture, Vector2 point, Vector2 normal, float distance)
         {

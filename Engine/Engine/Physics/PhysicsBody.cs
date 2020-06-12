@@ -22,7 +22,7 @@ namespace SE.Physics
         internal Body Body;
         internal bool AddedToPhysics;
 
-        public PhysicsObject PhysicsObject { get; internal set; }
+        public IPhysicsBodyProvider Provider { get; internal set; }
         public List<Fixture> FixtureList { get; set; } = new List<Fixture>(1);
 
         internal JointEdge JointList => Body.JointList;
@@ -237,10 +237,12 @@ namespace SE.Physics
             return fixture;
         }
 
-        public PhysicsBody(Body body)
+        public PhysicsBody(Body body, IPhysicsBodyProvider provider = null)
         {
+            Add(this);
             body.DependencyBody = this;
             Body = body;
+            Provider = provider;
             SetupEvents();
         }
 
@@ -275,11 +277,17 @@ namespace SE.Physics
             if(isDisposed)
                 return;
 
+            Remove(this);
             Body.OnCollision -= OnBodyCollisionEvent;
             Body.OnSeparation -= OnBodySeperateEvent;
             OnCollisionEventHandler = null;
             OnSeparationEventHandler = null;
             isDisposed = true;
         }
+    }
+
+    public interface IPhysicsBodyProvider : IDisposable
+    {
+        PhysicsBody Body { get; }
     }
 }

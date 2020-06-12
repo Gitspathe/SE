@@ -44,14 +44,32 @@ namespace SE.Engine.Networking
         /// Intended to be used for <see cref="RestoreNetworkState"/>.
         /// </summary>
         /// <returns>Json string containing the custom state information.</returns>
-        byte[] SerializeNetworkState();
+        byte[] SerializeNetworkState(NetDataWriter writer);
 
         /// <summary>
         /// Deserializes a Json string sent from the SerializeNetworkState function.
         /// Intended to restore state retrieved from <see cref="SerializeNetworkState()"/>.
         /// </summary>
-        /// <param name="data">Serialized state information.</param>
-        void RestoreNetworkState(byte[] data);
+        /// <param name="reader">Serialized state information.</param>
+        void RestoreNetworkState(NetDataReader reader);
+    }
+
+    public static class NetLogicHelper
+    {
+        public static byte[] SerializePersistable(INetPersistable persist)
+        {
+            NetDataWriter writer = NetworkPool.GetWriter();
+            byte[] bytes = persist.SerializeNetworkState(writer);
+            NetworkPool.ReturnWriter(writer);
+            return bytes;
+        }
+
+        public static void RestorePersistable(INetPersistable persist, byte[] bytes)
+        {
+            NetDataReader reader = NetworkPool.GetReader(bytes);
+            persist.RestoreNetworkState(reader);
+            NetworkPool.ReturnReader(reader);
+        }
     }
 
     /// <summary>
@@ -68,7 +86,7 @@ namespace SE.Engine.Networking
         /// </summary>
         /// <param name="type">Spawnable ID for the object.</param>
         /// <param name="owner">Unique ID of the peer who has authority over the object.</param>
-        void OnNetworkInstantiatedServer(string type, string owner);
+        void OnNetworkInstantiatedServer(string type, string owner, NetDataWriter writer);
 
         /// <summary>
         /// Called when an object is instantiated on the local client.
@@ -76,15 +94,15 @@ namespace SE.Engine.Networking
         /// </summary>
         /// <param name="type">Spawnable ID for the object.</param>
         /// <param name="isOwner">Whether or not the local client has authority over the object.</param>
-        /// <param name="data">Data passed in from the server instance of the object.
+        /// <param name="reader">Data passed in from the server instance of the object.
         ///                    Intended to be used for constructors.</param>
-        void OnNetworkInstantiatedClient(string type, bool isOwner, byte[] data);
+        void OnNetworkInstantiatedClient(string type, bool isOwner, NetDataReader reader);
         
         /// <summary>
         /// Used to obtain a byte array of custom data. Intended to be used for constructors.
         /// </summary>
         /// <returns>Byte array of data.</returns>
-        byte[] GetBufferedData();
+        byte[] GetBufferedData(NetDataWriter writer);
 
         /// <summary>
         /// Called when the networked object is destroyed.

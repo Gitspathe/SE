@@ -1,12 +1,10 @@
 ﻿using System;
-using Newtonsoft.Json;
 
 namespace SE.Serialization
 {
-    [JsonObject(MemberSerialization.OptOut)]
     public class ComponentData : IDisposable
     {
-        public ulong ComponentIndex;
+        public ulong ComponentIndex { get; set; }
 
         public EngineSerializerData AdditionalData {
             get => additionalData;

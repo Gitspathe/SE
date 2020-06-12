@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
 
 namespace SE.World
 {
@@ -8,11 +8,11 @@ namespace SE.World
     [Serializable]
     public class Marker
     {
-        public Vector2 Position;
-        public string ID;
-        public string[] Tags;
+        public Vector2 Position { get; set; }
+        public string ID { get; set; }
+        public string[] Tags { get; set; }
 
-        [JsonIgnore] public MarkerGraphicData GraphicData;
+        [IgnoreDataMember] public MarkerGraphicData GraphicData { get; set; }
 
         public Marker(Vector2 position, string id, string[] tags, MarkerGraphicData graphicData = null)
         {

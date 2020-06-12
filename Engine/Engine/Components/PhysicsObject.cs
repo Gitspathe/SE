@@ -8,7 +8,7 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components
 {
-    public class PhysicsObject : Component
+    public class PhysicsObject : Component, IPhysicsBodyProvider
     {
         /// <inheritdoc />
         public override int Queue => 50;
@@ -17,19 +17,17 @@ namespace SE.Components
             get => body;
             set {
                 if (body != null || (value == null && body != null)) {
-                    Core.Physics.Remove(body);
+                    body.Provider = null;
                     body.Dispose();
-                    body.PhysicsObject = null;
                 }
                 body = value;
                 if (body == null) 
                     return;
 
-                body.PhysicsObject = this;
+                body.Provider = this;
                 if (Owner != null) {
                     body.Position = Owner.Transform.GlobalPositionInternal;
                 }
-                Core.Physics.Add(Body);
             }
         }
         private PhysicsBody body;
@@ -64,7 +62,6 @@ namespace SE.Components
         {
             base.OnDestroy();
             Owner.PhysicsObject = null;
-            //Body = null;
         }
 
         protected override void Dispose(bool disposing = true)
@@ -101,17 +98,19 @@ namespace SE.Components
         public PhysicsObject(PhysicsBody body)
         {
             Body = body;
+            Body.Provider = this;
         }
 
         public PhysicsObject(Rectangle rectangle, float density = 1.0f, BodyType bodyType = BodyType.Static)
         {
             Body = Core.Physics.CreateRectangle(rectangle, density, bodyType);
+            Body.Provider = this;
         }
 
         public PhysicsObject(Circle circle, float density = 1.0f, BodyType bodyType = BodyType.Static)
         {
             Body = Core.Physics.CreateCircle(circle.Radius, density, new Vector2(circle.Radius), bodyType);
+            Body.Provider = this;
         }
-
     }
 }

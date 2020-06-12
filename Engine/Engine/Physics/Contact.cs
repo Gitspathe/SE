@@ -11,14 +11,14 @@ namespace SE.Physics
         public Fixture FixtureA => InternalContact.FixtureA.DependencyFixture as Fixture;
         public Fixture FixtureB => InternalContact.FixtureB.DependencyFixture as Fixture;
 
-        public PhysicsBody PhysicsBodyA => FixtureA?.PhysicsBody;
-        public PhysicsBody PhysicsBodyB => FixtureB?.PhysicsBody;
+        public PhysicsBody PhysicsBodyA => FixtureA?.Body;
+        public PhysicsBody PhysicsBodyB => FixtureB?.Body;
 
-        public PhysicsObject PhysicsObjectA => FixtureA?.PhysicsBody?.PhysicsObject;
-        public PhysicsObject PhysicsObjectB => FixtureB?.PhysicsBody?.PhysicsObject;
+        public IPhysicsBodyProvider PhysicsObjectA => FixtureA?.Body?.Provider;
+        public IPhysicsBodyProvider PhysicsObjectB => FixtureB?.Body?.Provider;
 
-        public GameObject GameObjectA => FixtureA?.PhysicsBody?.PhysicsObject?.Owner;
-        public GameObject GameObjectB => FixtureB?.PhysicsBody?.PhysicsObject?.Owner;
+        public GameObject GameObjectA => (FixtureA?.Body?.Provider as PhysicsObject)?.Owner;
+        public GameObject GameObjectB => (FixtureB?.Body?.Provider as PhysicsObject)?.Owner;
 
         public float Friction {
             get => InternalContact.Friction;

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
 using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
 using SE.AssetManagement;
 using SE.Common;
 using SE.Components;
@@ -25,7 +25,7 @@ namespace SE.World
     /// TODO: Move tile maps out of this class and into TileMap.cs.
     public class Scene : IAssetConsumer
     {
-        public TileSpot[][] MapData;
+        public TileSpot[][] MapData { get; set; }
         public Dictionary<string, MarkerGraphicData> MarkerGraphicData;
         public List<Marker> MarkerData;
         internal QuickList<ShadowCaster> MapShadows = new QuickList<ShadowCaster>();
@@ -371,10 +371,10 @@ namespace SE.World
             public List<int> TileTemplates = new List<int>();
 
             /// <summary>Contains the instantiated tile GameObjects belonging to the tile spot.</summary>
-            [JsonIgnore] public List<GameObject> Gos = new List<GameObject>();
-            [JsonIgnore] public List<ShadowTemplate> ShadowTemplates = new List<ShadowTemplate>();
+            [IgnoreDataMember] public List<GameObject> Gos { get; set; } = new List<GameObject>();
+            [IgnoreDataMember] public List<ShadowTemplate> ShadowTemplates { get; set; } = new List<ShadowTemplate>();
 
-            [JsonIgnore] private Scene scene;
+            [IgnoreDataMember] private Scene scene { get; set; }
 
             /// <summary>
             /// Checks if the tile spot contains a specified tileset tile ID.
@@ -466,11 +466,10 @@ namespace SE.World
         [Serializable]
         public class LevelData
         {
-            public Point TilesCount;
-            public List<int>[][] MapData;
-            public Dictionary<string, MarkerGraphicData> MarkerGraphicData;
-            public List<Marker> MarkerData;
+            public Point TilesCount { get; set; }
+            public List<int>[][] MapData { get; set; }
+            public Dictionary<string, MarkerGraphicData> MarkerGraphicData { get; set; }
+            public List<Marker> MarkerData { get; set; }
         }
-
     }
 }

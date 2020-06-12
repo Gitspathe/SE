@@ -67,8 +67,7 @@ namespace SEDemos.GameObjects
                 return writer.CopyData();
             };
 
-            networkIdentity.OnRestoreNetworkState += data => {
-                NetDataReader reader = new NetDataReader(data);
+            networkIdentity.OnRestoreNetworkState += reader => {
                 c = new Color(reader.GetByte(), reader.GetByte(), reader.GetByte(), reader.GetByte());
                 sprite.Color = c;
                 light.Color = c;
