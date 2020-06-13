@@ -33,8 +33,8 @@ namespace SE.Core
         {
             GameTime = gTime;
             float timeSec = (float) gTime.ElapsedGameTime.TotalSeconds;
-            DeltaTime = timeSec * TimeScale;
             UnscaledDeltaTime = timeSec;
+            DeltaTime = timeSec * TimeScale;
 
             fixedTimer += UnscaledDeltaTime;
             if(fixedTimer > MaxFixedTimestep)

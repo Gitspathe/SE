@@ -1,8 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using SE.Core;
 using SE.Core.Exceptions;
+using SE.Utility;
+using Console = SE.Core.Console;
 
 namespace SE.AssetManagement
 {
@@ -17,6 +24,13 @@ namespace SE.AssetManagement
 
         public bool Inactive => timeInactive >= 10.0f;
 
+        private QuickList<IDisposable> streamDisposables = new QuickList<IDisposable>();
+        private static readonly string[] imgExtensions = { ".png", ".bmp", ".jpg", ".gif", ".tif" }; 
+        private Dictionary<string, object> streamTextures = new Dictionary<string, object>();
+        private HashSet<string> imageFilePaths = new HashSet<string>();
+
+        private string rootDirectory;
+        private GraphicsDevice gfxDevice;
         private bool loaded;
         private float timeInactive;
         private List<IAsset> orderedReferences = new List<IAsset>();
@@ -24,17 +38,85 @@ namespace SE.AssetManagement
         public ContentLoader(IServiceProvider serviceProvider, string id, string rootDirectory) : base(serviceProvider, rootDirectory)
         {
             ID = id;
+            this.rootDirectory = rootDirectory;
+            if (!Screen.IsFullHeadless) {
+                gfxDevice = ((IGraphicsDeviceService) serviceProvider.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
+            }
+
+            LocateFiles();
+            SetupStreamContent();
             AssetManager.AddContentManager(this);
         }
+
+        // TODO: Split stream logic into 'IStreamableProcessor' ??
+        private void LocateFiles()
+        {
+            string baseDir = FileIO.BaseDirectory;
+            string path = Path.Combine(baseDir, rootDirectory) + Path.DirectorySeparatorChar;
+            string imageDirectory = Path.Combine(path, "Images");
+
+            // Process images.
+            if (Directory.Exists(imageDirectory)) {
+                foreach (string file in FileIO.GetAllFiles(imageDirectory, imgExtensions)) {
+                    imageFilePaths.Add(file);
+                }
+            }
+
+            // TODO: Others...
+        }
+
+        private void SetupStreamContent()
+        {
+            string baseDir = FileIO.BaseDirectory;
+            string path = Path.Combine(baseDir, rootDirectory) + Path.DirectorySeparatorChar;
+
+            // Process images.
+            if (!Screen.IsFullHeadless) {
+                foreach (string file in imageFilePaths) {
+                    try {
+                        using Stream titleStream = TitleContainer.OpenStream(FileIO.GetRelativePathTo(baseDir, file));
+                        string filePath = FormatFilePath(FileIO.GetRelativePathTo(path, file));
+                        Texture2D tex = Texture2D.FromStream(gfxDevice, titleStream);
+
+                        // Replace existing item if one exists.
+                        streamTextures.Remove(filePath);
+                        streamTextures.Add(filePath, tex);
+                        streamDisposables.Add(tex);
+                    } catch (Exception) { /* ignored */ }
+                }
+            }
+
+            // TODO: Others...
+        }
+
+        private void UnloadStreamContent()
+        {
+            foreach (IDisposable disposable in streamDisposables) {
+                disposable.Dispose();
+            }
+            streamDisposables.Clear();
+            streamTextures.Clear();
+        }
+
+        private string FormatFilePath(string filePath) 
+            => Path.ChangeExtension(filePath, null)?.Replace('\\', '/');
 
         public override T Load<T>(string name)
         {
             try {
+
+                // Try to return FromStream() if it exists.
+                if (typeof(T) == typeof(Texture2D)) {
+                    if (streamTextures.TryGetValue(name, out object tex)) {
+                        return (T) tex;
+                    }
+                }
+
                 return base.Load<T>(name);
             } catch (ArgumentNullException e) {
                 if (Screen.IsFullHeadless) {
                     throw new HeadlessNotSupportedException("Content could not be loaded in fully headless display mode.", e);
-                } 
+                }
                 throw;
             }
         }
@@ -59,6 +141,7 @@ namespace SE.AssetManagement
         {
             loaded = true;
             timeInactive = 0.0f;
+            SetupStreamContent();
 
             // Sort all references.
             orderedReferences.Clear();
@@ -105,6 +188,7 @@ namespace SE.AssetManagement
             foreach (IAsset asset in AllRefs) {
                 asset.Unload();
             }
+            UnloadStreamContent();
             base.Unload();
         }
     }

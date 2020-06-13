@@ -38,15 +38,13 @@ namespace SE.Core
 
         public static bool SpriteBatchActive { get; private set; }
 
-        internal static bool DoFinalRender;
-
         private static Rectangle scissorRectBackup = new Rectangle(0,0,1920,1080);
 
         public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
         public static GraphicsDevice GraphicsDevice { get; private set; }
-        public static RenderTarget2D SceneRender { get; private set; }
-        public static RenderTarget2D UIRender { get; private set; }
-        public static RenderTarget2D FinalRender { get; private set; }
+        public static RenderTarget2D SceneRender { get; set; }
+        public static RenderTarget2D UIRender { get; set; }
+        public static RenderTarget2D FinalRender { get; set; }
         internal static QuickList<Camera2D> Cameras { get; } = new QuickList<Camera2D>();
         
         public static Span<Vector4> CameraBounds {
@@ -90,7 +88,6 @@ namespace SE.Core
             if (Screen.IsFullHeadless)
                 throw new HeadlessNotSupportedException("Cannot initialize rendering in fully headless display mode.");
 
-            DoFinalRender = GameEngine.IsEditor;
             GraphicsDeviceManager = gdm;
             GraphicsDevice = gd;
             SpriteBatch = new SpriteBatch(gd);
@@ -115,14 +112,14 @@ namespace SE.Core
                 GraphicsDeviceManager.PreferredBackBufferHeight, false,
                 GraphicsDevice.PresentationParameters.BackBufferFormat, GraphicsDevice.PresentationParameters.DepthStencilFormat, 
                 GraphicsDevice.PresentationParameters.MultiSampleCount, RenderTargetUsage.PreserveContents);
-
-            if (DoFinalRender) {
-                FinalRender = new RenderTarget2D(GraphicsDevice, GraphicsDeviceManager.PreferredBackBufferWidth,
-                    GraphicsDeviceManager.PreferredBackBufferHeight, false,
-                    GraphicsDevice.PresentationParameters.BackBufferFormat, GraphicsDevice.PresentationParameters.DepthStencilFormat,
-                    GraphicsDevice.PresentationParameters.MultiSampleCount, RenderTargetUsage.DiscardContents);
-            }
-
+            
+            FinalRender = GameEngine.IsEditor 
+                ? new RenderTarget2D(GraphicsDevice, GraphicsDeviceManager.PreferredBackBufferWidth, 
+                    GraphicsDeviceManager.PreferredBackBufferHeight, false, 
+                    GraphicsDevice.PresentationParameters.BackBufferFormat, GraphicsDevice.PresentationParameters.DepthStencilFormat, 
+                    GraphicsDevice.PresentationParameters.MultiSampleCount, RenderTargetUsage.DiscardContents) 
+                : null;
+            
             Lighting.Reset();
             GC.Collect();
         }
@@ -141,8 +138,7 @@ namespace SE.Core
 
         public static void RenderCameras()
         {
-            // If doFinalRender is true, draw to an intermediate render target. Otherwise, draw to the back buffer.
-            GraphicsDevice.SetRenderTarget(DoFinalRender ? FinalRender : null);
+            GraphicsDevice.SetRenderTarget(FinalRender);
 
             int screenWidth = GraphicsDeviceManager.PreferredBackBufferWidth;
             int screenHeight = GraphicsDeviceManager.PreferredBackBufferHeight;
@@ -158,9 +154,7 @@ namespace SE.Core
                 SpriteBatch.Draw(camera.renderTarget, renderRegion, Color.White);
             }
             EndDrawCall();
-
-            if (DoFinalRender)
-                GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.SetRenderTarget(null);
         }
 
         public static void ChangeDrawCall(SpriteSortMode sortMode, Matrix? transformMatrix, BlendState blendState = null, SamplerState samplerState = null, DepthStencilState depthStencilState = null, RasterizerState rasterizerState = null, Effect effect = null)
@@ -217,14 +211,13 @@ namespace SE.Core
             const string str = "No cameras.";
             Vector2 strSize = UIManager.DefaultFont.MeasureString(str).ToNumericsVector2();
 
-            GraphicsDevice.SetRenderTarget(DoFinalRender ? FinalRender : null);
+            GraphicsDevice.SetRenderTarget(FinalRender);
             GraphicsDevice.Clear(Color.Black);
             ChangeDrawCall(SpriteSortMode.Deferred, Screen.ScreenScaleMatrix);
             SpriteBatch.DrawString(UIManager.DefaultFont, str, Screen.ViewSize / 2.0f, Color.Red, 0f, strSize / 2.0f, Vector2.One, SpriteEffects.None, 0.0f);
             EndDrawCall();
             
-            if (DoFinalRender)
-                GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.SetRenderTarget(null);
         }
 
         private struct CameraQueueComparer : IComparer<Camera2D>

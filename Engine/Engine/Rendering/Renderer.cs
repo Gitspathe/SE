@@ -123,7 +123,6 @@ namespace SE.Rendering
             for (int i = 0; i < renderList.Data.Count; i++) {
                 ThreadSafeList<IRenderable> data = renderList.Data.Array[i];
                 Effect effect = DrawCallDatabase.LookupArray.Array[i].Effect;
-
                 switch (renderList.Mode) {
                     case BlendMode.Opaque:
                         ChangeDrawCall(

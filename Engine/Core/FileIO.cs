@@ -1,6 +1,8 @@
-﻿using System;
+﻿using SE.Particles.AreaModules;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace SE.Core
@@ -19,6 +21,26 @@ namespace SE.Core
         public static string BaseDirectory { get; private set; }
 
         private static List<string> folders = new List<string>();
+
+        public static IEnumerable<string> GetAllFiles(string path, string[] extensions = null)
+        {
+            if(extensions == null || extensions.Length == 0)
+                return Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories);
+            
+            return Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
+               .Where(s => extensions.Any(ext => ext == Path.GetExtension(s)));
+        }
+
+        public static string GetRelativePathTo(string from, string to)
+        {
+            Uri fromUri = new Uri(from);
+            Uri toUri = new Uri(to);
+
+            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+            string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+            return relativePath.Replace('/', Path.DirectorySeparatorChar);
+        }
 
         /// <summary>
         /// Saves a file to the Data directory.

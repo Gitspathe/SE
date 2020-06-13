@@ -26,7 +26,7 @@ namespace SE.Components
         {
             //Emitter = new Emitter(shape: new CircleEmitterShape(64.0f, EmissionDirection.Out, true, true, 0.5f));
 
-            CircleEmitterShape circleShape = new CircleEmitterShape(42.0f, EmissionDirection.Out, true, true);
+            CircleEmitterShape circleShape = new CircleEmitterShape(32.0f, EmissionDirection.Out, false, false);
             RectangleEmitterShape rectangleShape = new RectangleEmitterShape(
                 new Vector2(128.0f, 128.0f), 
                 EmissionDirection.Out, 
@@ -60,8 +60,8 @@ namespace SE.Components
             //Emitter.Config.Color.SetNormal(new Vector4(300.0f, 1.0f, 0.5f, 1.0f));
 
             Emitter.Config.Color.SetRandomBetween(
-                new Vector4(0.0f, 1.0f, 0.5f, 1.0f),
-                new Vector4(360.0f, 1.0f, 0.5f, 1.0f));
+                new Vector4(15.0f, 1.0f, 0.5f, 0.0f),
+                new Vector4(40.0f, 1.0f, 0.6f, 0.0f));
 
             //Emitter.Config.Color.SetNormal(new Vector4(0f, 1.0f, 0.5f, 1.0f));
 
@@ -70,7 +70,7 @@ namespace SE.Components
             Emitter.Config.Speed.SetRandomBetween(32.0f, 128.0f);
             Emitter.Config.Speed.SetNormal(256.0f);
 
-            ScaleModule s = ScaleModule.Lerp(1.0f, 0.0f);
+            ScaleModule s = ScaleModule.Lerp(0.5f, 2.0f);
 
             //Emitter.AddModule(RotationModule.RandomCurve(angleCurve));
             //Emitter.AddModule(SpeedModule.Lerp(64.0f, 512.0f));
@@ -84,7 +84,15 @@ namespace SE.Components
             //Emitter.AddModule(baseColorModule);
             //Emitter.AddModule(baseColorModule);
 
-            Emitter.AddModule(HueModule.Lerp(360.0f));
+            Curve alphaCurve = new Curve();
+            alphaCurve.Keys.Add(0.0f, 0.0f);
+            alphaCurve.Keys.Add(0.1f, 1.0f);
+            alphaCurve.Keys.Add(0.667f, 1.0f);
+            alphaCurve.Keys.Add(1.0f, 0.0f);
+
+            Emitter.AddModule(HueModule.RandomLerp(30.0f, 60.0f));
+            Emitter.AddModule(LightnessModule.Lerp(0.667f));
+            Emitter.AddModule(AlphaModule.Curve(alphaCurve));
 
             //Emitter.RemoveModules(s, baseColorModule);
 
@@ -116,8 +124,8 @@ namespace SE.Components
 
             time -= Time.DeltaTime;
             while (time <= 0.0f) {
-                Emitter.Emit(4);
-                time += 0.1f;
+                Emitter.Emit(128);
+                time += 0.0333f;
             }
         }
 

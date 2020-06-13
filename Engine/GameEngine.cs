@@ -110,11 +110,6 @@ namespace SE
 
             // If the engine ISN'T initialized (i.e, in editor mode)...
             if (!isInitialized) {
-
-                // TODO: Move to proper class.
-                //SerializerExtensions.SerializerSettings.Converters.Add(new PointConverter());
-                //SerializerExtensions.SerializerSettings.Converters.Add(new Vector2Converter());
-
                 ThreadPool.SetMinThreads(Environment.ProcessorCount, 8);
 
                 Config.Initialize();
@@ -148,24 +143,24 @@ namespace SE
                     else
                         Console.LogError(exception, LogSource.Network);
                 };
+
+                SetCurrentScene("_MAIN\\empty");
+                if (!Screen.IsFullHeadless) {
+                    Core.Rendering.Initialize(GraphicsDeviceManager, GraphicsDevice);
+                    Console.InitializeStats(Core.Rendering.SpriteBatch);
+                }
+
+                // After core initialization. Console will work here.
+                Console.LogInfo("Core engine loaded.", true);
+                Console.LogInfo("Game loop loaded:", true);
+                Console.LogInfo(GameLoop.ToString());
+
+                Network.Initialize();
+                Screen.Reset();
+                Initalized?.Invoke();
+
+                Console.LogInfo("Finished initialization.", true);
             }
-
-            SetCurrentScene("_MAIN\\empty");
-            if (!Screen.IsFullHeadless) {
-                Core.Rendering.Initialize(GraphicsDeviceManager, GraphicsDevice);
-                Console.InitializeStats(Core.Rendering.SpriteBatch);
-            }
-
-            // After core initialization. Console will work here.
-            Console.LogInfo("Core engine loaded.", true);
-            Console.LogInfo("Game loop loaded:", true);
-            Console.LogInfo(GameLoop.ToString());
-
-            Network.Initialize();
-            Screen.Reset();
-            Initalized?.Invoke();
-
-            Console.LogInfo("Finished initialization.", true);
 
             if (IsEditor) {
                 Editor.ChangeInstance(this);
@@ -178,7 +173,7 @@ namespace SE
 
         private void LoadEngineContent()
         {
-            EngineContent = new ContentLoader(Content.ServiceProvider, "EngineContent", "Data/_MAIN/Content");
+            EngineContent = new ContentLoader(Content.ServiceProvider, "EngineContent", "Data/_MAIN/Content/");
             if (Screen.IsFullHeadless) 
                 return;
 
@@ -192,7 +187,7 @@ namespace SE
             // Texture2Ds
             AssetManager.Add(new AssetBuilder<Texture2D>()
                .ID("tileset")
-               .Create(new GeneralContentProcessor<Texture2D>("EngineContent", "tileset"))
+               .Create(new GeneralContentProcessor<Texture2D>("EngineContent", "Images/tileset"))
                .FromContent(EngineContent)
             );
             AssetManager.Add(new AssetBuilder<Texture2D>()

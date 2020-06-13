@@ -271,29 +271,34 @@ namespace SE.Common
                 return;
 
             PendingDestroy = true;
-            if (GameEngine.IsEditor) {
-                OnDestroyEditor();
-            } else {
-                bool wasPooled = false;
-                if (this is IPoolableGameObject poolable && poolable.MyPool != null) {
-                    if (poolable.ReturnOnDestroy) {
-                        poolable.MyPool.Return(this);
-                        wasPooled = true;
-                    } else {
-                        poolable.MyPool.DestroyedCallback(this);
-                    }
-                }
-                if (wasPooled)
-                    return;
+            bool wasPooled = false;
 
-                OnDestroy();
-                if (NetIdentity != null) {
-                    if (Network.IsServer) {
-                        NetHelper.Destroy(NetLogic.ID);
-                    }
+            // Process IPoolableGameObject logic if the GameObject is poolable.
+            if (this is IPoolableGameObject poolable && poolable.MyPool != null) {
+                if (poolable.ReturnOnDestroy) {
+                    poolable.MyPool.Return(this);
+                    wasPooled = true;
                 } else {
-                    OnDestroyInternal();
+                    poolable.MyPool.DestroyedCallback(this);
                 }
+            }
+
+            // If the GameObject was pooled, return.
+            if (wasPooled)
+                return;
+
+            // Call destroy if valid.
+            if(ExecuteIsValid())
+                OnDestroy();
+
+            // If the GameObject is networked, tell the NetHelper to clean it up and then call OnDestroyInternal.
+            // Otherwise, just call OnDestroyInternal().
+            if (NetIdentity != null) {
+                if (Network.IsServer) {
+                    NetHelper.Destroy(NetLogic.ID);
+                }
+            } else {
+                OnDestroyInternal();
             }
         }
 
