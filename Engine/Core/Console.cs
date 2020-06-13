@@ -61,6 +61,7 @@ namespace SE.Core
         private static List<string> commandLineBuffer = new List<string>(10);
         private static int bufferIndex;
         private static List<string> tmpStrings = new List<string>(100);
+        private static bool initialized;
 
         private static Dictionary<ConsoleColor, Color> colorTranslationTable = new Dictionary<ConsoleColor, Color> {
             {ConsoleColor.Red, Color.Red},
@@ -86,16 +87,6 @@ namespace SE.Core
 
         static Console()
         {
-            IAssetConsumer consumer;
-            if (!Screen.IsFullHeadless) {
-                DebugFont = AssetManager.Get<SpriteFont>(assetConsumerContext, "editor_subheading");
-                ConsoleFont = AssetManager.Get<SpriteFont>(assetConsumerContext, "editor");
-
-                consoleUI = new ConsoleUI();
-                consoleUI.TextInputField.Confirmed += (sender, value) => {
-                    Parse(value);
-                };
-            }
             AddCommand(new Teleport());
             AddCommand(new Clear());
             AddCommand(new ToggleFPS());
@@ -109,6 +100,21 @@ namespace SE.Core
             AddCommand(new ToggleLighting());
             AddCommand(new DebugLighting());
         #endif
+        }
+
+        public static void Initialize()
+        {
+            IAssetConsumer consumer;
+            if (!Screen.IsFullHeadless) {
+                DebugFont = AssetManager.Get<SpriteFont>(assetConsumerContext, "editor_subheading");
+                ConsoleFont = AssetManager.Get<SpriteFont>(assetConsumerContext, "editor");
+
+                consoleUI = new ConsoleUI();
+                consoleUI.TextInputField.Confirmed += (sender, value) => {
+                    Parse(value);
+                };
+            }
+
             if (!Screen.IsFullHeadless) {
                 if (Screen.DisplayMode != DisplayMode.Normal) {
                     consoleUI.Enable();
@@ -122,6 +128,8 @@ namespace SE.Core
                     AutoFlush = true
                 };
             } catch(IOException) { } 
+
+            initialized = true;
         }
 
         public static void InitializeStats(SpriteBatch spriteBatch)
@@ -223,7 +231,7 @@ namespace SE.Core
 
             tmpStrings.Clear();
             SplitLines(tmpStrings, output, 160);
-            if (!Screen.IsFullHeadless && consoleUI != null) {
+            if (!Screen.IsFullHeadless && consoleUI != null && initialized) {
                 foreach (string line in tmpStrings) {
                     consoleUI.Output(line, ConvertConsoleColor(c));
                 }

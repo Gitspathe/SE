@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using SE.AssetManagement.FileProcessors;
 using SE.Core;
 using SE.Core.Exceptions;
 using SE.Utility;
@@ -24,10 +25,7 @@ namespace SE.AssetManagement
 
         public bool Inactive => timeInactive >= 10.0f;
 
-        private QuickList<IDisposable> streamDisposables = new QuickList<IDisposable>();
-        private static readonly string[] imgExtensions = { ".png", ".bmp", ".jpg", ".gif", ".tif" }; 
-        private Dictionary<string, object> streamTextures = new Dictionary<string, object>();
-        private HashSet<string> imageFilePaths = new HashSet<string>();
+        private Dictionary<Type, FileProcessor> fileProcessors = new Dictionary<Type, FileProcessor>();
 
         private string rootDirectory;
         private GraphicsDevice gfxDevice;
@@ -43,80 +41,66 @@ namespace SE.AssetManagement
                 gfxDevice = ((IGraphicsDeviceService) serviceProvider.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
             }
 
+            AddProcessor(new Texture2DFileProcessor());
             LocateFiles();
             SetupStreamContent();
             AssetManager.AddContentManager(this);
         }
 
+        public void AddProcessor(FileProcessor processor)
+        {
+            if(fileProcessors.ContainsKey(processor.Type))
+                return;
+
+            processor.ContentBaseDirectory = rootDirectory;
+            fileProcessors.Add(processor.Type, processor);
+        }
+
         // TODO: Split stream logic into 'IStreamableProcessor' ??
         private void LocateFiles()
         {
-            string baseDir = FileIO.BaseDirectory;
-            string path = Path.Combine(baseDir, rootDirectory) + Path.DirectorySeparatorChar;
-            string imageDirectory = Path.Combine(path, "Images");
-
-            // Process images.
-            if (Directory.Exists(imageDirectory)) {
-                foreach (string file in FileIO.GetAllFiles(imageDirectory, imgExtensions)) {
-                    imageFilePaths.Add(file);
-                }
+            foreach (FileProcessor processor in fileProcessors.Values) {
+                processor.LocateFilesInternal();
             }
-
-            // TODO: Others...
         }
 
         private void SetupStreamContent()
         {
-            string baseDir = FileIO.BaseDirectory;
-            string path = Path.Combine(baseDir, rootDirectory) + Path.DirectorySeparatorChar;
-
-            // Process images.
-            if (!Screen.IsFullHeadless) {
-                foreach (string file in imageFilePaths) {
-                    try {
-                        using Stream titleStream = TitleContainer.OpenStream(FileIO.GetRelativePathTo(baseDir, file));
-                        string filePath = FormatFilePath(FileIO.GetRelativePathTo(path, file));
-                        Texture2D tex = Texture2D.FromStream(gfxDevice, titleStream);
-
-                        // Replace existing item if one exists.
-                        streamTextures.Remove(filePath);
-                        streamTextures.Add(filePath, tex);
-                        streamDisposables.Add(tex);
-                    } catch (Exception) { /* ignored */ }
+            foreach (FileProcessor processor in fileProcessors.Values) {
+                try {
+                    processor.LoadFilesInternal(gfxDevice);
+                } catch (HeadlessNotSupportedException e) {
+                    Console.LogWarning(e.Message);
                 }
             }
-
-            // TODO: Others...
         }
 
         private void UnloadStreamContent()
         {
-            foreach (IDisposable disposable in streamDisposables) {
-                disposable.Dispose();
+            foreach (FileProcessor processor in fileProcessors.Values) {
+                processor.Unload();
             }
-            streamDisposables.Clear();
-            streamTextures.Clear();
         }
 
-        private string FormatFilePath(string filePath) 
+        internal static string FormatFilePath(string filePath) 
             => Path.ChangeExtension(filePath, null)?.Replace('\\', '/');
 
         public override T Load<T>(string name)
         {
             try {
 
-                // Try to return FromStream() if it exists.
-                if (typeof(T) == typeof(Texture2D)) {
-                    if (streamTextures.TryGetValue(name, out object tex)) {
-                        return (T) tex;
+                // Try to return from a FileProcessor.
+                if (fileProcessors.TryGetValue(typeof(T), out FileProcessor processor)) {
+                    if (processor.GetFile(name, out object file)) {
+                        return (T) file;
                     }
                 }
 
                 return base.Load<T>(name);
             } catch (ArgumentNullException e) {
-                if (Screen.IsFullHeadless) {
+                if (Screen.IsFullHeadless)
                     throw new HeadlessNotSupportedException("Content could not be loaded in fully headless display mode.", e);
-                }
+
                 throw;
             }
         }

@@ -1,4 +1,4 @@
-﻿namespace SE.AssetManagement
+﻿namespace SE.AssetManagement.Processors
 {
     public interface IAssetProcessor<out TOutput> : IAssetProcessor
     {

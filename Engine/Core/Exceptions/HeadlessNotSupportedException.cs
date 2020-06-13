@@ -8,7 +8,8 @@ namespace SE.Core.Exceptions
     /// </summary>
     public class HeadlessNotSupportedException : Exception
     {
-        public HeadlessNotSupportedException(string message) : base(message) { }
+        public HeadlessNotSupportedException(string message = null) : base(message) { }
         public HeadlessNotSupportedException(string message, Exception innerException) : base(message, innerException) { }
+        public HeadlessNotSupportedException(Exception innerException) : base(null, innerException) { }
     }
 }

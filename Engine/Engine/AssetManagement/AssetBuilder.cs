@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SE.AssetManagement.Processors;
 
 namespace SE.AssetManagement
 {

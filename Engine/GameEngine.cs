@@ -151,6 +151,7 @@ namespace SE
                 }
 
                 // After core initialization. Console will work here.
+                Console.Initialize();
                 Console.LogInfo("Core engine loaded.", true);
                 Console.LogInfo("Game loop loaded:", true);
                 Console.LogInfo(GameLoop.ToString());
