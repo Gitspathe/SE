@@ -9,7 +9,7 @@ namespace SE.Serialization
         public bool Override;
 
         private TypeAccessor accessor;
-        private object obj;
+        private dynamic obj;
 
         public dynamic Value {
             get => accessor[obj, Name];

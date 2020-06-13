@@ -14,20 +14,23 @@ namespace SE.Core.Internal
 {
     internal static class Reflection
     {
-        public static HashSet<Type> SerializableTypes = new HashSet<Type>
-        {
-            typeof(bool), typeof(byte), typeof(sbyte),
-            typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong),
-            typeof(float), typeof(double),
-            typeof(string), typeof(Color), typeof(Vector2), typeof(Rectangle), typeof(RectangleF),
-            typeof(List<>)
-        };
-
         public static void Initialize()
         {
             SerializerReflection.RegenerateEngineSerializers();
             SerializerReflection.RegenerateSerializers();
             GameEngine.RequestGC();
+        }
+
+        internal static bool TypeHasAnyOfInterface(Type type, IEnumerable<Type> interfaces)
+        {
+            // Check if it has interface
+            Type[] i = type.GetInterfaces();
+            foreach(Type inter in i) {
+                if (interfaces.Contains(inter)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         internal static GameObjectInfo GetGameObjectInfo(Type gameObject)

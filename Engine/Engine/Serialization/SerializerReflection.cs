@@ -8,6 +8,7 @@ using SE.Core.Internal;
 using SE.Core.Extensions.Internal;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
+using System.Collections;
 
 namespace SE.Serialization
 {
@@ -24,7 +25,7 @@ namespace SE.Serialization
             },
             {
                 typeof(float),
-                (serialized, existing) => existing.Value = (float) serialized.Value
+                (serialized, existing) => existing.Value = Convert.ToSingle(serialized.Value)
             },
             {
                 typeof(double),
@@ -48,7 +49,7 @@ namespace SE.Serialization
             },
             {
                 typeof(ulong),
-                (serialized, existing) => existing.Value = (ulong) serialized.Value
+                (serialized, existing) => existing.Value = Convert.ToUInt64(serialized.Value)
             },
         };
 
@@ -63,7 +64,7 @@ namespace SE.Serialization
             typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong),
             typeof(float), typeof(double),
             typeof(string), typeof(Color), typeof(Vector2), typeof(Rectangle), typeof(RectangleF),
-            typeof(List<>)
+            typeof(IList), typeof(Array)
         };
 
         public static void RegenerateEngineSerializers()
@@ -113,7 +114,13 @@ namespace SE.Serialization
                     if (pInfo.GetCustomAttribute(typeof(NoSerializeAttribute)) != null)
                         continue;
 
+                    Type t = pInfo.PropertyType;
+                    bool isGenericField = t.IsGenericType;
                     if (SerializableTypes.Contains(pInfo.PropertyType)) {
+                        strList.Add(pInfo.Name);
+                    } else if (isGenericField && SerializableTypes.Contains(t.GetGenericTypeDefinition())) {
+                        strList.Add(pInfo.Name);
+                    } else if(Reflection.TypeHasAnyOfInterface(pInfo.PropertyType, SerializableTypes)) {
                         strList.Add(pInfo.Name);
                     }
                 }
@@ -122,12 +129,13 @@ namespace SE.Serialization
                         || fInfo.GetCustomAttribute(typeof(NonSerializedAttribute)) != null)
                         continue;
 
-                    bool isGenericField = fInfo.FieldType.IsGenericType;
-                    if (SerializableTypes.Contains(fInfo.FieldType)) {
+                    Type t = fInfo.FieldType;
+                    bool isGenericField = t.IsGenericType;
+                    if (SerializableTypes.Contains(t)) {
                         strList.Add(fInfo.Name);
-                    }
-
-                    if (isGenericField && SerializableTypes.Contains(fInfo.FieldType.GetGenericTypeDefinition())) {
+                    } else if (isGenericField && SerializableTypes.Contains(t.GetGenericTypeDefinition())) {
+                        strList.Add(fInfo.Name);
+                    } else if(Reflection.TypeHasAnyOfInterface(t, SerializableTypes)) {
                         strList.Add(fInfo.Name);
                     }
                 }

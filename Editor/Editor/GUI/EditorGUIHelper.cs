@@ -132,15 +132,27 @@ namespace DeeZ.Editor.GUI
 
         public static Dictionary<Type, Action<int, Type, SerializedValue>> GenericGUITable = new Dictionary<Type, Action<int, Type, SerializedValue>> {
             {
-                typeof(List<>), (i, innerType, valueBase) => {
-                    if (ImGui.TreeNode("List<" + innerType.Name + ">###")) {
-                        for (int y = 0; y < valueBase.Value.Count; y++) {
-                            dynamic item = valueBase.Value[y];
-                            if (GUITable.TryGetValue(item.GetType(), out Func<int, dynamic, dynamic> func)) {
-                                valueBase.Value[y] = func.Invoke(y, item);
+                typeof(IList<>), (i, innerType, valueBase) => {
+                    bool isArray = valueBase.Value.GetType().IsArray;
+                    if (ImGui.TreeNode((isArray ? "Array<" : "List<") + innerType.Name + ">###")) {
+                        if (isArray) {
+                            for (int y = 0; y < valueBase.Value.Length; y++) {
+                                DisplayItem(valueBase.Value[y], y);
+                            }
+                        } else {
+                            for (int y = 0; y < valueBase.Value.Count; y++) {
+                                DisplayItem(valueBase.Value[y], y);
                             }
                         }
+
                         ImGui.TreePop();
+                    }
+
+                    void DisplayItem(dynamic item, int y)
+                    {
+                        if (GUITable.TryGetValue(item.GetType(), out Func<int, dynamic, dynamic> func)) {
+                            valueBase.Value[y] = func.Invoke(y, item);
+                        }
                     }
                 }
             },

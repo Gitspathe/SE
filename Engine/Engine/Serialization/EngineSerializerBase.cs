@@ -55,7 +55,7 @@ namespace SE.Serialization
                throw new InvalidOperationException("Not initialized!");
 
             for (int i = 0; i < ValueWrappers.Count; i++) {
-                ValueWrappers[i].Restore(data.ValueData[i]);
+                ValueWrappers.Array[i].Restore(data.ValueData.Array[i]);
             }
         }
 
