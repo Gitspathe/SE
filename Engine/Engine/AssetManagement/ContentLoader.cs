@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -56,11 +57,11 @@ namespace SE.AssetManagement
             fileProcessors.Add(processor.Type, processor);
         }
 
-        // TODO: Split stream logic into 'IStreamableProcessor' ??
         private void LocateFiles()
         {
             foreach (FileProcessor processor in fileProcessors.Values) {
-                processor.LocateFilesInternal();
+                processor.ProcessFiles();
+                processor.LocateFiles();
             }
         }
 
@@ -68,7 +69,7 @@ namespace SE.AssetManagement
         {
             foreach (FileProcessor processor in fileProcessors.Values) {
                 try {
-                    processor.LoadFilesInternal(gfxDevice);
+                    processor.LoadFiles(gfxDevice);
                 } catch (HeadlessNotSupportedException e) {
                     Console.LogWarning(e.Message);
                 }
@@ -91,7 +92,8 @@ namespace SE.AssetManagement
 
                 // Try to return from a FileProcessor.
                 if (fileProcessors.TryGetValue(typeof(T), out FileProcessor processor)) {
-                    if (processor.GetFile(name, out object file)) {
+                    //return (T) processor.LoadSingleFile(gfxDevice, name);
+                    if (processor.GetFile(gfxDevice, name, out object file)) {
                         return (T) file;
                     }
                 }

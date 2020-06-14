@@ -6,6 +6,7 @@ using SE.Core;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 using MonoGameVector3 = Microsoft.Xna.Framework.Vector3;
+using System.Collections.Generic;
 
 namespace SE.Components
 {
@@ -40,6 +41,8 @@ namespace SE.Components
             }
         }
         private RectangleF renderRegion = new RectangleF(0.0f, 0.0f, 1.0f, 1.0f);
+
+        public List<int> Test = new List<int>() {1, 1, 2, 3, 5, 7};
 
         public Vector2 Position { get; private set; } = Vector2.Zero;
         public Rectangle ViewBounds { get; private set; }

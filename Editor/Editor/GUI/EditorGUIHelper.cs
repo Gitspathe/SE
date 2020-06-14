@@ -194,7 +194,6 @@ namespace DeeZ.Editor.GUI
         {
             Type type = value.Value.GetType();
             bool isGeneric = type.IsGenericType;
-
             bool found = false;
             value.ReflectionInfo = new SerializedValue.Cache {
                 Type = type

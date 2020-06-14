@@ -21,12 +21,14 @@ namespace SE.Core.Internal
             GameEngine.RequestGC();
         }
 
-        internal static bool TypeHasAnyOfInterface(Type type, IEnumerable<Type> interfaces)
+        internal static bool TypeHasAnyOfInterface(Type type, IEnumerable<Type> interfaces, out Type foundType)
         {
             // Check if it has interface
+            foundType = null;
             Type[] i = type.GetInterfaces();
             foreach(Type inter in i) {
                 if (interfaces.Contains(inter)) {
+                    foundType = inter;
                     return true;
                 }
             }

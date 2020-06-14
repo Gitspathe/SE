@@ -25,7 +25,7 @@ namespace SE.Serialization
             },
             {
                 typeof(float),
-                (serialized, existing) => existing.Value = Convert.ToSingle(serialized.Value)
+                (serialized, existing) => existing.Value = (float) serialized.Value
             },
             {
                 typeof(double),
@@ -49,12 +49,11 @@ namespace SE.Serialization
             },
             {
                 typeof(ulong),
-                (serialized, existing) => existing.Value = Convert.ToUInt64(serialized.Value)
+                (serialized, existing) => existing.Value = (ulong) serialized.Value
             },
         };
 
         public static SelfReferenceDictionary<int, Type> TypeTable = new SelfReferenceDictionary<int, Type>();
-
         internal static Dictionary<Type, SerializerInfo> ObjectSerializers = new Dictionary<Type, SerializerInfo>();
         internal static Dictionary<Type, Type> EngineSerializers = new Dictionary<Type, Type>();
 
@@ -120,7 +119,7 @@ namespace SE.Serialization
                         strList.Add(pInfo.Name);
                     } else if (isGenericField && SerializableTypes.Contains(t.GetGenericTypeDefinition())) {
                         strList.Add(pInfo.Name);
-                    } else if(Reflection.TypeHasAnyOfInterface(pInfo.PropertyType, SerializableTypes)) {
+                    } else if(Reflection.TypeHasAnyOfInterface(t, SerializableTypes, out Type intT)) {
                         strList.Add(pInfo.Name);
                     }
                 }
@@ -135,7 +134,7 @@ namespace SE.Serialization
                         strList.Add(fInfo.Name);
                     } else if (isGenericField && SerializableTypes.Contains(t.GetGenericTypeDefinition())) {
                         strList.Add(fInfo.Name);
-                    } else if(Reflection.TypeHasAnyOfInterface(t, SerializableTypes)) {
+                    } else if(Reflection.TypeHasAnyOfInterface(t, SerializableTypes, out Type intT)) {
                         strList.Add(fInfo.Name);
                     }
                 }

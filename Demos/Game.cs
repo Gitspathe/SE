@@ -110,7 +110,7 @@ namespace SEDemos
             if (!Screen.IsFullHeadless) {
                 AssetManager.Add(new AssetBuilder<Texture2D>()
                    .ID("tileset2")
-                   .Create(new GeneralContentProcessor<Texture2D>("Content1", "tileset2"))
+                   .Create(new GeneralContentProcessor<Texture2D>("Content1", "Images/tileset2"))
                    .FromContent(content2)
                 );
             }
