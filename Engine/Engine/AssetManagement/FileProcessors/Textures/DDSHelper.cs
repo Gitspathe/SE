@@ -35,9 +35,6 @@ namespace SE.AssetManagement.FileProcessors.Textures
         private const int DDSCAPS2_VOLUME = 0x00200000;
 
         private const uint FOURCC_DXT1 = 0x31545844;
-        private const uint FOURCC_DXT2 = 0x32545844;
-        private const uint FOURCC_DXT3 = 0x33545844;
-        private const uint FOURCC_DXT4 = 0x34545844;
         private const uint FOURCC_DXT5 = 0x35545844;
         private const uint FOURCC_ATI1 = 0x31495441;
         private const uint FOURCC_ATI2 = 0x32495441;
@@ -108,8 +105,7 @@ namespace SE.AssetManagement.FileProcessors.Textures
                 header.alphabitdepth = reader.ReadUInt32();
 
                 header.reserved = new uint[10];
-                for (int i = 0; i < 10; i++)
-                {
+                for (int i = 0; i < 10; i++) {
                     header.reserved[i] = reader.ReadUInt32();
                 }
 

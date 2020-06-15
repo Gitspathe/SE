@@ -32,6 +32,7 @@ namespace SE.AssetManagement.FileProcessors
 
         internal void ProcessFiles()
         {
+            // Check if the sub-directory exists.
             string path = Path.Combine(BaseDirectory, ContentBaseDirectory);
             string subDirectory = Path.Combine(path, ContentSubDirectory);
             if(!Directory.Exists(subDirectory))
@@ -42,17 +43,19 @@ namespace SE.AssetManagement.FileProcessors
             foreach (string file in FileIO.GetAllFiles(subDirectory, allowed)) {
                 byte[] bytes = File.ReadAllBytes(file);
                 string fileNoExtension = Path.ChangeExtension(file, null);
+                string extension = Path.GetExtension(file);
                 
+                // Create processed file.
                 using FileStream stream = new FileStream(fileNoExtension + _DATA_EXTENSION, FileMode.OpenOrCreate, FileAccess.Write);
                 using BinaryWriter writer = new BinaryWriter(stream);
                 stream.SetLength(0);
 
                 // TODO: Allow for manual modification of the header.
-                SEFileHeader header = new SEFileHeader(SEFileHeaderFlags.None, 1, Path.GetExtension(file), new byte[0]);
+                SEFileHeader header = new SEFileHeader(SEFileHeaderFlags.None, 1, extension, new byte[0], (uint) bytes.Length);
+
+                // Write to the processed file, and delete the old file.
                 header.WriteToStream(writer);
                 writer.Write(bytes);
-
-                // Delete unprocessed copy.
                 File.Delete(file);
             }
         }
@@ -66,7 +69,6 @@ namespace SE.AssetManagement.FileProcessors
 
             foreach (string file in FileIO.GetAllFiles(subDirectory, new [] { _DATA_EXTENSION })) {
                 filePaths.Add(file);
-
                 string relative = ContentLoader.FormatFilePath(FileIO.GetRelativePathTo(subDirectory, file));
                 filePathsExtensions.Add(relative, file);
             }
@@ -80,6 +82,7 @@ namespace SE.AssetManagement.FileProcessors
                 if (loadedFiles.ContainsKey(filePath))
                     continue;
 
+                // Load the header and file into memory.
                 using Stream titleStream = TitleContainer.OpenStream(FileIO.GetRelativePathTo(BaseDirectory, file));
                 using BinaryReader reader = new BinaryReader(titleStream);
                 SEFileHeader header = SEFileHeader.ReadFromStream(reader);
@@ -96,26 +99,29 @@ namespace SE.AssetManagement.FileProcessors
 
         internal bool LoadSingleFile(GraphicsDevice gfxDevice, string fileName, out object obj)
         {
-            if (!filePathsExtensions.TryGetValue(fileName, out fileName)) {
-                obj = null;
+            obj = null;
+            if (!filePathsExtensions.TryGetValue(fileName, out fileName))
                 return false;
-            }
 
+            // Get path, and return if the file is already loaded.
             string path = Path.Combine(BaseDirectory, ContentBaseDirectory);
             string filePath = ContentLoader.FormatFilePath(FileIO.GetRelativePathTo(path, fileName));
-            if (loadedFiles.ContainsKey(filePath)) {
-                obj = loadedFiles[filePath];
+            if (loadedFiles.TryGetValue(filePath, out obj))
                 return true;
-            }
 
-            using Stream titleStream = TitleContainer.OpenStream(FileIO.GetRelativePathTo(BaseDirectory, filePath));
+            // If the file isn't loaded, load it into memory.
+            using Stream titleStream = TitleContainer.OpenStream(FileIO.GetRelativePathTo(BaseDirectory, fileName));
             using BinaryReader reader = new BinaryReader(titleStream);
             SEFileHeader header = SEFileHeader.ReadFromStream(reader);
-            if (LoadFile(gfxDevice, reader, header, out obj)) {
-                loadedFiles.Add(fileName, obj);
-                return true;
+            if (!LoadFile(gfxDevice, reader, header, out obj)) 
+                return false;
+
+            // Add the loaded file to the dictionary.
+            loadedFiles.Add(filePath, obj);
+            if (obj is IDisposable disposable) {
+                disposables.Add(disposable);
             }
-            return false;
+            return true;
         }
 
         internal void Unload()
@@ -127,13 +133,8 @@ namespace SE.AssetManagement.FileProcessors
             loadedFiles.Clear();
         }
 
-        internal bool GetFile(GraphicsDevice gfx, string key, out object file)
-        {
-            if (loadedFiles.TryGetValue(key, out file)) {
-                return true;
-            }
-            return LoadSingleFile(gfx, key, out file);
-        }
+        internal bool GetFile(GraphicsDevice gfx, string key, out object file) 
+            => loadedFiles.TryGetValue(key, out file) || LoadSingleFile(gfx, key, out file);
 
         protected abstract bool LoadFile(GraphicsDevice gfxDevice, BinaryReader file, SEFileHeader header, out object obj);
     }

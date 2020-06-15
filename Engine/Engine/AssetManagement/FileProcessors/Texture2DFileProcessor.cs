@@ -27,11 +27,7 @@ namespace SE.AssetManagement.FileProcessors
                 DDSStruct.ReadHeader(file, ref ddsHeader);
                 tex = new Texture2D(gfxDevice, (int) ddsHeader.width, (int) ddsHeader.height, false, SurfaceFormat.Dxt5);
                 
-                byte[] textureData;
-                using (MemoryStream ms = new MemoryStream()) {
-                    file.BaseStream.CopyTo(ms);
-                    textureData = ms.ToArray();
-                }
+                byte[] textureData = file.ReadBytes((int) header.FileSize);
                 tex.SetData(textureData, 0, textureData.Length);
             } else {
                 tex = Texture2D.FromStream(gfxDevice, file.BaseStream);

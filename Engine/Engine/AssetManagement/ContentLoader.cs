@@ -30,21 +30,26 @@ namespace SE.AssetManagement
 
         private string rootDirectory;
         private GraphicsDevice gfxDevice;
+        private bool preloaded;
         private bool loaded;
         private float timeInactive;
         private List<IAsset> orderedReferences = new List<IAsset>();
 
-        public ContentLoader(IServiceProvider serviceProvider, string id, string rootDirectory) : base(serviceProvider, rootDirectory)
+        public ContentLoader(IServiceProvider serviceProvider, string id, string rootDirectory, bool preloaded = false) 
+            : base(serviceProvider, rootDirectory)
         {
             ID = id;
             this.rootDirectory = rootDirectory;
+            this.preloaded = preloaded;
             if (!Screen.IsFullHeadless) {
                 gfxDevice = ((IGraphicsDeviceService) serviceProvider.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
             }
 
             AddProcessor(new Texture2DFileProcessor());
             LocateFiles();
-            SetupStreamContent();
+            if (preloaded) {
+                SetupStreamContent();
+            }
             AssetManager.AddContentManager(this);
         }
 
@@ -89,15 +94,14 @@ namespace SE.AssetManagement
         public override T Load<T>(string name)
         {
             try {
-
                 // Try to return from a FileProcessor.
                 if (fileProcessors.TryGetValue(typeof(T), out FileProcessor processor)) {
-                    //return (T) processor.LoadSingleFile(gfxDevice, name);
                     if (processor.GetFile(gfxDevice, name, out object file)) {
                         return (T) file;
                     }
                 }
 
+                // Otherwise, return from MG content manager.
                 return base.Load<T>(name);
             } catch (ArgumentNullException e) {
                 if (Screen.IsFullHeadless)
@@ -106,8 +110,6 @@ namespace SE.AssetManagement
                 throw;
             }
         }
-
-        private T LoadInternal<T>(string name) => base.Load<T>(name);
 
         public void Update(float deltaTime)
         {
@@ -127,7 +129,9 @@ namespace SE.AssetManagement
         {
             loaded = true;
             timeInactive = 0.0f;
-            SetupStreamContent();
+            if (preloaded) {
+                SetupStreamContent();
+            }
 
             // Sort all references.
             orderedReferences.Clear();
