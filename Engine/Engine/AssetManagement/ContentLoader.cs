@@ -45,48 +45,29 @@ namespace SE.AssetManagement
                 gfxDevice = ((IGraphicsDeviceService) serviceProvider.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
             }
 
-            AddProcessor(new Texture2DFileProcessor());
-            LocateFiles();
-            if (preloaded) {
-                SetupStreamContent();
-            }
+            //if (preloaded) {
+            //    SetupStreamContent();
+            //}
             AssetManager.AddContentManager(this);
         }
 
-        public void AddProcessor(FileProcessor processor)
-        {
-            if(fileProcessors.ContainsKey(processor.Type))
-                return;
+        //private void SetupStreamContent()
+        //{
+        //    foreach (FileProcessor processor in fileProcessors.Values) {
+        //        try {
+        //            processor.LoadFiles(gfxDevice);
+        //        } catch (HeadlessNotSupportedException e) {
+        //            Console.LogWarning(e.Message);
+        //        }
+        //    }
+        //}
 
-            processor.ContentBaseDirectory = rootDirectory;
-            fileProcessors.Add(processor.Type, processor);
-        }
-
-        private void LocateFiles()
-        {
-            foreach (FileProcessor processor in fileProcessors.Values) {
-                processor.ProcessFiles();
-                processor.LocateFiles();
-            }
-        }
-
-        private void SetupStreamContent()
-        {
-            foreach (FileProcessor processor in fileProcessors.Values) {
-                try {
-                    processor.LoadFiles(gfxDevice);
-                } catch (HeadlessNotSupportedException e) {
-                    Console.LogWarning(e.Message);
-                }
-            }
-        }
-
-        private void UnloadStreamContent()
-        {
-            foreach (FileProcessor processor in fileProcessors.Values) {
-                processor.Unload();
-            }
-        }
+        //private void UnloadStreamContent()
+        //{
+        //    foreach (FileProcessor processor in fileProcessors.Values) {
+        //        processor.Unload();
+        //    }
+        //}
 
         internal static string FormatPath(string filePath) 
             => Path.ChangeExtension(filePath, null)?.Replace('\\', '/');
@@ -94,11 +75,11 @@ namespace SE.AssetManagement
         public override T Load<T>(string name)
         {
             try {
-                // Try to return from a FileProcessor.
-                if (fileProcessors.TryGetValue(typeof(T), out FileProcessor processor)) {
-                    if (processor.GetFile(gfxDevice, name, out object file)) {
-                        return (T) file;
-                    }
+
+                // Try to load from the FileMarshal.
+                string path = FixPath(Path.Combine(rootDirectory, name));
+                if (FileMarshal.TryGet(gfxDevice, path, out T file)) {
+                    return file;
                 }
 
                 // Otherwise, return from MG content manager.
@@ -109,6 +90,13 @@ namespace SE.AssetManagement
 
                 throw;
             }
+        }
+
+        private string FixPath(string path)
+        {
+            path = path.Replace('/', '\\');
+            int first = path.IndexOf('\\');
+            return path.Substring(first+1);
         }
 
         public void Update(float deltaTime)
@@ -129,9 +117,9 @@ namespace SE.AssetManagement
         {
             loaded = true;
             timeInactive = 0.0f;
-            if (preloaded) {
-                SetupStreamContent();
-            }
+            //if (preloaded) {
+            //    SetupStreamContent();
+            //}
 
             // Sort all references.
             orderedReferences.Clear();
@@ -178,7 +166,7 @@ namespace SE.AssetManagement
             foreach (IAsset asset in AllRefs) {
                 asset.Unload();
             }
-            UnloadStreamContent();
+            //UnloadStreamContent();
             base.Unload();
         }
     }

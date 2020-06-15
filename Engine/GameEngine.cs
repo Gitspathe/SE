@@ -98,6 +98,8 @@ namespace SE
         /// </summary>
         protected sealed override void Initialize()
         {
+            FileMarshal.Setup();
+
             Content.RootDirectory = "Data";
             LoadEngineContent();
             LoadAssets();

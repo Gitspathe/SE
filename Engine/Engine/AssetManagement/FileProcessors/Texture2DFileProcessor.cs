@@ -13,24 +13,22 @@ namespace SE.AssetManagement.FileProcessors
     public class Texture2DFileProcessor : FileProcessor
     {
         public override Type Type => typeof(Texture2D);
-        public override string ContentSubDirectory => "Images";
-        public override string[] AllowedExtensions => new[] { ".png", ".bmp", ".jpg", ".gif", ".tif", ".dds" };
-       
-        protected override bool LoadFile(GraphicsDevice gfxDevice, BinaryReader file, SEFileHeader header, out object obj)
+
+        protected override bool LoadFile(GraphicsDevice gfxDevice, BinaryReader reader, ref SEFileHeader header, out object obj)
         {
             if (gfxDevice == null)
-                throw new HeadlessNotSupportedException($"Texture '{file}' was not loaded in headless display mode.");
+                throw new HeadlessNotSupportedException($"Texture '{reader}' was not loaded in headless display mode.");
             
             Texture2D tex;
             if (header.OriginalExtension == ".dds") {
                 DDSStruct ddsHeader = new DDSStruct();
-                DDSStruct.ReadHeader(file, ref ddsHeader);
-                tex = new Texture2D(gfxDevice, (int) ddsHeader.width, (int) ddsHeader.height, false, SurfaceFormat.Dxt5);
+                DDSStruct.ReadHeader(reader, ref ddsHeader);
+                tex = new Texture2D(gfxDevice, (int) ddsHeader.width, (int) ddsHeader.height, false, ddsHeader.GetSurfaceFormat());
                 
-                byte[] textureData = file.ReadBytes((int) header.FileSize);
+                byte[] textureData = reader.ReadBytes((int) header.FileSize);
                 tex.SetData(textureData, 0, textureData.Length);
             } else {
-                tex = Texture2D.FromStream(gfxDevice, file.BaseStream);
+                tex = Texture2D.FromStream(gfxDevice, reader.BaseStream);
             }
 
             obj = tex;

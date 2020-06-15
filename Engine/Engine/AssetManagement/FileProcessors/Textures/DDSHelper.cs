@@ -128,12 +128,15 @@ namespace SE.AssetManagement.FileProcessors.Textures
 
                 return true;
             }
+
+            public SurfaceFormat GetSurfaceFormat() 
+                => DDSHelper.GetSurfaceFormat(ref this);
         }
 
-        public static SurfaceFormat GetSurfaceFormat(DDSStruct header)
+        private static SurfaceFormat GetSurfaceFormat(ref DDSStruct header)
         {
             uint blockSize = 0;
-            PixelFormat format = GetFormatInternal(header, ref blockSize);
+            PixelFormat format = GetFormatInternal(ref header, ref blockSize);
             switch (format) {
                 case PixelFormat.DXT1:
                     return SurfaceFormat.Dxt1;
@@ -144,7 +147,7 @@ namespace SE.AssetManagement.FileProcessors.Textures
             }
         }
 
-        private static PixelFormat GetFormatInternal(DDSStruct header, ref uint blocksize)
+        private static PixelFormat GetFormatInternal(ref DDSStruct header, ref uint blocksize)
         {
             PixelFormat format;
             if ((header.pixelformat.flags & DDPF_FOURCC) == DDPF_FOURCC) {

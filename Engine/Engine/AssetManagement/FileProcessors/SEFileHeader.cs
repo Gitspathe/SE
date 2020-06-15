@@ -21,12 +21,12 @@ namespace SE.AssetManagement.FileProcessors
             AdditionalHeaderData = additionalData;
             FileSize = fileSize;
             HeaderSize = (uint) (
-                sizeof(SEFileHeaderFlags)                   // Flags.
-                + (sizeof(ushort) * 2)                      // Version + AdditionalHeaderData length.
+                  sizeof(SEFileHeaderFlags)                 // Flags.
+                + sizeof(ushort) * 2                        // Version + AdditionalHeaderData length.
                 + sizeof(byte)                              // OriginalExtension length.
                 + Encoding.UTF8.GetBytes(extension).Length  // OriginalExtension.
-                + (sizeof(byte) * additionalData.Length)    // AdditionalHeaderData.
-                + (sizeof(uint) * 2));                      // HeaderSize + FileSize.
+                + sizeof(byte) * additionalData.Length      // AdditionalHeaderData.
+                + sizeof(uint));                            // HeaderSize.
         }
 
         public void WriteToStream(BinaryWriter writer)

@@ -1,4 +1,5 @@
 ﻿using SE.Particles.AreaModules;
+using SE.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +14,6 @@ namespace SE.Core
     /// </summary>
     public static class FileIO
     {
-
         /// <summary>Path to the Data directory.</summary>
         public static string DataDirectory { get; private set; }
 
@@ -22,13 +22,29 @@ namespace SE.Core
 
         private static List<string> folders = new List<string>();
 
-        public static IEnumerable<string> GetAllFiles(string path, string[] extensions = null)
+        public static IEnumerable<string> GetAllFiles(string path, string[] extensions = null, string[] excludedExtensions = null)
         {
-            if(extensions == null || extensions.Length == 0)
-                return Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories);
-            
-            return Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
-               .Where(s => extensions.Any(ext => ext == Path.GetExtension(s)));
+            QuickList<string> files = new QuickList<string>();
+            files.AddRange(Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories));
+
+            if (extensions != null && extensions.Length > 0) {
+                for (int i = files.Count; i >= 0; --i) {
+                    string file = files.Array[i];
+                    if (!extensions.Contains(Path.GetExtension(file))) {
+                        files.Remove(file);
+                    }
+                }
+            }
+
+            if (excludedExtensions != null && excludedExtensions.Length > 0) {
+                for (int i = files.Count; i >= 0; --i) {
+                    string file = files.Array[i];
+                    if (excludedExtensions.Contains(Path.GetExtension(file))) {
+                        files.Remove(file);
+                    }
+                }
+            }
+            return files;
         }
 
         public static string GetRelativePath(string from, string to)
@@ -114,7 +130,7 @@ namespace SE.Core
         {
             //folders.Add("Levels");
             BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            DataDirectory = Path.Combine(BaseDirectory, "Data");
+            DataDirectory = Path.Combine(BaseDirectory, "Data\\");
             if(!Directory.Exists(DataDirectory)) {
                 Directory.CreateDirectory(DataDirectory);
             }
