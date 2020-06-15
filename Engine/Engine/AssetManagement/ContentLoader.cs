@@ -88,7 +88,7 @@ namespace SE.AssetManagement
             }
         }
 
-        internal static string FormatFilePath(string filePath) 
+        internal static string FormatPath(string filePath) 
             => Path.ChangeExtension(filePath, null)?.Replace('\\', '/');
 
         public override T Load<T>(string name)

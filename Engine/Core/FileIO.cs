@@ -31,7 +31,7 @@ namespace SE.Core
                .Where(s => extensions.Any(ext => ext == Path.GetExtension(s)));
         }
 
-        public static string GetRelativePathTo(string from, string to)
+        public static string GetRelativePath(string from, string to)
         {
             Uri fromUri = new Uri(from);
             Uri toUri = new Uri(to);

@@ -17,7 +17,7 @@ namespace SE.AssetManagement.FileProcessors
     {
         public const string _DATA_EXTENSION = ".sdata";
 
-        public readonly string BaseDirectory = FileIO.BaseDirectory;
+        public readonly string AppBaseDirectory = FileIO.BaseDirectory;
 
         private Dictionary<string, string> filePathsExtensions = new Dictionary<string, string>();
 
@@ -28,13 +28,15 @@ namespace SE.AssetManagement.FileProcessors
         public abstract Type Type { get; }
         public abstract string ContentSubDirectory { get; }
         public abstract string[] AllowedExtensions { get; }
+
+        /// <summary>Root directory of the content loader the processor is attached to.</summary>
         public string ContentBaseDirectory { get; internal set; }
 
         internal void ProcessFiles()
         {
             // Check if the sub-directory exists.
-            string path = Path.Combine(BaseDirectory, ContentBaseDirectory);
-            string subDirectory = Path.Combine(path, ContentSubDirectory);
+            string baseDirectory = Path.Combine(AppBaseDirectory, ContentBaseDirectory);
+            string subDirectory = Path.Combine(baseDirectory, ContentSubDirectory);
             if(!Directory.Exists(subDirectory))
                 return;
 
@@ -62,28 +64,28 @@ namespace SE.AssetManagement.FileProcessors
 
         internal void LocateFiles()
         {
-            string path = Path.Combine(BaseDirectory, ContentBaseDirectory);
-            string subDirectory = Path.Combine(path, ContentSubDirectory);
+            string baseDirectory = Path.Combine(AppBaseDirectory, ContentBaseDirectory);
+            string subDirectory = Path.Combine(baseDirectory, ContentSubDirectory);
             if(!Directory.Exists(subDirectory))
                 return;
 
             foreach (string file in FileIO.GetAllFiles(subDirectory, new [] { _DATA_EXTENSION })) {
                 filePaths.Add(file);
-                string relative = ContentLoader.FormatFilePath(FileIO.GetRelativePathTo(subDirectory, file));
+                string relative = ContentLoader.FormatPath(FileIO.GetRelativePath(subDirectory, file));
                 filePathsExtensions.Add(relative, file);
             }
         }
 
         internal void LoadFiles(GraphicsDevice gfxDevice)
         {
-            string path = Path.Combine(BaseDirectory, ContentBaseDirectory);
+            string baseDirectory = Path.Combine(AppBaseDirectory, ContentBaseDirectory);
             foreach (string file in filePaths) {
-                string filePath = ContentLoader.FormatFilePath(FileIO.GetRelativePathTo(path, file));
+                string filePath = ContentLoader.FormatPath(FileIO.GetRelativePath(baseDirectory, file));
                 if (loadedFiles.ContainsKey(filePath))
                     continue;
 
                 // Load the header and file into memory.
-                using Stream titleStream = TitleContainer.OpenStream(FileIO.GetRelativePathTo(BaseDirectory, file));
+                using Stream titleStream = TitleContainer.OpenStream(FileIO.GetRelativePath(AppBaseDirectory, file));
                 using BinaryReader reader = new BinaryReader(titleStream);
                 SEFileHeader header = SEFileHeader.ReadFromStream(reader);
                 if (!LoadFile(gfxDevice, reader, header, out object obj)) 
@@ -103,14 +105,14 @@ namespace SE.AssetManagement.FileProcessors
             if (!filePathsExtensions.TryGetValue(fileName, out fileName))
                 return false;
 
-            // Get path, and return if the file is already loaded.
-            string path = Path.Combine(BaseDirectory, ContentBaseDirectory);
-            string filePath = ContentLoader.FormatFilePath(FileIO.GetRelativePathTo(path, fileName));
+            // Get relative paths, and return if the file is already loaded.
+            string baseDirectory = Path.Combine(AppBaseDirectory, ContentBaseDirectory);
+            string filePath = ContentLoader.FormatPath(FileIO.GetRelativePath(baseDirectory, fileName));
             if (loadedFiles.TryGetValue(filePath, out obj))
                 return true;
 
             // If the file isn't loaded, load it into memory.
-            using Stream titleStream = TitleContainer.OpenStream(FileIO.GetRelativePathTo(BaseDirectory, fileName));
+            using Stream titleStream = TitleContainer.OpenStream(FileIO.GetRelativePath(AppBaseDirectory, fileName));
             using BinaryReader reader = new BinaryReader(titleStream);
             SEFileHeader header = SEFileHeader.ReadFromStream(reader);
             if (!LoadFile(gfxDevice, reader, header, out obj)) 
