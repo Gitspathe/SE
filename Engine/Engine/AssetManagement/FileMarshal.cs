@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -10,6 +13,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement.FileProcessors;
 using SE.Core;
 using SE.Utility;
+using Console = SE.Core.Console;
 using IOFile = System.IO.File;
 
 namespace SE.AssetManagement
@@ -22,34 +26,34 @@ namespace SE.AssetManagement
 
         private static Dictionary<string, File> files = new Dictionary<string, File>();
         private static Dictionary<Type, FileProcessor> fileProcessors = new Dictionary<Type, FileProcessor>();
+        private static Dictionary<string, FileProcessor> fileProcessorExtensions = new Dictionary<string, FileProcessor>();
+
+        internal static void Unload(string file)
+        {
+            if (files.TryGetValue(file, out File f)) {
+                f.Unload();
+            }
+        }
 
         public static void AddProcessor(FileProcessor processor)
         {
             if(fileProcessors.ContainsKey(processor.Type))
                 return;
 
-            //processor.ContentBaseDirectory = rootDirectory;
+            foreach (string ext in processor.FileExtensions) {
+                fileProcessorExtensions.Add(ext, processor);
+            }
             fileProcessors.Add(processor.Type, processor);
         }
 
-        public static bool TryGet<T>(GraphicsDevice gfx, string file, out T obj)
+        public static bool TryGet<T>(string file, out T obj)
         {
             // Try to return from a FileProcessor.
-            if (fileProcessors.TryGetValue(typeof(T), out FileProcessor processor)) {
-                if (processor.GetFile(file, out object retrieved)) {
-                    obj = (T) retrieved;
-                    return true;
-                }
-
-                // Load if unloaded.
-
-                if (files.TryGetValue(file, out File f)) {
-                    if (processor.LoadFileInternal(gfx, f, out object loaded)) {
-                        obj = (T) loaded;
-                        return true;
-                    }
-                }
+            if (files.TryGetValue(file, out File f)) {
+                obj = (T) f.Data;
+                return true;
             }
+            
             obj = default;
             return false;
         }
@@ -58,8 +62,9 @@ namespace SE.AssetManagement
         {
             AddProcessor(new Texture2DFileProcessor());
 
-            QuickList<string> needsProcessing = new QuickList<string>();
-            QuickList<string> processed = new QuickList<string>();
+            HashSet<string> needsProcessing = new HashSet<string>();
+            HashSet<string> processed = new HashSet<string>();
+            QuickList<ValueTuple<Task, string>> processing = new QuickList<(Task, string)>();
 
             // Locate files which need processing, or are already processed.
             foreach (string dir in Directory.GetDirectories(FileIO.DataDirectory)) {
@@ -77,41 +82,42 @@ namespace SE.AssetManagement
             }
 
             // Process un-processed files (e.g .png, .jpg, .wav, etc).
-            foreach(string file in needsProcessing) {
-                // Read the file, and store in byte array.
+            foreach (string file in needsProcessing) {
+                byte[] bytes = IOFile.ReadAllBytes(file);
                 string extension = Path.GetExtension(file);
                 string pathNoExtension = Path.ChangeExtension(file, null);
                 string newFile = pathNoExtension + _DATA_EXTENSION;
-                byte[] bytes = IOFile.ReadAllBytes(file);
 
                 // Create write stream.
-                using FileStream stream = new FileStream(newFile, FileMode.OpenOrCreate, FileAccess.Write);
-                using BinaryWriter writer = new BinaryWriter(stream);
+                FileStream stream = new FileStream(newFile, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, bytes.Length, FileOptions.Asynchronous);
+                BinaryWriter writer = new BinaryWriter(stream);
                 stream.SetLength(0);
 
                 // Construct header.
-                SEFileHeader header = new SEFileHeader(SEFileHeaderFlags.None, 1, extension, new byte[0], (uint) bytes.Length);
+                SEFileHeader header = new SEFileHeader(SEFileHeaderFlags.None, 1, extension, new byte[0], (uint)bytes.Length);
 
-                // Write to the processed file, and delete the old file.
+                // Write to the processed file.
                 header.WriteToStream(writer);
-                writer.Write(bytes);
-                IOFile.Delete(file);
+                Task writeTask = stream.WriteAsync(bytes).AsTask().ContinueWith(_ => stream.Dispose());
+                processing.Add((writeTask, newFile));
 
-                processed.Add(newFile);
+                // Delete the old file
+                IOFile.Delete(file);
+            }
+
+            // Await pending process tasks.
+            foreach ((Task task, string newFileName) in processing) {
+                task.Wait();
+                processed.Add(newFileName);
             }
 
             // Load headers of processed files.
             foreach (string file in processed) {
-                string relativeDirectory = FileIO.GetRelativePath(FileIO.BaseDirectory, file);
                 string fileName = Path.ChangeExtension(FileIO.GetRelativePath(FileIO.DataDirectory, file), null);
-
-                // Read and construct header.
-                using Stream titleStream = TitleContainer.OpenStream(relativeDirectory);
-                using BinaryReader reader = new BinaryReader(titleStream);
-                SEFileHeader header = SEFileHeader.ReadFromStream(reader);
-
-                files.Add(fileName, new File(file, header));
+                files.Add(fileName, new File(file));
             }
+
+            int i = files.Count;
         }
 
         internal class File
@@ -122,52 +128,101 @@ namespace SE.AssetManagement
             public string DataRelativeDirectory { get; }
             public SEFileHeader Header;
 
-            public byte[] Data {
+            public object Data {
                 get {
                     // Load if unloaded.
-                    if (!IsLoaded && curTaskType == TaskType.Load) { 
-                        WaitTask();
-                    } else {
+                    if(data != null)
+                        return data;
+
+                    if (!SyncTask(TaskType.Load)) {
                         Load();
                         WaitTask();
                     }
+
+                    Stream stream = new MemoryStream(bytes);
+                    BinaryReader reader = new BinaryReader(stream);
+                    if (!fileProcessorExtensions.TryGetValue(Header.OriginalExtension, out FileProcessor processor))
+                        return null;
+                    if(processor.LoadFileInternal(GameEngine.Engine.GraphicsDevice, reader, ref Header, out object o))
+                        data = o;
+
+                    bytes = null;
 
                     // TODO: Handle unloading, etc.
 
                     return data;
                 }
             }
-            private byte[] data;
-
-            public bool IsLoaded => data != null;
+            private object data;
+            private byte[] bytes;
 
             private Task currentTask;
             private TaskType curTaskType;
 
+            /// <summary>
+            /// Waits for the pending task to complete.
+            /// </summary>
             private void WaitTask()
             {
-                if (currentTask != null && !(currentTask.IsCompleted || currentTask.IsCanceled)) {
+                if (currentTask != null && !currentTask.IsCompleted) {
                     currentTask.Wait();
-                    curTaskType = TaskType.None;
                 }
+            }
+
+            /// <summary>
+            /// Waits for pending tasks, and returns true if the provided task type was the type which was pending.
+            /// </summary>
+            /// <param name="type">Task type to check.</param>
+            /// <returns>True if the pending task was of the type passed.</returns>
+            private bool SyncTask(TaskType type)
+            {
+                if (currentTask == null || currentTask.IsCompleted)
+                    return false;
+
+                currentTask.Wait();
+                return curTaskType == type;
+            }
+
+            public void LoadHeader()
+            {
+                if(SyncTask(TaskType.LoadHeader))
+                    return;
+
+                // Read and construct header.
+                currentTask = Task.Run(() => {
+                    Stream stream = TitleContainer.OpenStream(AppRelativeDirectory);
+                    BinaryReader reader = new BinaryReader(stream);
+                    try {
+                        Header = SEFileHeader.ReadFromStream(reader);
+                    } finally {
+                        reader.Close();
+                        curTaskType = TaskType.None;
+                    }
+                });
+                curTaskType = TaskType.LoadHeader;
             }
 
             public void Load()
             {
-                WaitTask();
+                if(SyncTask(TaskType.Load))
+                    return;
+
+                // Load header if it's unloaded.
+                if (!Header.Loaded) {
+                    LoadHeader();
+                    WaitTask();
+                }
+
                 currentTask = Task.Run(() => {
                     Stream stream = TitleContainer.OpenStream(AppRelativeDirectory);
                     BinaryReader reader = new BinaryReader(stream);
                     try {
                         stream.Position = Header.HeaderSize;
-                        data = reader.ReadBytes((int) Header.FileSize);
-                    } catch (Exception) {
+                        bytes = reader.ReadBytes((int) Header.FileSize);
+                    } finally {
                         reader.Close();
-                        stream.Close();
-                        throw;
+                        curTaskType = TaskType.None;
                     }
-
-                    curTaskType = TaskType.None;
                 });
                 curTaskType = TaskType.Load;
             }
@@ -175,27 +230,27 @@ namespace SE.AssetManagement
             public void Unload()
             {
                 WaitTask();
-                currentTask = Task.Run(() => {
-                    data = null;
-                    curTaskType = TaskType.None;
-                });
-                curTaskType = TaskType.Unload;
+                if (data is IDisposable disposable) {
+                    disposable.Dispose();
+                }
+                bytes = null;
+                data = null;
             }
 
-            public File(string absoluteDirectory, SEFileHeader header)
+            public File(string absoluteDirectory)
             {
                 FileName = Path.ChangeExtension(FileIO.GetRelativePath(FileIO.DataDirectory, absoluteDirectory), null);
                 AppRelativeDirectory = FileIO.GetRelativePath(FileIO.BaseDirectory, absoluteDirectory);
                 DataRelativeDirectory = FileIO.GetRelativePath(FileIO.DataDirectory, absoluteDirectory);
                 AbsoluteDirectory = absoluteDirectory;
-                Header = header;
+                LoadHeader();
             }
 
             private enum TaskType
             {
                 None,
-                Load,
-                Unload
+                LoadHeader,
+                Load
             }
         }
     }

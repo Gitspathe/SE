@@ -6,6 +6,8 @@ namespace SE.AssetManagement.FileProcessors
 {
     public struct SEFileHeader
     {
+        public bool Loaded;
+
         public SEFileHeaderFlags HeaderFlags;
         public ushort Version;
         public string OriginalExtension;
@@ -15,6 +17,7 @@ namespace SE.AssetManagement.FileProcessors
 
         public SEFileHeader(SEFileHeaderFlags flags, ushort version, string extension, byte[] additionalData, uint fileSize)
         {
+            Loaded = true;
             HeaderFlags = flags;
             Version = version;
             OriginalExtension = extension;

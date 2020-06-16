@@ -100,6 +100,12 @@ namespace SE.Core
             AddCommand(new ToggleLighting());
             AddCommand(new DebugLighting());
         #endif
+
+            try {
+                outputWriter = new StreamWriter(LogPath) {
+                    AutoFlush = true
+                };
+            } catch(IOException) { } 
         }
 
         public static void Initialize()
@@ -122,12 +128,6 @@ namespace SE.Core
                     consoleUI.Disable(true);
                 }
             }
-
-            try {
-                outputWriter = new StreamWriter(LogPath) {
-                    AutoFlush = true
-                };
-            } catch(IOException) { } 
 
             initialized = true;
         }

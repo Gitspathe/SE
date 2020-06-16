@@ -130,7 +130,7 @@ namespace SE.Core
         {
             //folders.Add("Levels");
             BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            DataDirectory = Path.Combine(BaseDirectory, "Data\\");
+            DataDirectory = Path.Combine(BaseDirectory, "Data" + Path.DirectorySeparatorChar);
             if(!Directory.Exists(DataDirectory)) {
                 Directory.CreateDirectory(DataDirectory);
             }

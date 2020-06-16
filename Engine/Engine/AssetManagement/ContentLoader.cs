@@ -69,16 +69,13 @@ namespace SE.AssetManagement
         //    }
         //}
 
-        internal static string FormatPath(string filePath) 
-            => Path.ChangeExtension(filePath, null)?.Replace('\\', '/');
-
         public override T Load<T>(string name)
         {
             try {
 
                 // Try to load from the FileMarshal.
                 string path = FixPath(Path.Combine(rootDirectory, name));
-                if (FileMarshal.TryGet(gfxDevice, path, out T file)) {
+                if (FileMarshal.TryGet(path, out T file)) {
                     return file;
                 }
 
@@ -94,8 +91,9 @@ namespace SE.AssetManagement
 
         private string FixPath(string path)
         {
-            path = path.Replace('/', '\\');
-            int first = path.IndexOf('\\');
+            path = path.Replace('\\', Path.DirectorySeparatorChar);
+            path = path.Replace('/', Path.DirectorySeparatorChar);
+            int first = path.IndexOf(Path.DirectorySeparatorChar);
             return path.Substring(first+1);
         }
 
