@@ -20,6 +20,7 @@ namespace SE.Core
 
         public static void Update(float deltaTime)
         {
+            FileMarshal.Update(deltaTime);
             foreach (var pair in contentManagers) {
                 pair.Value.Update(deltaTime);
             }

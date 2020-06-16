@@ -5,6 +5,7 @@ namespace SE.AssetManagement.Processors
 {
     public class GeneralContentProcessor<T> : IAssetProcessor<T>
     {
+        private ContentLoader loader;
         private string contentLoaderID;
         private string assetID;
 
@@ -26,6 +27,8 @@ namespace SE.AssetManagement.Processors
         {
             this.contentLoaderID = contentLoaderID;
             this.assetID = assetID;
+            loader = AssetManager.GetLoader(contentLoaderID);
+            loader.PreloadFiles.Add(assetID);
         }
 
         public GeneralContentProcessor() { }

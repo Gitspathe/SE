@@ -24,50 +24,26 @@ namespace SE.AssetManagement
         /// <summary>Holds all asset references, including ones which aren't active.</summary>
         internal HashSet<IAsset> AllRefs = new HashSet<IAsset>();
 
-        public bool Inactive => timeInactive >= 10.0f;
+        internal HashSet<string> PreloadFiles = new HashSet<string>();
 
-        private Dictionary<Type, FileProcessor> fileProcessors = new Dictionary<Type, FileProcessor>();
+        public bool Inactive => timeInactive >= .01f;
 
         private string rootDirectory;
         private GraphicsDevice gfxDevice;
-        private bool preloaded;
         private bool loaded;
         private float timeInactive;
         private List<IAsset> orderedReferences = new List<IAsset>();
 
-        public ContentLoader(IServiceProvider serviceProvider, string id, string rootDirectory, bool preloaded = false) 
-            : base(serviceProvider, rootDirectory)
+        public ContentLoader(IServiceProvider serviceProvider, string id, string rootDirectory) : base(serviceProvider, rootDirectory)
         {
             ID = id;
             this.rootDirectory = rootDirectory;
-            this.preloaded = preloaded;
             if (!Screen.IsFullHeadless) {
                 gfxDevice = ((IGraphicsDeviceService) serviceProvider.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
             }
 
-            //if (preloaded) {
-            //    SetupStreamContent();
-            //}
             AssetManager.AddContentManager(this);
         }
-
-        //private void SetupStreamContent()
-        //{
-        //    foreach (FileProcessor processor in fileProcessors.Values) {
-        //        try {
-        //            processor.LoadFiles(gfxDevice);
-        //        } catch (HeadlessNotSupportedException e) {
-        //            Console.LogWarning(e.Message);
-        //        }
-        //    }
-        //}
-
-        //private void UnloadStreamContent()
-        //{
-        //    foreach (FileProcessor processor in fileProcessors.Values) {
-        //        processor.Unload();
-        //    }
-        //}
 
         public override T Load<T>(string name)
         {
@@ -75,7 +51,7 @@ namespace SE.AssetManagement
 
                 // Try to load from the FileMarshal.
                 string path = FixPath(Path.Combine(rootDirectory, name));
-                if (FileMarshal.TryGet(path, out T file)) {
+                if (FileMarshal.TryLoad(path, out T file)) {
                     return file;
                 }
 
@@ -115,9 +91,14 @@ namespace SE.AssetManagement
         {
             loaded = true;
             timeInactive = 0.0f;
-            //if (preloaded) {
-            //    SetupStreamContent();
-            //}
+
+            // Tell the FileMarshal to load files in the background.
+            foreach (string str in PreloadFiles) {
+                string path = FixPath(Path.Combine(rootDirectory, str));
+                if(FileMarshal.TryGet(path, out FileMarshal.File file)) {
+                    FileMarshal.FlagBackgroundLoad(file);
+                }
+            }
 
             // Sort all references.
             orderedReferences.Clear();
@@ -160,11 +141,18 @@ namespace SE.AssetManagement
         {
             loaded = false;
 
+            // Tell the FileMarshal to unload files in the background.
+            foreach (string str in PreloadFiles) {
+                string path = FixPath(Path.Combine(rootDirectory, str));
+                if(FileMarshal.TryGet(path, out FileMarshal.File file)) {
+                    FileMarshal.FlagBackgroundUnload(file);
+                }
+            }
+
             // Unload all assets from this content loader from memory.
             foreach (IAsset asset in AllRefs) {
                 asset.Unload();
             }
-            //UnloadStreamContent();
             base.Unload();
         }
     }

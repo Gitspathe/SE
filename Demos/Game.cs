@@ -121,6 +121,7 @@ namespace SEDemos
                .FromContent(content2)
                .References(AssetManager.GetIAsset<Texture2D>("tileset2"))
             );
+
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("floor")
                .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 0, 64, 64)))
