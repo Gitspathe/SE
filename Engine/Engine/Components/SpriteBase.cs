@@ -132,6 +132,9 @@ namespace SE.Components
         public virtual SpriteTexture SpriteTexture {
             get => spriteTexture;
             set {
+                if (!Screen.IsFullHeadless && value.Texture == null)
+                    throw new NullReferenceException("The specified SpriteTexture has no Texture2D asset. Ensure that the asset exists, and that it's being set.");
+
                 spriteTexture = value;
                 RegenerateDrawCall();
             }

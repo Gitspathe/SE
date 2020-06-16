@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Utility;
 
@@ -12,7 +13,7 @@ namespace SE.Rendering
         public static int TryGetID(DrawCall drawCall)
         {
             if (drawCall.Texture == null)
-                return -1;
+                throw new InvalidOperationException("The DrawCall does not have a texture!");
             if (drawCallDictionary.TryGetValue(drawCall, out int i))
                 return i;
 

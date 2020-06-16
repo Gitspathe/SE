@@ -92,7 +92,7 @@ namespace SE.Core
             if (LookupDictionary.ContainsKey(typeof(Asset<TValue>))) {
                 return LookupDictionary[typeof(Asset<TValue>)].Get(consumer, key);
             }
-            return default;
+            throw new KeyNotFoundException("No asset for the specified key was found.");
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace SE.Core
             if (LookupDictionary.ContainsKey(typeof(Asset<TValue>))) {
                 return LookupDictionary[typeof(Asset<TValue>)].GetAsset(key);
             }
-            return default;
+            throw new KeyNotFoundException("No asset for the specified key was found.");
         }
 
         public static Dictionary<string, TValue> GetDictionary<TValue>(IAssetConsumer consumer)
