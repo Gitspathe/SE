@@ -67,15 +67,16 @@ namespace SE.Components
             if (space == Space.World) {
                 position -= camera.Position;
             }
+            position = new Vector2((int) position.X, (int) position.Y);
 
             Core.Rendering.SpriteBatch.Draw(
                 spriteTexture.Texture,
-                position, 
-                spriteTexture.SourceRectangle, 
-                color, 
-                ownerTransform.GlobalRotationInternal, 
-                origin, 
-                ownerTransform.GlobalScaleInternal, 
+                position,
+                spriteTexture.SourceRectangle,
+                color,
+                ownerTransform.GlobalRotationInternal,
+                origin,
+                ownerTransform.GlobalScaleInternal,
                 layerDepth);
         }
 

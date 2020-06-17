@@ -23,6 +23,7 @@ namespace SE.Components.UI
                 bounds.X -= (int) camera.Position.X;
                 bounds.Y -= (int) camera.Position.Y;
             }
+            position = new Vector2((int) position.X, (int) position.Y);
 
             Core.Rendering.SpriteBatch.DrawString(
                 SpriteFont,
