@@ -26,7 +26,7 @@ namespace SE.AssetManagement
 
         internal HashSet<string> PreloadFiles = new HashSet<string>();
 
-        public bool Inactive => timeInactive >= .01f;
+        public bool Inactive => timeInactive >= 5.0f;
 
         private string rootDirectory;
         private GraphicsDevice gfxDevice;

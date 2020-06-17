@@ -60,12 +60,12 @@ namespace SE.Components
             //Emitter.Config.Color.SetNormal(new Vector4(300.0f, 1.0f, 0.5f, 1.0f));
 
             Emitter.Config.Color.SetRandomBetween(
-                new Vector4(15.0f, 1.0f, 0.5f, 0.0f),
-                new Vector4(40.0f, 1.0f, 0.6f, 0.0f));
+                new Vector4(0.0f, 1.0f, 0.5f, 0.0f),
+                new Vector4(30.0f, 1.0f, 0.6f, 0.0f));
 
             //Emitter.Config.Color.SetNormal(new Vector4(0f, 1.0f, 0.5f, 1.0f));
 
-            Emitter.Config.Scale.SetRandomBetween(0.25f, 0.667f);
+            Emitter.Config.Scale.SetRandomBetween(0.05f, 0.1f);
             Emitter.Config.Life.SetRandomBetween(0.2f, 1.0f);
             Emitter.Config.Speed.SetRandomBetween(32.0f, 128.0f);
             Emitter.Config.Speed.SetNormal(256.0f);
@@ -75,6 +75,7 @@ namespace SE.Components
             //Emitter.AddModule(RotationModule.RandomCurve(angleCurve));
             //Emitter.AddModule(SpeedModule.Lerp(64.0f, 512.0f));
             Emitter.AddModule(s);
+            Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
             //Emitter.AddModule(AttractorModule.Basic(new Vector2(512.0f, 512.0f), 64.0f, 1024.0f, 10, 8.0f));
 
             //ColorModule baseColorModule = ColorModule.RandomLerp(
@@ -90,7 +91,7 @@ namespace SE.Components
             alphaCurve.Keys.Add(0.667f, 1.0f);
             alphaCurve.Keys.Add(1.0f, 0.0f);
 
-            Emitter.AddModule(HueModule.RandomLerp(30.0f, 60.0f));
+            Emitter.AddModule(HueModule.RandomLerp(0.0f, 30.0f));
             Emitter.AddModule(LightnessModule.Lerp(0.667f));
             Emitter.AddModule(AlphaModule.Curve(alphaCurve));
 

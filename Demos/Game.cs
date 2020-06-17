@@ -113,6 +113,12 @@ namespace SEDemos
                    .Create(new GeneralContentProcessor<Texture2D>("Content1", "Images/tileset2"))
                    .FromContent(content2)
                 );
+
+                AssetManager.Add(new AssetBuilder<Texture2D>()
+                   .ID("Smoke")
+                   .Create(new GeneralContentProcessor<Texture2D>("Content1", "Images/Smoke"))
+                   .FromContent(content)
+                );
             }
 
             AssetManager.Add(new AssetBuilder<SpriteTexture>()

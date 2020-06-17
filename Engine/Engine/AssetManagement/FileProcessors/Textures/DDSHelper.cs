@@ -85,6 +85,15 @@ namespace SE.AssetManagement.FileProcessors.Textures
             public ddscapsstruct ddscaps;
             public uint texturestage;
 
+            public static DDSStruct Create(BinaryReader reader)
+            {
+                DDSStruct header = new DDSStruct();
+                if (ReadHeader(reader, ref header)) {
+                    return header;
+                }
+                throw new System.Exception("DDS header is invalid.");
+            }
+
             public static bool ReadHeader(BinaryReader reader, ref DDSStruct header)
             {
                 byte[] signature = reader.ReadBytes(4);

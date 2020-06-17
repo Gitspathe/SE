@@ -13,6 +13,7 @@ using SE.Core.Extensions;
 using SE.Networking.Internal;
 using Random = SE.Utility.Random;
 using Vector2 = System.Numerics.Vector2;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace SEDemos.GameObjects
 {
@@ -55,7 +56,7 @@ namespace SEDemos.GameObjects
             SpriteTexture tex = AssetManager.Get<SpriteTexture>(this, "circle");
 
             ParticleSystem system = GetComponent<ParticleSystem>();
-            system.Texture = tex.Texture;
+            system.Texture = AssetManager.Get<Texture2D>(this, "Smoke");
             system.SourceRect = tex.SourceRectangle;
 
             networkIdentity.OnSerializeNetworkState += () => {

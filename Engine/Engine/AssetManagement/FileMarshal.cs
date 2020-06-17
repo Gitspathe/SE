@@ -31,118 +31,13 @@ namespace SE.AssetManagement
 
         private static int loadBatch = 2;
 
-        internal static void Update(float deltaTime)
+        static FileMarshal()
         {
-            // Process background loaded files.
-            for (int i = bgLoadFiles.Count - 1; i > 0; --i) {
-                File file = bgLoadFiles.Array[i];
-                if (file.desiredState == DesiredState.Load && file.State < File.LoadedState.LoadedBytes)
-                    continue;
-                
-                file.desiredState = DesiredState.None;
-                bgLoadFiles.Remove(file);
-            }
-
-            // Process background unloaded files.
-            for (int i = bgUnloadFiles.Count - 1; i > 0; --i) {
-                File file = bgUnloadFiles.Array[i];
-                if (file.desiredState == DesiredState.Unload && file.State >= File.LoadedState.LoadedBytes)
-                    continue;
-
-                file.desiredState = DesiredState.None;
-                bgUnloadFiles.Remove(file);
-            }
-
-            lock (loadLock) {
-                // Find new files to allocate to the background loading task.
-                foreach (File file in pendingLoad) {
-                    if (bgLoadFiles.Count > loadBatch)
-                        break;
-                    if (file.desiredState != DesiredState.Load || bgLoadFiles.Contains(file)) 
-                        continue;
-
-                    bgLoadFiles.Add(file);
-                }
-
-                // Find new files to allocate to the background unloading task.
-                foreach (File file in pendingUnload) {
-                    if (bgUnloadFiles.Count > loadBatch)
-                        break;
-                    if (file.desiredState != DesiredState.Unload || bgUnloadFiles.Contains(file)) 
-                        continue;
-
-                    bgUnloadFiles.Add(file);
-                }
-            }
-        }
-
-        internal static void FlagBackgroundLoad(File file)
-        {
-            lock (loadLock) {
-                pendingLoad.Add(file);
-                pendingUnload.Remove(file);
-                file.Load();
-            }
-            file.desiredState = DesiredState.Load;
-        }
-
-        internal static void FlagBackgroundUnload(File file)
-        {
-            lock (loadLock) {
-                pendingUnload.Add(file);
-                pendingLoad.Remove(file);
-                file.Unload();
-            }
-            file.desiredState = DesiredState.Unload;
-        }
-
-        internal static void ClearFlag(File file)
-        {
-            lock (loadLock) {
-                pendingUnload.Remove(file);
-                pendingLoad.Remove(file);
-            }
-        }
-
-        internal static void Unload(string file)
-        {
-            if (files.TryGetValue(file, out File f)) {
-                f.Unload();
-            }
-        }
-
-        public static void AddProcessor(FileProcessor processor)
-        {
-            if(fileProcessors.ContainsKey(processor.Type))
-                return;
-
-            foreach (string ext in processor.FileExtensions) {
-                fileProcessorExtensions.Add(ext, processor);
-            }
-            fileProcessors.Add(processor.Type, processor);
-        }
-
-        public static bool TryLoad<T>(string file, out T obj)
-        {
-            // Try to return from a FileProcessor.
-            if(TryGet(file, out File f)) {
-                obj = (T) f.Data;
-                return true;
-            }
-
-            obj = default;
-            return false;
-        }
-
-        public static bool TryGet(string file, out File f)
-        {
-            return files.TryGetValue(file, out f);
+            AddProcessor(new Texture2DFileProcessor());
         }
 
         public static void Setup()
         {
-            AddProcessor(new Texture2DFileProcessor());
-
             HashSet<string> needsProcessing = new HashSet<string>();
             HashSet<string> processed = new HashSet<string>();
             QuickList<ValueTuple<Task, string>> processing = new QuickList<(Task, string)>();
@@ -197,9 +92,111 @@ namespace SE.AssetManagement
                 string fileName = Path.ChangeExtension(FileIO.GetRelativePath(FileIO.DataDirectory, file), null);
                 files.Add(fileName, new File(file));
             }
-
-            int i = files.Count;
         }
+
+        internal static void Update(float deltaTime)
+        {
+            // Process background loaded files.
+            for (int i = bgLoadFiles.Count - 1; i > 0; --i) {
+                File file = bgLoadFiles.Array[i];
+                if (file.BackgroundState == BackgroundState.Load && file.LoadState < LoadState.LoadedBytes)
+                    continue;
+                
+                file.BackgroundState = BackgroundState.None;
+                bgLoadFiles.Remove(file);
+            }
+
+            // Process background unloaded files.
+            for (int i = bgUnloadFiles.Count - 1; i > 0; --i) {
+                File file = bgUnloadFiles.Array[i];
+                if (file.BackgroundState == BackgroundState.Unload && file.LoadState >= LoadState.LoadedBytes)
+                    continue;
+
+                file.BackgroundState = BackgroundState.None;
+                bgUnloadFiles.Remove(file);
+            }
+
+            lock (loadLock) {
+                // Find new files to allocate as background loading tasks.
+                foreach (File file in pendingLoad) {
+                    if (bgLoadFiles.Count > loadBatch)
+                        break;
+                    if (file.BackgroundState != BackgroundState.Load || bgLoadFiles.Contains(file)) 
+                        continue;
+
+                    bgLoadFiles.Add(file);
+                }
+
+                // Find new files to allocate as background unloading tasks.
+                foreach (File file in pendingUnload) {
+                    if (bgUnloadFiles.Count > loadBatch)
+                        break;
+                    if (file.BackgroundState != BackgroundState.Unload || bgUnloadFiles.Contains(file)) 
+                        continue;
+
+                    bgUnloadFiles.Add(file);
+                }
+            }
+        }
+
+        internal static void FlagBackgroundLoad(File file)
+        {
+            lock (loadLock) {
+                pendingLoad.Add(file);
+                pendingUnload.Remove(file);
+                file.Load();
+            }
+            file.BackgroundState = BackgroundState.Load;
+        }
+
+        internal static void FlagBackgroundUnload(File file)
+        {
+            lock (loadLock) {
+                pendingUnload.Add(file);
+                pendingLoad.Remove(file);
+                file.Unload();
+            }
+            file.BackgroundState = BackgroundState.Unload;
+        }
+
+        internal static void ClearFlag(File file)
+        {
+            lock (loadLock) {
+                pendingUnload.Remove(file);
+                pendingLoad.Remove(file);
+            }
+        }
+
+        internal static void Unload(File file)
+        {
+            file.Unload();
+        }
+
+        public static void AddProcessor(FileProcessor processor)
+        {
+            if(fileProcessors.ContainsKey(processor.Type))
+                return;
+
+            foreach (string ext in processor.FileExtensions) {
+                fileProcessorExtensions.Add(ext, processor);
+            }
+            fileProcessors.Add(processor.Type, processor);
+        }
+
+        public static bool TryLoad<T>(string file, out T obj)
+        {
+            // Try to return from a FileProcessor.
+            if(TryGet(file, out File f)) {
+                obj = (T) f.Data;
+                return true;
+            }
+
+            obj = default;
+            return false;
+        }
+
+        public static bool TryGet(string file, out File f) 
+            => files.TryGetValue(file, out f);
 
         internal class File
         {
@@ -207,22 +204,26 @@ namespace SE.AssetManagement
             public string AbsoluteDirectory { get; }
             public string AppRelativeDirectory { get; }
             public string DataRelativeDirectory { get; }
-            public LoadedState State { get; private set; }
+            public LoadState LoadState { get; private set; }
 
             public SEFileHeader Header;
-            public DesiredState desiredState;
+            public BackgroundState BackgroundState;
+
+            private Task currentTask;
+            private TaskType curTaskType;
 
             public object Data {
                 get {
                     if(data != null)
                         return data;
 
-                    // Load if unloaded.
+                    // Load into memory if unloaded.
                     if (!SyncTask(TaskType.Load)) {
                         Load();
                         WaitTask();
                     }
 
+                    // Load the file using a file processor.
                     Stream stream = new MemoryStream(bytes);
                     BinaryReader reader = new BinaryReader(stream);
                     if (!fileProcessorExtensions.TryGetValue(Header.OriginalExtension, out FileProcessor processor))
@@ -231,17 +232,11 @@ namespace SE.AssetManagement
                         data = o;
 
                     bytes = null;
-
-                    // TODO: Handle unloading, etc.
-
                     return data;
                 }
             }
             private object data;
             private byte[] bytes;
-
-            private Task currentTask;
-            private TaskType curTaskType;
 
             public File(string absoluteDirectory)
             {
@@ -265,17 +260,17 @@ namespace SE.AssetManagement
             private void UpdateState()
             {
                 if (data != null) {
-                    State = LoadedState.LoadedData;
+                    LoadState = LoadState.LoadedData;
                 } else if (bytes != null) {
-                    State = LoadedState.LoadedBytes;
+                    LoadState = LoadState.LoadedBytes;
                 } else if (Header.Loaded) {
-                    State = LoadedState.LoadedHeader;
+                    LoadState = LoadState.LoadedHeader;
                 } else {
-                    State = LoadedState.Unloaded;
+                    LoadState = LoadState.Unloaded;
                 }
 
                 ClearFlag(this);
-                desiredState = DesiredState.None;
+                BackgroundState = BackgroundState.None;
             }
 
             /// <summary>
@@ -355,17 +350,17 @@ namespace SE.AssetManagement
                 LoadHeader,
                 Load
             }
-
-            public enum LoadedState
-            {
-                Unloaded,
-                LoadedHeader,
-                LoadedBytes,
-                LoadedData
-            }
         }
 
-        internal enum DesiredState
+        internal enum LoadState
+        {
+            Unloaded,
+            LoadedHeader,
+            LoadedBytes,
+            LoadedData
+        }
+
+        internal enum BackgroundState
         {
             None,
             Unload,

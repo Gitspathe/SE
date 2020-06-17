@@ -8,8 +8,6 @@ using static SE.AssetManagement.FileProcessors.Textures.DDSHelper;
 
 namespace SE.AssetManagement.FileProcessors
 {
-
-    // TODO: DXT texture support!!
     public class Texture2DFileProcessor : FileProcessor
     {
         public override Type Type => typeof(Texture2D);
@@ -22,10 +20,8 @@ namespace SE.AssetManagement.FileProcessors
             
             Texture2D tex;
             if (header.OriginalExtension == ".dds") {
-                DDSStruct ddsHeader = new DDSStruct();
-                DDSStruct.ReadHeader(reader, ref ddsHeader);
+                DDSStruct ddsHeader = DDSStruct.Create(reader);
                 tex = new Texture2D(gfxDevice, (int) ddsHeader.width, (int) ddsHeader.height, false, ddsHeader.GetSurfaceFormat());
-
                 byte[] textureData = reader.ReadBytes((int) header.FileSize);
                 tex.SetData(textureData, 0, textureData.Length);
             } else {
