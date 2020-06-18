@@ -230,7 +230,6 @@ namespace SE.Core
             if (!initialized)
                 throw new InvalidOperationException("Network manager is not initialized.");
 
-            //NetIncomingMessage msg;
             switch (InstanceType) {
                 // Server receiving network messages.
                 case NetInstanceType.Server:

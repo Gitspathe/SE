@@ -13,7 +13,6 @@ namespace SE.AssetManagement
         private string id;
         private AssetProcessor processor;
         private ContentLoader contentLoader;
-        private HashSet<IAsset> references = new HashSet<IAsset>();
 
         public AssetBuilder<T> ID(string id)
         {

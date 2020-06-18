@@ -93,6 +93,7 @@ namespace SEDemos
             if(!Network.IsServer)
                 return;
 
+            //NetHelper.Instantiate("bouncy", "SERVER", new Vector2(128, 128));
             for (int x = 0; x < 10; x++) {
                 for (int y = 0; y < 10; y++) {
                     NetHelper.Instantiate("bouncy", "SERVER", new Vector2(128 + x * 64, 128 + y * 64));

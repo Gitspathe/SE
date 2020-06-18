@@ -307,17 +307,15 @@ namespace SE.Rendering
         public unsafe void DrawNewParticles(Camera2D cam)
         {
             AlphaSubtract.IndependentBlendEnable = true;
-            ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
+            ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
             Vector2 camPos = cam.Position;
 
             foreach (Emitter pEmitter in ParticleEngine.VisibleEmitters) {
                 Span<Particle> particles = pEmitter.ActiveParticles;
                 Texture2D tex = pEmitter.Texture;
-
                 fixed (Particle* ptr = particles) {
                     int size = particles.Length;
                     Particle* tail = ptr + size;
-
                     for (Particle* particle = ptr; particle < tail; particle++) {
                         Rectangle sourceRect = particle->SourceRectangle.ToRectangle();
                         Vector2 origin = new Vector2(
@@ -326,7 +324,6 @@ namespace SE.Rendering
 
                         System.Numerics.Vector4 particleC = particle->Color;
                         Color color = new Color(particleC.X / 360, particleC.Y, particleC.Z, particleC.W);
-
                         Core.Rendering.SpriteBatch.Draw(tex,
                             particle->Position - camPos,
                             sourceRect,
@@ -343,11 +340,8 @@ namespace SE.Rendering
 
         public struct DepthComparer : IComparer<IRenderable>
         {
-            int IComparer<IRenderable>.Compare(IRenderable x, IRenderable y) {
-                SpriteBase xBase = (SpriteBase)x;
-                SpriteBase yBase = (SpriteBase)y;
-                return xBase.LayerDepth.CompareTo(yBase.LayerDepth);
-            }
+            int IComparer<IRenderable>.Compare(IRenderable x, IRenderable y) 
+                => ((SpriteBase)x).LayerDepth.CompareTo(((SpriteBase)y).LayerDepth);
         }
     }
 

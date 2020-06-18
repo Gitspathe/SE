@@ -122,6 +122,10 @@ namespace SE.Components
             Emitter.Position = Owner.Transform.GlobalPositionInternal;
             Emitter.Rotation += MathHelper.TwoPi * Time.DeltaTime;
 
+            if(InputManager.KeyCodePressed(Microsoft.Xna.Framework.Input.Keys.O)) {
+                Emitter.ParallelEmission = !Emitter.ParallelEmission;
+            }
+
             time -= Time.DeltaTime;
             while (time <= 0.0f) {
                 Emitter.Emit(96);
