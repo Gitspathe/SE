@@ -1,21 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using SE.Common;
 
 namespace SE.AssetManagement.Processors
 {
-    public class TileProcessor : IAssetProcessor<Func<Vector2, GameObject>>
+    public class TileProcessor : AssetProcessor
     {
         private Func<Vector2, GameObject> func;
 
-        public Func<Vector2, GameObject> Construct()
+        public override HashSet<IAsset> GetReferencedAssets()
         {
-            return func;
+            return null;
         }
 
-        object IAssetProcessor.Construct()
+        public override object Construct()
         {
-            return Construct();
+            return func;
         }
 
         public TileProcessor(Func<Vector2, GameObject> func)

@@ -1,8 +1,11 @@
-﻿namespace SE.AssetManagement.Processors
+﻿using System.Collections.Generic;
+
+namespace SE.AssetManagement.Processors
 {
-    public interface IAssetProcessor<out TOutput> : IAssetProcessor
+    public abstract class AssetProcessor : IAssetProcessor
     {
-        new TOutput Construct();
+        public abstract HashSet<IAsset> GetReferencedAssets();
+        public abstract object Construct();
     }
 
     public interface IAssetProcessor

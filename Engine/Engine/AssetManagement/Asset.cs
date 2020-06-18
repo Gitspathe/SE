@@ -40,7 +40,7 @@ namespace SE.AssetManagement
         /// <param name="processor">Function called whenever the asset is reloaded.</param>
         /// <param name="contentLoader">Content loader the asset will be added to.</param>
         /// <param name="referencedAssets">Asset dependencies.</param>
-        public Asset(string id, IAssetProcessor processor, ContentLoader contentLoader, HashSet<IAsset> referencedAssets = null)
+        internal Asset(string id, AssetProcessor processor, ContentLoader contentLoader)
         {
             ID = id;
             LoadOrder = AssetManager.CurrentAssetPriority++;
@@ -48,30 +48,14 @@ namespace SE.AssetManagement
             AssetConsumer = new AssetConsumer();
             ContentLoader = contentLoader;
             this.processor = processor;
-            if (referencedAssets == null) 
+            HashSet<IAsset> refAssets = processor.GetReferencedAssets();
+            if(refAssets == null)
                 return;
 
-            foreach (IAsset refAsset in referencedAssets) {
+            foreach (IAsset refAsset in processor.GetReferencedAssets()) {
                 refAsset?.AddReference(AssetConsumer);
             }
         }
-
-        /// <summary>
-        /// Creates a new asset.
-        /// </summary>
-        /// <param name="processor">Asset processor used to construct the asset instance.</param>
-        /// <param name="contentLoader">Content loader the asset will be added to.</param>
-        /// <param name="referencedAsset">Asset dependency.</param>
-        public Asset(string id, IAssetProcessor processor, ContentLoader contentLoader, IAsset referencedAsset = null) 
-            : this(id, processor, contentLoader, new HashSet<IAsset> { referencedAsset }) { }
-
-        /// <summary>
-        /// Creates a new asset.
-        /// </summary>
-        /// <param name="processor">Asset processor used to construct the asset instance.</param>
-        /// <param name="contentLoader">Content loader the asset will be added to.</param>
-        public Asset(string id, IAssetProcessor processor, ContentLoader contentLoader) 
-            : this(id, processor, contentLoader, new HashSet<IAsset>()) { }
 
         public IAsset AsIAsset() => this;
 

@@ -208,19 +208,16 @@ namespace SE
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("uiRect")
                .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 0, 64, 64)))
-               .References(AssetManager.GetIAsset<Texture2D>("tileset"))
                .FromContent(EngineContent)
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("leveleditorcursor")
                .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 64, 64, 64)))
-               .References(AssetManager.GetIAsset<Texture2D>("tileset"))
                .FromContent(EngineContent)
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("debugsmallsquare")
                .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 128, 16, 16)))
-               .References(AssetManager.GetIAsset<Texture2D>("tileset"))
                .FromContent(EngineContent)
             );
 

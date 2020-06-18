@@ -11,7 +11,7 @@ namespace SE.AssetManagement
     public class AssetBuilder<T>
     {
         private string id;
-        private IAssetProcessor processor;
+        private AssetProcessor processor;
         private ContentLoader contentLoader;
         private HashSet<IAsset> references = new HashSet<IAsset>();
 
@@ -26,7 +26,7 @@ namespace SE.AssetManagement
         /// </summary>
         /// <param name="processor">Function called whenever the asset is reloaded.</param>
         /// <returns>Asset builder.</returns>
-        public AssetBuilder<T> Create(IAssetProcessor processor)
+        public AssetBuilder<T> Create(AssetProcessor processor)
         {
             this.processor = processor;
             return this;
@@ -44,19 +44,6 @@ namespace SE.AssetManagement
         }
 
         /// <summary>
-        /// Initializes the asset's references.
-        /// </summary>
-        /// <param name="references">References/dependencies.</param>
-        /// <returns>Asset builder.</returns>
-        public AssetBuilder<T> References(params IAsset[] references)
-        {
-            for (int i = 0; i < references.Length; i++) {
-                this.references.Add(references[i]);
-            }
-            return this;
-        }
-
-        /// <summary>
         /// Finalizes the asset builder and returns an asset instance.
         /// Note: Calling this isn't necessary to add the asset to the asset manager.
         /// </summary>
@@ -68,11 +55,7 @@ namespace SE.AssetManagement
             if (contentLoader == null)
                 throw new Exception("Asset wasn't bound to a ContentLoader.");
 
-            Asset<T> asset = new Asset<T>(id, processor, contentLoader, references);
-            //references.Clear();
-            //references = null;
-            //contentLoader = null;
-            //processor = null;
+            Asset<T> asset = new Asset<T>(id, processor, contentLoader);
             return asset;
         }
     }

@@ -1,26 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using SE.Core;
 
 namespace SE.AssetManagement.Processors
 {
-    public class GeneralContentProcessor<T> : IAssetProcessor<T>
+    public class GeneralContentProcessor<T> : AssetProcessor
     {
         private ContentLoader loader;
         private string contentLoaderID;
         private string assetID;
 
-        public T Construct()
+        public override HashSet<IAsset> GetReferencedAssets()
+        {
+            return null;
+        }
+
+        public override object Construct()
         {
             ContentLoader loader = AssetManager.GetLoader(contentLoaderID);
             if (loader == null)
                 throw new NullReferenceException();
 
             return loader.Load<T>(assetID);
-        }
-
-        object IAssetProcessor.Construct()
-        {
-            return Construct();
         }
 
         public GeneralContentProcessor(string contentLoaderID, string assetID)

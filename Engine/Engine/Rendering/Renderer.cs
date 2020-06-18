@@ -312,7 +312,6 @@ namespace SE.Rendering
 
             foreach (Emitter pEmitter in ParticleEngine.VisibleEmitters) {
                 Span<Particle> particles = pEmitter.ActiveParticles;
-                
                 Texture2D tex = pEmitter.Texture;
 
                 fixed (Particle* ptr = particles) {

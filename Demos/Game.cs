@@ -125,50 +125,42 @@ namespace SEDemos
                .ID("unload_test")
                .Create(new SpriteTextureProcessor("tileset2", new Rectangle(0, 0, 64, 64)))
                .FromContent(content2)
-               .References(AssetManager.GetIAsset<Texture2D>("tileset2"))
             );
 
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("floor")
                .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 0, 64, 64)))
                .FromContent(content)
-               .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("wall_down")
                .Create(new SpriteTextureProcessor("tileset", new Rectangle(64, 48, 64, 16)))
                .FromContent(content)
-               .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("wall_left")
                .Create(new SpriteTextureProcessor("tileset", new Rectangle(128, 0, 16, 64)))
                .FromContent(content)
-               .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("wall_right")
                .Create(new SpriteTextureProcessor("tileset", new Rectangle(240, 0, 16, 64)))
                .FromContent(content)
-               .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("wall_up")
                .Create(new SpriteTextureProcessor("tileset", new Rectangle(256, 0, 64, 16)))
                .FromContent(content)
-               .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("player")
                .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 0, 52, 52)))
                .FromContent(content)
-               .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("circle")
                .Create(new SpriteTextureProcessor("tileset", new Rectangle(0, 128, 32, 32)))
                .FromContent(content)
-               .References(AssetManager.GetIAsset<Texture2D>("tileset"))
             );
 
             if (!Screen.IsFullHeadless) {
