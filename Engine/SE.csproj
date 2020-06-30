@@ -62,14 +62,14 @@
     <Reference Include="SEInput">
       <HintPath>..\SEInput\bin\$(Configuration)\netstandard2.0\SEInput.dll</HintPath>
     </Reference>
-    <Reference Include="SEParticles">
-      <HintPath>..\SEParticles\bin\$(Configuration)\netstandard2.1\SEParticles.dll</HintPath>
-    </Reference>
     <Reference Include="SENet">
       <HintPath>..\SENet\bin\$(Configuration)\netstandard2.1\SENet.dll</HintPath>
     </Reference>
     <Reference Include="SEUtility">
       <HintPath>..\SEUtility\bin\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
+    </Reference>
+    <Reference Include="SEParticles.MonoGame">
+      <HintPath>..\SEParticles\bin\$(Configuration)\netstandard2.1\SEParticles.MonoGame.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Penumbra">
       <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\$(Configuration)\DesktopGL\MonoGame.Penumbra.dll</HintPath>
