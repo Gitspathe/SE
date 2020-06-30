@@ -49,8 +49,6 @@ namespace SE.Core
         // Cache packets to reduce memory allocations and CPU overhead.
         internal static RPCFunction CacheRPCFunc = new RPCFunction();
         private static EventBasedNetListener listener;
-        //private static NetDataWriter cachedWriter = new NetDataWriter();
-        //private static NetDataReader cachedReader = new NetDataReader();
         private static StringBuilder signatureBuilder = new StringBuilder(256);
         private static StringBuilder methodNameBuilder = new StringBuilder(256);
         private static List<NetPeer> recipients = new List<NetPeer>();

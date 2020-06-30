@@ -69,7 +69,7 @@ namespace SE.World
                 int chunkSize = chunk.TileMap.ChunkSize;
                 for (int x = 0; x < chunkSize; x++) {
                     for (int y = 0; y < chunkSize; y++) {
-                        chunk.TileTemplates[x][y].Update(TileData[x][y], chunk, new Point(x, y));
+                        chunk.TileTemplates[x][y].Set(TileData[x][y], chunk, new Point(x, y));
                     }
                 }
             }

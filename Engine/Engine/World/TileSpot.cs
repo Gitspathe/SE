@@ -9,6 +9,8 @@ namespace SE.World
     {
         public TileMap TileMap { get; private set; }
         public TileChunk Chunk { get; internal set; }
+
+        // TODO: Replace this with 'Layers'.
         public QuickList<TileTemplate> Tiles { get; internal set; } = new QuickList<TileTemplate>();
 
         public bool IsActive => Tiles.Count > 0;
@@ -16,7 +18,7 @@ namespace SE.World
         public Point Position { get; private set; }
         public Vector2 WorldPosition => new Vector2(Position.X * TileMap.TileSize, Position.Y * TileMap.TileSize);
 
-        public void Update(List<uint> tileIDs, TileChunk chunk, Point position)
+        public void Set(List<uint> tileIDs, TileChunk chunk, Point position)
         {
             DestroyTiles();
             Chunk = chunk;

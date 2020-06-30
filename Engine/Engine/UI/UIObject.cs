@@ -243,6 +243,8 @@ namespace SE.UI
             if (DragListen) {
                 if (InputManager.MouseMoved) {
                     OnDrag(new MouseEventArgs(dragOldMouseButton, Screen.MousePoint));
+                } else if (!InputManager.MouseDown) {
+                    DragListen = false;
                 }
             }
             if (ScissorRect.HasValue) {
@@ -401,7 +403,6 @@ namespace SE.UI
             RootUIObject = (UIObject)Transform.Root.GameObject;
             GameEngine.GameObjectConstructorCallback(this);
         }
-
     }
 
 }

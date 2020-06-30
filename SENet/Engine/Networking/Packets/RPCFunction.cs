@@ -8,7 +8,7 @@ using SE.Engine.Networking.Internal;
 namespace SE.Engine.Networking.Packets
 {
     /// <inheritdoc/>
-    internal class RPCFunction : SEPacket
+    internal class RPCFunction : SEPacket // TODO: Maybe this shouldn't be a packet? There are already packet-processors.
     {
         public uint NetworkID;
         public ushort MethodID;
