@@ -1,0 +1,17 @@
+{
+  "$id": "1",
+  "EngineName": "Cursor",
+  "Type": "DeeZ.Editor.Debug.GameObjects.Cursor, DeeZEngine, Version=0.1.0.0, Culture=neutral, PublicKeyToken=null",
+  "Position": {
+    "$id": "2",
+    "X": 0.0,
+    "Y": 0.0
+  },
+  "Scale": {
+    "$id": "3",
+    "X": 1.0,
+    "Y": 1.0
+  },
+  "Rotation": 0.0,
+  "componentData": []
+}

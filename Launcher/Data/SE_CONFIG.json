@@ -1,0 +1,6 @@
+{
+ "Performance": {
+  "UseArrayPoolParticles": true,
+  "UseArrayPoolCore": true
+ }
+}
