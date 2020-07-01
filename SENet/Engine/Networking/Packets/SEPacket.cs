@@ -7,32 +7,20 @@ namespace SE.Engine.Networking.Packets
     /// Container for engine-level data sent over the network.
     /// Higher level than a regular network packet.
     /// </summary>
-    public abstract class SEPacket
+    public class SEPacket
     {
         public byte PacketType;
+        public byte[] Buffer;
 
-        protected SEPacket(NetDataReader message = null)
+        public SEPacket(byte packetType, byte[] buffer)
         {
-            if (message == null) {
-                if (NetData.PacketConverters.TryGetValue(GetType(), out byte val)) {
-                    PacketType = val;
-                }
-                return;
-            }
-
-            PacketType = message.GetByte();
+            Reset(packetType, buffer);
         }
 
-        public virtual void Reset(NetPacketReader message = null)
+        public void Reset(byte packetType, byte[] buffer)
         {
-            if (message == null) {
-                if (NetData.PacketConverters.TryGetValue(GetType(), out byte val)) {
-                    PacketType = val;
-                }
-                return;
-            }
-
-            PacketType = message.GetByte();
+            PacketType = packetType;
+            Buffer = buffer;
         }
 
         /// <summary>
@@ -40,15 +28,21 @@ namespace SE.Engine.Networking.Packets
         /// </summary>
         /// <param name="message">Stream to read.</param>
         /// <returns>Bytes read.</returns>
-        public virtual void Read(NetPacketReader message) 
-            => PacketType = message.GetByte();
+        public void Read(NetPacketReader message)
+        {
+            PacketType = message.GetByte();
+            Buffer = message.GetBytesWithLength();
+        }
 
         /// <summary>
         /// Writes the packet into a NetOutgoingMessage stream for transmission over a network.
         /// </summary>
         /// <param name="message">Stream to write into.</param>
-        public virtual void WriteTo(NetDataWriter message)
-            => message.Put(PacketType);
+        public void WriteTo(NetDataWriter message)
+        {
+            message.Put(PacketType);
+            message.PutBytesWithLength(Buffer, 0, Buffer.Length);
+        }
 
         /// <summary>
         /// Gets the size of the packet.

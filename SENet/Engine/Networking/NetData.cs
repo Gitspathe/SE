@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using SE.Core.Exceptions;
+using SE.Engine.Networking.Packets;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Engine.Networking
@@ -59,8 +60,6 @@ namespace SE.Engine.Networking
             {22, typeof(string[])},
             {23, typeof(Vector2)}
         };
-
-        internal static Dictionary<byte, IPacketProcessor> Packets = new Dictionary<byte, IPacketProcessor>();
 
         /// <summary>Dictionary used to read an object from a NetIncomingMessage. The byte key identifies which Type the object is.</summary>
         internal static Dictionary<Type, Func<NetDataReader, object>> DataReaders = new Dictionary<Type, Func<NetDataReader, object>> {
@@ -135,7 +134,7 @@ namespace SE.Engine.Networking
 
             PacketConverters.Add(type, currentPacketIndex);
             PacketBytes.Add(currentPacketIndex, type);
-            Packets.Add(currentPacketIndex, processor);
+            PacketProcessorManager.RegisterProcessor(processor);
             currentPacketIndex++;
         }
 

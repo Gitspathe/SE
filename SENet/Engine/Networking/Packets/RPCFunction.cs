@@ -8,7 +8,7 @@ using SE.Engine.Networking.Internal;
 namespace SE.Engine.Networking.Packets
 {
     /// <inheritdoc/>
-    internal class RPCFunction : SEPacket // TODO: Maybe this shouldn't be a packet? There are already packet-processors.
+    internal class RPCFunction // TODO: Maybe this shouldn't be a packet? There are already packet-processors.
     {
         public uint NetworkID;
         public ushort MethodID;
@@ -28,18 +28,17 @@ namespace SE.Engine.Networking.Packets
             ParametersNum = RPCInfo.ParameterTypes.Length;
         }
 
-        public override void Reset(NetPacketReader message = null) => Read(message);
+        public void Reset(NetDataReader message = null) => Read(message);
 
         /// <summary>
         /// Creates a new RPCFunction packet.
         /// </summary>
         /// <param name="message">NetIncomingMessage.</param>
-        public RPCFunction(NetPacketReader message = null) : base(message) { }
+        public RPCFunction(NetPacketReader message = null) { }
 
         /// <inheritdoc/>
-        public override void Read(NetPacketReader message)
+        public void Read(NetDataReader message)
         {
-            base.Read(message);
             try {
                 NetworkID = message.GetUInt();
                 MethodID = message.GetUShort();
@@ -62,10 +61,9 @@ namespace SE.Engine.Networking.Packets
         }
 
         /// <inheritdoc/>
-        public override void WriteTo(NetDataWriter message)
+        public void WriteTo(NetDataWriter message)
         {
             try {
-                base.WriteTo(message);
                 message.Put(NetworkID);
                 message.Put(MethodID);
                 for (int i = 0; i < ParametersNum; i++) {
@@ -79,7 +77,7 @@ namespace SE.Engine.Networking.Packets
 
     public class RPCFunctionProcessor : IPacketProcessor
     {
-        public void OnReceive(NetPacketReader reader, NetPeer peer, DeliveryMethod deliveryMethod)
+        public void OnReceive(NetDataReader reader, NetPeer peer, DeliveryMethod deliveryMethod)
         {
             // Invoke on server.
             RPCFunction func = Network.CacheRPCFunc;

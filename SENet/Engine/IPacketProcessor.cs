@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using LiteNetLib;
+using LiteNetLib.Utils;
 
 namespace SE.Engine
 {
     public interface IPacketProcessor
     {
-        void OnReceive(NetPacketReader reader, NetPeer peer, DeliveryMethod deliveryMethod);
-        // TODO void OnSend();
+        void OnReceive(NetDataReader reader, NetPeer peer, DeliveryMethod deliveryMethod);
     }
 }

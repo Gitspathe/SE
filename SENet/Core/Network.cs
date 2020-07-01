@@ -158,7 +158,7 @@ namespace SE.Core
             LogInfo("Initializing network manager...", true);
 
             // Register the RPCFunction packet type.
-            NetData.RegisterPacketType(typeof(RPCFunction), new RPCFunctionProcessor());
+            PacketProcessorManager.RegisterProcessor(new RPCFunctionProcessor());
 
             // Adding user-defined net logics before initialization.
             RegisterExtension(new Instantiator());
@@ -289,9 +289,13 @@ namespace SE.Core
         private static void HandleNetMessage(NetPacketReader msg, NetPeer peer, DeliveryMethod deliveryMethod)
         {
             try {
-                byte packetType = msg.PeekByte();
-                NetData.Packets.TryGetValue(packetType, out IPacketProcessor processor);
-                processor?.OnReceive(msg, peer, deliveryMethod);
+                SEPacket packet = new SEPacket(msg.GetByte(), msg.GetBytesWithLength());
+                IPacketProcessor processor = PacketProcessorManager.GetProcessor(packet.PacketType);
+                if (processor != null) {
+                    NetDataReader reader = NetworkPool.GetReader(packet.Buffer);
+                    processor?.OnReceive(reader, peer, deliveryMethod);
+                    NetworkPool.ReturnReader(reader);
+                }
             } catch (Exception e) {
                 NetProtector.ReportError(e, peer);
             }
@@ -426,6 +430,59 @@ namespace SE.Core
 
         #endregion
 
+        public static void SendPacketServer<T>(byte[] buffer, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender) where T : IPacketProcessor
+        {
+            byte b = PacketProcessorManager.GetByte(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
+            SEPacket packet = new SEPacket(b, buffer);
+            
+            // Find recipients who should receive the RPC.
+            recipients.Clear();
+            switch (targets) {
+                case Scope.Unicast:
+                    recipients.Add(connections[0]);
+                    break;
+                case Scope.Multicast:
+                    recipients.AddRange(connections);
+                    break;
+                case Scope.Broadcast:
+                    Server.GetPeersNonAlloc(recipients, ConnectionState.Connected);
+                    recipients.Remove(sender);
+                    break;
+                case Scope.None:
+                    break;
+            }
+            if (recipients.Count <= 0) 
+                return;
+
+            // Send the RPC message to any recipient(s).
+            NetDataWriter writer = NetworkPool.GetWriter();
+            packet.WriteTo(writer);
+            for (int i = 0; i < recipients.Count; i++) {
+                recipients[i].Send(writer, channel, deliveryMethod);
+            }
+            NetworkPool.ReturnWriter(writer);
+        }
+
+        public static void SendPacketClient<T>(byte[] buffer, DeliveryMethod deliveryMethod, byte channel) where T : IPacketProcessor
+        {
+            byte b = PacketProcessorManager.GetByte(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
+            SEPacket packet = new SEPacket(b, buffer);
+            
+            // Find recipients.
+            recipients.Clear();
+            Client.GetPeersNonAlloc(recipients, ConnectionState.Connected);
+            if (recipients.Count <= 0) 
+                return;
+
+            // Send the RPC message to any recipient(s).
+            NetDataWriter writer = NetworkPool.GetWriter();
+            packet.WriteTo(writer);
+            for (int i = 0; i < recipients.Count; i++) {
+                recipients[i].Send(writer, channel, deliveryMethod);
+            }
+            NetworkPool.ReturnWriter(writer);
+        }
+
         private static void SendRPCServer(NetDataWriter writer, uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender, string method, params object[] parameters)
         {
             if (targets == Scope.None)
@@ -446,30 +503,7 @@ namespace SE.Core
                 CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
                 CacheRPCFunc.WriteTo(writer);
 
-                // Find recipients who should receive the RPC.
-                recipients.Clear();
-                switch (targets) {
-                    case Scope.Unicast:
-                        recipients.Add(connections[0]);
-                        break;
-                    case Scope.Multicast:
-                        recipients.AddRange(connections);
-                        break;
-                    case Scope.Broadcast:
-                        Server.GetPeersNonAlloc(recipients, ConnectionState.Connected);
-                        recipients.Remove(sender);
-                        break;
-                    case Scope.None:
-                        break;
-                }
-                
-                if (recipients.Count <= 0) 
-                    return;
-            }
-
-            // Send the RPC message to any recipient(s).
-            for (int i = 0; i < recipients.Count; i++) {
-                recipients[i].Send(writer, channel, deliveryMethod);
+                SendPacketServer<RPCFunctionProcessor>(writer.CopyData(), deliveryMethod, channel, targets, connections, sender);
             }
         }
 
@@ -490,6 +524,8 @@ namespace SE.Core
                 // Construct a data writer.
                 CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
                 CacheRPCFunc.WriteTo(writer);
+
+                SendPacketClient<RPCFunctionProcessor>(writer.CopyData(), deliveryMethod, channel);
 
                 // Find recipients.
                 recipients.Clear();
