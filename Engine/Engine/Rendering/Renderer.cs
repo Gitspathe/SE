@@ -307,10 +307,32 @@ namespace SE.Rendering
         public unsafe void DrawNewParticles(Camera2D cam)
         {
             AlphaSubtract.IndependentBlendEnable = true;
-            ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
             Vector2 camPos = cam.Position;
 
+            //ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
+
             foreach (Emitter pEmitter in ParticleEngine.VisibleEmitters) {
+                BlendState blend;
+                DepthStencilState depthStencil = null;
+                switch (pEmitter.BlendMode) {
+                    case Particles.BlendMode.Opaque:
+                        blend = BlendState.Additive;
+                        depthStencil = DepthStencilGreater;
+                        break;
+                    case Particles.BlendMode.Alpha:
+                        blend = BlendState.AlphaBlend;
+                        break;
+                    case Particles.BlendMode.Additive:
+                        blend = BlendState.Additive;
+                        break;
+                    case Particles.BlendMode.Subtractive:
+                        blend = AlphaSubtract;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, blend, SamplerState.PointClamp, depthStencil, null, TestEffect);
+
                 Span<Particle> particles = pEmitter.ActiveParticles;
                 Texture2D tex = pEmitter.Texture;
                 fixed (Particle* ptr = particles) {
@@ -331,7 +353,7 @@ namespace SE.Rendering
                             particle->SpriteRotation,
                             origin,
                             particle->Scale,
-                            1.0f);
+                            particle->layerDepth);
                     }
                 }
             }

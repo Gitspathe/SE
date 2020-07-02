@@ -289,6 +289,7 @@ namespace SE.Core
         private static void HandleNetMessage(NetPacketReader msg, NetPeer peer, DeliveryMethod deliveryMethod)
         {
             try {
+                // TODO: SEPacket pool.
                 SEPacket packet = new SEPacket(msg.GetByte(), msg.GetBytesWithLength());
                 IPacketProcessor processor = PacketProcessorManager.GetProcessor(packet.PacketType);
                 if (processor != null) {
@@ -430,10 +431,12 @@ namespace SE.Core
 
         #endregion
 
-        public static void SendPacketServer<T>(byte[] buffer, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender) where T : IPacketProcessor
+        // TODO: More & better SendPacket<T> overloads.
+
+        public static void SendPacketServer<T>(NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender) where T : IPacketProcessor
         {
             byte b = PacketProcessorManager.GetByte(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
-            SEPacket packet = new SEPacket(b, buffer);
+            SEPacket packet = new SEPacket(b, netWriter.Data, netWriter.Length);
             
             // Find recipients who should receive the RPC.
             recipients.Clear();
@@ -463,10 +466,10 @@ namespace SE.Core
             NetworkPool.ReturnWriter(writer);
         }
 
-        public static void SendPacketClient<T>(byte[] buffer, DeliveryMethod deliveryMethod, byte channel) where T : IPacketProcessor
+        public static void SendPacketClient<T>(NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel) where T : IPacketProcessor
         {
             byte b = PacketProcessorManager.GetByte(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
-            SEPacket packet = new SEPacket(b, buffer);
+            SEPacket packet = new SEPacket(b, netWriter.Data, netWriter.Length);
             
             // Find recipients.
             recipients.Clear();
@@ -503,7 +506,7 @@ namespace SE.Core
                 CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
                 CacheRPCFunc.WriteTo(writer);
 
-                SendPacketServer<RPCFunctionProcessor>(writer.CopyData(), deliveryMethod, channel, targets, connections, sender);
+                SendPacketServer<RPCFunctionProcessor>(writer, deliveryMethod, channel, targets, connections, sender);
             }
         }
 
@@ -525,7 +528,7 @@ namespace SE.Core
                 CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
                 CacheRPCFunc.WriteTo(writer);
 
-                SendPacketClient<RPCFunctionProcessor>(writer.CopyData(), deliveryMethod, channel);
+                SendPacketClient<RPCFunctionProcessor>(writer, deliveryMethod, channel);
 
                 // Find recipients.
                 recipients.Clear();

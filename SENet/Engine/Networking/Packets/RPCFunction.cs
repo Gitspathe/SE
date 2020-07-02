@@ -7,8 +7,7 @@ using SE.Engine.Networking.Internal;
 
 namespace SE.Engine.Networking.Packets
 {
-    /// <inheritdoc/>
-    internal class RPCFunction // TODO: Maybe this shouldn't be a packet? There are already packet-processors.
+    internal class RPCFunction
     {
         public uint NetworkID;
         public ushort MethodID;
@@ -30,13 +29,6 @@ namespace SE.Engine.Networking.Packets
 
         public void Reset(NetDataReader message = null) => Read(message);
 
-        /// <summary>
-        /// Creates a new RPCFunction packet.
-        /// </summary>
-        /// <param name="message">NetIncomingMessage.</param>
-        public RPCFunction(NetPacketReader message = null) { }
-
-        /// <inheritdoc/>
         public void Read(NetDataReader message)
         {
             try {
@@ -60,7 +52,6 @@ namespace SE.Engine.Networking.Packets
             }
         }
 
-        /// <inheritdoc/>
         public void WriteTo(NetDataWriter message)
         {
             try {

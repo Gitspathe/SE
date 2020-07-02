@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace SE.Engine
+namespace SE.Engine.Networking.Packets
 {
     internal static class PacketProcessorManager
     {

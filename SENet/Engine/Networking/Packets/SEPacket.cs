@@ -10,16 +10,24 @@ namespace SE.Engine.Networking.Packets
     public class SEPacket
     {
         public byte PacketType;
+        public int BufferLength;
         public byte[] Buffer;
 
-        public SEPacket(byte packetType, byte[] buffer)
+        public SEPacket(byte packetType, byte[] buffer, int bufferLength = -1)
         {
-            Reset(packetType, buffer);
+            if(bufferLength == -1)
+                bufferLength = buffer.Length;
+
+            Reset(packetType, buffer, bufferLength);
         }
 
-        public void Reset(byte packetType, byte[] buffer)
+        public void Reset(byte packetType, byte[] buffer, int bufferLength = -1)
         {
+            if(bufferLength == -1)
+                bufferLength = buffer.Length;
+
             PacketType = packetType;
+            BufferLength = bufferLength;
             Buffer = buffer;
         }
 
@@ -32,6 +40,7 @@ namespace SE.Engine.Networking.Packets
         {
             PacketType = message.GetByte();
             Buffer = message.GetBytesWithLength();
+            BufferLength = Buffer.Length;
         }
 
         /// <summary>
@@ -41,7 +50,7 @@ namespace SE.Engine.Networking.Packets
         public void WriteTo(NetDataWriter message)
         {
             message.Put(PacketType);
-            message.PutBytesWithLength(Buffer, 0, Buffer.Length);
+            message.PutBytesWithLength(Buffer, 0, BufferLength);
         }
 
         /// <summary>
