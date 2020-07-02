@@ -11,7 +11,6 @@ using LiteNetLib.Utils;
 using Open.Nat;
 using SE.Core.Exceptions;
 using SE.Core.Extensions;
-using SE.Core.Extensions.Internal;
 using SE.Engine;
 using SE.Engine.Networking;
 using SE.Engine.Networking.Attributes;
@@ -157,8 +156,7 @@ namespace SE.Core
 
             LogInfo("Initializing network manager...", true);
 
-            // Register the RPCFunction packet type.
-            PacketProcessorManager.RegisterProcessor(new RPCFunctionProcessor());
+            NetworkReflection.Initialize();
 
             // Adding user-defined net logics before initialization.
             RegisterExtension(new Instantiator());
@@ -290,8 +288,8 @@ namespace SE.Core
         {
             try {
                 // TODO: SEPacket pool.
-                SEPacket packet = new SEPacket(msg.GetByte(), msg.GetBytesWithLength());
-                IPacketProcessor processor = PacketProcessorManager.GetProcessor(packet.PacketType);
+                SEPacket packet = new SEPacket(msg.GetUShort(), msg.GetBytesWithLength());
+                PacketProcessor processor = PacketProcessorManager.GetProcessor(packet.PacketType);
                 if (processor != null) {
                     NetDataReader reader = NetworkPool.GetReader(packet.Buffer);
                     processor?.OnReceive(reader, peer, deliveryMethod);
@@ -433,10 +431,10 @@ namespace SE.Core
 
         // TODO: More & better SendPacket<T> overloads.
 
-        public static void SendPacketServer<T>(NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender) where T : IPacketProcessor
+        public static void SendPacketServer<T>(NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender) where T : PacketProcessor
         {
-            byte b = PacketProcessorManager.GetByte(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
-            SEPacket packet = new SEPacket(b, netWriter.Data, netWriter.Length);
+            ushort s = PacketProcessorManager.GetVal(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
+            SEPacket packet = new SEPacket(s, netWriter.Data, netWriter.Length);
             
             // Find recipients who should receive the RPC.
             recipients.Clear();
@@ -466,11 +464,11 @@ namespace SE.Core
             NetworkPool.ReturnWriter(writer);
         }
 
-        public static void SendPacketClient<T>(NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel) where T : IPacketProcessor
+        public static void SendPacketClient<T>(NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel) where T : PacketProcessor
         {
-            byte b = PacketProcessorManager.GetByte(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
-            SEPacket packet = new SEPacket(b, netWriter.Data, netWriter.Length);
-            
+            ushort s = PacketProcessorManager.GetVal(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
+            SEPacket packet = new SEPacket(s, netWriter.Data, netWriter.Length);
+
             // Find recipients.
             recipients.Clear();
             Client.GetPeersNonAlloc(recipients, ConnectionState.Connected);

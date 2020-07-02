@@ -127,13 +127,13 @@ namespace SE.Engine.Networking
             DataWriters.Add(type, writeFunction);
         }
 
-        public static void RegisterPacketType(Type type, IPacketProcessor processor)
+        internal static void RegisterPacketType(PacketProcessor processor)
         {
             if (currentPacketIndex + 1 > byte.MaxValue)
                 throw new InvalidOperationException("Cannot register packet type. Not enough space.");
 
-            PacketConverters.Add(type, currentPacketIndex);
-            PacketBytes.Add(currentPacketIndex, type);
+            PacketConverters.Add(processor.GetType(), currentPacketIndex);
+            PacketBytes.Add(currentPacketIndex, processor.GetType());
             PacketProcessorManager.RegisterProcessor(processor);
             currentPacketIndex++;
         }

@@ -5,30 +5,30 @@ namespace SE.Engine.Networking.Packets
 {
     internal static class PacketProcessorManager
     {
-        private static Dictionary<Type, IPacketProcessor> packetProcessorsType = new Dictionary<Type, IPacketProcessor>();
-        private static Dictionary<byte, IPacketProcessor> packetProcessorsByte = new Dictionary<byte, IPacketProcessor>();
-        private static Dictionary<Type, byte> byteConversionTable = new Dictionary<Type, byte>();
+        private static Dictionary<Type, PacketProcessor> packetProcessorsType = new Dictionary<Type, PacketProcessor>();
+        private static Dictionary<ushort, PacketProcessor> packetProcessorsVal = new Dictionary<ushort, PacketProcessor>();
+        private static Dictionary<Type, ushort> valConversionTable = new Dictionary<Type, ushort>();
 
-        private static byte curIndex = 0;
+        private static ushort curIndex = 0;
 
-        public static void RegisterProcessor(IPacketProcessor processor)
+        public static void RegisterProcessor(PacketProcessor processor)
         {
             packetProcessorsType.Add(processor.GetType(), processor);
-            packetProcessorsByte.Add(curIndex, processor);
-            byteConversionTable.Add(processor.GetType(), curIndex);
+            packetProcessorsVal.Add(curIndex, processor);
+            valConversionTable.Add(processor.GetType(), curIndex);
             curIndex++;
         }
 
-        public static IPacketProcessor GetProcessor(Type type) 
-            => packetProcessorsType.TryGetValue(type, out IPacketProcessor processor) ? processor : null;
+        public static PacketProcessor GetProcessor(Type type) 
+            => packetProcessorsType.TryGetValue(type, out PacketProcessor processor) ? processor : null;
 
-        public static IPacketProcessor GetProcessor(byte val) 
-            => packetProcessorsByte.TryGetValue(val, out IPacketProcessor processor) ? processor : null;
+        public static PacketProcessor GetProcessor(ushort val) 
+            => packetProcessorsVal.TryGetValue(val, out PacketProcessor processor) ? processor : null;
 
-        public static byte? GetByte(Type type)
+        public static ushort? GetVal(Type type)
         {
-            if (byteConversionTable.TryGetValue(type, out byte b)) {
-                return b;
+            if (valConversionTable.TryGetValue(type, out ushort s)) {
+                return s;
             }
             return null;
         }

@@ -66,9 +66,9 @@ namespace SE.Engine.Networking.Packets
         }
     }
 
-    public class RPCFunctionProcessor : IPacketProcessor
+    public class RPCFunctionProcessor : PacketProcessor
     {
-        public void OnReceive(NetDataReader reader, NetPeer peer, DeliveryMethod deliveryMethod)
+        public override void OnReceive(NetDataReader reader, NetPeer peer, DeliveryMethod deliveryMethod)
         {
             // Invoke on server.
             RPCFunction func = Network.CacheRPCFunc;

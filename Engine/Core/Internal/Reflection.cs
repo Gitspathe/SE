@@ -9,6 +9,7 @@ using SE.Serialization;
 using SE.Utility;
 using SE.World;
 using Vector2 = System.Numerics.Vector2;
+using static SE.Core.ReflectionUtil;
 
 namespace SE.Core.Internal
 {
@@ -121,7 +122,7 @@ namespace SE.Core.Internal
 
             result = new SceneInfo();
 
-            IEnumerable<SceneScript> enumerable = GetTypes<SceneScript>(myType =>
+            IEnumerable<SceneScript> enumerable = GetTypeInstances<SceneScript>(myType =>
                 myType.IsClass
                 && !myType.IsAbstract
                 && myType.IsSubclassOf(typeof(SceneScript)));
@@ -140,29 +141,6 @@ namespace SE.Core.Internal
 
             Cache.Scenes.Add((nameSpace, name), result);
             return result;
-        }
-
-        public static IEnumerable<Type> GetTypes(Func<Type, bool> predicate)
-        {
-            List<Type> enumerable = new List<Type>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                enumerable.AddRange(assembly
-                   .GetTypes()
-                   .Where(predicate)
-                   .ToList()
-                );
-            }
-            return enumerable;
-        }
-
-        public static IEnumerable<T> GetTypes<T>(Func<Type, bool> predicate)
-        {
-            IEnumerable<Type> types = GetTypes(predicate);
-            List<T> enumerable = new List<T>();
-            foreach (Type t in types) {
-                enumerable.Add((T)Activator.CreateInstance(t));
-            }
-            return enumerable;
         }
 
         internal static class Cache

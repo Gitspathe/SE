@@ -9,11 +9,11 @@ namespace SE.Engine.Networking.Packets
     /// </summary>
     public class SEPacket
     {
-        public byte PacketType;
+        public ushort PacketType;
         public int BufferLength;
         public byte[] Buffer;
 
-        public SEPacket(byte packetType, byte[] buffer, int bufferLength = -1)
+        public SEPacket(ushort packetType, byte[] buffer, int bufferLength = -1)
         {
             if(bufferLength == -1)
                 bufferLength = buffer.Length;
@@ -21,7 +21,7 @@ namespace SE.Engine.Networking.Packets
             Reset(packetType, buffer, bufferLength);
         }
 
-        public void Reset(byte packetType, byte[] buffer, int bufferLength = -1)
+        public void Reset(ushort packetType, byte[] buffer, int bufferLength = -1)
         {
             if(bufferLength == -1)
                 bufferLength = buffer.Length;
@@ -38,7 +38,7 @@ namespace SE.Engine.Networking.Packets
         /// <returns>Bytes read.</returns>
         public void Read(NetPacketReader message)
         {
-            PacketType = message.GetByte();
+            PacketType = message.GetUShort();
             Buffer = message.GetBytesWithLength();
             BufferLength = Buffer.Length;
         }
@@ -52,11 +52,5 @@ namespace SE.Engine.Networking.Packets
             message.Put(PacketType);
             message.PutBytesWithLength(Buffer, 0, BufferLength);
         }
-
-        /// <summary>
-        /// Gets the size of the packet.
-        /// </summary>
-        /// <returns>Packet size.</returns>
-        public virtual ushort Size => 1;
     }
 }

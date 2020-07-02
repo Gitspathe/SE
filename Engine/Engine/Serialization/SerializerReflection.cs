@@ -4,11 +4,12 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using SE.Attributes;
-using SE.Core.Internal;
-using SE.Core.Extensions.Internal;
+using SE.Core.Extensions;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 using System.Collections;
+using SE.Core.Internal;
+using static SE.Core.ReflectionUtil;
 
 namespace SE.Serialization
 {
@@ -69,7 +70,7 @@ namespace SE.Serialization
         public static void RegenerateEngineSerializers()
         {
             EngineSerializers.Clear();
-            IEnumerable<Type> enumerable = Reflection.GetTypes(type => type.IsClass && type.InheritsFromGeneric(typeof(EngineSerializer<>)));
+            IEnumerable<Type> enumerable = GetTypeInstances(type => type.IsClass && type.InheritsFromGeneric(typeof(EngineSerializer<>)));
             foreach (Type type in enumerable) {
                 if (type.BaseType != null) {
                     EngineSerializers.Add(type.BaseType.GetGenericArguments()[0], type);
@@ -96,7 +97,7 @@ namespace SE.Serialization
         public static void RegenerateSerializers()
         {
             ObjectSerializers.Clear();
-            IEnumerable<Type> enumerable = Reflection.GetTypes(type => type.IsClass && type.GetInterfaces().Contains(typeof(ISerializedObject)));
+            IEnumerable<Type> enumerable = GetTypeInstances(type => type.IsClass && type.GetInterfaces().Contains(typeof(ISerializedObject)));
             foreach (Type type in enumerable) {
                 if (type.GetCustomAttribute(typeof(NoSerializeAttribute)) != null)
                     continue;
