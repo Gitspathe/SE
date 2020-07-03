@@ -18,10 +18,10 @@ namespace SE.Core
 
         private static QuickList<Light> pointLights = new QuickList<Light>(128);
         private static QuickList<ShadowCaster> shadowCasterList = new QuickList<ShadowCaster>(128);
-        private static ObservableCollection<Hull> penumbraHulls;
-        private static ObservableCollection<Penumbra.Light> penumbraLights;
 
         private static object lightManagerLock = new object();
+
+        private static float cleanUpTimer = 10.0f;
 
         private static bool enabled;
         public static bool Enabled
@@ -73,10 +73,17 @@ namespace SE.Core
             if (Screen.IsFullHeadless)
                 throw new HeadlessNotSupportedException("Cannot update lighting in fully headless display mode.");
 
+            // Clear old Penumbra vao data to fix a stupid memory leak.
+            cleanUpTimer -= Time.DeltaTime;
+            if (cleanUpTimer <= 0.0f) {
+                Penumbra.ClearLightVaos();
+                cleanUpTimer = 10.0f;
+            }
+
             Vector2 camPosition = camera.Position;
             Rectangle viewRect = new Rectangle(0, 0, camera.ViewBounds.Width, camera.ViewBounds.Height);
             shadowCasterList.Clear();
-            penumbraHulls.Clear();
+            Penumbra.Hulls.Clear();
 
             for (int i = 0; i < pointLights.Count; i++) {
                 Light l = pointLights.Array[i];
@@ -101,7 +108,7 @@ namespace SE.Core
 
                 h.Scale = s.Scale.ToMonoGameVector2() * camera.Zoom;
                 h.Rotation = s.Rotation;
-                penumbraHulls.Add(h);
+                Penumbra.Hulls.Add(h);
             }
         }
 
@@ -114,8 +121,6 @@ namespace SE.Core
             Penumbra.Initialize();
             Penumbra.AmbientColor = Color.Black;
             Enabled = true;
-            penumbraHulls = Penumbra.Hulls;
-            penumbraLights = Penumbra.Lights;
         }
 
         public static void Reset()
@@ -124,19 +129,19 @@ namespace SE.Core
                 throw new HeadlessNotSupportedException("Cannot reset lighting in fully headless display mode.");
 
             lock (lightManagerLock) {
-                Hull[] copyHulls = new Hull[penumbraHulls.Count];
-                Penumbra.Light[] copyLights = new Penumbra.Light[penumbraLights.Count];
-                penumbraHulls.CopyTo(copyHulls, 0);
-                penumbraLights.CopyTo(copyLights, 0);
+                Hull[] copyHulls = new Hull[Penumbra.Hulls.Count];
+                Penumbra.Light[] copyLights = new Penumbra.Light[Penumbra.Lights.Count];
+                Penumbra.Hulls.CopyTo(copyHulls, 0);
+                Penumbra.Lights.CopyTo(copyLights, 0);
+                Penumbra.Hulls.Clear();
+                Penumbra.Lights.Clear();
 
                 Penumbra?.Dispose();
                 Penumbra = new PenumbraComponent(GameEngine.Engine);
                 Penumbra.Initialize();
                 Penumbra.AmbientColor = Color.Black;
-                penumbraHulls = Penumbra.Hulls;
-                penumbraLights = Penumbra.Lights;
-                penumbraHulls.AddRange(copyHulls);
-                penumbraLights.AddRange(copyLights);
+                Penumbra.Hulls.AddRange(copyHulls);
+                Penumbra.Lights.AddRange(copyLights);
             }
         }
 
@@ -147,7 +152,7 @@ namespace SE.Core
 
             lock (lightManagerLock) {
                 pointLights.Add(pointLight);
-                penumbraLights.Add(pointLight.PenumbraLight);
+                Penumbra.Lights.Add(pointLight.PenumbraLight);
             }
             pointLight.AddedToLighting = true;
         }
@@ -159,7 +164,7 @@ namespace SE.Core
 
             lock (lightManagerLock) {
                 pointLights.Remove(pointLight);
-                penumbraLights.Remove(pointLight.PenumbraLight);
+                Penumbra.Lights.Remove(pointLight.PenumbraLight);
             }
             pointLight.AddedToLighting = false;
         }

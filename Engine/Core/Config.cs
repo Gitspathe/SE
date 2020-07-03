@@ -1,4 +1,5 @@
-﻿using SE.Core.Extensions;
+﻿using Newtonsoft.Json;
+using SE.Core.Extensions;
 
 namespace SE.Core
 {
@@ -11,6 +12,10 @@ namespace SE.Core
         internal static bool Initialized { get; private set; }
 
         private static ConfigData configData;
+        private static JsonSerializerSettings settings = new JsonSerializerSettings {
+            PreserveReferencesHandling = PreserveReferencesHandling.None,
+            Formatting = Formatting.Indented
+        };
 
         public static void Initialize()
         {
@@ -46,10 +51,10 @@ namespace SE.Core
         }
 
         public static void Save() 
-            => FileIO.SaveFile(configData.Serialize(false), _CONFIG_FILE_NAME);
+            => FileIO.SaveFile(configData.Serialize(options: settings), _CONFIG_FILE_NAME);
 
         public static void Load()
-            => configData = FileIO.ReadFileString(_CONFIG_FILE_NAME).Deserialize<ConfigData>(false);
+            => configData = FileIO.ReadFileString(_CONFIG_FILE_NAME).Deserialize<ConfigData>(options: settings);
 
         public static class Performance
         {

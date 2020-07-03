@@ -6,7 +6,6 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Lighting
 {
-
     public class Light
     {
         public Vector2 Position;

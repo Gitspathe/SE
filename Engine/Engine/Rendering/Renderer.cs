@@ -304,60 +304,53 @@ namespace SE.Rendering
             AlphaDestinationBlend = Blend.InverseSourceAlpha
         };
 
-        public unsafe void DrawNewParticles(Camera2D cam)
+        public void DrawNewParticles(Camera2D cam)
         {
             AlphaSubtract.IndependentBlendEnable = true;
-            Vector2 camPos = cam.Position;
 
-            //ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
-
-            foreach (Emitter pEmitter in ParticleEngine.VisibleEmitters) {
-                BlendState blend;
-                DepthStencilState depthStencil = null;
-                switch (pEmitter.BlendMode) {
-                    case Particles.BlendMode.Opaque:
-                        blend = BlendState.Additive;
-                        depthStencil = DepthStencilGreater;
-                        break;
-                    case Particles.BlendMode.Alpha:
-                        blend = BlendState.AlphaBlend;
-                        break;
-                    case Particles.BlendMode.Additive:
-                        blend = BlendState.Additive;
-                        break;
-                    case Particles.BlendMode.Subtractive:
-                        blend = AlphaSubtract;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, blend, SamplerState.PointClamp, depthStencil, null, TestEffect);
-
-                Span<Particle> particles = pEmitter.ActiveParticles;
-                Texture2D tex = pEmitter.Texture;
-                fixed (Particle* ptr = particles) {
-                    int size = particles.Length;
-                    Particle* tail = ptr + size;
-                    for (Particle* particle = ptr; particle < tail; particle++) {
-                        Rectangle sourceRect = particle->SourceRectangle.ToRectangle();
-                        Vector2 origin = new Vector2(
-                            sourceRect.Width / 2.0f,
-                            sourceRect.Width / 2.0f);
-
-                        System.Numerics.Vector4 particleC = particle->Color;
-                        Color color = new Color(particleC.X / 360, particleC.Y, particleC.Z, particleC.W);
-                        Core.Rendering.SpriteBatch.Draw(tex,
-                            particle->Position - camPos,
-                            sourceRect,
-                            color,
-                            particle->SpriteRotation,
-                            origin,
-                            particle->Scale,
-                            particle->layerDepth);
-                    }
+            QuickList<Emitter> emitters = ParticleEngine.GetVisibleEmitters(Particles.BlendMode.Alpha);
+            if (emitters != null) {
+                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, TestEffect);
+                foreach (Emitter pEmitter in emitters) {
+                    DrawNewParticleEmitter(cam, pEmitter);
                 }
             }
-            EndDrawCall();
+
+            emitters = ParticleEngine.GetVisibleEmitters(Particles.BlendMode.Additive);
+            if (emitters != null) {
+                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, TestEffect);
+                foreach (Emitter pEmitter in emitters) {
+                    DrawNewParticleEmitter(cam, pEmitter);
+                }
+            }
+        }
+
+        private unsafe void DrawNewParticleEmitter(Camera2D cam, Emitter pEmitter)
+        {
+            Vector2 camPos = cam.Position;
+            Span<Particle> particles = pEmitter.ActiveParticles;
+            Texture2D tex = pEmitter.Texture;
+            fixed (Particle* ptr = particles) {
+                int size = particles.Length;
+                Particle* tail = ptr + size;
+                for (Particle* particle = ptr; particle < tail; particle++) {
+                    Rectangle sourceRect = particle->SourceRectangle.ToRectangle();
+                    Vector2 origin = new Vector2(
+                        sourceRect.Width / 2.0f,
+                        sourceRect.Width / 2.0f);
+
+                    System.Numerics.Vector4 particleC = particle->Color;
+                    Color color = new Color(particleC.X / 360, particleC.Y, particleC.Z, particleC.W);
+                    Core.Rendering.SpriteBatch.Draw(tex, 
+                        particle->Position - camPos,
+                        sourceRect,
+                        color,
+                        particle->SpriteRotation,
+                        origin,
+                        particle->Scale,
+                        particle->layerDepth);
+                }
+            }
         }
 
         public struct DepthComparer : IComparer<IRenderable>
