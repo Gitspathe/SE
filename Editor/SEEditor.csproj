@@ -56,8 +56,8 @@
         <Reference Include="SEInput">
           <HintPath>..\SEInput\bin\$(Platform)\$(Configuration)\netstandard2.0\SEInput.dll</HintPath>
         </Reference>
-        <Reference Include="SEParticles">
-          <HintPath>..\SEParticles\bin\$(Platform)\$(Configuration)\netstandard2.1\SEParticles.dll</HintPath>
+        <Reference Include="SEParticles.MonoGame">
+          <HintPath>..\SEParticles\bin\$(Platform)\$(Configuration)\netstandard2.1\SEParticles.MonoGame.dll</HintPath>
         </Reference>
         <Reference Include="SENet">
           <HintPath>..\SENet\bin\$(Platform)\$(Configuration)\netstandard2.1\SENet.dll</HintPath>
@@ -84,8 +84,8 @@
         <Reference Include="SEInput">
           <HintPath>..\SEInput\bin\$(Configuration)\netstandard2.0\SEInput.dll</HintPath>
         </Reference>
-        <Reference Include="SEParticles">
-          <HintPath>..\SEParticles\bin\$(Configuration)\netstandard2.1\SEParticles.dll</HintPath>
+        <Reference Include="SEParticles.MonoGame">
+          <HintPath>..\SEParticles\bin\$(Configuration)\netstandard2.1\SEParticles.MonoGame.dll</HintPath>
         </Reference>
         <Reference Include="SENet">
           <HintPath>..\SENet\bin\$(Configuration)\netstandard2.1\SENet.dll</HintPath>

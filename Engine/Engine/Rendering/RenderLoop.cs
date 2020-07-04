@@ -6,6 +6,7 @@ using Console = SE.Core.Console;
 
 namespace SE.Rendering
 {
+    // TODO: Allow multiple render actions under a single enum position.
     public static class RenderLoop
     {
         internal static SortedDictionary<uint, Action<Camera2D>> Loop { get; } = new SortedDictionary<uint, Action<Camera2D>>();

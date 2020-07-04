@@ -311,7 +311,7 @@ namespace SE.Rendering
             AlphaSubtract.IndependentBlendEnable = true;
 
             tmpEmitters.Clear();
-            ParticleEngine.GetVisibleEmitters(Particles.BlendMode.Alpha, tmpEmitters);
+            ParticleEngine.GetEmitters(Particles.BlendMode.Alpha, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
                 ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
                 foreach (Emitter pEmitter in tmpEmitters) {
@@ -320,7 +320,7 @@ namespace SE.Rendering
             }
 
             tmpEmitters.Clear();
-            ParticleEngine.GetVisibleEmitters(Particles.BlendMode.Additive, tmpEmitters);
+            ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
                 ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, TestEffect);
                 foreach (Emitter pEmitter in tmpEmitters) {

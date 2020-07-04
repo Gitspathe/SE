@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using DeeZ.Editor.GUI.ValueDrawers;
 using SE.Core;
 using DeeZ.Editor.GUI.Viewport;
 using ImGuiNET;
@@ -29,6 +30,30 @@ namespace DeeZ.Editor.GUI
             guiObjects.Add(new Hierarchy.Hierarchy());
             guiObjects.Add(View);
             guiObjects.Add(Properties);
+
+            {
+                // Add GUI value drawers to the GUI helper.
+                IEnumerable<IGUIValueDrawer> drawers = ReflectionUtil.GetTypeInstances<IGUIValueDrawer>(myType =>
+                    myType.IsClass
+                    && !myType.IsAbstract
+                    && typeof(IGUIValueDrawer).IsAssignableFrom(myType));
+                foreach (IGUIValueDrawer drawer in drawers) {
+                    EditorGUIHelper.GUITable.Remove(drawer.ValueType);
+                    EditorGUIHelper.GUITable.Add(drawer.ValueType, drawer);
+                }
+            }
+
+            {
+                // Add generic GUI value drawers to the GUI helper.
+                IEnumerable<IGenericGUIValueDrawer> drawers = ReflectionUtil.GetTypeInstances<IGenericGUIValueDrawer>(myType =>
+                    myType.IsClass
+                    && !myType.IsAbstract
+                    && typeof(IGenericGUIValueDrawer).IsAssignableFrom(myType));
+                foreach (IGenericGUIValueDrawer drawer in drawers) {
+                    EditorGUIHelper.GenericGUITable.Remove(drawer.ValueType);
+                    EditorGUIHelper.GenericGUITable.Add(drawer.ValueType, drawer);
+                }
+            }
         }
 
         public static void Paint()
