@@ -304,22 +304,26 @@ namespace SE.Rendering
             AlphaDestinationBlend = Blend.InverseSourceAlpha
         };
 
+        private QuickList<Emitter> tmpEmitters = new QuickList<Emitter>();
+
         public void DrawNewParticles(Camera2D cam)
         {
             AlphaSubtract.IndependentBlendEnable = true;
 
-            QuickList<Emitter> emitters = ParticleEngine.GetVisibleEmitters(Particles.BlendMode.Alpha);
-            if (emitters != null) {
-                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, TestEffect);
-                foreach (Emitter pEmitter in emitters) {
+            tmpEmitters.Clear();
+            ParticleEngine.GetVisibleEmitters(Particles.BlendMode.Alpha, tmpEmitters);
+            if (tmpEmitters != null) {
+                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
+                foreach (Emitter pEmitter in tmpEmitters) {
                     DrawNewParticleEmitter(cam, pEmitter);
                 }
             }
 
-            emitters = ParticleEngine.GetVisibleEmitters(Particles.BlendMode.Additive);
-            if (emitters != null) {
+            tmpEmitters.Clear();
+            ParticleEngine.GetVisibleEmitters(Particles.BlendMode.Additive, tmpEmitters);
+            if (tmpEmitters != null) {
                 ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, TestEffect);
-                foreach (Emitter pEmitter in emitters) {
+                foreach (Emitter pEmitter in tmpEmitters) {
                     DrawNewParticleEmitter(cam, pEmitter);
                 }
             }
