@@ -8,16 +8,23 @@ namespace SE.GameLoop
     /// <summary>
     /// Class which controls the main game loop.
     /// </summary>
-    public class GameLoop
+    public class UpdateLoop
     {
-        internal SortedDictionary<int, IGameLoopAction> Loop { get; private set; } = new SortedDictionary<int, IGameLoopAction>();
+        private SortedDictionary<int, IUpdateLoopAction> Loop { get; } = new SortedDictionary<int, IUpdateLoopAction>();
+
+        internal void Invoke()
+        {
+            foreach (IUpdateLoopAction action in Loop.Values) {
+                action.Invoke();
+            }
+        }
 
         /// <summary>
         /// Adds a new Action to the game loop.
         /// </summary>
         /// <param name="order">Sequence of the Action. Controls where in the queue the Action is called.</param>
         /// <param name="action">Action to call.</param>
-        public void Add(int order, IGameLoopAction action)
+        public void Add(int order, IUpdateLoopAction action)
         {
             Loop.Add(order, action);
         }
@@ -27,7 +34,7 @@ namespace SE.GameLoop
         /// </summary>
         /// <param name="order">Sequence of the Action, based on the default game loop.</param>
         /// <param name="action">Action to call.</param>
-        public void Add(DefaultEnum order, IGameLoopAction action)
+        public void Add(DefaultEnum order, IUpdateLoopAction action)
         {
             Add((int)order, action);
         }
@@ -53,7 +60,7 @@ namespace SE.GameLoop
         /// <summary>
         /// Creates a new default game loop.
         /// </summary>
-        public GameLoop()
+        public UpdateLoop()
         {
         #if EDITOR
             if (GameEngine.Engine.LevelEditMode && !Screen.IsFullHeadless) {
@@ -63,7 +70,7 @@ namespace SE.GameLoop
 
             Add(DefaultEnum.Time, new LoopTime());
             Add(DefaultEnum.Physics, new LoopPhysics());
-            Add(DefaultEnum.UpdateDynamicGameObjects, new LoopDynamicGameObjects());
+            Add(DefaultEnum.UpdateDynamicGameObjects, new LoopDynamicUpdateObjects());
             Add(DefaultEnum.Networking, new LoopNetworking());
             Add(DefaultEnum.UpdateLevelManager, new LoopScene());
             Add(DefaultEnum.SpatialPartition, new LoopSpatialPartition());
@@ -83,7 +90,7 @@ namespace SE.GameLoop
         /// Creates a new game loop.
         /// </summary>
         /// <param name="loop">Dictionary of Actions and their order for the new game loop.</param>
-        public GameLoop(SortedDictionary<int, IGameLoopAction> loop)
+        public UpdateLoop(SortedDictionary<int, IUpdateLoopAction> loop)
         {
             Loop = loop;
         }
@@ -113,7 +120,7 @@ namespace SE.GameLoop
         public override string ToString()
         {
             string s = "";
-            foreach (KeyValuePair<int, IGameLoopAction> loop in Loop) {
+            foreach (KeyValuePair<int, IUpdateLoopAction> loop in Loop) {
                 s += "  " + loop.Key + ", " + loop.Value.Name + ".\n";
             }
             return s;

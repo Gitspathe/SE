@@ -31,7 +31,7 @@ namespace SE
     {
         public static GameEngine Engine;
         public static Action Initalized;
-        public static GameLoop.GameLoop GameLoop;
+        public static UpdateLoop UpdateLoop;
         public GraphicsDeviceManager GraphicsDeviceManager;
         
         internal static QuickList<GameObject> DynamicGameObjects = new QuickList<GameObject>();
@@ -119,7 +119,7 @@ namespace SE
                 InputManager.Initialize(this);
                 Reflection.Initialize();
                 ModLoader.Initialize();
-                GameLoop = new GameLoop.GameLoop();
+                UpdateLoop = new UpdateLoop();
 
                 ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolParticles
                     ? ParticleAllocationMode.ArrayPool
@@ -157,7 +157,7 @@ namespace SE
                 Console.Initialize();
                 Console.LogInfo("Core engine loaded.", true);
                 Console.LogInfo("Game loop loaded:", true);
-                Console.LogInfo(GameLoop.ToString());
+                Console.LogInfo(UpdateLoop.ToString());
 
                 Network.Initialize();
                 Screen.Reset();
@@ -254,9 +254,7 @@ namespace SE
             AssetManager.Update(Time.DeltaTime);
 
             GameTime = gameTime;
-            foreach (IGameLoopAction action in GameLoop.Loop.Values) {
-                action.Invoke();
-            }
+            UpdateLoop.Invoke();
 
             OnUpdate(gameTime);
             Editor?.OnUpdate(GraphicsDeviceManager.GraphicsDevice, gameTime);
