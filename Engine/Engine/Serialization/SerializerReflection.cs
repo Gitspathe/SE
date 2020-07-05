@@ -70,7 +70,7 @@ namespace SE.Serialization
         public static void RegenerateEngineSerializers()
         {
             EngineSerializers.Clear();
-            IEnumerable<Type> enumerable = GetTypeInstances(type => type.IsClass && type.InheritsFromGeneric(typeof(EngineSerializer<>)));
+            IEnumerable<Type> enumerable = GetTypes(type => type.IsClass && type.InheritsFromGeneric(typeof(EngineSerializer<>)));
             foreach (Type type in enumerable) {
                 if (type.BaseType != null) {
                     EngineSerializers.Add(type.BaseType.GetGenericArguments()[0], type);
@@ -97,7 +97,7 @@ namespace SE.Serialization
         public static void RegenerateSerializers()
         {
             ObjectSerializers.Clear();
-            IEnumerable<Type> enumerable = GetTypeInstances(type => type.IsClass && type.GetInterfaces().Contains(typeof(ISerializedObject)));
+            IEnumerable<Type> enumerable = GetTypes(type => type.IsClass && type.GetInterfaces().Contains(typeof(ISerializedObject)));
             foreach (Type type in enumerable) {
                 if (type.GetCustomAttribute(typeof(NoSerializeAttribute)) != null)
                     continue;

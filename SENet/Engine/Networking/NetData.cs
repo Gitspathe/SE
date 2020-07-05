@@ -85,7 +85,7 @@ namespace SE.Engine.Networking
             {typeof(float[]), message => message.GetFloatArray()},
             {typeof(double[]), message => message.GetDoubleArray()},
             {typeof(string[]), message => message.GetStringArray()},
-            {typeof(Vector2), message => new Vector2(message.GetFloat(), message.GetFloat())}
+            {typeof(Vector2), message => message.GetVector2()}
         };
 
         /// <summary>Dictionary used to write an object to a NetIncomingMessage. The byte key identifies which Type the object is.</summary>
@@ -112,11 +112,7 @@ namespace SE.Engine.Networking
             {typeof(float[]), (obj, message) => message.PutArray(obj as float[]) },
             {typeof(double[]), (obj, message) => message.PutArray(obj as double[]) },
             {typeof(string[]), (obj, message) => message.PutArray(obj as string[]) },
-            {typeof(Vector2), (obj, message) => {
-                Vector2 vector = (Vector2) obj;
-                message.Put(vector.X);
-                message.Put(vector.Y);
-            }}
+            {typeof(Vector2), (obj, message) => { message.PutVector2((Vector2) obj); }}
         };
 
         private static byte currentPacketIndex;

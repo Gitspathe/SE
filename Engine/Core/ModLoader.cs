@@ -18,8 +18,14 @@ namespace SE.Core
                 mods.Add(new Mod(manifest));
             }
 
-            // TODO: Works, but needs more testing...
             mods = mods.OrderBy(x => x.LoadOrder).ToList();
+            
+            // First, load all mod assemblies into memory.
+            foreach (Mod mod in mods) {
+                mod.LoadAssembly();
+            }
+
+            // Then call post constructor and initialize methods.
             foreach (Mod mod in mods) {
                 mod.PostConstructor();
                 ModLoadIteration(mod);

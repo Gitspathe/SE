@@ -37,13 +37,17 @@ namespace SE.Modding
         /// <summary>Returns true if the mod has any dependencies.</summary>
         public bool HasDependencies => Dependencies != null && Dependencies.Count >= 1;
 
-        internal void Initialize()
+        internal void LoadAssembly()
         {
             string path = Path.Combine(FileIO.DataDirectory, InternalName, InternalName + ".dll");
             ModAssembly = Assembly.LoadFrom(path);
+        }
+
+        internal void Initialize()
+        {
             Type mainType = ModAssembly.GetTypes().First(t => typeof(IModEntryPoint).IsAssignableFrom(t));
             object obj = Activator.CreateInstance(mainType);
-            
+
             ((IModEntryPoint)obj).Main();
             IsLoaded = true;
         }
