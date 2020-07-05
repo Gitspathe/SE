@@ -287,29 +287,26 @@ namespace SE.Rendering
             }
         }
 
-        public static BlendState Alpha => new BlendState
-        {
+        public static BlendState Alpha = new BlendState {
             ColorSourceBlend = Blend.SourceAlpha,
             AlphaSourceBlend = Blend.SourceAlpha,
             ColorDestinationBlend = Blend.InverseSourceAlpha,
             AlphaDestinationBlend = Blend.InverseSourceAlpha,
         };
 
-        public static BlendState AlphaSubtract => new BlendState
-        {
+        public static BlendState AlphaSubtract = new BlendState {
             ColorBlendFunction = BlendFunction.ReverseSubtract,
             ColorSourceBlend = Blend.SourceAlpha,
             AlphaSourceBlend = Blend.SourceAlpha,
             ColorDestinationBlend = Blend.InverseSourceAlpha,
-            AlphaDestinationBlend = Blend.InverseSourceAlpha
+            AlphaDestinationBlend = Blend.InverseSourceAlpha,
+            IndependentBlendEnable = true
         };
 
         private QuickList<Emitter> tmpEmitters = new QuickList<Emitter>();
 
         public void DrawNewParticles(Camera2D cam)
         {
-            AlphaSubtract.IndependentBlendEnable = true;
-
             tmpEmitters.Clear();
             ParticleEngine.GetEmitters(Particles.BlendMode.Alpha, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
