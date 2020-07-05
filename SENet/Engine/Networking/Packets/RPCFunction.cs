@@ -27,12 +27,15 @@ namespace SE.Engine.Networking.Packets
             ParametersNum = RPCInfo.ParameterTypes.Length;
         }
 
-        public void Reset(NetDataReader message = null) => Read(message);
+        public void Reset(uint networkID, NetDataReader message = null)
+        {
+            NetworkID = networkID;
+            Read(message);
+        }
 
         public void Read(NetDataReader message)
         {
             try {
-                NetworkID = message.GetUInt();
                 MethodID = message.GetUShort();
 
                 RPCInfo = Network.InstanceType == NetInstanceType.Server
@@ -55,7 +58,6 @@ namespace SE.Engine.Networking.Packets
         public void WriteTo(NetDataWriter message)
         {
             try {
-                message.Put(NetworkID);
                 message.Put(MethodID);
                 for (int i = 0; i < ParametersNum; i++) {
                     NetData.Write(RPCInfo.ParameterTypes[i], Parameters[i], message);
@@ -68,11 +70,11 @@ namespace SE.Engine.Networking.Packets
 
     public class RPCFunctionProcessor : PacketProcessor
     {
-        public override void OnReceive(NetDataReader reader, NetPeer peer, DeliveryMethod deliveryMethod)
+        public override void OnReceive(INetLogic netLogic, NetDataReader reader, NetPeer peer, DeliveryMethod deliveryMethod)
         {
             // Invoke on server.
             RPCFunction func = Network.CacheRPCFunc;
-            func.Reset(reader);
+            func.Reset(netLogic.ID, reader);
             Network.InvokeRPC(func);
 
             if (Network.IsServer) {

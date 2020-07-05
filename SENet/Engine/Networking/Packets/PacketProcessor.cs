@@ -9,7 +9,7 @@ namespace SE.Engine.Networking.Packets
     /// </summary>
     public abstract class PacketProcessor
     {
-        public abstract void OnReceive(NetDataReader reader, NetPeer peer, DeliveryMethod deliveryMethod);
+        public abstract void OnReceive(INetLogic netLogic, NetDataReader reader, NetPeer peer, DeliveryMethod deliveryMethod);
         public PacketProcessor() { }
     }
 }

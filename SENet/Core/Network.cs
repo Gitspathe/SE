@@ -288,11 +288,15 @@ namespace SE.Core
         {
             try {
                 // TODO: SEPacket pool.
-                SEPacket packet = new SEPacket(msg.GetUShort(), msg.GetBytesWithLength());
+                SEPacket packet = new SEPacket(msg);
                 PacketProcessor processor = PacketProcessorManager.GetProcessor(packet.PacketType);
+
+                if (!NetworkObjects.TryGetValue(packet.NetworkID, out INetLogic netLogic))
+                    throw new Exception();
+                
                 if (processor != null) {
                     NetDataReader reader = NetworkPool.GetReader(packet.Buffer);
-                    processor?.OnReceive(reader, peer, deliveryMethod);
+                    processor?.OnReceive(netLogic, reader, peer, deliveryMethod);
                     NetworkPool.ReturnReader(reader);
                 }
             } catch (Exception e) {
@@ -431,10 +435,10 @@ namespace SE.Core
 
         // TODO: More & better SendPacket<T> overloads.
 
-        public static void SendPacketServer<T>(NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender) where T : PacketProcessor
+        public static void SendPacketServer<T>(INetLogic netLogic, NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender) where T : PacketProcessor
         {
             ushort s = PacketProcessorManager.GetVal(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
-            SEPacket packet = new SEPacket(s, netWriter.Data, netWriter.Length);
+            SEPacket packet = new SEPacket(s, netLogic.ID, netWriter.Data, netWriter.Length);
             
             // Find recipients who should receive the RPC.
             recipients.Clear();
@@ -464,10 +468,10 @@ namespace SE.Core
             NetworkPool.ReturnWriter(writer);
         }
 
-        public static void SendPacketClient<T>(NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel) where T : PacketProcessor
+        public static void SendPacketClient<T>(INetLogic netLogic, NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel) where T : PacketProcessor
         {
             ushort s = PacketProcessorManager.GetVal(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
-            SEPacket packet = new SEPacket(s, netWriter.Data, netWriter.Length);
+            SEPacket packet = new SEPacket(s, netLogic.ID, netWriter.Data, netWriter.Length);
 
             // Find recipients.
             recipients.Clear();
@@ -503,8 +507,10 @@ namespace SE.Core
                 // Construct NetOutgoingMessage.
                 CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
                 CacheRPCFunc.WriteTo(writer);
+                if (!NetworkObjects.TryGetValue(networkIdentity, out INetLogic netLogic))
+                    throw new Exception();
 
-                SendPacketServer<RPCFunctionProcessor>(writer, deliveryMethod, channel, targets, connections, sender);
+                SendPacketServer<RPCFunctionProcessor>(netLogic, writer, deliveryMethod, channel, targets, connections, sender);
             }
         }
 
@@ -525,20 +531,10 @@ namespace SE.Core
                 // Construct a data writer.
                 CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
                 CacheRPCFunc.WriteTo(writer);
+                if (!NetworkObjects.TryGetValue(networkIdentity, out INetLogic netLogic))
+                    throw new Exception();
 
-                SendPacketClient<RPCFunctionProcessor>(writer, deliveryMethod, channel);
-
-                // Find recipients.
-                recipients.Clear();
-                Client.GetPeersNonAlloc(recipients, ConnectionState.Connected);
-
-                if (recipients.Count <= 0) 
-                    return;
-            }
-
-            // Send the RPC message to the server.
-            for (int i = 0; i < recipients.Count; i++) {
-                recipients[i].Send(writer, channel, deliveryMethod);
+                SendPacketClient<RPCFunctionProcessor>(netLogic, writer, deliveryMethod, channel);
             }
         }
 

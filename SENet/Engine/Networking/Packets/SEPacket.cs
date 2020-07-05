@@ -10,25 +10,37 @@ namespace SE.Engine.Networking.Packets
     public class SEPacket
     {
         public ushort PacketType;
+        public uint NetworkID;
         public int BufferLength;
         public byte[] Buffer;
 
-        public SEPacket(ushort packetType, byte[] buffer, int bufferLength = -1)
+        public SEPacket(ushort packetType, uint networkID, byte[] buffer, int bufferLength = -1)
         {
             if(bufferLength == -1)
                 bufferLength = buffer.Length;
 
-            Reset(packetType, buffer, bufferLength);
+            Reset(packetType, networkID, buffer, bufferLength);
         }
 
-        public void Reset(ushort packetType, byte[] buffer, int bufferLength = -1)
+        public SEPacket(NetPacketReader reader)
+        {
+            Read(reader);
+        }
+
+        public void Reset(ushort packetType, uint networkID, byte[] buffer, int bufferLength = -1)
         {
             if(bufferLength == -1)
                 bufferLength = buffer.Length;
 
             PacketType = packetType;
+            NetworkID = networkID;
             BufferLength = bufferLength;
             Buffer = buffer;
+        }
+
+        public void Reset(NetPacketReader reader)
+        {
+            Read(reader);
         }
 
         /// <summary>
@@ -39,6 +51,7 @@ namespace SE.Engine.Networking.Packets
         public void Read(NetPacketReader message)
         {
             PacketType = message.GetUShort();
+            NetworkID = message.GetUInt();
             Buffer = message.GetBytesWithLength();
             BufferLength = Buffer.Length;
         }
@@ -50,6 +63,7 @@ namespace SE.Engine.Networking.Packets
         public void WriteTo(NetDataWriter message)
         {
             message.Put(PacketType);
+            message.Put(NetworkID);
             message.PutBytesWithLength(Buffer, 0, BufferLength);
         }
     }

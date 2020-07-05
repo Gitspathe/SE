@@ -28,11 +28,28 @@ namespace SE.Rendering
         private int viewPortX;
         private int viewPortY;
         private Rectangle scissorRectBackup = new Rectangle(0, 0, 1920, 1080);
+        private QuickList<Emitter> tmpEmitters = new QuickList<Emitter>();
 
         private GraphicsDevice GraphicsDevice = Core.Rendering.GraphicsDevice;
 
         public static bool Multithreaded { get; set; } = false;
         public static int CullingThreshold { get; set; } = 128;
+
+        public static BlendState Alpha = new BlendState {
+            ColorSourceBlend = Blend.SourceAlpha,
+            AlphaSourceBlend = Blend.SourceAlpha,
+            ColorDestinationBlend = Blend.InverseSourceAlpha,
+            AlphaDestinationBlend = Blend.InverseSourceAlpha,
+        };
+
+        public static BlendState AlphaSubtract = new BlendState {
+            ColorBlendFunction = BlendFunction.ReverseSubtract,
+            ColorSourceBlend = Blend.SourceAlpha,
+            AlphaSourceBlend = Blend.SourceAlpha,
+            ColorDestinationBlend = Blend.InverseSourceAlpha,
+            AlphaDestinationBlend = Blend.InverseSourceAlpha,
+            IndependentBlendEnable = true
+        };
 
         public void NewFrame(Camera2D camera)
         {
@@ -190,7 +207,7 @@ namespace SE.Rendering
             }
 
             for (int i = 0; i < transform.Children.Count; i++) {
-                Transform nextTransform = transform.Children[i];
+                Transform nextTransform = transform.Children.Array[i];
                 Rectangle? curScissorRect = originalScissorRect;
                 UIObject nextUIObj = null;
 
@@ -249,7 +266,7 @@ namespace SE.Rendering
 
             for (int i = 0; i < transform.Children.Count; i++) {
                 Rectangle? curScissorRect = originalScissorRect;
-                Transform nextTransform = transform.Children[i];
+                Transform nextTransform = transform.Children.Array[i];
                 UIObject nextUIObj = null;
 
                 if (nextTransform.GameObject is UIObject uiObj) {
@@ -286,24 +303,6 @@ namespace SE.Rendering
                 }
             }
         }
-
-        public static BlendState Alpha = new BlendState {
-            ColorSourceBlend = Blend.SourceAlpha,
-            AlphaSourceBlend = Blend.SourceAlpha,
-            ColorDestinationBlend = Blend.InverseSourceAlpha,
-            AlphaDestinationBlend = Blend.InverseSourceAlpha,
-        };
-
-        public static BlendState AlphaSubtract = new BlendState {
-            ColorBlendFunction = BlendFunction.ReverseSubtract,
-            ColorSourceBlend = Blend.SourceAlpha,
-            AlphaSourceBlend = Blend.SourceAlpha,
-            ColorDestinationBlend = Blend.InverseSourceAlpha,
-            AlphaDestinationBlend = Blend.InverseSourceAlpha,
-            IndependentBlendEnable = true
-        };
-
-        private QuickList<Emitter> tmpEmitters = new QuickList<Emitter>();
 
         public void DrawNewParticles(Camera2D cam)
         {
