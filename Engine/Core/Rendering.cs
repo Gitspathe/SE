@@ -70,7 +70,7 @@ namespace SE.Core
                 DrawNoCamerasMessage();
             } else {
                 foreach (Camera2D cam in Cameras) {
-                    foreach (Action<Camera2D> renderAction in RenderLoop.Loop.Values) {
+                    foreach (IRenderLoopAction renderAction in RenderLoop.Loop.Values) {
                         renderAction.Invoke(cam);
                         if (RenderLoop.IsDirty) {
                             break;

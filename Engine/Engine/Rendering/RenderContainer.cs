@@ -11,7 +11,7 @@ namespace SE.Rendering
         // an additional QuickList which stores the indexes of ACTUAL RenderList elements.
         public QuickList<RenderList> RenderLists = new QuickList<RenderList>();
         
-        private Dictionary<uint, Action<Camera2D>> renderActions = new Dictionary<uint, Action<Camera2D>>();
+        private Dictionary<uint, IRenderLoopAction> renderActions = new Dictionary<uint, IRenderLoopAction>();
         private bool isDirty;
 
         public void Clear()
@@ -100,7 +100,7 @@ namespace SE.Rendering
                 if (list == null || RenderLoop.Loop.ContainsKey(i))
                     continue;
 
-                Action<Camera2D> action = cam => renderer.ProcessRenderList(cam, list);
+                IRenderLoopAction action = new LoopProcessRenderList(renderer, list);
                 renderActions.Add(i, action);
                 RenderLoop.Add(i, action);
             }

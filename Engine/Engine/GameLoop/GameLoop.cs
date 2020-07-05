@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using SE.Core;
-using SE.Particles;
 using Console = SE.Core.Console;
 
-namespace SE
+namespace SE.GameLoop
 {
     /// <summary>
     /// Class which controls the main game loop.
     /// </summary>
     public class GameLoop
     {
-        internal SortedDictionary<int, Action> Loop { get; private set; } = new SortedDictionary<int, Action>();
+        internal SortedDictionary<int, IGameLoopAction> Loop { get; private set; } = new SortedDictionary<int, IGameLoopAction>();
 
         /// <summary>
         /// Adds a new Action to the game loop.
         /// </summary>
         /// <param name="order">Sequence of the Action. Controls where in the queue the Action is called.</param>
         /// <param name="action">Action to call.</param>
-        public void Add(int order, Action action)
+        public void Add(int order, IGameLoopAction action)
         {
             Loop.Add(order, action);
         }
@@ -28,7 +27,7 @@ namespace SE
         /// </summary>
         /// <param name="order">Sequence of the Action, based on the default game loop.</param>
         /// <param name="action">Action to call.</param>
-        public void Add(DefaultEnum order, Action action)
+        public void Add(DefaultEnum order, IGameLoopAction action)
         {
             Add((int)order, action);
         }
@@ -62,22 +61,21 @@ namespace SE
             }
         #endif
 
-            Add(DefaultEnum.Time, () => Time.Update(GameEngine.Engine.GameTime));
-            Add(DefaultEnum.Physics, Core.Physics.Update);
-            Add(DefaultEnum.UpdateDynamicGameObjects, GameEngine.Engine.UpdateDynamicGameObjects);
-            Add(DefaultEnum.Networking, () => Network.Update(Time.UnscaledDeltaTime));
-            Add(DefaultEnum.UpdateLevelManager, SceneManager.Update);
-            Add(DefaultEnum.SpatialPartition, SpatialPartitionManager.Update);
-            Add(DefaultEnum.Console, Console.Update);
-            Add(DefaultEnum.FinalizeTime, Time.FinalizeFixedTimeStep);
+            Add(DefaultEnum.Time, new LoopTime());
+            Add(DefaultEnum.Physics, new LoopPhysics());
+            Add(DefaultEnum.UpdateDynamicGameObjects, new LoopDynamicGameObjects());
+            Add(DefaultEnum.Networking, new LoopNetworking());
+            Add(DefaultEnum.UpdateLevelManager, new LoopScene());
+            Add(DefaultEnum.SpatialPartition, new LoopSpatialPartition());
+            Add(DefaultEnum.Console, new LoopConsole());
+            Add(DefaultEnum.FinalizeTime, new LoopFinalizeTime());
 
             if (!Screen.IsFullHeadless) {
-                Add(DefaultEnum.StartNewParticles, () => ParticleEngine.Update(Time.DeltaTime, Core.Rendering.CameraBounds[0]));
-
-                Add(DefaultEnum.InputManager, () => InputManager.Update(Time.UnscaledDeltaTime));
-                Add(DefaultEnum.UIManager, UIManager.Update);
-                Add(DefaultEnum.Screen, Screen.Update);
-                Add(DefaultEnum.RenderingSystem, Core.Rendering.Update);
+                Add(DefaultEnum.StartNewParticles, new LoopBeginAsyncParticles());
+                Add(DefaultEnum.InputManager, new LoopInputManager());
+;               Add(DefaultEnum.UIManager, new LoopUIManager());
+                Add(DefaultEnum.Screen, new LoopScreen());
+                Add(DefaultEnum.RenderingSystem, new LoopRendering());
             }
         }
 
@@ -85,7 +83,7 @@ namespace SE
         /// Creates a new game loop.
         /// </summary>
         /// <param name="loop">Dictionary of Actions and their order for the new game loop.</param>
-        public GameLoop(SortedDictionary<int, Action> loop)
+        public GameLoop(SortedDictionary<int, IGameLoopAction> loop)
         {
             Loop = loop;
         }
@@ -115,10 +113,8 @@ namespace SE
         public override string ToString()
         {
             string s = "";
-            foreach (KeyValuePair<int, Action> loop in Loop) {
-                if (loop.Value.Method.ReflectedType != null) {
-                    s += "  " + loop.Key + ", " + loop.Value.Method.ReflectedType.FullName + "." + loop.Value.Method.Name + "\n";
-                }
+            foreach (KeyValuePair<int, IGameLoopAction> loop in Loop) {
+                s += "  " + loop.Key + ", " + loop.Value.Name + ".\n";
             }
             return s;
         }

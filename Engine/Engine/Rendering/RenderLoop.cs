@@ -9,18 +9,18 @@ namespace SE.Rendering
     // TODO: Allow multiple render actions under a single enum position.
     public static class RenderLoop
     {
-        internal static SortedDictionary<uint, Action<Camera2D>> Loop { get; } = new SortedDictionary<uint, Action<Camera2D>>();
+        internal static SortedDictionary<uint, IRenderLoopAction> Loop { get; } = new SortedDictionary<uint, IRenderLoopAction>();
         internal static Renderer Render = new Renderer();
 
         internal static bool IsDirty;
 
-        public static void Add(uint order, Action<Camera2D> action)
+        public static void Add(uint order, IRenderLoopAction action)
         {
             Loop.Add(order, action);
             IsDirty = true;
         }
 
-        public static void Add(LoopEnum order, Action<Camera2D> action)
+        public static void Add(LoopEnum order, IRenderLoopAction action)
         {
             Add((uint)order, action);
         }
@@ -52,39 +52,36 @@ namespace SE.Rendering
 
             // Headless mode.
             if (Screen.DisplayMode == DisplayMode.Headless) {
-                Add(LoopEnum.PrepareFrame, Render.NewFrame);
-                Add(LoopEnum.Culling, Core.Rendering.PerformCulling);
-                Add(LoopEnum.DrawUI, Render.DrawUI);
-                Add(LoopEnum.DrawRenderTargets, Core.Rendering.DrawRenderTargets);
+                Add(LoopEnum.PrepareFrame, new LoopPrepareFrame(Render));
+                Add(LoopEnum.Culling, new LoopCulling());
+                Add(LoopEnum.DrawUI, new LoopUI(Render));
+                Add(LoopEnum.DrawRenderTargets, new LoopRenderTargets());
                 return;
             }
 
             // Full graphics mode.
-            Add(LoopEnum.NewFrame, Core.Lighting.Update);
-            Add(LoopEnum.PrepareFrame, Render.NewFrame);
-            Add(LoopEnum.Culling, Core.Rendering.PerformCulling);
-            Add(LoopEnum.GenerateRenderLists, cam => Render.GenerateRenderLists());
-            Add(LoopEnum.LightingStart, _ => Render.StartLighting());
+            Add(LoopEnum.NewFrame, new LoopLighting());
+            Add(LoopEnum.PrepareFrame, new LoopPrepareFrame(Render));
+            Add(LoopEnum.Culling, new LoopCulling());
+            Add(LoopEnum.GenerateRenderLists, new LoopGenerateRenderLists(Render));
+            Add(LoopEnum.LightingStart, new LoopStartLighting(Render));
 
-            Add(LoopEnum.FinalizeParticles, _ => ParticleEngine.WaitForThreads());
+            Add(LoopEnum.FinalizeParticles, new LoopFinalizeParticles());
 
-            Add(LoopEnum.LightingEnd, _
-                => Render.EndLighting());
+            Add(LoopEnum.LightingEnd, new LoopEndLighting(Render));
 
-            Add(LoopEnum.RenderAlphaParticlesUnlit, cam => Render.DrawNewParticles(cam));
+            Add(LoopEnum.RenderAlphaParticlesUnlit, new LoopParticles(Render));
 
-            Add(LoopEnum.DrawUnderlay, cam => Console.DrawUnderlay(cam, Core.Rendering.SpriteBatch));
-            Add(LoopEnum.DrawUI, Render.DrawUI);
-            Add(LoopEnum.DrawRenderTargets, Core.Rendering.DrawRenderTargets);
+            Add(LoopEnum.DrawUnderlay, new LoopConsoleUnderlay());
+            Add(LoopEnum.DrawUI, new LoopUI(Render));
+            Add(LoopEnum.DrawRenderTargets, new LoopRenderTargets());
         }
 
         public new static string ToString()
         {
             string s = "";
-            foreach (KeyValuePair<uint, Action<Camera2D>> loop in Loop) {
-                if (loop.Value.Method.ReflectedType != null) {
-                    s += "  " + loop.Key + ", " + loop.Value.Method.ReflectedType.FullName + "." + loop.Value.Method.Name + "\n";
-                }
+            foreach (KeyValuePair<uint, IRenderLoopAction> loop in Loop) {
+                s += "  " + loop.Key + ", " + loop.Value.Name + ".\n";
             }
             return s;
         }

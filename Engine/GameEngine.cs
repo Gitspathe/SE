@@ -19,6 +19,7 @@ using SE.Utility;
 using static SE.Core.SceneManager;
 using Console = SE.Core.Console;
 using SE.Serialization;
+using SE.GameLoop;
 
 [assembly: InternalsVisibleTo("SEEditor")]
 namespace SE
@@ -30,11 +31,11 @@ namespace SE
     {
         public static GameEngine Engine;
         public static Action Initalized;
-        public static GameLoop GameLoop;
+        public static GameLoop.GameLoop GameLoop;
         public GraphicsDeviceManager GraphicsDeviceManager;
         
-        public static QuickList<GameObject> DynamicGameObjects = new QuickList<GameObject>();
-        public static HashSet<GameObject> AllGameObjects = new HashSet<GameObject>();
+        internal static QuickList<GameObject> DynamicGameObjects = new QuickList<GameObject>();
+        internal static HashSet<GameObject> AllGameObjects = new HashSet<GameObject>();
         internal GameObject Player;
         internal GameTime GameTime;
 
@@ -118,7 +119,7 @@ namespace SE
                 InputManager.Initialize(this);
                 Reflection.Initialize();
                 ModLoader.Initialize();
-                GameLoop = new GameLoop();
+                GameLoop = new GameLoop.GameLoop();
 
                 ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolParticles
                     ? ParticleAllocationMode.ArrayPool
@@ -249,11 +250,11 @@ namespace SE
             if (!Config.Initialized)
                 throw new InvalidOperationException("Config was not initialized!");
 
-            AssetManager.Update(Time.DeltaTime);
             Config.Update();
+            AssetManager.Update(Time.DeltaTime);
 
             GameTime = gameTime;
-            foreach (Action action in GameLoop.Loop.Values) {
+            foreach (IGameLoopAction action in GameLoop.Loop.Values) {
                 action.Invoke();
             }
 
@@ -295,13 +296,6 @@ namespace SE
             }
 
             //Debug.WriteLine(SpatialPartitionManager.EntitiesCount);
-        }
-
-        public void UpdateDynamicGameObjects()
-        {
-            for (int i = 0; i < DynamicGameObjects.Count; i++) {
-                DynamicGameObjects.Array[i].Update();
-            }
         }
 
         public static void RequestGC()
