@@ -76,7 +76,7 @@ namespace DeeZ.Editor.GUI
         public static bool IsAnyItemFocused() => ImGui.IsAnyItemFocused();
         public static bool IsAnyItemHovered() => ImGui.IsAnyItemHovered();
         public static bool IsItemClicked() => ImGui.IsItemClicked();
-        public static bool IsItemClicked(int button) => ImGui.IsItemClicked(button);
+        public static bool IsItemClicked(ImGuiMouseButton button) => ImGui.IsItemClicked(button);
         public static bool IsItemActivated() => ImGui.IsItemActivated();
         public static bool IsItemActive() => ImGui.IsItemActive();
         public static bool IsItemDeactivated() => ImGui.IsItemDeactivated();
@@ -86,17 +86,17 @@ namespace DeeZ.Editor.GUI
         public static bool IsItemVisible() => ImGui.IsItemVisible();
 
         public static bool IsAnyMouseDown() => ImGui.IsAnyMouseDown();
-        public static bool IsMouseReleased(int button) => ImGui.IsMouseReleased(button);
-        public static bool IsMouseDoubleClicked(int button) => ImGui.IsMouseDoubleClicked(button);
+        public static bool IsMouseReleased(ImGuiMouseButton button) => ImGui.IsMouseReleased(button);
+        public static bool IsMouseDoubleClicked(ImGuiMouseButton button) => ImGui.IsMouseDoubleClicked(button);
         public static bool IsMouseDown() => ImGui.IsMouseDragging(0);
-        public static bool IsMouseDown(int button) => ImGui.IsMouseDragging(button);
-        public static bool IsMouseDown(int button, float lockThreshold) => ImGui.IsMouseDragging(button, lockThreshold);
+        public static bool IsMouseDown(ImGuiMouseButton button) => ImGui.IsMouseDragging(button);
+        public static bool IsMouseDown(ImGuiMouseButton button, float lockThreshold) => ImGui.IsMouseDragging(button, lockThreshold);
         public static bool IsMouseDoubleClicked(Vector2 min, Vector2 max) => ImGui.IsMouseHoveringRect(min, max);
         public static bool IsMouseDoubleClicked(Vector2 min, Vector2 max, bool clip) => ImGui.IsMouseHoveringRect(min, max, clip);
         public static bool IsMouseReleased() => ImGui.IsMousePosValid();
         public static bool IsMouseReleased(ref Vector2 mousePos) => ImGui.IsMousePosValid(ref mousePos);
-        public static bool IsMouseClicked(int button) => ImGui.IsMouseClicked(button);
-        public static bool IsMouseClicked(int button, bool repeat) => ImGui.IsMouseClicked(button, repeat);
+        public static bool IsMouseClicked(ImGuiMouseButton button) => ImGui.IsMouseClicked(button);
+        public static bool IsMouseClicked(ImGuiMouseButton button, bool repeat) => ImGui.IsMouseClicked(button, repeat);
 
         public static bool BeginDragDropSource() => ImGui.BeginDragDropSource();
         public static void BeginDragDropSource(GUIDragDropFlags flags) => ImGui.BeginDragDropSource((ImGuiDragDropFlags) flags);
@@ -126,7 +126,7 @@ namespace DeeZ.Editor.GUI
         public static void SameLine(float offsetX) => ImGui.SameLine(offsetX);
         public static void SameLine(float offsetX, float spacing) => ImGui.SameLine(offsetX, spacing);
 
-        public static void OpenPopupOnItemClick(string strID, int mouseButton) => ImGui.OpenPopupOnItemClick(strID, mouseButton);
+        public static void OpenPopupOnItemClick(string strID, ImGuiMouseButton mouseButton) => ImGui.OpenPopupOnItemClick(strID, mouseButton);
         public static void OpenPopupOnItemClick(string strID) => ImGui.OpenPopupOnItemClick(strID);
         public static void OpenPopupOnItemClick() => ImGui.OpenPopupOnItemClick();
 
@@ -135,6 +135,7 @@ namespace DeeZ.Editor.GUI
         public static void EndPopup() => ImGui.EndPopup();
 
         public static bool BeginMainMenuBar() => ImGui.BeginMainMenuBar();
+        public static void EndMainMenuBar() => ImGui.EndMainMenuBar();
 
         public static bool MenuItem(string label, string shortcut, ref bool pSelected, bool enabled) => ImGui.MenuItem(label, shortcut, ref pSelected, enabled);
         public static bool MenuItem(string label, string shortcut, ref bool pSelected) => ImGui.MenuItem(label, shortcut, ref pSelected);

@@ -63,6 +63,7 @@ namespace DeeZ.Editor.GUI
             for (int i = 0; i < guiObjects.Count; i++) {
                 guiObjects.Array[i].OnPaint();
             }
+            GUI.EndMainMenuBar();
             ImGui.ShowDemoWindow();
         }
 
@@ -90,6 +91,14 @@ namespace DeeZ.Editor.GUI
             style.Colors[(int) ImGuiCol.ScrollbarBg] = new Vector4(0.031f, 0.031f, 0.031f, 1.000f);
             style.Colors[(int) ImGuiCol.ScrollbarGrabHovered] = new Vector4(0.200f, 0.430f, 0.710f, 1.000f);
             style.Colors[(int) ImGuiCol.ScrollbarGrabActive] = new Vector4(0.260f, 0.590f, 0.980f, 1.000f);
+
+            var p = ImGui.GetIO();
+            p.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+        }
+
+        public static void InitializeLayout()
+        {
+
         }
 
         public static class Colors

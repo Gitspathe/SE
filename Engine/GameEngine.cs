@@ -99,7 +99,9 @@ namespace SE
         /// </summary>
         protected sealed override void Initialize()
         {
-            FileMarshal.Setup();
+            if (!isInitialized) {
+                FileMarshal.Setup();
+            }
 
             Content.RootDirectory = "Data";
             LoadEngineContent();

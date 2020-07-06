@@ -149,6 +149,16 @@ namespace SE.Core
 
         #region NETWORK LOOP & MESSAGE HANDLING
 
+        public static T GetNetworkObject<T>(uint networkID) where T : class, INetLogic
+        {
+            lock (netLogicLock) {
+                if (NetworkObjects.TryGetValue(networkID, out INetLogic netLogic)) {
+                    return (T) netLogic;
+                }
+                return null;
+            }
+        }
+
         public static void Initialize()
         {
             if (initialized)
@@ -191,8 +201,7 @@ namespace SE.Core
 
             // Construct server RPC tables.
             ServerRPCLookupTable = new RPCLookupTable<RPCServerInfo>();
-            MethodData[] methodData = methodBundlesServerRPC.ToArray();
-            methodData = methodData.ToList().OrderBy(a => a.ID).ToArray();
+            MethodData[] methodData = methodBundlesServerRPC.OrderBy(a => a.ID).ToArray();
             for (ushort i = 0; i < methodData.Length; i++) {
                 MethodData data = methodData[i];
                 ServerRPCAttribute attribute = data.Info.GetCustomAttribute<ServerRPCAttribute>();
@@ -206,8 +215,7 @@ namespace SE.Core
 
             // Construct client RPC tables.
             ClientRPCLookupTable = new RPCLookupTable<RPCClientInfo>();
-            methodData = methodBundlesClientRPC.ToArray();
-            methodData = methodData.ToList().OrderBy(a => a.ID).ToArray();
+            methodData = methodBundlesClientRPC.OrderBy(a => a.ID).ToArray();
             for (ushort i = 0; i < methodData.Length; i++) {
                 MethodData data = methodData[i];
                 ClientRPCAttribute attribute = data.Info.GetCustomAttribute<ClientRPCAttribute>();
@@ -291,9 +299,12 @@ namespace SE.Core
                 SEPacket packet = new SEPacket(msg);
                 PacketProcessor processor = PacketProcessorManager.GetProcessor(packet.PacketType);
 
-                if (!NetworkObjects.TryGetValue(packet.NetworkID, out INetLogic netLogic))
-                    throw new Exception();
-                
+                INetLogic netLogic;
+                lock (netLogicLock) {
+                    if (!NetworkObjects.TryGetValue(packet.NetworkID, out netLogic))
+                        throw new MalformedPacketException($"No object for network ID {packet.NetworkID} found.");
+                }
+
                 if (processor != null) {
                     NetDataReader reader = NetworkPool.GetReader(packet.Buffer);
                     processor?.OnReceive(netLogic, reader, peer, deliveryMethod);
@@ -503,13 +514,17 @@ namespace SE.Core
             if (!methodID.HasValue)
                 throw new InvalidRPCException("Invalid RPC send: server RPC method '" + method + "' not found.");
 
+            // Find INetLogic object for network ID.
+            INetLogic netLogic;
+            lock (netLogicLock) {
+                if (!NetworkObjects.TryGetValue(networkIdentity, out netLogic))
+                    throw new InvalidRPCException($"No object for network ID {networkIdentity} found.");
+            }
+
             lock (rpcLock) {
                 // Construct NetOutgoingMessage.
                 CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
                 CacheRPCFunc.WriteTo(writer);
-                if (!NetworkObjects.TryGetValue(networkIdentity, out INetLogic netLogic))
-                    throw new Exception();
-
                 SendPacketServer<RPCFunctionProcessor>(netLogic, writer, deliveryMethod, channel, targets, connections, sender);
             }
         }
@@ -527,13 +542,17 @@ namespace SE.Core
             if (!methodID.HasValue)
                 throw new InvalidRPCException("Invalid RPC send: client RPC method '" + method + "' not found.");
 
+            // Find INetLogic object for network ID.
+            INetLogic netLogic;
+            lock (netLogicLock) {
+                if (!NetworkObjects.TryGetValue(networkIdentity, out netLogic))
+                    throw new InvalidRPCException($"No object for network ID {networkIdentity} found.");
+            }
+
             lock (rpcLock) {
                 // Construct a data writer.
                 CacheRPCFunc.Reset(networkIdentity, methodID.Value, parameters);
                 CacheRPCFunc.WriteTo(writer);
-                if (!NetworkObjects.TryGetValue(networkIdentity, out INetLogic netLogic))
-                    throw new Exception();
-
                 SendPacketClient<RPCFunctionProcessor>(netLogic, writer, deliveryMethod, channel);
             }
         }
