@@ -13,9 +13,8 @@ namespace SE.Serialization
     {
         internal static Dictionary<Type, GeneratedSerializer> GeneratedSerializers = new Dictionary<Type, GeneratedSerializer>();
 
-        internal static Dictionary<Type, (IValueSerializer, int)> ValueSerializersType = new Dictionary<Type, (IValueSerializer, int)>();
-        internal static Dictionary<(IValueSerializer, int), Type> TypeValueSerializers = new Dictionary<(IValueSerializer, int), Type>();
-        internal static QuickList<IValueSerializer> ValueSerializersIndexes = new QuickList<IValueSerializer>();
+        internal static Dictionary<Type, IValueSerializer> ValueSerializersType = new Dictionary<Type, IValueSerializer>();
+        internal static Dictionary<IValueSerializer, Type> TypeValueSerializers = new Dictionary<IValueSerializer, Type>();
 
         private static Func<Type, bool> serializerPredicate = myType 
             => myType.IsClass && !myType.IsAbstract && typeof(IValueSerializer).IsAssignableFrom(myType);
@@ -37,8 +36,8 @@ namespace SE.Serialization
 
             Type objType = obj.GetType();
             using(FastMemoryWriter writer = new FastMemoryWriter()) {
-                if(ValueSerializersType.TryGetValue(objType, out (IValueSerializer, int) tuple)) {
-                    tuple.Item1.Serialize(writer, obj);
+                if(ValueSerializersType.TryGetValue(objType, out IValueSerializer valueSerializer)) {
+                    valueSerializer.Serialize(writer, obj);
                 } else {
                     // Check if type is a serializable class or struct.
                     // And generate an object to serialize it.
@@ -65,10 +64,9 @@ namespace SE.Serialization
 
             Type objType = typeof(T);
             MemoryStream stream = new MemoryStream(data);
-            
             using (FastReader reader = new FastReader(stream)) {
-                if(ValueSerializersType.TryGetValue(objType, out (IValueSerializer, int) tuple)) {
-                    return (T) tuple.Item1.Deserialize(reader);
+                if(ValueSerializersType.TryGetValue(objType, out IValueSerializer valueSerializer)) {
+                    return (T) valueSerializer.Deserialize(reader);
                 }
 
                 // Check if type is a serializable class or struct.
@@ -88,18 +86,13 @@ namespace SE.Serialization
 
         private static void Reset()
         {
-            int index = 0;
             ValueSerializersType.Clear();
             TypeValueSerializers.Clear();
-            ValueSerializersIndexes.Clear();
 
             IEnumerable<IValueSerializer> enumerable = GetTypeInstances<IValueSerializer>(serializerPredicate);
             foreach (IValueSerializer valSerializer in enumerable) {
-                (IValueSerializer, int) tuple = (valSerializer, index);
-                ValueSerializersType.Add(valSerializer.ValueType, tuple);
-                TypeValueSerializers.Add(tuple, valSerializer.ValueType);
-                ValueSerializersIndexes.Add(valSerializer);
-                index++;
+                ValueSerializersType.Add(valSerializer.ValueType, valSerializer);
+                TypeValueSerializers.Add(valSerializer, valSerializer.ValueType);
             }
 
             isDirty = false;

@@ -18,24 +18,31 @@ namespace SE.Serialization
         public Type Type { get; set; }
 
         private QuickList<Value> valList = new QuickList<Value>();
-
         private Dictionary<string, Value> values = new Dictionary<string, Value>();
 
-
-
+        private delegate object ObjectActivator();
+        private ObjectActivator activator;
         private TypeAccessor accessor;
+        private bool isValueType;
 
         public GeneratedSerializer(Type type)
         {
             Type = type;
+            isValueType = type.IsValueType;
             accessor = TypeAccessor.Create(type, true);
+
+            // Generate compiled constructors for reference types.
+            if(!isValueType)
+                GenerateCtor();
+
             foreach (Member member in accessor.GetMembers()) {
                 ISerializer serializer;
                 
-                if (Serializer.ValueSerializersType.TryGetValue(member.Type, out (IValueSerializer, int) tuple)) {
-                    serializer = tuple.Item1;
+                if (Serializer.ValueSerializersType.TryGetValue(member.Type, out IValueSerializer valueSerializer)) {
+                    serializer = valueSerializer;
                 } else {
-                    // Try and get nested value serializer. TODO: Stack overflow / infinite recursion detection.
+                    // Try and get nested value serializer.
+                    // TODO: Stack overflow / infinite recursion detection.
                     serializer = Serializer.GetSerializer(member.Type);
                 }
 
@@ -47,28 +54,44 @@ namespace SE.Serialization
             }
         }
 
+        private void GenerateCtor()
+        {
+            ConstructorInfo emptyConstructor = Type.GetConstructor(Type.EmptyTypes);
+            var dynamicMethod = new DynamicMethod("CreateInstance", Type, Type.EmptyTypes, true);
+            ILGenerator ilGenerator = dynamicMethod.GetILGenerator();
+            ilGenerator.Emit(OpCodes.Nop);
+            ilGenerator.Emit(OpCodes.Newobj, emptyConstructor);
+            ilGenerator.Emit(OpCodes.Ret);
+            activator = (ObjectActivator) dynamicMethod.CreateDelegate(typeof(ObjectActivator));
+        }
+
         public void Serialize(FastMemoryWriter writer, object obj)
         {
             Value[] arr = valList.Array;
             for (int i = 0; i < valList.Count; i++) {
-                arr[i].Write(obj, writer);
+                try {
+                    arr[i].Write(obj, writer);
+                } catch (Exception) { /* ignored */ }
             }
             writer.Write('|');
         }
 
-
         public object Deserialize(FastReader reader)
         {
-            object obj = Activator.CreateInstance(Type);
+            object obj = !isValueType ? activator.Invoke() : Activator.CreateInstance(Type);
 
             while (reader.PeekChar() != '|') {
-                string nextVarName = reader.ReadString();
-                values[nextVarName].Read(obj, reader);
+                try {
+                    string nextVarName = reader.ReadString();
+                    values[nextVarName].Read(obj, reader);
+                } catch (Exception) { /* ignored */ }
             }
 
-            // TODO: Why the fuck do I have to call this twice !??!?!?!!?
-            reader.ReadChar();
-            reader.ReadChar();
+            // TODO: Why the fuck do I have to move 2 chars forward !??!?!?!!?
+            reader.BaseStream.Position += 2;
+
+            //reader.ReadChar();
+            //reader.ReadChar();
 
             return obj;
         }
@@ -78,7 +101,7 @@ namespace SE.Serialization
             return (T) Deserialize(reader);
         }
 
-        public class Value
+        private class Value
         {
             private ISerializer valueSerializer;
             private TypeAccessor accessor;
@@ -95,7 +118,8 @@ namespace SE.Serialization
                 object val = GetValue(target);
                 writer.Write(name);
                 writer.Write(val != null);
-                valueSerializer.Serialize(writer, val);
+                if(val != null)
+                    valueSerializer.Serialize(writer, val);
             }
 
             public void SetValue(object target, object value)

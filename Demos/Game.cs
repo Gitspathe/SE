@@ -93,25 +93,26 @@ namespace SEDemos
             Stopwatch s = new Stopwatch();
             s.Start();
 
-
             TestClass test = new TestClass(255);
             test.class2.lol = 69;
             test.class4.lol = 42;
 
             s.Start();
 
-            for (int i = 0; i < 200_000; i++) {
+            for (int i = 0; i < 100_000; i++) {
                 byte[] bytes = Serializer.Serialize(test);
                 test = Serializer.Deserialize<TestClass>(bytes);
             }
 
+            FileIO.SaveFile(Serializer.Serialize(test), "TEST.dat");
+
             s.Stop();
             Console.WriteLine("New serializer: " + s.ElapsedMilliseconds);
 
-            s.Reset();
+            s = new Stopwatch();
             s.Start();
 
-            for (int i = 0; i < 200_000; i++) {
+            for (int i = 0; i < 100_000; i++) {
                 string bytes = test.Serialize();
                 test = bytes.Deserialize<TestClass>();
             }
@@ -130,7 +131,7 @@ namespace SEDemos
             public TestClass2 class2 = new TestClass2();
             public TestClass2 class3 = new TestClass2();
             public TestClass2 class4 = new TestClass2();
-            public TestClass2 class5 = new TestClass2();
+            public TestClass2 class5;
             public TestClass2 class6 = new TestClass2();
             public TestClass2 class7 = new TestClass2();
             public TestClass2 class8 = new TestClass2();
