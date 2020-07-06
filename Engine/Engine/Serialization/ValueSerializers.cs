@@ -6,8 +6,8 @@ namespace SE.Serialization
 {
     public interface ISerializer
     {
-        object Deserialize(FastReader reader);
-        void Serialize(FastMemoryWriter writer, object obj);
+        object Deserialize(FastReader reader, SerializerSettings settings);
+        void Serialize(FastMemoryWriter writer, object obj, SerializerSettings settings);
     }
 
     public interface IValueSerializer : ISerializer
@@ -18,14 +18,20 @@ namespace SE.Serialization
     public class IntValueSerializer : IValueSerializer
     {
         public Type ValueType => typeof(int);
-        public object Deserialize(FastReader reader) => reader.ReadInt32();
-        public void Serialize(FastMemoryWriter writer, object obj) => writer.Write((int) obj);
+
+        public object Deserialize(FastReader reader, SerializerSettings settings) 
+            => reader.ReadInt32();
+        public void Serialize(FastMemoryWriter writer, object obj, SerializerSettings settings) 
+            => writer.Write((int) obj);
     }
 
     public class FloatValueSerializer : IValueSerializer
     {
         public Type ValueType => typeof(float);
-        public object Deserialize(FastReader reader) => reader.ReadSingle();
-        public void Serialize(FastMemoryWriter writer, object obj) => writer.Write((float) obj);
+
+        public object Deserialize(FastReader reader, SerializerSettings settings) 
+            => reader.ReadSingle();
+        public void Serialize(FastMemoryWriter writer, object obj, SerializerSettings settings) 
+            => writer.Write((float) obj);
     }
 }

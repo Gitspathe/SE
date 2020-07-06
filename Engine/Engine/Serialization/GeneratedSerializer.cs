@@ -73,28 +73,26 @@ namespace SE.Serialization
             activator = (ObjectActivator) dynamicMethod.CreateDelegate(typeof(ObjectActivator));
         }
 
-        public void Serialize(FastMemoryWriter writer, object obj)
+        public void Serialize(FastMemoryWriter writer, object obj, SerializerSettings settings)
         {
             Node[] arr = nodeList.Array;
             for (int i = 0; i < nodeList.Count; i++) {
                 try {
-                    arr[i].Write(obj, writer);
+                    arr[i].Write(obj, writer, settings);
                 } catch (Exception) { /* ignored */ }
             }
             writer.Write('|');
         }
 
-        public object Deserialize(FastReader reader)
+        public object Deserialize(FastReader reader, SerializerSettings settings)
         {
             object obj = !isValueType ? activator.Invoke() : Activator.CreateInstance(Type);
 
             while (reader.PeekChar() != '|') {
-                //try {
+                try {
                     string nextVarName = reader.ReadString();
-                    //if (values.TryGetValue(nextVarName, out Value val)) {
-                        nodes[nextVarName].Read(obj, reader);
-                    //}
-                //} catch (Exception) { /* ignored */ }
+                    nodes[nextVarName].Read(obj, reader, settings);
+                } catch (Exception) { /* ignored */ }
             }
 
             // TODO: Why the fuck do I have to move 2 chars forward !?!?!?!?
@@ -106,10 +104,8 @@ namespace SE.Serialization
             return obj;
         }
 
-        public T Deserialize<T>(FastReader reader)
-        {
-            return (T) Deserialize(reader);
-        }
+        public T Deserialize<T>(FastReader reader, SerializerSettings settings) 
+            => (T) Deserialize(reader, settings);
 
         private class Node
         {
@@ -117,30 +113,34 @@ namespace SE.Serialization
             private TypeAccessor accessor;
             private string name;
 
-            public void Read(object target, FastReader reader)
+            public void Read(object target, FastReader reader, SerializerSettings settings)
             {
-                bool nextExists = reader.ReadBoolean();
-                SetValue(target, nextExists ? valueSerializer.Deserialize(reader) : default);
+                // If the next value exists / isn't null, deserialize it's data.
+                if (reader.ReadBoolean()) {
+                    SetValue(target, valueSerializer.Deserialize(reader, settings));
+                    return;
+                } 
+                
+                // If the next value is null, set it to default, or ignore, depending on settings.
+                if (settings.NullValueHandling == NullValueHandling.DefaultValue) {
+                    SetValue(target, default);
+                }
             }
 
-            public void Write(object target, FastMemoryWriter writer)
+            public void Write(object target, FastMemoryWriter writer, SerializerSettings settings)
             {
                 object val = GetValue(target);
                 writer.Write(name);
                 writer.Write(val != null);
                 if(val != null)
-                    valueSerializer.Serialize(writer, val);
+                    valueSerializer.Serialize(writer, val, settings);
             }
 
             public void SetValue(object target, object value)
-            {
-                accessor[target, name] = value;
-            }
+                => accessor[target, name] = value;
 
             public object GetValue(object target)
-            {
-                return accessor[target, name];
-            }
+                => accessor[target, name];
 
             public Node(ISerializer serializer, TypeAccessor accessor, string name)
             {

@@ -19,6 +19,10 @@ namespace SE.Serialization
         private static Func<Type, bool> serializerPredicate = myType 
             => myType.IsClass && !myType.IsAbstract && typeof(IValueSerializer).IsAssignableFrom(myType);
 
+        private static SerializerSettings defaultSettings = new SerializerSettings {
+            NullValueHandling = NullValueHandling.Ignore
+        };
+
         private static bool isDirty = true;
 
         static Serializer()
@@ -27,25 +31,6 @@ namespace SE.Serialization
                 isDirty = true;
                 return null;
             };
-        }
-
-        public static byte[] Serialize(object obj)
-        {
-            if (isDirty)
-                Reset();
-
-            Type objType = obj.GetType();
-            using(FastMemoryWriter writer = new FastMemoryWriter()) {
-                if(ValueSerializersType.TryGetValue(objType, out IValueSerializer valueSerializer)) {
-                    valueSerializer.Serialize(writer, obj);
-                } else {
-                    // Check if type is a serializable class or struct.
-                    // And generate an object to serialize it.
-                    GeneratedSerializer serializer = GetSerializer(objType);
-                    serializer.Serialize(writer, obj);
-                }
-                return writer.ToArray();
-            }
         }
 
         internal static GeneratedSerializer GetSerializer(Type type)
@@ -57,16 +42,39 @@ namespace SE.Serialization
             return serializer;
         }
 
-        public static T Deserialize<T>(byte[] data)
+        public static byte[] Serialize(object obj, SerializerSettings settings = null)
         {
             if (isDirty)
                 Reset();
+            if(settings == null)
+                settings = defaultSettings;
+
+            Type objType = obj.GetType();
+            using(FastMemoryWriter writer = new FastMemoryWriter()) {
+                if(ValueSerializersType.TryGetValue(objType, out IValueSerializer valueSerializer)) {
+                    valueSerializer.Serialize(writer, obj, settings);
+                } else {
+                    // Check if type is a serializable class or struct.
+                    // And generate an object to serialize it.
+                    GeneratedSerializer serializer = GetSerializer(objType);
+                    serializer.Serialize(writer, obj, settings);
+                }
+                return writer.ToArray();
+            }
+        }
+
+        public static T Deserialize<T>(byte[] data, SerializerSettings settings = null)
+        {
+            if (isDirty)
+                Reset();
+            if(settings == null)
+                settings = defaultSettings;
 
             Type objType = typeof(T);
             MemoryStream stream = new MemoryStream(data);
             using (FastReader reader = new FastReader(stream)) {
                 if(ValueSerializersType.TryGetValue(objType, out IValueSerializer valueSerializer)) {
-                    return (T) valueSerializer.Deserialize(reader);
+                    return (T) valueSerializer.Deserialize(reader, settings);
                 }
 
                 // Check if type is a serializable class or struct.
@@ -74,7 +82,7 @@ namespace SE.Serialization
                 GeneratedSerializer serializer = GetSerializer(objType);
 
                 if (serializer != null) {
-                    return serializer.Deserialize<T>(reader);
+                    return serializer.Deserialize<T>(reader, settings);
                 }
             }
 
