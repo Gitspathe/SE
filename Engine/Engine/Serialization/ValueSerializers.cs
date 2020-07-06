@@ -18,15 +18,14 @@ namespace SE.Serialization
     public class IntValueSerializer : IValueSerializer
     {
         public Type ValueType => typeof(int);
+        public object Deserialize(FastReader reader) => reader.ReadInt32();
+        public void Serialize(FastMemoryWriter writer, object obj) => writer.Write((int) obj);
+    }
 
-        public object Deserialize(FastReader reader)
-        {
-            return reader.ReadInt32();
-        }
-
-        public void Serialize(FastMemoryWriter writer, object obj)
-        {
-            writer.Write((int) obj);
-        }
+    public class FloatValueSerializer : IValueSerializer
+    {
+        public Type ValueType => typeof(float);
+        public object Deserialize(FastReader reader) => reader.ReadSingle();
+        public void Serialize(FastMemoryWriter writer, object obj) => writer.Write((float) obj);
     }
 }

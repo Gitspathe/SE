@@ -15,17 +15,17 @@ namespace SE.Serialization
 {
     internal class GeneratedSerializer : ISerializer
     {
-        public Type Type { get; set; }
+        public Type Type { get; }
 
-        private QuickList<Value> valList = new QuickList<Value>();
-        private Dictionary<string, Value> values = new Dictionary<string, Value>();
+        private QuickList<Node> nodeList = new QuickList<Node>();
+        private Dictionary<string, Node> nodes = new Dictionary<string, Node>();
 
         private delegate object ObjectActivator();
         private ObjectActivator activator;
         private TypeAccessor accessor;
         private bool isValueType;
 
-        public GeneratedSerializer(Type type)
+        private GeneratedSerializer(Type type)
         {
             Type = type;
             isValueType = type.IsValueType;
@@ -46,12 +46,20 @@ namespace SE.Serialization
                     serializer = Serializer.GetSerializer(member.Type);
                 }
 
-                if(serializer != null) {
-                    Value val = new Value(serializer, accessor, member.Name);
-                    values.Add(member.Name, val);
-                    valList.Add(val);
-                }
+                // Skip this member if a valid serializer was not found.
+                if (serializer == null) 
+                    continue;
+
+                Node val = new Node(serializer, accessor, member.Name);
+                nodes.Add(member.Name, val);
+                nodeList.Add(val);
             }
+        }
+
+        public static GeneratedSerializer Generate(Type type)
+        {
+            GeneratedSerializer gen = new GeneratedSerializer(type);
+            return gen.nodes.Count > 0 ? gen : null;
         }
 
         private void GenerateCtor()
@@ -67,8 +75,8 @@ namespace SE.Serialization
 
         public void Serialize(FastMemoryWriter writer, object obj)
         {
-            Value[] arr = valList.Array;
-            for (int i = 0; i < valList.Count; i++) {
+            Node[] arr = nodeList.Array;
+            for (int i = 0; i < nodeList.Count; i++) {
                 try {
                     arr[i].Write(obj, writer);
                 } catch (Exception) { /* ignored */ }
@@ -81,13 +89,15 @@ namespace SE.Serialization
             object obj = !isValueType ? activator.Invoke() : Activator.CreateInstance(Type);
 
             while (reader.PeekChar() != '|') {
-                try {
+                //try {
                     string nextVarName = reader.ReadString();
-                    values[nextVarName].Read(obj, reader);
-                } catch (Exception) { /* ignored */ }
+                    //if (values.TryGetValue(nextVarName, out Value val)) {
+                        nodes[nextVarName].Read(obj, reader);
+                    //}
+                //} catch (Exception) { /* ignored */ }
             }
 
-            // TODO: Why the fuck do I have to move 2 chars forward !??!?!?!!?
+            // TODO: Why the fuck do I have to move 2 chars forward !?!?!?!?
             reader.BaseStream.Position += 2;
 
             //reader.ReadChar();
@@ -101,7 +111,7 @@ namespace SE.Serialization
             return (T) Deserialize(reader);
         }
 
-        private class Value
+        private class Node
         {
             private ISerializer valueSerializer;
             private TypeAccessor accessor;
@@ -132,7 +142,7 @@ namespace SE.Serialization
                 return accessor[target, name];
             }
 
-            public Value(ISerializer serializer, TypeAccessor accessor, string name)
+            public Node(ISerializer serializer, TypeAccessor accessor, string name)
             {
                 valueSerializer = serializer;
                 this.accessor = accessor;

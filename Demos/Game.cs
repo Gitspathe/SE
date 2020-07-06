@@ -96,6 +96,7 @@ namespace SEDemos
             TestClass test = new TestClass(255);
             test.class2.lol = 69;
             test.class4.lol = 42;
+            test.pizza3 = 99.25f;
 
             s.Start();
 
@@ -125,7 +126,7 @@ namespace SEDemos
         {
             public int pizza = 5;
             public int pizza2 = 5;
-            public int pizza3 = 5;
+            public float pizza3 = 5f;
             public int pizza4 = 3;
             public int pizza5 = 5;
             public TestClass2 class2 = new TestClass2();

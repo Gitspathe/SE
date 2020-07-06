@@ -51,7 +51,7 @@ namespace SE.Serialization
         internal static GeneratedSerializer GetSerializer(Type type)
         {
             if (!GeneratedSerializers.TryGetValue(type, out GeneratedSerializer serializer)) {
-                serializer = new GeneratedSerializer(type);
+                serializer = GeneratedSerializer.Generate(type);
                 GeneratedSerializers.Add(type, serializer);
             }
             return serializer;
@@ -71,10 +71,7 @@ namespace SE.Serialization
 
                 // Check if type is a serializable class or struct.
                 // And generate an object to serialize it.
-                if (!GeneratedSerializers.TryGetValue(objType, out GeneratedSerializer serializer)) {
-                    serializer = new GeneratedSerializer(objType);
-                    GeneratedSerializers.Add(objType, serializer);
-                }
+                GeneratedSerializer serializer = GetSerializer(objType);
 
                 if (serializer != null) {
                     return serializer.Deserialize<T>(reader);
