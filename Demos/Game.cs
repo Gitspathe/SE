@@ -20,6 +20,9 @@ using SEDemos.GameObjects;
 using SEDemos.GameObjects.UI;
 using Vector2 = System.Numerics.Vector2;
 using DisplayMode = SE.DisplayMode;
+using SE.Serialization;
+using System.Diagnostics;
+using Console = SE.Core.Console;
 
 namespace SEDemos
 {
@@ -86,6 +89,64 @@ namespace SEDemos
             if (!IsEditor) {
                 GameObject camera = new InternalCamera(Vector2.Zero, 0f, Vector2.One);
             }
+
+            Stopwatch s = new Stopwatch();
+            s.Start();
+
+
+            TestClass test = new TestClass(255);
+            test.class2.lol = 69;
+            test.class4.lol = 42;
+
+            s.Start();
+
+            for (int i = 0; i < 200_000; i++) {
+                byte[] bytes = Serializer.Serialize(test);
+                test = Serializer.Deserialize<TestClass>(bytes);
+            }
+
+            s.Stop();
+            Console.WriteLine("New serializer: " + s.ElapsedMilliseconds);
+
+            s.Reset();
+            s.Start();
+
+            for (int i = 0; i < 200_000; i++) {
+                string bytes = test.Serialize();
+                test = bytes.Deserialize<TestClass>();
+            }
+
+            s.Stop();
+            Console.WriteLine("JSON serializer: " + s.ElapsedMilliseconds);
+        }
+
+        public class TestClass
+        {
+            public int pizza = 5;
+            public int pizza2 = 5;
+            public int pizza3 = 5;
+            public int pizza4 = 3;
+            public int pizza5 = 5;
+            public TestClass2 class2 = new TestClass2();
+            public TestClass2 class3 = new TestClass2();
+            public TestClass2 class4 = new TestClass2();
+            public TestClass2 class5 = new TestClass2();
+            public TestClass2 class6 = new TestClass2();
+            public TestClass2 class7 = new TestClass2();
+            public TestClass2 class8 = new TestClass2();
+            public TestClass2 class9 = new TestClass2();
+
+            public TestClass(int pizzas)
+            {
+                pizza = pizzas;
+            }
+
+            public TestClass() : this(99) { }
+        }
+
+        public class TestClass2
+        {
+            public int lol;
         }
 
         public static void SpawnStuff()

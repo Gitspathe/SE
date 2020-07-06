@@ -17,6 +17,7 @@ namespace SE.World
             DestroyTile();
             Spot = tileSpot;
             TileID = tileID;
+            Provider = TileMap.TileSet[tileID];
             Instantiate();
         }
 

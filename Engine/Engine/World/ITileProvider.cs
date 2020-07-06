@@ -1,5 +1,4 @@
-﻿
-namespace SE.World
+﻿namespace SE.World
 {
     /// <summary>
     /// Represents an object which handles Tiles.
