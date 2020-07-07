@@ -95,6 +95,8 @@ namespace SEDemos
 
             TestClass test = new TestClass(255);
             test.pizza1 = 255;
+            test.pizza5 = 999;
+            test.pizza3[2] = 59;
 
             s.Start();
 
@@ -116,25 +118,24 @@ namespace SEDemos
 
             s.Stop();
             Console.WriteLine("JSON serializer: " + s.ElapsedMilliseconds);
+
+            Console.WriteLine(typeof(int[]));
         }
 
         public class TestClass
         {
             public int pizza1 { get; set; } = 12;
             private int pizza2 = 2;
-            public int pizza3 = 5;
+            public int[] pizza3 = new [] { 1, 2, 3 };
             public float pizza4 = 5.5f;
-            public int pizza5 = 2;
-            public int pizza6 = 5;
-            public int pizza7 = 8;
-            public int pizza8 = 1;
+            public int? pizza5 = 2;
+            public int? pizza6 = 5;
+            public int? pizza7 = 8;
+            public int? pizza8 = 1;
             public ushort pizza9 = 5;
-            public int pizza10 = 44;
-            public int pizza11 = 9;
+            public int? pizza10 = 44;
+            public int? pizza11 = 9;
             public byte pizza12 = 3;
-            public TestClass2 test1 = new TestClass2();
-            public TestClass2 test2 = new TestClass2();
-            public TestClass2 test3 = new TestClass2();
 
             public TestClass(int pizzas)
             {

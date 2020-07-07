@@ -17,6 +17,8 @@ namespace SE.Serialization
         private static Dictionary<Type, TypeSerializer> typeSerializers = new Dictionary<Type, TypeSerializer>();
         private static Dictionary<Type, GenericTypeSerializer> genericTypeSerializers = new Dictionary<Type, GenericTypeSerializer>();
 
+        private static ArrayTypeSerializer arraySerializer = new ArrayTypeSerializer();
+
         private static Func<Type, bool> serializerPredicate = myType 
             => myType != typeof(GeneratedSerializer) 
                && myType.IsClass 
@@ -57,13 +59,17 @@ namespace SE.Serialization
                 if (serializer == null)
                     return null;
 
-                if (serializer.IsGeneric) {
-                    ((GenericTypeSerializer) serializer).SerializeGeneric(obj, GetGenericInnerTypes(objType), writer, settings);
-                } else {
-                    serializer.Serialize(obj, writer, settings);
-                }
-
+                Serialize(writer, obj, objType, serializer, settings);
                 return writer.ToArray();
+            }
+        }
+
+        public static void Serialize(FastMemoryWriter writer, object obj, Type objType, TypeSerializer serializer, SerializerSettings settings = null)
+        {
+            if (serializer.IsGeneric) {
+                ((GenericTypeSerializer) serializer).SerializeGeneric(obj, GetGenericInnerTypes(objType), writer, settings);
+            } else {
+                serializer.Serialize(obj, writer, settings);
             }
         }
 
@@ -76,11 +82,23 @@ namespace SE.Serialization
                 settings = defaultSettings;
 
             Type objType = typeof(T);
+            TypeSerializer serializer = GetSerializer(objType);
             MemoryStream stream = new MemoryStream(data);
             using (FastReader reader = new FastReader(stream)) {
-                TypeSerializer serializer = GetSerializer(objType);
-                return (T) serializer.Deserialize(reader, settings);
+                return (T) Deserialize(objType, serializer, reader, settings);
             }
+        }
+
+        public static object Deserialize(Type type, TypeSerializer serializer, FastReader reader, SerializerSettings settings = null)
+        {
+            ResetIfNeeded();
+            if(settings == null)
+                settings = defaultSettings;
+
+            if (serializer.IsGeneric) {
+                return ((GenericTypeSerializer) serializer).DeserializeGeneric(GetGenericInnerTypes(type), reader, settings);
+            }
+            return serializer.Deserialize(reader, settings);
         }
 
         public static TypeSerializer GetSerializer(Type objType)
@@ -90,13 +108,24 @@ namespace SE.Serialization
                 return serializer;
             }
 
-            // Step 2: Check if the concrete type is in the ValueSerializersType dictionary.
+            // Step 2: Test to see if it's a specially recognized type.
+            // A) Flat array.
+            if (objType.IsArray) {
+                serializerCache.Add(objType, arraySerializer);
+                genericInnerTypeCache.Add(objType, new [] { objType.GetElementType() });
+                return arraySerializer;
+            }
+
+            // B) TODO: Jagged array.
+            // C) TODO: Multidimensional array.
+
+            // Step 3: Check if the concrete type is in the ValueSerializersType dictionary.
             if(typeSerializers.TryGetValue(objType, out serializer)) {
                 serializerCache.Add(objType, serializer);
                 return serializer;
             } 
                 
-            // Step 3: Check if the type implements an interface within the ValueSerializersType dictionary.
+            // Step 4: Check if the type implements an interface within the ValueSerializersType dictionary.
             foreach (Type intType in objType.GetInterfaces()) {
                 if (typeSerializers.TryGetValue(intType, out serializer)) {
                     serializerCache.Add(objType, serializer);
@@ -104,7 +133,7 @@ namespace SE.Serialization
                 }
             }
 
-            // Step 4: Check if the type is generic.
+            // Step 5: Check if the type is generic.
             if (objType.IsGenericType) {
                 if (genericTypeSerializers.TryGetValue(objType.GetGenericTypeDefinition(), out GenericTypeSerializer genericSerializer)) {
                     serializerCache.Add(objType, genericSerializer);
@@ -113,7 +142,7 @@ namespace SE.Serialization
                 }
             }
 
-            // Step 5: Try and retrieve or generate a serializer for the given type.
+            // Step 6: Try and retrieve or generate a serializer for the given type.
             GeneratedSerializer generatedSerializer = GetGeneratedSerializer(objType);
             serializerCache.Add(objType, generatedSerializer);
             return generatedSerializer;
@@ -145,12 +174,14 @@ namespace SE.Serialization
 
             IEnumerable<TypeSerializer> enumerable = GetTypeInstances<TypeSerializer>(serializerPredicate);
             foreach (TypeSerializer valSerializer in enumerable) {
-                typeSerializers.Add(valSerializer.Type, valSerializer);
+                if(!valSerializer.DoNotStore)
+                    typeSerializers.Add(valSerializer.Type, valSerializer);
             }
 
             IEnumerable<GenericTypeSerializer> genericEnumerable = GetTypeInstances<GenericTypeSerializer>(genericSerializerPredicate);
             foreach (GenericTypeSerializer valSerializer in genericEnumerable) {
-                genericTypeSerializers.Add(valSerializer.Type, valSerializer);
+                if(!valSerializer.DoNotStore)
+                    genericTypeSerializers.Add(valSerializer.Type, valSerializer);
             }
 
             isDirty = false;
