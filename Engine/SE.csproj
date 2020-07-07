@@ -132,8 +132,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Engine\Serialization\Internal\" />
-  </ItemGroup>
-
 </Project>

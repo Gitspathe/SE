@@ -94,9 +94,7 @@ namespace SEDemos
             s.Start();
 
             TestClass test = new TestClass(255);
-            test.class2.lol = 69;
-            test.class4.lol = 42;
-            test.pizza3 = 99.25f;
+            test.pizza1 = 255;
 
             s.Start();
 
@@ -104,8 +102,6 @@ namespace SEDemos
                 byte[] bytes = Serializer.Serialize(test);
                 test = Serializer.Deserialize<TestClass>(bytes);
             }
-
-            FileIO.SaveFile(Serializer.Serialize(test), "TEST.dat");
 
             s.Stop();
             Console.WriteLine("New serializer: " + s.ElapsedMilliseconds);
@@ -124,31 +120,45 @@ namespace SEDemos
 
         public class TestClass
         {
-            public int pizza = 5;
-            public int pizza2 = 5;
-            public float pizza3 = 5f;
-            public int pizza4 = 3;
-            public int pizza5 = 5;
-            public TestClass2 class2 = new TestClass2();
-            public TestClass2 class3 = new TestClass2();
-            public TestClass2 class4 = new TestClass2();
-            public TestClass2 class5;
-            public TestClass2 class6 = new TestClass2();
-            public TestClass2 class7 = new TestClass2();
-            public TestClass2 class8 = new TestClass2();
-            public TestClass2 class9 = new TestClass2();
+            public int pizza1 { get; set; } = 12;
+            private int pizza2 = 2;
+            public int pizza3 = 5;
+            public float pizza4 = 5.5f;
+            public int pizza5 = 2;
+            public int pizza6 = 5;
+            public int pizza7 = 8;
+            public int pizza8 = 1;
+            public ushort pizza9 = 5;
+            public int pizza10 = 44;
+            public int pizza11 = 9;
+            public byte pizza12 = 3;
+            public TestClass2 test1 = new TestClass2();
+            public TestClass2 test2 = new TestClass2();
+            public TestClass2 test3 = new TestClass2();
 
             public TestClass(int pizzas)
             {
-                pizza = pizzas;
+                pizza2 = pizzas;
             }
-
             public TestClass() : this(99) { }
         }
 
         public class TestClass2
         {
-            public int lol;
+            public int? lol = 2;
+            public TestClass3 test1 = new TestClass3();
+            public TestClass3 test2 = new TestClass3();
+            public TestClass3 test3 = new TestClass3();
+            public TestClass3 test4 = new TestClass3();
+        }
+
+        public class TestClass3
+        {
+            public int lol = 2;
+            public int lol2 = 2;
+            public int lol3 = 2;
+            public int lol4 = 2;
+            public int lol5 = 2;
         }
 
         public static void SpawnStuff()

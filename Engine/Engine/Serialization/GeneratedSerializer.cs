@@ -10,9 +10,9 @@ using System.Reflection.Emit;
 
 namespace SE.Serialization
 {
-    internal class GeneratedSerializer : ISerializer
+    internal class GeneratedSerializer : TypeSerializer
     {
-        public Type Type { get; }
+        public override Type Type { get; }
 
         private QuickList<Node> nodeList = new QuickList<Node>();
         private Dictionary<string, Node> nodes = new Dictionary<string, Node>();
@@ -33,13 +33,23 @@ namespace SE.Serialization
                 GenerateCtor();
 
             foreach (Member member in accessor.GetMembers()) {
-                ISerializer serializer = Serializer.GetSerializer(member.Type);
+                
+                // Example code of skipping non-public members.
+                if(!member.IsPublic)
+                    continue;
+
+                TypeSerializer serializer = Serializer.GetSerializer(member.Type);
 
                 // Skip this member if a valid serializer was not found.
                 if (serializer == null) 
                     continue;
 
-                Node val = new Node(serializer, accessor, member.Name);
+                //Node val = null;
+                //if (member.Type.IsGenericType) {
+                //    Type innerTYpe = member.Type.getgen
+                //}
+
+                Node val = new Node(serializer, member.Type, accessor, member.Name);
                 nodes.Add(member.Name, val);
                 nodeList.Add(val);
             }
@@ -62,7 +72,7 @@ namespace SE.Serialization
             activator = (ObjectActivator) dynamicMethod.CreateDelegate(typeof(ObjectActivator));
         }
 
-        public void Serialize(FastMemoryWriter writer, object obj, SerializerSettings settings)
+        public override void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings)
         {
             Node[] arr = nodeList.Array;
             for (int i = 0; i < nodeList.Count; i++) {
@@ -73,9 +83,9 @@ namespace SE.Serialization
             writer.Write('|');
         }
 
-        public object Deserialize(FastReader reader, SerializerSettings settings)
+        public override object Deserialize(FastReader reader, SerializerSettings settings)
         {
-            object obj = !isValueType ? activator.Invoke() : Activator.CreateInstance(Type);
+            object obj = isValueType ? Activator.CreateInstance(Type) : activator.Invoke();
 
             while (reader.PeekChar() != '|') {
                 try {
@@ -87,9 +97,6 @@ namespace SE.Serialization
             // TODO: Why the fuck do I have to move 2 chars forward !?!?!?!?
             reader.BaseStream.Position += 2;
 
-            //reader.ReadChar();
-            //reader.ReadChar();
-
             return obj;
         }
 
@@ -98,15 +105,36 @@ namespace SE.Serialization
 
         private class Node
         {
-            private ISerializer valueSerializer;
+            private TypeSerializer valueTypeSerializer;
             private TypeAccessor accessor;
             private string name;
+            private Type type;
+
+            // Generic type serializer variables.
+            private Type[] innerTypes;
+            private bool isGeneric;
+
+            public Node(TypeSerializer serializer, Type type, TypeAccessor accessor, string name)
+            {
+                valueTypeSerializer = serializer;
+                this.type = type;
+                this.accessor = accessor;
+                this.name = name;
+                if (valueTypeSerializer.IsGeneric) {
+                    innerTypes = Serializer.GetGenericInnerTypes(type);
+                    isGeneric = true;
+                } else {
+                    isGeneric = false;
+                }
+            }
 
             public void Read(object target, FastReader reader, SerializerSettings settings)
             {
                 // If the next value exists / isn't null, deserialize it's data.
                 if (reader.ReadBoolean()) {
-                    SetValue(target, valueSerializer.Deserialize(reader, settings));
+                    SetValue(target, isGeneric 
+                        ? ((GenericTypeSerializer)valueTypeSerializer).DeserializeGeneric(innerTypes, reader, settings) 
+                        : valueTypeSerializer.Deserialize(reader, settings));
                     return;
                 } 
                 
@@ -121,8 +149,14 @@ namespace SE.Serialization
                 object val = GetValue(target);
                 writer.Write(name);
                 writer.Write(val != null);
-                if(val != null)
-                    valueSerializer.Serialize(writer, val, settings);
+                if (val == null) 
+                    return;
+
+                if (isGeneric) {
+                    ((GenericTypeSerializer)valueTypeSerializer).SerializeGeneric(val, innerTypes, writer, settings);
+                } else {
+                    valueTypeSerializer.Serialize(val, writer, settings);
+                }
             }
 
             public void SetValue(object target, object value)
@@ -130,13 +164,6 @@ namespace SE.Serialization
 
             public object GetValue(object target)
                 => accessor[target, name];
-
-            public Node(ISerializer serializer, TypeAccessor accessor, string name)
-            {
-                valueSerializer = serializer;
-                this.accessor = accessor;
-                this.name = name;
-            }
         }
     }
 }
