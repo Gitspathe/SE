@@ -33,15 +33,6 @@ namespace SE.Serialization
             };
         }
 
-        internal static GeneratedSerializer GetSerializer(Type type)
-        {
-            if (!GeneratedSerializers.TryGetValue(type, out GeneratedSerializer serializer)) {
-                serializer = GeneratedSerializer.Generate(type);
-                GeneratedSerializers.Add(type, serializer);
-            }
-            return serializer;
-        }
-
         public static byte[] Serialize(object obj, SerializerSettings settings = null)
         {
             if (isDirty)
@@ -51,14 +42,8 @@ namespace SE.Serialization
 
             Type objType = obj.GetType();
             using(FastMemoryWriter writer = new FastMemoryWriter()) {
-                if(ValueSerializersType.TryGetValue(objType, out IValueSerializer valueSerializer)) {
-                    valueSerializer.Serialize(writer, obj, settings);
-                } else {
-                    // Check if type is a serializable class or struct.
-                    // And generate an object to serialize it.
-                    GeneratedSerializer serializer = GetSerializer(objType);
-                    serializer.Serialize(writer, obj, settings);
-                }
+                ISerializer serializer = GetSerializer(objType);
+                serializer.Serialize(writer, obj, settings);
                 return writer.ToArray();
             }
         }
@@ -73,20 +58,39 @@ namespace SE.Serialization
             Type objType = typeof(T);
             MemoryStream stream = new MemoryStream(data);
             using (FastReader reader = new FastReader(stream)) {
-                if(ValueSerializersType.TryGetValue(objType, out IValueSerializer valueSerializer)) {
-                    return (T) valueSerializer.Deserialize(reader, settings);
-                }
-
-                // Check if type is a serializable class or struct.
-                // And generate an object to serialize it.
-                GeneratedSerializer serializer = GetSerializer(objType);
-
-                if (serializer != null) {
-                    return serializer.Deserialize<T>(reader, settings);
-                }
+                ISerializer serializer = GetSerializer(objType);
+                return (T) serializer.Deserialize(reader, settings);
             }
 
             return default;
+        }
+
+        internal static ISerializer GetSerializer(Type objType)
+        {
+            // Step 1: Check if the concrete type is in the ValueSerializersType dictionary.
+            if(ValueSerializersType.TryGetValue(objType, out IValueSerializer serializer)) {
+                return serializer;
+            } 
+                
+            // Step 2: Check if the type implements an interface within the ValueSerializersType dictionary.
+            foreach (Type intType in objType.GetInterfaces()) {
+                if (ValueSerializersType.TryGetValue(intType, out serializer)) {
+                    return serializer;
+                }
+            }
+
+            // Step 3: Try and retrieve or generated a GeneratedSerializer for the given type.
+            GeneratedSerializer generatedSerializer = GetGeneratedSerializer(objType);
+            return generatedSerializer;
+        }
+
+        private static GeneratedSerializer GetGeneratedSerializer(Type type)
+        {
+            if (!GeneratedSerializers.TryGetValue(type, out GeneratedSerializer serializer)) {
+                serializer = GeneratedSerializer.Generate(type);
+                GeneratedSerializers.Add(type, serializer);
+            }
+            return serializer;
         }
 
         private static void Reset()

@@ -5,11 +5,8 @@ using SE.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Security.Cryptography;
 
 namespace SE.Serialization
 {
@@ -36,15 +33,7 @@ namespace SE.Serialization
                 GenerateCtor();
 
             foreach (Member member in accessor.GetMembers()) {
-                ISerializer serializer;
-                
-                if (Serializer.ValueSerializersType.TryGetValue(member.Type, out IValueSerializer valueSerializer)) {
-                    serializer = valueSerializer;
-                } else {
-                    // Try and get nested value serializer.
-                    // TODO: Stack overflow / infinite recursion detection.
-                    serializer = Serializer.GetSerializer(member.Type);
-                }
+                ISerializer serializer = Serializer.GetSerializer(member.Type);
 
                 // Skip this member if a valid serializer was not found.
                 if (serializer == null) 
