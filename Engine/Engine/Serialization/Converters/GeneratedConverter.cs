@@ -39,6 +39,7 @@ namespace SE.Serialization.Converters
             foreach (Member member in set) {
                 
                 // TODO: Replace this with attributes and stuff.
+                // TODO: Attribute to override declaration order and/or name for variables.
                 if(!member.IsPublic)
                     continue;
 
@@ -87,11 +88,23 @@ namespace SE.Serialization.Converters
         {
             object obj = isValueType ? Activator.CreateInstance(Type) : activator.Invoke();
 
-            for (int i = 0; i < nodesLength; i++) {
-                try {
-                    string nextVarName = reader.ReadString();
-                    nodes[nextVarName].Read(obj, reader, settings);
-                } catch (Exception) { /* ignored */ }
+            switch (settings.ConvertBehaviour) {
+                case ConvertBehaviour.Name: {
+                    for (int i = 0; i < nodesLength; i++) {
+                        try {
+                            nodes[reader.ReadString()].Read(obj, reader, settings);
+                        } catch (Exception) { /* ignored */ }
+                    }
+                } break;
+                case ConvertBehaviour.Order: {
+                    for (int i = 0; i < nodesLength; i++) {
+                        try {
+                            nodesArr[i].Read(obj, reader, settings);
+                        } catch (Exception) { /* ignored */ }
+                    }
+                } break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             // TODO: Error handling.
@@ -135,7 +148,9 @@ namespace SE.Serialization.Converters
             public void Write(object target, FastMemoryWriter writer, SerializerSettings settings)
             {
                 object val = GetValue(target);
-                writer.Write(name);
+                if(settings.ConvertBehaviour == ConvertBehaviour.Name)
+                    writer.Write(name);
+
                 writer.Write(val != null);
                 if (val == null) 
                     return;

@@ -29,7 +29,7 @@ namespace SE.Serialization.Converters
 
             Converter serializer = settings.Resolver.GetConverter(InnerTypes[0]);
             for (int i = 0; i < val.Length; i++) {
-                Serializer.Serialize(writer, val.GetValue(i), serializer, settings);
+                Serializer.Serialize(val.GetValue(i), settings, serializer, writer);
             }
         }
     }

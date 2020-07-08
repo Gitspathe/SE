@@ -4,13 +4,20 @@ namespace SE.Serialization
 {
     public sealed class SerializerSettings
     {
-        public NullValueHandling NullValueHandling;
-        public ConverterResolver Resolver;
+        public NullValueHandling NullValueHandling = NullValueHandling.Ignore;
+        public ConvertBehaviour ConvertBehaviour   = ConvertBehaviour.Name;
+        public ConverterResolver Resolver          = Serializer.DefaultResolver;
     }
 
     public enum NullValueHandling
     {
         Ignore,
         DefaultValue
+    }
+
+    public enum ConvertBehaviour
+    {
+        Name,
+        Order
     }
 }
