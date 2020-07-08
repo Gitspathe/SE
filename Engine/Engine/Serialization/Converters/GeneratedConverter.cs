@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -77,10 +78,12 @@ namespace SE.Serialization.Converters
 
         public override void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings)
         {
+            bool writeName = settings.ConvertBehaviour == ConvertBehaviour.Name
+                             || settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
+
             for (int i = 0; i < nodesLength; i++) {
-                try {
-                    nodesArr[i].Write(obj, writer, settings);
-                } catch (Exception) { /* ignored */ }
+                writer.Write('|');
+                nodesArr[i].Write(obj, writer, settings, writeName);
             }
         }
 
@@ -89,20 +92,63 @@ namespace SE.Serialization.Converters
             object obj = isValueType ? Activator.CreateInstance(Type) : activator.Invoke();
 
             switch (settings.ConvertBehaviour) {
+                
                 case ConvertBehaviour.Name: {
                     for (int i = 0; i < nodesLength; i++) {
-                        try {
-                            nodes[reader.ReadString()].Read(obj, reader, settings);
-                        } catch (Exception) { /* ignored */ }
+                        SkipDelimiter(reader);
+                        if (nodes.TryGetValue(reader.ReadString(), out Node node)) {
+                            try {
+                                node.Read(obj, reader, settings);
+                                continue;
+                            } catch (Exception) { }
+                        }
+
+                        i++;
+                        if(!SkipToNextDelimiter(reader))
+                            break;
                     }
                 } break;
+                
                 case ConvertBehaviour.Order: {
                     for (int i = 0; i < nodesLength; i++) {
+                        SkipDelimiter(reader);
                         try {
                             nodesArr[i].Read(obj, reader, settings);
+                            continue;
                         } catch (Exception) { /* ignored */ }
+
+                        i++;
+                        if(!SkipToNextDelimiter(reader))
+                            break;
                     }
                 } break;
+                
+                case ConvertBehaviour.NameAndOrder: {
+                    for (int i = 0; i < nodesLength; i++) {
+                        SkipDelimiter(reader);
+                        long startIndex = reader.BaseStream.Position;
+                        
+                        // Step 1: Attempt to deserialize based on name.
+                        try {
+                            if (nodes.TryGetValue(reader.ReadString(), out Node node)) {
+                                node.Read(obj, reader, settings);
+                                continue;
+                            }
+                        } catch(Exception) { /* ignored */ }
+
+                        // Step 2: Attempt to deserialize based on declaration order.
+                        try {
+                            reader.BaseStream.Position = startIndex;
+                            nodesArr[i].Read(obj, reader, settings);
+                        } catch (Exception) { /* ignored */ }
+
+                        // Step 3: Skip to next element.
+                        i++;
+                        if(!SkipToNextDelimiter(reader))
+                            break;
+                    }
+                } break;
+                
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -117,6 +163,22 @@ namespace SE.Serialization.Converters
 
         public T Deserialize<T>(FastReader reader, SerializerSettings settings) 
             => (T) Deserialize(reader, settings);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void SkipDelimiter(FastReader reader) 
+            => reader.BaseStream.Position += 2;
+
+        private bool SkipToNextDelimiter(FastReader reader)
+        {
+            Stream baseStream = reader.BaseStream;
+            while (baseStream.Position + sizeof(char) < baseStream.Length) {
+                if (reader.PeekChar() == '|') {
+                    return true;
+                }
+                reader.ReadChar();
+            }
+            return false;
+        }
 
         private sealed class Node 
         {
@@ -145,10 +207,10 @@ namespace SE.Serialization.Converters
                 }
             }
 
-            public void Write(object target, FastMemoryWriter writer, SerializerSettings settings)
+            public void Write(object target, FastMemoryWriter writer, SerializerSettings settings, bool writeName)
             {
                 object val = GetValue(target);
-                if(settings.ConvertBehaviour == ConvertBehaviour.Name)
+                if(writeName)
                     writer.Write(name);
 
                 writer.Write(val != null);
