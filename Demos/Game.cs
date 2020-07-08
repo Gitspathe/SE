@@ -22,6 +22,7 @@ using Vector2 = System.Numerics.Vector2;
 using DisplayMode = SE.DisplayMode;
 using SE.Serialization;
 using System.Diagnostics;
+using Newtonsoft.Json;
 using Console = SE.Core.Console;
 
 namespace SEDemos
@@ -90,52 +91,79 @@ namespace SEDemos
                 GameObject camera = new InternalCamera(Vector2.Zero, 0f, Vector2.One);
             }
 
+            // Temporary serializer benchmark code.
+            JsonSerializerSettings options = new JsonSerializerSettings {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+                Formatting = Formatting.None,
+                TypeNameHandling = TypeNameHandling.None,
+                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
+                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            };
+
+            int iterations = 100_000;
+
             Stopwatch s = new Stopwatch();
             s.Start();
 
-            TestClass test = new TestClass(255);
-            test.pizza1 = 255;
-            test.pizza5 = 999;
-            test.pizza3[2] = 59;
+            TestClass test = new TestClass(255) {
+                baseVal = 43546,
+                pizza1 = 255,
+                pizza4 = 69.420f,
+                pizza5 = 999,
+                pizza3 = {[2] = 59.0f}
+            };
 
             s.Start();
 
-            for (int i = 0; i < 100_000; i++) {
+            for (int i = 0; i < iterations; i++) {
                 byte[] bytes = Serializer.Serialize(test);
                 test = Serializer.Deserialize<TestClass>(bytes);
             }
 
             s.Stop();
-            Console.WriteLine("New serializer: " + s.ElapsedMilliseconds);
+            long s1 = s.ElapsedMilliseconds;
 
             s = new Stopwatch();
             s.Start();
 
-            for (int i = 0; i < 100_000; i++) {
-                string bytes = test.Serialize();
-                test = bytes.Deserialize<TestClass>();
+            for (int i = 0; i < iterations; i++) {
+                string bytes = test.Serialize(false, options);
+                test = bytes.Deserialize<TestClass>(false, options);
             }
 
             s.Stop();
-            Console.WriteLine("JSON serializer: " + s.ElapsedMilliseconds);
+            long s2 = s.ElapsedMilliseconds;
 
-            Console.WriteLine(typeof(int[]));
+            string percent = (((s2 / (float) s1) * 100.0f) - 100.0f).ToString("0.00");
+            Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
+            Console.WriteLine($"  New: {s1}, JSON: {s2} ({percent}% faster.)");
         }
 
-        public class TestClass
+        public class TestClassBase
+        {
+            public int baseVal = 99;
+        }
+
+        [JsonObject(MemberSerialization.OptOut)]
+        public class TestClass : TestClassBase
         {
             public int pizza1 { get; set; } = 12;
             private int pizza2 = 2;
-            public int[] pizza3 = new [] { 1, 2, 3 };
-            public float pizza4 = 5.5f;
-            public int? pizza5 = 2;
-            public int? pizza6 = 5;
-            public int? pizza7 = 8;
-            public int? pizza8 = 1;
+            public float?[] pizza3 = { 1.0f, 2.05f, null };
+            public float? pizza4 = 5.5f;
+            public int pizza5 = 2;
+            public int pizza6 = 5;
+            public int pizza7 = 8;
+            public int pizza8 = 1;
             public ushort pizza9 = 5;
-            public int? pizza10 = 44;
-            public int? pizza11 = 9;
+            public int pizza10 = 44;
+            public int pizza11 = 9;
             public byte pizza12 = 3;
+            public TestClass2 test1 = new TestClass2();
+            public TestClass2 test2 = new TestClass2();
+            public TestClass2 test3 = new TestClass2();
 
             public TestClass(int pizzas)
             {
@@ -144,6 +172,7 @@ namespace SEDemos
             public TestClass() : this(99) { }
         }
 
+        [JsonObject(MemberSerialization.OptOut)]
         public class TestClass2
         {
             public int? lol = 2;
@@ -153,6 +182,7 @@ namespace SEDemos
             public TestClass3 test4 = new TestClass3();
         }
 
+        [JsonObject(MemberSerialization.OptOut)]
         public class TestClass3
         {
             public int lol = 2;

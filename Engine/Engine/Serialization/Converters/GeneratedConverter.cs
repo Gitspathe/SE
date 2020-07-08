@@ -1,20 +1,21 @@
-﻿using FastMember;
-using FastStream;
-using SE.Engine.Networking.Internal;
-using SE.Utility;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
+using FastMember;
+using FastStream;
+using SE.Serialization.Resolvers;
 
-namespace SE.Serialization
+namespace SE.Serialization.Converters
 {
-    internal class GeneratedSerializer : TypeSerializer
+    public class GeneratedConverter : Converter
     {
         public override Type Type { get; }
 
-        private QuickList<Node> nodeList = new QuickList<Node>();
+        private Node[] nodesArr;
+        private int nodesLength;
+
         private Dictionary<string, Node> nodes = new Dictionary<string, Node>();
 
         private delegate object ObjectActivator();
@@ -22,7 +23,7 @@ namespace SE.Serialization
         private TypeAccessor accessor;
         private bool isValueType;
 
-        private GeneratedSerializer(Type type)
+        private GeneratedConverter(Type type, ConverterResolver resolver)
         {
             Type = type;
             isValueType = type.IsValueType;
@@ -32,32 +33,33 @@ namespace SE.Serialization
             if(!isValueType)
                 GenerateCtor();
 
-            foreach (Member member in accessor.GetMembers()) {
+            MemberSet set = accessor.GetMembers();
+            nodesArr = new Node[set.Count];
+            int curIndex = 0;
+            foreach (Member member in set) {
                 
-                // Example code of skipping non-public members.
+                // TODO: Replace this with attributes and stuff.
                 if(!member.IsPublic)
                     continue;
 
-                TypeSerializer serializer = Serializer.GetSerializer(member.Type);
+                Converter converter = resolver.GetConverter(member.Type);
 
-                // Skip this member if a valid serializer was not found.
-                if (serializer == null) 
+                // Skip this member if a valid converter was not found.
+                if (converter == null) 
                     continue;
 
-                //Node val = null;
-                //if (member.Type.IsGenericType) {
-                //    Type innerTYpe = member.Type.getgen
-                //}
-
-                Node val = new Node(serializer, member.Type, accessor, member.Name);
+                Node val = new Node(converter, accessor, member.Name);
                 nodes.Add(member.Name, val);
-                nodeList.Add(val);
+                nodesArr[curIndex] = val;
+
+                curIndex++;
             }
+            nodesLength = curIndex;
         }
 
-        public static GeneratedSerializer Generate(Type type)
+        internal static GeneratedConverter Generate(Type type, ConverterResolver resolver)
         {
-            GeneratedSerializer gen = new GeneratedSerializer(type);
+            GeneratedConverter gen = new GeneratedConverter(type, resolver);
             return gen.nodes.Count > 0 ? gen : null;
         }
 
@@ -74,28 +76,28 @@ namespace SE.Serialization
 
         public override void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings)
         {
-            Node[] arr = nodeList.Array;
-            for (int i = 0; i < nodeList.Count; i++) {
+            for (int i = 0; i < nodesLength; i++) {
                 try {
-                    arr[i].Write(obj, writer, settings);
+                    nodesArr[i].Write(obj, writer, settings);
                 } catch (Exception) { /* ignored */ }
             }
-            writer.Write('|');
         }
 
         public override object Deserialize(FastReader reader, SerializerSettings settings)
         {
             object obj = isValueType ? Activator.CreateInstance(Type) : activator.Invoke();
 
-            while (reader.PeekChar() != '|') {
+            for (int i = 0; i < nodesLength; i++) {
                 try {
                     string nextVarName = reader.ReadString();
                     nodes[nextVarName].Read(obj, reader, settings);
                 } catch (Exception) { /* ignored */ }
             }
 
-            // TODO: Why the fuck do I have to move 2 chars forward !?!?!?!?
-            reader.BaseStream.Position += 2;
+            // TODO: Error handling.
+            // - What if the name of a variable changes? It should try and deserialize what it can.
+            //   > Could use a '|' separator for this, and find the next separator if deserialization fails.
+            // - Will need to throw an error when creating an instance fails.
 
             return obj;
         }
@@ -103,38 +105,24 @@ namespace SE.Serialization
         public T Deserialize<T>(FastReader reader, SerializerSettings settings) 
             => (T) Deserialize(reader, settings);
 
-        private class Node
+        private sealed class Node 
         {
-            private TypeSerializer valueTypeSerializer;
+            private Converter converter;
             private TypeAccessor accessor;
             private string name;
-            private Type type;
 
-            // Generic type serializer variables.
-            private Type[] innerTypes;
-            private bool isGeneric;
-
-            public Node(TypeSerializer serializer, Type type, TypeAccessor accessor, string name)
+            public Node(Converter converter, TypeAccessor accessor, string name)
             {
-                valueTypeSerializer = serializer;
-                this.type = type;
+                this.converter = converter;
                 this.accessor = accessor;
                 this.name = name;
-                if (valueTypeSerializer.IsGeneric) {
-                    innerTypes = Serializer.GetGenericInnerTypes(type);
-                    isGeneric = true;
-                } else {
-                    isGeneric = false;
-                }
             }
 
             public void Read(object target, FastReader reader, SerializerSettings settings)
             {
                 // If the next value exists / isn't null, deserialize it's data.
                 if (reader.ReadBoolean()) {
-                    SetValue(target, isGeneric 
-                        ? ((GenericTypeSerializer)valueTypeSerializer).DeserializeGeneric(innerTypes, reader, settings) 
-                        : valueTypeSerializer.Deserialize(reader, settings));
+                    SetValue(target, converter.Deserialize(reader, settings));
                     return;
                 } 
                 
@@ -152,16 +140,14 @@ namespace SE.Serialization
                 if (val == null) 
                     return;
 
-                if (isGeneric) {
-                    ((GenericTypeSerializer)valueTypeSerializer).SerializeGeneric(val, innerTypes, writer, settings);
-                } else {
-                    valueTypeSerializer.Serialize(val, writer, settings);
-                }
+                converter.Serialize(val, writer, settings);
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetValue(object target, object value)
                 => accessor[target, name] = value;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public object GetValue(object target)
                 => accessor[target, name];
         }

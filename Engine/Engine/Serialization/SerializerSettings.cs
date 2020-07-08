@@ -1,8 +1,11 @@
-﻿namespace SE.Serialization
+﻿using SE.Serialization.Resolvers;
+
+namespace SE.Serialization
 {
-    public class SerializerSettings
+    public sealed class SerializerSettings
     {
-        public NullValueHandling NullValueHandling { get; set; }
+        public NullValueHandling NullValueHandling;
+        public ConverterResolver Resolver;
     }
 
     public enum NullValueHandling
