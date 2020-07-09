@@ -80,8 +80,7 @@ namespace SE.Serialization.Converters
 
         public override void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings)
         {
-            bool writeName = settings.ConvertBehaviour == ConvertBehaviour.Name
-                             || settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
+            bool writeName = settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
 
             for (int i = 0; i < nodesLength; i++) {
                 writer.Write('|');
@@ -99,9 +98,6 @@ namespace SE.Serialization.Converters
             object obj = isValueType ? Activator.CreateInstance(Type) : ctor.Invoke();
 
             switch (settings.ConvertBehaviour) {
-                case ConvertBehaviour.Name: {
-                    DeserializeName(ref obj, reader, settings);
-                } break;
                 case ConvertBehaviour.Order: {
                     DeserializeOrder(ref obj, reader, settings);
                 } break;
@@ -112,35 +108,6 @@ namespace SE.Serialization.Converters
                     throw new ArgumentOutOfRangeException();
             }
             return obj;
-        }
-
-        private void DeserializeName(ref object obj, FastReader reader, SerializerSettings settings)
-        {
-            Stream baseStream = reader.BaseStream;
-            for (int i = 0; i < nodesLength; i++) {
-                long startIndex = baseStream.Position + 6;
-                try {
-                    SkipDelimiter(reader);
-                    reader.ReadUInt32();
-                    if(!TryReadString(reader, out string name))
-                        goto Skip;
-                    if (!nodes.TryGetValue(name, out Node node))
-                        goto Skip;
-                            
-                    node.Read(obj, reader, settings);
-                    continue;
-                } catch (EndOfStreamException) {
-                    break;
-                } catch (Exception) { /* ignored */ }
-
-                // Failed. Skip to next node.
-                Skip:
-                try {
-                    i++;
-                    baseStream.Position = startIndex;
-                    SkipToNextDelimiter(reader);
-                } catch(Exception) { break; }
-            }
         }
 
         private void DeserializeOrder(ref object obj, FastReader reader, SerializerSettings settings)
