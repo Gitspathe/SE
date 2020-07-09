@@ -14,7 +14,6 @@ namespace SE.Serialization.Converters
 
         private object defaultInstance;
         private bool defaultCreated;
-        private bool hasDefault;
 
         public abstract Type Type { get; }
         public abstract object Deserialize(FastReader reader, SerializerSettings settings);
@@ -25,18 +24,17 @@ namespace SE.Serialization.Converters
             if (!defaultCreated)
                 GenerateDefaultValue();
 
-            return hasDefault && obj.Equals(defaultInstance);
+            return obj.Equals(defaultInstance);
         }
 
         internal void GenerateDefaultValue()
         {
             try {
                 if (Type != null) {
-                    defaultInstance = Activator.CreateInstance(Type);
-                    hasDefault = true;
+                    defaultInstance = Type.IsValueType ? Activator.CreateInstance(Type) : null;
                 }
             } catch (Exception) {
-                 /* ignored */
+                defaultInstance = null;
             } finally {
                 defaultCreated = true;
             }
@@ -45,11 +43,29 @@ namespace SE.Serialization.Converters
         public Converter() { /* Empty constructor for reflection. */ }
     }
 
+    public abstract class Converter<T> : Converter
+    {
+        public abstract T DeserializeT(FastReader reader, SerializerSettings settings);
+        public abstract void Serialize(T obj, FastMemoryWriter writer, SerializerSettings settings);
+    }
+
     /// <summary>
     /// Serializes generic objects of a specified underlying generic type.
     /// One GenericTypeSerializer instance for EACH inner type combination is generated at runtime.
     /// </summary>
     public abstract class GenericConverter : Converter
+    {
+        /// <summary>Generic type arguments.</summary>
+        protected internal Type[] InnerTypes;
+
+        public GenericConverter() { /* Empty constructor for reflection. */ }
+    }
+
+    /// <summary>
+    /// Serializes generic objects of a specified underlying generic type.
+    /// One GenericTypeSerializer instance for EACH inner type combination is generated at runtime.
+    /// </summary>
+    public abstract class GenericConverter<T> : Converter<T>
     {
         /// <summary>Generic type arguments.</summary>
         protected internal Type[] InnerTypes;

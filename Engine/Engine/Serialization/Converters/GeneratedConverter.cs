@@ -38,7 +38,7 @@ namespace SE.Serialization.Converters
 
             // Try and create a default instance.
             try {
-                defaultInstance = Activator.CreateInstance(Type);
+                defaultInstance = isValueType ? Activator.CreateInstance(Type) : null;
             } catch (Exception) {
                 throw new Exception($"Could not create an instance of type {Type}. Ensure a parameterless constructor is present.");
             }
@@ -82,20 +82,9 @@ namespace SE.Serialization.Converters
                 if (defaultSerialization == ObjectSerialization.OptOut && (member.IsField || !member.IsPublic))
                     continue;
 
-                // Resolve duplicate names.
-                if (nodesDictionary.ContainsKey(memberName)) {
-                    int tmpInt = 0;
-                    string tmpName = memberName + tmpInt;
-                    while (nodesDictionary.ContainsKey(tmpName)) {
-                        tmpInt++;
-                        tmpName = memberName + tmpInt;
-                    }
-                }
-
-                // Resolve duplicate indexes.
-                while (indexes.Contains(index)) {
-                    index++;
-                }
+                // Resolve duplicates.
+                memberName = ResolveName(memberName);
+                index = ResolveIndex(indexes, index);
 
                 // Create the node, and add it to the generated converter.
                 Node node = new Node(converter, accessor, memberName, realMemberName, index);
@@ -112,7 +101,31 @@ namespace SE.Serialization.Converters
             nodesArr = tmpNodes.OrderBy(node => node.Index).ToArray();
         }
 
-        internal static GeneratedConverter Generate(Type type, ConverterResolver resolver)
+        private string ResolveName(string memberName)
+        {
+            string name = memberName;
+            if (!nodesDictionary.ContainsKey(name)) 
+                return name;
+
+            int tmpInt = 0;
+            name = memberName + tmpInt;
+            while (nodesDictionary.ContainsKey(name)) {
+                tmpInt++;
+                name = memberName + tmpInt;
+            }
+            return name;
+        }
+
+        private uint ResolveIndex(HashSet<uint> indexes, uint index)
+        {
+            uint i = index;
+            while (indexes.Contains(i)) {
+                i++;
+            }
+            return i;
+        }
+
+        internal static GeneratedConverter Create(Type type, ConverterResolver resolver)
         {
             GeneratedConverter gen = new GeneratedConverter(type, resolver);
             return gen.nodesDictionary.Count > 0 ? gen : null;
@@ -127,7 +140,6 @@ namespace SE.Serialization.Converters
         public override void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings)
         {
             bool writeName = settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
-
             for (int i = 0; i < nodesArr.Length; i++) {
                 writer.Write('|');
                 nodesArr[i].Write(obj, writer, settings, writeName);

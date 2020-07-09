@@ -22,5 +22,11 @@ namespace SE.Engine.Serialization.Attributes
             Name = name;
             Order = order;
         }
+
+        public SerializeAttribute(uint order, string name = null)
+        {
+            Name = name;
+            Order = order;
+        }
     }
 }

@@ -8,10 +8,10 @@ namespace SE.Serialization.Resolvers
 {
     public sealed class DefaultResolver : ConverterResolver
     {
-        private Dictionary<Type, Converter> converterCache               = new Dictionary<Type, Converter>();
-        private Dictionary<Type, Converter> typeConverters               = new Dictionary<Type, Converter>();
-        private Dictionary<Type, GeneratedConverter> generatedConverters = new Dictionary<Type, GeneratedConverter>();
-        private Dictionary<Type, Type> genericTypeConverterTypes         = new Dictionary<Type, Type>();
+        private Dictionary<Type, Converter> converterCache                 = new Dictionary<Type, Converter>();
+        private Dictionary<Type, Converter> typeConverters                 = new Dictionary<Type, Converter>();
+        private Dictionary<Type, GeneratedConverter> generatedConverters   = new Dictionary<Type, GeneratedConverter>();
+        private Dictionary<Type, Type> genericTypeConverterTypes           = new Dictionary<Type, Type>();
 
         private Func<Type, bool> converterPredicate = myType 
             => myType != typeof(GeneratedConverter) 
@@ -35,6 +35,17 @@ namespace SE.Serialization.Resolvers
             };
         }
 
+        private static class ResolverCache<T>
+        {
+            public static Converter<T> Converter;
+            public static bool Setup = false;
+        }
+
+        private void RegisterConverter(Type objType, Converter converter)
+        {
+            converterCache.Add(objType, converter);
+        }
+
         public override Converter GetConverter(Type objType)
         {
             ResetIfNeeded();
@@ -47,7 +58,7 @@ namespace SE.Serialization.Resolvers
             // Step 2: Check if the concrete type is in the ValueSerializersType dictionary.
             converter = GetTypeConverter(objType);
             if(converter != null) {
-                converterCache.Add(objType, converter);
+                RegisterConverter(objType, converter);
                 return converter;
             } 
 
@@ -64,7 +75,7 @@ namespace SE.Serialization.Resolvers
             foreach (Type intType in objType.GetInterfaces()) {
                 converter = GetTypeConverter(intType);
                 if (converter != null) {
-                    converterCache.Add(objType, converter);
+                    RegisterConverter(objType, converter);
                     return converter;
                 }
             }
@@ -78,8 +89,22 @@ namespace SE.Serialization.Resolvers
 
             // Step 6: Try and retrieve or generate a serializer for the given type.
             GeneratedConverter generatedConverter = GetGeneratedConverter(objType);
-            converterCache.Add(objType, generatedConverter);
+            RegisterConverter(objType, generatedConverter);
             return generatedConverter;
+        }
+
+        public override Converter<T> GetConverter<T>()
+        {
+            if (ResolverCache<T>.Setup) {
+                return ResolverCache<T>.Converter;
+            }
+
+            Converter converter = GetConverter(typeof(T));
+            if (converter is Converter<T> converterT) {
+                ResolverCache<T>.Converter = converterT;
+            }
+            ResolverCache<T>.Setup = true;
+            return ResolverCache<T>.Converter;
         }
 
         public Converter GetTypeConverter(Type type)
@@ -95,7 +120,7 @@ namespace SE.Serialization.Resolvers
             if (genericTypeConverterTypes.TryGetValue(genericType, out Type serializerType)) {
                 GenericConverter newSerializer = (GenericConverter) Activator.CreateInstance(serializerType);
                 newSerializer.InnerTypes = innerTypes;
-                converterCache.Add(concreteType, newSerializer);
+                RegisterConverter(concreteType, newSerializer);
                 return newSerializer;
             }
             return null;
@@ -104,7 +129,7 @@ namespace SE.Serialization.Resolvers
         public GeneratedConverter GetGeneratedConverter(Type type)
         {
             if (!generatedConverters.TryGetValue(type, out GeneratedConverter serializer)) {
-                serializer = GeneratedConverter.Generate(type, this);
+                serializer = GeneratedConverter.Create(type, this);
                 generatedConverters.Add(type, serializer);
             }
             return serializer;

@@ -53,7 +53,7 @@ namespace SE.Serialization.Converters
             => writer.Write((ushort) obj);
     }
 
-    public sealed class IntConverter : Converter
+    public sealed class IntConverter : Converter<int>
     {
         public override Type Type => typeof(int);
 
@@ -61,6 +61,10 @@ namespace SE.Serialization.Converters
             => reader.ReadInt32();
         public override void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings) 
             => writer.Write((int) obj);
+        public override int DeserializeT(FastReader reader, SerializerSettings settings)
+            => reader.ReadInt32();
+        public override void Serialize(int obj, FastMemoryWriter writer, SerializerSettings settings) 
+            => writer.Write(obj);
     }
 
     public sealed class UIntConverter : Converter
@@ -93,7 +97,7 @@ namespace SE.Serialization.Converters
             => writer.Write((ulong) obj);
     }
 
-    public sealed class FloatConverter : Converter
+    public sealed class FloatConverter : Converter<float>
     {
         public override Type Type => typeof(float);
 
@@ -101,6 +105,10 @@ namespace SE.Serialization.Converters
             => reader.ReadSingle();
         public override void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings) 
             => writer.Write((float) obj);
+        public override float DeserializeT(FastReader reader, SerializerSettings settings)
+            => reader.ReadSingle();
+        public override void Serialize(float obj, FastMemoryWriter writer, SerializerSettings settings)
+            => writer.Write(obj);
     }
 
     public sealed class DoubleConverter : Converter

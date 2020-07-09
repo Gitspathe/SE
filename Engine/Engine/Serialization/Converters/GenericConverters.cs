@@ -16,7 +16,7 @@ namespace SE.Serialization.Converters
             Array val = Array.CreateInstance(InnerTypes[0], arrLength);
             Converter serializer = settings.Resolver.GetConverter(InnerTypes[0]);
             for (int i = 0; i < arrLength; i++) {
-                val.SetValue(Serializer.Deserialize(serializer, reader, settings), i);
+                val.SetValue(Serializer.DeserializeReader(serializer, reader, settings), i);
             }
 
             return val;
@@ -29,7 +29,7 @@ namespace SE.Serialization.Converters
 
             Converter serializer = settings.Resolver.GetConverter(InnerTypes[0]);
             for (int i = 0; i < val.Length; i++) {
-                Serializer.Serialize(val.GetValue(i), settings, serializer, writer);
+                Serializer.SerializeWriter(val.GetValue(i), settings, serializer, writer);
             }
         }
 
