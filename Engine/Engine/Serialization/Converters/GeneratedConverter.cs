@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -10,17 +11,17 @@ using SE.Serialization.Resolvers;
 
 namespace SE.Serialization.Converters
 {
-    public class GeneratedConverter : Converter
+    public sealed class GeneratedConverter : Converter
     {
         public override Type Type { get; }
+
+        private object defaultInstance;
 
         private Node[] nodesArr;
         private int nodesLength;
 
         private Dictionary<string, Node> nodes = new Dictionary<string, Node>();
-
-        private delegate object ObjectActivator();
-        private ObjectActivator activator;
+        private Func<object> ctor;
         private TypeAccessor accessor;
         private bool isValueType;
 
@@ -30,13 +31,19 @@ namespace SE.Serialization.Converters
             isValueType = type.IsValueType;
             accessor = TypeAccessor.Create(type, true);
 
+            try {
+                defaultInstance = Activator.CreateInstance(Type);
+            } catch (Exception) {
+                throw new Exception($"Could not create an instance of type {Type}. Ensure a parameterless constructor is present.");
+            }
+
             // Generate compiled constructors for reference types.
             if(!isValueType)
                 GenerateCtor();
 
             MemberSet set = accessor.GetMembers();
             nodesArr = new Node[set.Count];
-            int curIndex = 0;
+            uint curIndex = 0;
             foreach (Member member in set) {
                 
                 // TODO: Replace this with attributes and stuff.
@@ -51,13 +58,13 @@ namespace SE.Serialization.Converters
                     continue;
 
                 string memberName = member.Name + ':';
-                Node val = new Node(converter, accessor, memberName);
+                Node val = new Node(converter, accessor, memberName, curIndex);
                 nodes.Add(memberName, val);
                 nodesArr[curIndex] = val;
 
                 curIndex++;
             }
-            nodesLength = curIndex;
+            nodesLength = (int) curIndex;
         }
 
         internal static GeneratedConverter Generate(Type type, ConverterResolver resolver)
@@ -68,13 +75,7 @@ namespace SE.Serialization.Converters
 
         private void GenerateCtor()
         {
-            ConstructorInfo emptyConstructor = Type.GetConstructor(Type.EmptyTypes);
-            var dynamicMethod = new DynamicMethod("CreateInstance", Type, Type.EmptyTypes, true);
-            ILGenerator ilGenerator = dynamicMethod.GetILGenerator();
-            ilGenerator.Emit(OpCodes.Nop);
-            ilGenerator.Emit(OpCodes.Newobj, emptyConstructor);
-            ilGenerator.Emit(OpCodes.Ret);
-            activator = (ObjectActivator) dynamicMethod.CreateDelegate(typeof(ObjectActivator));
+            ctor = Expression.Lambda<Func<object>>(Expression.New(Type)).Compile();
         }
 
         public override void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings)
@@ -88,103 +89,123 @@ namespace SE.Serialization.Converters
             }
         }
 
+        public override bool IsDefault(object obj) 
+            => obj.Equals(defaultInstance);
+
         public override object Deserialize(FastReader reader, SerializerSettings settings)
         {
             // TODO: Error handling.
             // - Will need to throw an error when creating an instance fails.
-
-            Stream baseStream = reader.BaseStream;
-            object obj = isValueType ? Activator.CreateInstance(Type) : activator.Invoke();
+            object obj = isValueType ? Activator.CreateInstance(Type) : ctor.Invoke();
 
             switch (settings.ConvertBehaviour) {
                 case ConvertBehaviour.Name: {
-                    for (int i = 0; i < nodesLength; i++) {
-                        long startIndex = baseStream.Position + 2;
-                        try {
-                            SkipDelimiter(reader);
-                            if(!TryReadString(reader, out string name))
-                                goto Skip;
-                            if (!nodes.TryGetValue(name, out Node node))
-                                goto Skip;
-                            
-                            node.Read(obj, reader, settings);
-                            continue;
-                        } catch (EndOfStreamException) {
-                            break;
-                        } catch (Exception) { /* ignored */ }
-
-                        // Failed. Skip to next node.
-                        Skip:
-                        try {
-                            i++;
-                            baseStream.Position = startIndex;
-                            SkipToNextDelimiter(reader);
-                        } catch(Exception) { break; }
-                    }
+                    DeserializeName(ref obj, reader, settings);
                 } break;
-                
                 case ConvertBehaviour.Order: {
-                    for (int i = 0; i < nodesLength; i++) {
-                        long startIndex = baseStream.Position + 2;
-                        try {
-                            SkipDelimiter(reader);
-                            nodesArr[i].Read(obj, reader, settings);
-                            continue;
-                        } catch (EndOfStreamException) {
-                            break;
-                        } catch (Exception) { /* ignored */ }
-
-                        // Failed. Skip to next node.
-                        try {
-                            i++;
-                            baseStream.Position = startIndex;
-                            SkipToNextDelimiter(reader);
-                        } catch(Exception) { break; }
-                    }
+                    DeserializeOrder(ref obj, reader, settings);
                 } break;
-                
                 case ConvertBehaviour.NameAndOrder: {
-                    for (int i = 0; i < nodesLength; i++) {
-                        long startIndex = baseStream.Position + 2;
-                        
-                        // Step 1: Attempt to deserialize based on name.
-                        try {
-                            SkipDelimiter(reader);
-                            if(!TryReadString(reader, out string name))
-                                goto Step2;
-                            if (!nodes.TryGetValue(name, out Node node))
-                                goto Step2;
-                            
-                            node.Read(obj, reader, settings);
-                            continue;
-                        } catch(Exception) { /* ignored */ }
-
-                        // Step 2: Attempt to deserialize based on declaration order.
-                        Step2:
-                        try {
-                            baseStream.Position = startIndex;
-                            SkipToEndOfName(reader);
-                            nodesArr[i].Read(obj, reader, settings);
-                            continue;
-                        } catch (EndOfStreamException) {
-                            break;
-                        } catch (Exception) { /* ignored */ }
-
-                        // Step 3: Failed. Skip to next node.
-                        try {
-                            i++;
-                            baseStream.Position = startIndex;
-                            SkipToNextDelimiter(reader);
-                        } catch (Exception) {
-                            break;
-                        }
-                    }
+                    DeserializeNameAndOrder(ref obj, reader, settings);
                 } break;
-                
                 default:
                     throw new ArgumentOutOfRangeException();
             }
             return obj;
+        }
+
+        private void DeserializeName(ref object obj, FastReader reader, SerializerSettings settings)
+        {
+            Stream baseStream = reader.BaseStream;
+            for (int i = 0; i < nodesLength; i++) {
+                long startIndex = baseStream.Position + 6;
+                try {
+                    SkipDelimiter(reader);
+                    reader.ReadUInt32();
+                    if(!TryReadString(reader, out string name))
+                        goto Skip;
+                    if (!nodes.TryGetValue(name, out Node node))
+                        goto Skip;
+                            
+                    node.Read(obj, reader, settings);
+                    continue;
+                } catch (EndOfStreamException) {
+                    break;
+                } catch (Exception) { /* ignored */ }
+
+                // Failed. Skip to next node.
+                Skip:
+                try {
+                    i++;
+                    baseStream.Position = startIndex;
+                    SkipToNextDelimiter(reader);
+                } catch(Exception) { break; }
+            }
+        }
+
+        private void DeserializeOrder(ref object obj, FastReader reader, SerializerSettings settings)
+        {
+            Stream baseStream = reader.BaseStream;
+            for (int i = 0; i < nodesLength; i++) {
+                long startIndex = baseStream.Position + 6;
+                try {
+                    SkipDelimiter(reader);
+                    uint readIndex = reader.ReadUInt32();
+                    nodesArr[readIndex].Read(obj, reader, settings);
+                    continue;
+                } catch (EndOfStreamException) {
+                    break;
+                } catch (Exception) { /* ignored */ }
+
+                // Failed. Skip to next node.
+                try {
+                    i++;
+                    baseStream.Position = startIndex;
+                    SkipToNextDelimiter(reader);
+                } catch(Exception) { break; }
+            }
+        }
+
+        private void DeserializeNameAndOrder(ref object obj, FastReader reader, SerializerSettings settings)
+        {
+            Stream baseStream = reader.BaseStream;
+            for (int i = 0; i < nodesLength; i++) {
+                uint readIndex = 0;
+                long startIndex = baseStream.Position + 6;
+                        
+                // Step 1: Attempt to deserialize based on name.
+                try {
+                    SkipDelimiter(reader);
+                    readIndex = reader.ReadUInt32();
+                    if(!TryReadString(reader, out string name))
+                        goto Step2;
+                    if (!nodes.TryGetValue(name, out Node node))
+                        goto Step2;
+                            
+                    node.Read(obj, reader, settings);
+                    continue;
+                } catch(Exception) { /* ignored */ }
+
+                // Step 2: Attempt to deserialize based on declaration order.
+                Step2:
+                try {
+                    baseStream.Position = startIndex;
+                    SkipToEndOfName(reader);
+                    nodesArr[readIndex].Read(obj, reader, settings);
+                    continue;
+                } catch (EndOfStreamException) {
+                    break;
+                } catch (Exception) { /* ignored */ }
+
+                // Step 3: Failed. Skip to next node.
+                try {
+                    i++;
+                    baseStream.Position = startIndex;
+                    SkipToNextDelimiter(reader);
+                } catch (Exception) {
+                    break;
+                }
+            }
         }
 
         public T Deserialize<T>(FastReader reader, SerializerSettings settings) 
@@ -239,15 +260,17 @@ namespace SE.Serialization.Converters
             private TypeAccessor accessor;
             private string name;
             private string realName;
+            private uint index;
 
             // Faster access for delegate accessors.
             private TypeAccessor.DelegateAccessor delegateAccessor;
             private int accessorIndex;
 
-            public Node(Converter converter, TypeAccessor accessor, string name)
+            public Node(Converter converter, TypeAccessor accessor, string name, uint index)
             {
                 this.converter = converter;
                 this.accessor = accessor;
+                this.index = index;
                 this.name = name;
                 realName = name.Replace(":", null);
                 if (accessor is TypeAccessor.DelegateAccessor delAccessor) {
@@ -262,7 +285,7 @@ namespace SE.Serialization.Converters
                 if (reader.ReadBoolean()) {
                     SetValue(target, converter.Deserialize(reader, settings));
                     return;
-                } 
+                }
                 
                 // If the next value is null, set it to default, or ignore, depending on settings.
                 if (settings.NullValueHandling == NullValueHandling.DefaultValue) {
@@ -273,12 +296,17 @@ namespace SE.Serialization.Converters
             public void Write(object target, FastMemoryWriter writer, SerializerSettings settings, bool writeName)
             {
                 object val = GetValue(target);
+                writer.Write(index);
                 if (writeName) {
                     writer.Write(name);
                 }
 
-                writer.Write(val != null);
-                if (val == null) 
+                bool shouldWrite = val != null;
+                if(settings.DefaultValueHandling == DefaultValueHandling.Ignore && converter.IsDefault(val))
+                    shouldWrite = false;
+
+                writer.Write(shouldWrite);
+                if (!shouldWrite)
                     return;
 
                 converter.Serialize(val, writer, settings);

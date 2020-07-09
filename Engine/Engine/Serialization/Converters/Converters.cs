@@ -12,9 +12,35 @@ namespace SE.Serialization.Converters
         /// <summary>If true, the TypeSerializer is generated and stored at runtime using reflection.</summary>
         internal virtual bool StoreAtRuntime => true;
 
+        private object defaultInstance;
+        private bool defaultCreated;
+        private bool hasDefault;
+
         public abstract Type Type { get; }
         public abstract object Deserialize(FastReader reader, SerializerSettings settings);
         public abstract void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings);
+
+        public virtual bool IsDefault(object obj)
+        {
+            if (!defaultCreated)
+                GenerateDefaultValue();
+
+            return hasDefault && obj.Equals(defaultInstance);
+        }
+
+        internal void GenerateDefaultValue()
+        {
+            try {
+                if (Type != null) {
+                    defaultInstance = Activator.CreateInstance(Type);
+                    hasDefault = true;
+                }
+            } catch (Exception) {
+                 /* ignored */
+            } finally {
+                defaultCreated = true;
+            }
+        }
 
         public Converter() { /* Empty constructor for reflection. */ }
     }

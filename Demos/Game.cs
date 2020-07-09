@@ -24,6 +24,7 @@ using SE.Serialization;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using Console = SE.Core.Console;
+using DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling;
 
 namespace SEDemos
 {
@@ -114,6 +115,7 @@ namespace SEDemos
                 pizza5 = 999,
                 pizza3 = {[2] = 59.0f}
             };
+            test.test1.test1.lol = 55;
 
             s.Start();
 

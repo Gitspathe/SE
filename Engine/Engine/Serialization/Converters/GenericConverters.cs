@@ -32,6 +32,14 @@ namespace SE.Serialization.Converters
                 Serializer.Serialize(val.GetValue(i), settings, serializer, writer);
             }
         }
+
+        public override bool IsDefault(object obj)
+        {
+            if (obj is Array array) {
+                return array.Length < 1;
+            }
+            return true;
+        }
     }
 
     public sealed class NullableConverter : GenericConverter
