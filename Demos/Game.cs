@@ -23,8 +23,10 @@ using DisplayMode = SE.DisplayMode;
 using SE.Serialization;
 using System.Diagnostics;
 using Newtonsoft.Json;
+using SE.Engine.Serialization.Attributes;
 using Console = SE.Core.Console;
 using DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling;
+using MemberSerialization = Newtonsoft.Json.MemberSerialization;
 
 namespace SEDemos
 {
@@ -149,6 +151,7 @@ namespace SEDemos
         }
 
         [JsonObject(MemberSerialization.OptOut)]
+        [SerializeObject(ObjectSerialization.Fields)]
         public class TestClass : TestClassBase
         {
             public int pizza1 { get; set; } = 12;
@@ -175,6 +178,7 @@ namespace SEDemos
         }
 
         [JsonObject(MemberSerialization.OptOut)]
+        [SerializeObject(ObjectSerialization.Fields)]
         public class TestClass2
         {
             public int? lol = 2;
@@ -185,6 +189,7 @@ namespace SEDemos
         }
 
         [JsonObject(MemberSerialization.OptOut)]
+        [SerializeObject(ObjectSerialization.Fields)]
         public class TestClass3
         {
             public int lol = 2;

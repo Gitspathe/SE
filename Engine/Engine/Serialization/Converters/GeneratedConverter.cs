@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using FastMember;
 using FastStream;
+using SE.Engine.Serialization.Attributes;
 using SE.Serialization.Resolvers;
+using SE.Utility;
 
 namespace SE.Serialization.Converters
 {
@@ -16,86 +18,105 @@ namespace SE.Serialization.Converters
         public override Type Type { get; }
 
         private object defaultInstance;
-
-        private Node[] nodesArr;
-        private int nodesLength;
-
-        private Dictionary<string, Node> nodes = new Dictionary<string, Node>();
-        private Func<object> ctor;
-        private TypeAccessor accessor;
+        private Func<object> objCtor;
         private bool isValueType;
+
+        private Dictionary<string, Node> nodesDictionary = new Dictionary<string, Node>();
+        private Node[] nodesArr;
+
+        private const int _NODE_HEADER_SIZE = sizeof(char) + sizeof(uint);
 
         private GeneratedConverter(Type type, ConverterResolver resolver)
         {
             Type = type;
             isValueType = type.IsValueType;
-            accessor = TypeAccessor.Create(type, true);
+            TypeAccessor accessor = TypeAccessor.Create(type, true);
 
+            // Generate compiled constructors for reference types.
+            if(!isValueType)
+                GenerateCtor();
+
+            // Try and create a default instance.
             try {
                 defaultInstance = Activator.CreateInstance(Type);
             } catch (Exception) {
                 throw new Exception($"Could not create an instance of type {Type}. Ensure a parameterless constructor is present.");
             }
 
-            // Generate compiled constructors for reference types.
-            if(!isValueType)
-                GenerateCtor();
+            // Get the default serialization mode.
+            ObjectSerialization defaultSerialization = ObjectSerialization.OptOut;
+            SerializeObjectAttribute serializeObjAttribute = type.GetCustomAttribute<SerializeObjectAttribute>();
+            if (serializeObjAttribute != null) {
+                defaultSerialization = serializeObjAttribute.ObjectSerialization;
+            }
 
+            QuickList<Node> tmpNodes = new QuickList<Node>();
             MemberSet set = accessor.GetMembers();
-            nodesArr = new Node[set.Count];
             uint curIndex = 0;
+
             foreach (Member member in set) {
-                
-                // TODO: Replace this with attributes and stuff.
-                // TODO: Attribute to override declaration order and/or name for variables.
-                if(!member.IsPublic)
+                // Skip member if it has an ignore attribute.
+                SerializeIgnoreAttribute ignoreAttribute = member.Info.GetCustomAttribute<SerializeIgnoreAttribute>();
+                if(ignoreAttribute != null)
                     continue;
 
+                // Set some default info.
                 Converter converter = resolver.GetConverter(member.Type);
+                string realMemberName = member.Name;
+                string memberName = member.Name + ':';
+                uint index = curIndex;
 
-                // Skip this member if a valid converter was not found.
-                if (converter == null) 
+                // Process other attributes.
+                SerializeAttribute serializeAttribute = member.Info.GetCustomAttribute<SerializeAttribute>();
+                if (serializeAttribute != null) {
+                    memberName = serializeAttribute.Name ?? member.Name + ':';
+                    index = serializeAttribute.Order ?? curIndex;
+                }
+
+                // Determine whether or not to serialize.
+                if (converter == null)
+                    continue;
+                if (defaultSerialization == ObjectSerialization.OptIn && serializeAttribute == null)
+                    continue;
+                if (defaultSerialization == ObjectSerialization.OptOut && (member.IsField || !member.IsPublic))
                     continue;
 
-                string memberName = member.Name + ':';
-                Node val = new Node(converter, accessor, memberName, curIndex);
-                nodes.Add(memberName, val);
-                nodesArr[curIndex] = val;
+                Node node = new Node(converter, accessor, memberName, realMemberName, index);
+                nodesDictionary.Add(memberName, node);
+                tmpNodes.Add(node);
 
                 curIndex++;
             }
-            nodesLength = (int) curIndex;
+            nodesArr = tmpNodes.OrderBy(node => node.Index).ToArray();
         }
 
         internal static GeneratedConverter Generate(Type type, ConverterResolver resolver)
         {
             GeneratedConverter gen = new GeneratedConverter(type, resolver);
-            return gen.nodes.Count > 0 ? gen : null;
+            return gen.nodesDictionary.Count > 0 ? gen : null;
         }
 
-        private void GenerateCtor()
-        {
-            ctor = Expression.Lambda<Func<object>>(Expression.New(Type)).Compile();
-        }
+        private void GenerateCtor() 
+            => objCtor = Expression.Lambda<Func<object>>(Expression.New(Type)).Compile();
+
+        public override bool IsDefault(object obj) 
+            => obj.Equals(defaultInstance);
 
         public override void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings)
         {
             bool writeName = settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
 
-            for (int i = 0; i < nodesLength; i++) {
+            for (int i = 0; i < nodesArr.Length; i++) {
                 writer.Write('|');
                 nodesArr[i].Write(obj, writer, settings, writeName);
             }
         }
 
-        public override bool IsDefault(object obj) 
-            => obj.Equals(defaultInstance);
-
         public override object Deserialize(FastReader reader, SerializerSettings settings)
         {
             // TODO: Error handling.
             // - Will need to throw an error when creating an instance fails.
-            object obj = isValueType ? Activator.CreateInstance(Type) : ctor.Invoke();
+            object obj = isValueType ? Activator.CreateInstance(Type) : objCtor.Invoke();
 
             switch (settings.ConvertBehaviour) {
                 case ConvertBehaviour.Order: {
@@ -113,8 +134,8 @@ namespace SE.Serialization.Converters
         private void DeserializeOrder(ref object obj, FastReader reader, SerializerSettings settings)
         {
             Stream baseStream = reader.BaseStream;
-            for (int i = 0; i < nodesLength; i++) {
-                long startIndex = baseStream.Position + 6;
+            for (int i = 0; i < nodesArr.Length; i++) {
+                long startIndex = baseStream.Position + _NODE_HEADER_SIZE;
                 try {
                     SkipDelimiter(reader);
                     uint readIndex = reader.ReadUInt32();
@@ -136,17 +157,17 @@ namespace SE.Serialization.Converters
         private void DeserializeNameAndOrder(ref object obj, FastReader reader, SerializerSettings settings)
         {
             Stream baseStream = reader.BaseStream;
-            for (int i = 0; i < nodesLength; i++) {
+            for (int i = 0; i < nodesArr.Length; i++) {
+                long startIndex = baseStream.Position + _NODE_HEADER_SIZE;
                 uint readIndex = 0;
-                long startIndex = baseStream.Position + 6;
-                        
+
                 // Step 1: Attempt to deserialize based on name.
                 try {
                     SkipDelimiter(reader);
                     readIndex = reader.ReadUInt32();
                     if(!TryReadString(reader, out string name))
                         goto Step2;
-                    if (!nodes.TryGetValue(name, out Node node))
+                    if (!nodesDictionary.TryGetValue(name, out Node node))
                         goto Step2;
                             
                     node.Read(obj, reader, settings);
@@ -212,7 +233,7 @@ namespace SE.Serialization.Converters
 
             try {
                 uint size = reader.ReadUInt32();
-                reader.BaseStream.Position -= sizeof(int);
+                baseStream.Position -= sizeof(int);
                 if (baseStream.Position + size > baseStream.Length)
                     return false;
 
@@ -223,26 +244,27 @@ namespace SE.Serialization.Converters
 
         private sealed class Node 
         {
+            public string Name;
+            public string RealName;
+            public uint Index;
+
             private Converter converter;
             private TypeAccessor accessor;
-            private string name;
-            private string realName;
-            private uint index;
 
             // Faster access for delegate accessors.
             private TypeAccessor.DelegateAccessor delegateAccessor;
             private int accessorIndex;
 
-            public Node(Converter converter, TypeAccessor accessor, string name, uint index)
+            public Node(Converter converter, TypeAccessor accessor, string name, string realName, uint index)
             {
                 this.converter = converter;
                 this.accessor = accessor;
-                this.index = index;
-                this.name = name;
-                realName = name.Replace(":", null);
+                Index = index;
+                Name = name;
+                RealName = realName;
                 if (accessor is TypeAccessor.DelegateAccessor delAccessor) {
                     delegateAccessor = delAccessor;
-                    accessorIndex = delAccessor.GetIndex(realName) ?? throw new IndexOutOfRangeException();
+                    accessorIndex = delAccessor.GetIndex(RealName) ?? throw new IndexOutOfRangeException();
                 }
             }
 
@@ -263,9 +285,9 @@ namespace SE.Serialization.Converters
             public void Write(object target, FastMemoryWriter writer, SerializerSettings settings, bool writeName)
             {
                 object val = GetValue(target);
-                writer.Write(index);
+                writer.Write(Index);
                 if (writeName) {
-                    writer.Write(name);
+                    writer.Write(Name);
                 }
 
                 bool shouldWrite = val != null;
@@ -285,7 +307,7 @@ namespace SE.Serialization.Converters
                 if (delegateAccessor != null) {
                     delegateAccessor.Set(target, accessorIndex, value);
                 } else {
-                    accessor[target, realName] = value;
+                    accessor[target, RealName] = value;
                 }
             }
 
@@ -293,7 +315,7 @@ namespace SE.Serialization.Converters
             public object GetValue(object target)
                 => delegateAccessor != null
                     ? delegateAccessor.Get(target, accessorIndex) 
-                    : accessor[target, realName];
+                    : accessor[target, RealName];
         }
     }
 }
