@@ -43,9 +43,16 @@ namespace SE.Serialization
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            Converter<T> converter = settings.Resolver.GetConverter<T>();
+            Converter<T> converterT = settings.Resolver.GetConverter<T>();
             using(FastMemoryWriter writer = new FastMemoryWriter()) {
-                if (converter == null)
+                if (converterT != null) {
+                    SerializeWriter(obj, settings, converterT, writer);
+                    return writer.ToArray();
+                }
+
+                // Get non-generic converter if above fails.
+                Converter converter = settings.Resolver.GetConverter(typeof(T));
+                if(converter == null)
                     return null;
 
                 SerializeWriter(obj, settings, converter, writer);
@@ -66,10 +73,16 @@ namespace SE.Serialization
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            Converter<T> converter = settings.Resolver.GetConverter<T>();
+            Converter<T> converterT = settings.Resolver.GetConverter<T>();
             MemoryStream stream = new MemoryStream(data);
             using (FastReader reader = new FastReader(stream)) {
-                return DeserializeReader(converter, reader, settings);
+                if (converterT != null) {
+                    return DeserializeReader(converterT, reader, settings);
+                }
+
+                // Get non-generic converter if above fails.
+                Converter converter = settings.Resolver.GetConverter(typeof(T));
+                return (T) DeserializeReader(converter, reader, settings);
             }
         }
 

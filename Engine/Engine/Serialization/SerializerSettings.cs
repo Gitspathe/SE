@@ -6,7 +6,7 @@ namespace SE.Serialization
     {
         public NullValueHandling NullValueHandling       = NullValueHandling.Ignore;
         public DefaultValueHandling DefaultValueHandling = DefaultValueHandling.Ignore;
-        public ConvertBehaviour ConvertBehaviour         = ConvertBehaviour.Order;
+        public ConvertBehaviour ConvertBehaviour         = ConvertBehaviour.NameAndOrder;
         public ConverterResolver Resolver                = Serializer.DefaultResolver;
     }
 
