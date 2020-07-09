@@ -51,6 +51,7 @@ namespace SE.Serialization.Converters
             }
 
             QuickList<Node> tmpNodes = new QuickList<Node>();
+            HashSet<uint> indexes = new HashSet<uint>();
             MemberSet set = accessor.GetMembers();
             uint curIndex = 0;
 
@@ -81,11 +82,32 @@ namespace SE.Serialization.Converters
                 if (defaultSerialization == ObjectSerialization.OptOut && (member.IsField || !member.IsPublic))
                     continue;
 
+                // Resolve duplicate names.
+                if (nodesDictionary.ContainsKey(memberName)) {
+                    int tmpInt = 0;
+                    string tmpName = memberName + tmpInt;
+                    while (nodesDictionary.ContainsKey(tmpName)) {
+                        tmpInt++;
+                        tmpName = memberName + tmpInt;
+                    }
+                }
+
+                // Resolve duplicate indexes.
+                while (indexes.Contains(index)) {
+                    index++;
+                }
+
+                // Create the node, and add it to the generated converter.
                 Node node = new Node(converter, accessor, memberName, realMemberName, index);
                 nodesDictionary.Add(memberName, node);
                 tmpNodes.Add(node);
+                indexes.Add(index);
 
+                // Increment index.
                 curIndex++;
+                if (index > curIndex) {
+                    curIndex = index + 1;
+                }
             }
             nodesArr = tmpNodes.OrderBy(node => node.Index).ToArray();
         }
