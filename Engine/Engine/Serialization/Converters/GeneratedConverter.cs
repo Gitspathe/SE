@@ -50,8 +50,9 @@ namespace SE.Serialization.Converters
                 if (converter == null) 
                     continue;
 
-                Node val = new Node(converter, accessor, member.Name);
-                nodes.Add(member.Name, val);
+                string memberName = member.Name + ':';
+                Node val = new Node(converter, accessor, memberName);
+                nodes.Add(memberName, val);
                 nodesArr[curIndex] = val;
 
                 curIndex++;
@@ -89,75 +90,100 @@ namespace SE.Serialization.Converters
 
         public override object Deserialize(FastReader reader, SerializerSettings settings)
         {
+            // TODO: Error handling.
+            // - Will need to throw an error when creating an instance fails.
+
+            Stream baseStream = reader.BaseStream;
             object obj = isValueType ? Activator.CreateInstance(Type) : activator.Invoke();
 
             switch (settings.ConvertBehaviour) {
-                
                 case ConvertBehaviour.Name: {
                     for (int i = 0; i < nodesLength; i++) {
-                        SkipDelimiter(reader);
-                        if (nodes.TryGetValue(reader.ReadString(), out Node node)) {
-                            try {
-                                node.Read(obj, reader, settings);
-                                continue;
-                            } catch (Exception) { }
-                        }
-
-                        i++;
-                        if(!SkipToNextDelimiter(reader))
+                        long startIndex = baseStream.Position + 2;
+                        try {
+                            SkipDelimiter(reader);
+                            if(!TryReadString(reader, out string name))
+                                goto Skip;
+                            if (!nodes.TryGetValue(name, out Node node))
+                                goto Skip;
+                            
+                            node.Read(obj, reader, settings);
+                            continue;
+                        } catch (EndOfStreamException) {
                             break;
+                        } catch (Exception) { /* ignored */ }
+
+                        // Failed. Skip to next node.
+                        Skip:
+                        try {
+                            i++;
+                            baseStream.Position = startIndex;
+                            SkipToNextDelimiter(reader);
+                        } catch(Exception) { break; }
                     }
                 } break;
                 
                 case ConvertBehaviour.Order: {
                     for (int i = 0; i < nodesLength; i++) {
-                        SkipDelimiter(reader);
+                        long startIndex = baseStream.Position + 2;
                         try {
+                            SkipDelimiter(reader);
                             nodesArr[i].Read(obj, reader, settings);
                             continue;
+                        } catch (EndOfStreamException) {
+                            break;
                         } catch (Exception) { /* ignored */ }
 
-                        i++;
-                        if(!SkipToNextDelimiter(reader))
-                            break;
+                        // Failed. Skip to next node.
+                        try {
+                            i++;
+                            baseStream.Position = startIndex;
+                            SkipToNextDelimiter(reader);
+                        } catch(Exception) { break; }
                     }
                 } break;
                 
                 case ConvertBehaviour.NameAndOrder: {
                     for (int i = 0; i < nodesLength; i++) {
-                        SkipDelimiter(reader);
-                        long startIndex = reader.BaseStream.Position;
+                        long startIndex = baseStream.Position + 2;
                         
                         // Step 1: Attempt to deserialize based on name.
                         try {
-                            if (nodes.TryGetValue(reader.ReadString(), out Node node)) {
-                                node.Read(obj, reader, settings);
-                                continue;
-                            }
+                            SkipDelimiter(reader);
+                            if(!TryReadString(reader, out string name))
+                                goto Step2;
+                            if (!nodes.TryGetValue(name, out Node node))
+                                goto Step2;
+                            
+                            node.Read(obj, reader, settings);
+                            continue;
                         } catch(Exception) { /* ignored */ }
 
                         // Step 2: Attempt to deserialize based on declaration order.
+                        Step2:
                         try {
-                            reader.BaseStream.Position = startIndex;
+                            baseStream.Position = startIndex;
+                            SkipToEndOfName(reader);
                             nodesArr[i].Read(obj, reader, settings);
+                            continue;
+                        } catch (EndOfStreamException) {
+                            break;
                         } catch (Exception) { /* ignored */ }
 
-                        // Step 3: Skip to next element.
-                        i++;
-                        if(!SkipToNextDelimiter(reader))
+                        // Step 3: Failed. Skip to next node.
+                        try {
+                            i++;
+                            baseStream.Position = startIndex;
+                            SkipToNextDelimiter(reader);
+                        } catch (Exception) {
                             break;
+                        }
                     }
                 } break;
                 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            // TODO: Error handling.
-            // - What if the name of a variable changes? It should try and deserialize what it can.
-            //   > Could use a '|' separator for this, and find the next separator if deserialization fails.
-            // - Will need to throw an error when creating an instance fails.
-
             return obj;
         }
 
@@ -165,19 +191,46 @@ namespace SE.Serialization.Converters
             => (T) Deserialize(reader, settings);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void SkipDelimiter(FastReader reader) 
+        internal static void SkipDelimiter(FastReader reader) 
             => reader.BaseStream.Position += 2;
 
-        private bool SkipToNextDelimiter(FastReader reader)
+        internal static void SkipToNextDelimiter(FastReader reader)
         {
             Stream baseStream = reader.BaseStream;
             while (baseStream.Position + sizeof(char) < baseStream.Length) {
                 if (reader.PeekChar() == '|') {
-                    return true;
+                    return;
                 }
                 reader.ReadChar();
             }
-            return false;
+        }
+
+        internal static void SkipToEndOfName(FastReader reader)
+        {
+            Stream baseStream = reader.BaseStream;
+            while (baseStream.Position + sizeof(char) < baseStream.Length) {
+                if (reader.PeekChar() == ':') {
+                    SkipDelimiter(reader);
+                    return;
+                }
+                reader.ReadChar();
+            }
+        }
+
+        private static bool TryReadString(FastReader reader, out string str)
+        {
+            str = null;
+            Stream baseStream = reader.BaseStream;
+
+            try {
+                uint size = reader.ReadUInt32();
+                reader.BaseStream.Position -= sizeof(int);
+                if (baseStream.Position + size > baseStream.Length)
+                    return false;
+
+                str = reader.ReadString();
+                return true;
+            } catch(Exception) { return false; }
         }
 
         private sealed class Node 
@@ -185,12 +238,22 @@ namespace SE.Serialization.Converters
             private Converter converter;
             private TypeAccessor accessor;
             private string name;
+            private string realName;
+
+            // Faster access for delegate accessors.
+            private TypeAccessor.DelegateAccessor delegateAccessor;
+            private int accessorIndex;
 
             public Node(Converter converter, TypeAccessor accessor, string name)
             {
                 this.converter = converter;
                 this.accessor = accessor;
                 this.name = name;
+                realName = name.Replace(":", null);
+                if (accessor is TypeAccessor.DelegateAccessor delAccessor) {
+                    delegateAccessor = delAccessor;
+                    accessorIndex = delAccessor.GetIndex(realName) ?? throw new IndexOutOfRangeException();
+                }
             }
 
             public void Read(object target, FastReader reader, SerializerSettings settings)
@@ -210,8 +273,9 @@ namespace SE.Serialization.Converters
             public void Write(object target, FastMemoryWriter writer, SerializerSettings settings, bool writeName)
             {
                 object val = GetValue(target);
-                if(writeName)
+                if (writeName) {
                     writer.Write(name);
+                }
 
                 writer.Write(val != null);
                 if (val == null) 
@@ -222,11 +286,19 @@ namespace SE.Serialization.Converters
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SetValue(object target, object value)
-                => accessor[target, name] = value;
+            {
+                if (delegateAccessor != null) {
+                    delegateAccessor.Set(target, accessorIndex, value);
+                } else {
+                    accessor[target, realName] = value;
+                }
+            }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public object GetValue(object target)
-                => accessor[target, name];
+                => delegateAccessor != null
+                    ? delegateAccessor.Get(target, accessorIndex) 
+                    : accessor[target, realName];
         }
     }
 }
