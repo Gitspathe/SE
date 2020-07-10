@@ -8,7 +8,7 @@ namespace SE.Engine.Serialization.Attributes
     public class SerializeAttribute : Attribute
     {
         public string Name;
-        public uint? Order;
+        public ushort? Order;
 
         public SerializeAttribute() { }
 
@@ -17,13 +17,13 @@ namespace SE.Engine.Serialization.Attributes
             Name = name;
         }
 
-        public SerializeAttribute(string name, uint order)
+        public SerializeAttribute(string name, ushort order)
         {
             Name = name;
             Order = order;
         }
 
-        public SerializeAttribute(uint order, string name = null)
+        public SerializeAttribute(ushort order, string name = null)
         {
             Name = name;
             Order = order;

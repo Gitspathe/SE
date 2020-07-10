@@ -24,6 +24,7 @@ using SE.Serialization;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using SE.Engine.Serialization.Attributes;
+using SE.Serialization.Attributes;
 using Console = SE.Core.Console;
 using DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling;
 using MemberSerialization = Newtonsoft.Json.MemberSerialization;
@@ -105,44 +106,48 @@ namespace SEDemos
                 DefaultValueHandling = DefaultValueHandling.Ignore
             };
 
-            int iterations = 100_000;
+            int iterations = 50_000;
+            int innerIterations = 3;
 
-            Stopwatch s = new Stopwatch();
-            s.Start();
+            for (int z = 0; z < innerIterations; z++) {
 
-            TestClass test = new TestClass(255) {
-                baseVal = 43546,
-                pizza1 = 255,
-                pizza4 = 69.420f,
-                pizza5 = 999,
-                pizza3 = {[2] = 59.0f}
-            };
-            test.test1.test1.lol = 55;
+                Stopwatch s = new Stopwatch();
+                s.Start();
 
-            s.Start();
+                TestClass test = new TestClass(255) {
+                    baseVal = 43546,
+                    pizza1 = 255,
+                    pizza4 = 69.420f,
+                    pizza5 = 999,
+                    pizza3 = {[2] = 59.0f}
+                };
+                test.testClass1.test1.lol = 0;
 
-            for (int i = 0; i < iterations; i++) {
-                byte[] bytes = Serializer.Serialize(test);
-                test = Serializer.Deserialize<TestClass>(bytes);
+                s.Start();
+
+                for (int i = 0; i < iterations; i++) {
+                    byte[] bytes = Serializer.Serialize(test);
+                    test = Serializer.Deserialize<TestClass>(bytes);
+                }
+
+                s.Stop();
+                long s1 = s.ElapsedMilliseconds;
+
+                s = new Stopwatch();
+                s.Start();
+
+                for (int i = 0; i < iterations; i++) {
+                    string bytes = test.Serialize(false, options);
+                    test = bytes.Deserialize<TestClass>(false, options);
+                }
+
+                s.Stop();
+                long s2 = s.ElapsedMilliseconds;
+
+                string percent = (((s2 / (float) s1) * 100.0f) - 100.0f).ToString("0.00");
+                Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
+                Console.WriteLine($"  New: {s1}, JSON: {s2} ({percent}% faster.)");
             }
-
-            s.Stop();
-            long s1 = s.ElapsedMilliseconds;
-
-            s = new Stopwatch();
-            s.Start();
-
-            for (int i = 0; i < iterations; i++) {
-                string bytes = test.Serialize(false, options);
-                test = bytes.Deserialize<TestClass>(false, options);
-            }
-
-            s.Stop();
-            long s2 = s.ElapsedMilliseconds;
-
-            string percent = (((s2 / (float) s1) * 100.0f) - 100.0f).ToString("0.00");
-            Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
-            Console.WriteLine($"  New: {s1}, JSON: {s2} ({percent}% faster.)");
         }
 
         public class TestClassBase
@@ -166,7 +171,7 @@ namespace SEDemos
             public int pizza10 = 44;
             public int pizza11 = 9;
             public byte pizza12 = 3;
-            public TestClass2 test1 = new TestClass2();
+            public TestClass2 testClass1 = new TestClass2();
             public TestClass2 test2 = new TestClass2();
             public TestClass2 test3 = new TestClass2();
 

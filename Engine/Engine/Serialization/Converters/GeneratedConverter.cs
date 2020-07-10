@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using FastMember;
 using FastStream;
 using SE.Engine.Serialization.Attributes;
+using SE.Serialization.Attributes;
 using SE.Serialization.Resolvers;
 using SE.Utility;
 
@@ -22,9 +23,12 @@ namespace SE.Serialization.Converters
         private bool isValueType;
 
         private Dictionary<string, Node> nodesDictionary = new Dictionary<string, Node>();
-        private Node[] nodesArr;
+        private Node[] nodesArray;
 
-        private const int _NODE_HEADER_SIZE = sizeof(char) + sizeof(uint);
+        private const int _NODE_HEADER_SIZE = sizeof(byte) + sizeof(ushort);
+        private const byte _NAME_DELIMITER  = (byte) ':';
+        private const byte _DELIMITER       = (byte) '|';
+        private const byte _BREAK_DELIMITER = (byte) '^';
 
         private GeneratedConverter(Type type, ConverterResolver resolver)
         {
@@ -51,9 +55,9 @@ namespace SE.Serialization.Converters
             }
 
             QuickList<Node> tmpNodes = new QuickList<Node>();
-            HashSet<uint> indexes = new HashSet<uint>();
+            HashSet<ushort> indexes = new HashSet<ushort>();
             MemberSet set = accessor.GetMembers();
-            uint curIndex = 0;
+            ushort curIndex = 0;
 
             foreach (Member member in set) {
                 // Skip member if it has an ignore attribute.
@@ -64,13 +68,13 @@ namespace SE.Serialization.Converters
                 // Set some default info.
                 Converter converter = resolver.GetConverter(member.Type);
                 string realMemberName = member.Name;
-                string memberName = member.Name + ':';
-                uint index = curIndex;
+                string memberName = member.Name;
+                ushort index = curIndex;
 
                 // Process other attributes.
                 SerializeAttribute serializeAttribute = member.Info.GetCustomAttribute<SerializeAttribute>();
                 if (serializeAttribute != null) {
-                    memberName = serializeAttribute.Name ?? member.Name + ':';
+                    memberName = serializeAttribute.Name ?? member.Name;
                     index = serializeAttribute.Order ?? curIndex;
                 }
 
@@ -95,10 +99,10 @@ namespace SE.Serialization.Converters
                 // Increment index.
                 curIndex++;
                 if (index > curIndex) {
-                    curIndex = index + 1;
+                    curIndex = (ushort)(index + 1);
                 }
             }
-            nodesArr = tmpNodes.OrderBy(node => node.Index).ToArray();
+            nodesArray = tmpNodes.OrderBy(node => node.Index).ToArray();
         }
 
         private string ResolveName(string memberName)
@@ -116,9 +120,9 @@ namespace SE.Serialization.Converters
             return name;
         }
 
-        private uint ResolveIndex(HashSet<uint> indexes, uint index)
+        private ushort ResolveIndex(HashSet<ushort> indexes, ushort index)
         {
-            uint i = index;
+            ushort i = index;
             while (indexes.Contains(i)) {
                 i++;
             }
@@ -140,10 +144,10 @@ namespace SE.Serialization.Converters
         public override void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings)
         {
             bool writeName = settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
-            for (int i = 0; i < nodesArr.Length; i++) {
-                writer.Write('|');
-                nodesArr[i].Write(obj, writer, settings, writeName);
+            for (int i = 0; i < nodesArray.Length; i++) {
+                nodesArray[i].Write(obj, writer, settings, writeName);
             }
+            writer.Write(_BREAK_DELIMITER);
         }
 
         public override object Deserialize(FastReader reader, SerializerSettings settings)
@@ -167,13 +171,11 @@ namespace SE.Serialization.Converters
 
         private void DeserializeOrder(ref object obj, FastReader reader, SerializerSettings settings)
         {
-            Stream baseStream = reader.BaseStream;
-            for (int i = 0; i < nodesArr.Length; i++) {
-                long startIndex = baseStream.Position + _NODE_HEADER_SIZE;
+            Stream stream = reader.BaseStream;
+            while (stream.Position + 1 < stream.Length && reader.ReadByte() == _DELIMITER) {
+                long startIndex = (stream.Position + _NODE_HEADER_SIZE) - 1;
                 try {
-                    SkipDelimiter(reader);
-                    uint readIndex = reader.ReadUInt32();
-                    nodesArr[readIndex].Read(obj, reader, settings);
+                    nodesArray[reader.ReadUInt16()].Read(obj, reader, settings);
                     continue;
                 } catch (EndOfStreamException) {
                     break;
@@ -181,29 +183,30 @@ namespace SE.Serialization.Converters
 
                 // Failed. Skip to next node.
                 try {
-                    i++;
-                    baseStream.Position = startIndex;
-                    SkipToNextDelimiter(reader);
+                    stream.Position = startIndex;
+                    if(!SkipToNextDelimiter(reader))
+                        break;
+
                 } catch(Exception) { break; }
             }
         }
 
         private void DeserializeNameAndOrder(ref object obj, FastReader reader, SerializerSettings settings)
         {
-            Stream baseStream = reader.BaseStream;
-            for (int i = 0; i < nodesArr.Length; i++) {
-                long startIndex = baseStream.Position + _NODE_HEADER_SIZE;
-                uint readIndex = 0;
+            Stream stream = reader.BaseStream;
+            while (stream.Position + 1 < stream.Length && reader.ReadByte() == _DELIMITER) {
+                long startIndex = (stream.Position + _NODE_HEADER_SIZE) - 1;
+                ushort readIndex = 0;
 
                 // Step 1: Attempt to deserialize based on name.
                 try {
-                    SkipDelimiter(reader);
-                    readIndex = reader.ReadUInt32();
+                    readIndex = reader.ReadUInt16();
                     if(!TryReadString(reader, out string name))
                         goto Step2;
                     if (!nodesDictionary.TryGetValue(name, out Node node))
                         goto Step2;
-                            
+
+                    SkipDelimiter(reader);
                     node.Read(obj, reader, settings);
                     continue;
                 } catch(Exception) { /* ignored */ }
@@ -211,9 +214,11 @@ namespace SE.Serialization.Converters
                 // Step 2: Attempt to deserialize based on declaration order.
                 Step2:
                 try {
-                    baseStream.Position = startIndex;
-                    SkipToEndOfName(reader);
-                    nodesArr[readIndex].Read(obj, reader, settings);
+                    stream.Position = startIndex;
+                    if(!SkipToEndOfName(reader))
+                        break;
+
+                    nodesArray[readIndex].Read(obj, reader, settings);
                     continue;
                 } catch (EndOfStreamException) {
                     break;
@@ -221,9 +226,9 @@ namespace SE.Serialization.Converters
 
                 // Step 3: Failed. Skip to next node.
                 try {
-                    i++;
-                    baseStream.Position = startIndex;
-                    SkipToNextDelimiter(reader);
+                    stream.Position = startIndex;
+                    if(!SkipToNextDelimiter(reader))
+                        break;
                 } catch (Exception) {
                     break;
                 }
@@ -235,29 +240,40 @@ namespace SE.Serialization.Converters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SkipDelimiter(FastReader reader) 
-            => reader.BaseStream.Position += 2;
+            => reader.BaseStream.Position += sizeof(byte);
 
-        internal static void SkipToNextDelimiter(FastReader reader)
+        internal static bool SkipToNextDelimiter(FastReader reader)
         {
             Stream baseStream = reader.BaseStream;
-            while (baseStream.Position + sizeof(char) < baseStream.Length) {
-                if (reader.PeekChar() == '|') {
-                    return;
+            while (baseStream.Position + 1 < baseStream.Length) {
+                byte b = reader.ReadByte();
+                if (b == _DELIMITER) {
+                    reader.BaseStream.Position -= 1;
+                    return true;
                 }
-                reader.ReadChar();
+                if (b == _BREAK_DELIMITER) {
+                    reader.BaseStream.Position -= 1;
+                    return false;
+                }
             }
+            return false;
         }
 
-        internal static void SkipToEndOfName(FastReader reader)
+        internal static bool SkipToEndOfName(FastReader reader)
         {
             Stream baseStream = reader.BaseStream;
-            while (baseStream.Position + sizeof(char) < baseStream.Length) {
-                if (reader.PeekChar() == ':') {
+            while (baseStream.Position + 1 < baseStream.Length) {
+                byte b = reader.ReadByte();
+                if (b == _NAME_DELIMITER) {
                     SkipDelimiter(reader);
-                    return;
+                    return true;
+                } 
+                if (b == _BREAK_DELIMITER) {
+                    SkipDelimiter(reader);
+                    return false;
                 }
-                reader.ReadChar();
             }
+            return false;
         }
 
         private static bool TryReadString(FastReader reader, out string str)
@@ -280,7 +296,7 @@ namespace SE.Serialization.Converters
         {
             public string Name;
             public string RealName;
-            public uint Index;
+            public ushort Index;
 
             private Converter converter;
             private TypeAccessor accessor;
@@ -289,7 +305,7 @@ namespace SE.Serialization.Converters
             private TypeAccessor.DelegateAccessor delegateAccessor;
             private int accessorIndex;
 
-            public Node(Converter converter, TypeAccessor accessor, string name, string realName, uint index)
+            public Node(Converter converter, TypeAccessor accessor, string name, string realName, ushort index)
             {
                 this.converter = converter;
                 this.accessor = accessor;
@@ -304,33 +320,43 @@ namespace SE.Serialization.Converters
 
             public void Read(object target, FastReader reader, SerializerSettings settings)
             {
-                // If the next value exists / isn't null, deserialize it's data.
-                if (reader.ReadBoolean()) {
+                bool shouldReadBool = settings.NullValueHandling == NullValueHandling.DefaultValue
+                                      || settings.DefaultValueHandling == DefaultValueHandling.Serialize;
+
+                bool shouldSetValue = !shouldReadBool || reader.ReadBoolean();
+                if (shouldSetValue) {
                     SetValue(target, converter.Deserialize(reader, settings));
                     return;
                 }
-                
-                // If the next value is null, set it to default, or ignore, depending on settings.
-                if (settings.NullValueHandling == NullValueHandling.DefaultValue) {
-                    SetValue(target, default);
-                }
+
+                // Set to default.
+                SetValue(target, default);
             }
 
             public void Write(object target, FastMemoryWriter writer, SerializerSettings settings, bool writeName)
             {
                 object val = GetValue(target);
+                bool writeNull = settings.NullValueHandling == NullValueHandling.DefaultValue;
+                bool writeDefault = settings.DefaultValueHandling == DefaultValueHandling.Serialize;
+                bool isDefault = converter.IsDefault(val);
+                if(!writeNull && val == null)
+                    return;
+                if(!writeDefault && isDefault)
+                    return;
+
+                writer.Write(_DELIMITER);
                 writer.Write(Index);
                 if (writeName) {
                     writer.Write(Name);
+                    writer.Write(_NAME_DELIMITER);
                 }
 
-                bool shouldWrite = val != null;
-                if(settings.DefaultValueHandling == DefaultValueHandling.Ignore && converter.IsDefault(val))
-                    shouldWrite = false;
-
-                writer.Write(shouldWrite);
-                if (!shouldWrite)
-                    return;
+                if(writeNull || writeDefault) {
+                    bool shouldWrite = writeNull && val != null || writeDefault && !isDefault;
+                    writer.Write(shouldWrite);
+                    if (!shouldWrite)
+                        return;
+                }
 
                 converter.Serialize(val, writer, settings);
             }
