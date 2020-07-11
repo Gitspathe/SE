@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using FastMember;
 using FastStream;
-using SE.Engine.Serialization.Attributes;
 using SE.Serialization.Attributes;
 using SE.Serialization.Resolvers;
 using SE.Utility;
@@ -57,7 +56,6 @@ namespace SE.Serialization.Converters
             HashSet<ushort> indexes = new HashSet<ushort>();
             List<Member> members = accessor.Members;
             ushort curIndex = 0;
-
             foreach (Member member in members) {
                 // Skip member if it has an ignore attribute.
                 SerializeIgnoreAttribute ignoreAttribute = member.Info.GetCustomAttribute<SerializeIgnoreAttribute>();
@@ -101,14 +99,11 @@ namespace SE.Serialization.Converters
                     curIndex = (ushort)(index + 1);
                 }
             }
+
+            // Create and sort nodes array based on order.
             nodesArray = new Node[tmpNodes.Count];
             Array.Copy(tmpNodes.Array, nodesArray, tmpNodes.Count);
-            Array.Sort(nodesArray, new NodeComparer());
-        }
-
-        private struct NodeComparer : IComparer<Node>
-        {
-            public int Compare(Node x, Node y) => x.Index.CompareTo(y.Index);
+            Array.Sort(nodesArray, new NodeIndexComparer());
         }
 
         private string ResolveName(string memberName)
@@ -341,9 +336,9 @@ namespace SE.Serialization.Converters
             public void Write(object target, FastMemoryWriter writer, SerializerSettings settings, bool writeName)
             {
                 object val = GetValue(target);
+                bool isDefault = converter.IsDefault(val);
                 bool writeNull = settings.NullValueHandling == NullValueHandling.DefaultValue;
                 bool writeDefault = settings.DefaultValueHandling == DefaultValueHandling.Serialize;
-                bool isDefault = converter.IsDefault(val);
                 if(!writeNull && val == null)
                     return;
                 if(!writeDefault && isDefault)
@@ -381,6 +376,11 @@ namespace SE.Serialization.Converters
                 => delegateAccessor != null 
                     ? delegateAccessor.Get(target, accessorIndex) 
                     : accessor[target, RealName];
+        }
+
+        private struct NodeIndexComparer : IComparer<Node>
+        {
+            public int Compare(Node x, Node y) => x.Index.CompareTo(y.Index);
         }
     }
 }

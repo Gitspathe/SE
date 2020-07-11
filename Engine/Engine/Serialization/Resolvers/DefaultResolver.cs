@@ -8,10 +8,10 @@ namespace SE.Serialization.Resolvers
 {
     public sealed class DefaultResolver : ConverterResolver
     {
-        private Dictionary<Type, Converter> converterCache                 = new Dictionary<Type, Converter>();
-        private Dictionary<Type, Converter> typeConverters                 = new Dictionary<Type, Converter>();
-        private Dictionary<Type, GeneratedConverter> generatedConverters   = new Dictionary<Type, GeneratedConverter>();
-        private Dictionary<Type, Type> genericTypeConverterTypes           = new Dictionary<Type, Type>();
+        private Dictionary<Type, Converter> converterCache               = new Dictionary<Type, Converter>();
+        private Dictionary<Type, Converter> typeConverters               = new Dictionary<Type, Converter>();
+        private Dictionary<Type, GeneratedConverter> generatedConverters = new Dictionary<Type, GeneratedConverter>();
+        private Dictionary<Type, Type> genericTypeConverterTypes         = new Dictionary<Type, Type>();
 
         private Func<Type, bool> converterPredicate = myType 
             => myType != typeof(GeneratedConverter) 
