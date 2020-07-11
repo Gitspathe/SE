@@ -2,11 +2,18 @@
 
 namespace SE.Serialization
 {
+    /// <summary>
+    /// Settings used to control how the serializer behaves.
+    /// </summary>
     public sealed class SerializerSettings
     {
+        /// <summary>How the serializer handles null values.</summary>
         public NullValueHandling NullValueHandling       = NullValueHandling.Ignore;
+        /// <summary>How the serializer handles default values.</summary>
         public DefaultValueHandling DefaultValueHandling = DefaultValueHandling.Ignore;
+        /// <summary>How the serializer converts data. Determines performance and parsing error resilience.</summary>
         public ConvertBehaviour ConvertBehaviour         = ConvertBehaviour.Order;
+        /// <summary>Which resolver is used to determine the Converters used for given types.</summary>
         public ConverterResolver Resolver                = Serializer.DefaultResolver;
     }
 

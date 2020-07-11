@@ -123,24 +123,22 @@ namespace SEDemos
                 };
                 test.testClass1.test1.lol = 64;
 
+                // New serializer.
                 s.Start();
-
                 for (int i = 0; i < iterations; i++) {
                     byte[] bytes = Serializer.Serialize(test);
                     test = Serializer.Deserialize<TestClass>(bytes);
                 }
-
                 s.Stop();
                 long s1 = s.ElapsedMilliseconds;
 
+                // JSON serializer.
                 s = new Stopwatch();
                 s.Start();
-
                 for (int i = 0; i < iterations; i++) {
                     string bytes = test.Serialize(false, options);
                     test = bytes.Deserialize<TestClass>(false, options);
                 }
-
                 s.Stop();
                 long s2 = s.ElapsedMilliseconds;
 
