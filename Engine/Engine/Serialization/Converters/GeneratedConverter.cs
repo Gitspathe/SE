@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -56,10 +55,10 @@ namespace SE.Serialization.Converters
 
             QuickList<Node> tmpNodes = new QuickList<Node>();
             HashSet<ushort> indexes = new HashSet<ushort>();
-            MemberSet set = accessor.GetMembers();
+            List<Member> members = accessor.Members;
             ushort curIndex = 0;
 
-            foreach (Member member in set) {
+            foreach (Member member in members) {
                 // Skip member if it has an ignore attribute.
                 SerializeIgnoreAttribute ignoreAttribute = member.Info.GetCustomAttribute<SerializeIgnoreAttribute>();
                 if(ignoreAttribute != null)
@@ -102,17 +101,23 @@ namespace SE.Serialization.Converters
                     curIndex = (ushort)(index + 1);
                 }
             }
-            nodesArray = tmpNodes.OrderBy(node => node.Index).ToArray();
+            nodesArray = new Node[tmpNodes.Count];
+            Array.Copy(tmpNodes.Array, nodesArray, tmpNodes.Count);
+            Array.Sort(nodesArray, new NodeComparer());
+        }
+
+        private struct NodeComparer : IComparer<Node>
+        {
+            public int Compare(Node x, Node y) => x.Index.CompareTo(y.Index);
         }
 
         private string ResolveName(string memberName)
         {
-            string name = memberName;
-            if (!nodesDictionary.ContainsKey(name)) 
-                return name;
+            if (!nodesDictionary.ContainsKey(memberName)) 
+                return memberName;
 
             int tmpInt = 0;
-            name = memberName + tmpInt;
+            string name = memberName + tmpInt;
             while (nodesDictionary.ContainsKey(name)) {
                 tmpInt++;
                 name = memberName + tmpInt;
@@ -373,7 +378,7 @@ namespace SE.Serialization.Converters
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public object GetValue(object target)
-                => delegateAccessor != null
+                => delegateAccessor != null 
                     ? delegateAccessor.Get(target, accessorIndex) 
                     : accessor[target, RealName];
         }

@@ -116,12 +116,12 @@ namespace SEDemos
 
                 TestClass test = new TestClass(255) {
                     baseVal = 43546,
-                    pizza1 = 255,
+                    pizza1 = 0,
                     pizza4 = 69.420f,
-                    pizza5 = 999,
+                    pizza5 = 0,
                     pizza3 = {[2] = 59.0f}
                 };
-                test.testClass1.test1.lol = 0;
+                test.testClass1.test1.lol = 64;
 
                 s.Start();
 
