@@ -68,6 +68,10 @@ namespace SE.Serialization.Converters
                 string memberName = member.Name;
                 ushort index = curIndex;
 
+                // Skip property backing fields.
+                if(realMemberName.Contains("k__BackingField"))
+                    continue;
+
                 // Process other attributes.
                 SerializeAttribute serializeAttribute = member.Info.GetCustomAttribute<SerializeAttribute>();
                 if (serializeAttribute != null) {

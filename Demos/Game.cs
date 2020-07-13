@@ -135,8 +135,8 @@ namespace SEDemos
                 s = new Stopwatch();
                 s.Start();
                 for (int i = 0; i < iterations; i++) {
-                    string bytes = test.Serialize(false, options);
-                    test = bytes.Deserialize<TestClass>(false, options);
+                    string bytes = System.Text.Json.JsonSerializer.Serialize(test);
+                    test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes);
                 }
                 s.Stop();
                 long s2 = s.ElapsedMilliseconds;
@@ -149,7 +149,7 @@ namespace SEDemos
 
         public class TestClassBase
         {
-            public int baseVal = 99;
+            public int baseVal { get; internal set; } = 99;
         }
 
         [JsonObject(MemberSerialization.OptOut)]
@@ -157,20 +157,20 @@ namespace SEDemos
         public class TestClass : TestClassBase
         {
             public int pizza1 { get; set; } = 12;
-            private int pizza2 = 2;
-            public float?[] pizza3 = { 1.0f, 2.05f, null };
-            public float? pizza4 = 5.5f;
-            public int pizza5 = 2;
-            public int pizza6 = 5;
-            public int pizza7 = 8;
-            public int pizza8 = 1;
-            public ushort pizza9 = 5;
-            public int pizza10 = 44;
-            public int pizza11 = 9;
-            public byte pizza12 = 3;
-            public TestClass2 testClass1 = new TestClass2();
-            public TestClass2 test2 = new TestClass2();
-            public TestClass2 test3 = new TestClass2();
+            private int pizza2 { get; set; } = 2;
+            public float?[] pizza3 { get; set; } = { 1.0f, 2.05f, null };
+            public float? pizza4 { get; set; } = 5.5f;
+            public int pizza5 { get; set; } = 2;
+            public int pizza6 { get; set; } = 5;
+            public int pizza7 { get; set; } = 8;
+            public int pizza8 { get; set; } = 1;
+            public ushort pizza9 { get; set; } = 5;
+            public int pizza10 { get; set; } = 44;
+            public int pizza11 { get; set; } = 9;
+            public byte pizza12 { get; set; } = 3;
+            public TestClass2 testClass1 { get; set; } = new TestClass2();
+            public TestClass2 test2 { get; set; } = new TestClass2();
+            public TestClass2 test3 { get; set; } = new TestClass2();
 
             public TestClass(int pizzas)
             {
@@ -183,22 +183,22 @@ namespace SEDemos
         [SerializeObject(ObjectSerialization.Fields)]
         public class TestClass2
         {
-            public int? lol = 2;
-            public TestClass3 test1 = new TestClass3();
-            public TestClass3 test2 = new TestClass3();
-            public TestClass3 test3 = new TestClass3();
-            public TestClass3 test4 = new TestClass3();
+            public int? lol { get; set; } = 2;
+            public TestClass3 test1 { get; set; } = new TestClass3();
+            public TestClass3 test2 { get; set; } = new TestClass3();
+            public TestClass3 test3 { get; set; } = new TestClass3();
+            public TestClass3 test4 { get; set; } = new TestClass3();
         }
 
         [JsonObject(MemberSerialization.OptOut)]
         [SerializeObject(ObjectSerialization.Fields)]
         public class TestClass3
         {
-            public int lol = 2;
-            public int lol2 = 2;
-            public int lol3 = 2;
-            public int lol4 = 2;
-            public int lol5 = 2;
+            public int lol { get; set; } = 2;
+            public int lol2 { get; set; } = 2;
+            public int lol3 { get; set; } = 2;
+            public int lol4 { get; set; } = 2;
+            public int lol5 { get; set; } = 2;
         }
 
         public static void SpawnStuff()
