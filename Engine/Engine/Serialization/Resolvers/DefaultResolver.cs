@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using SE.Serialization.Converters;
 using static SE.Core.ReflectionUtil;
+// ReSharper disable StaticMemberInGenericType
 
 namespace SE.Serialization.Resolvers
 {
@@ -33,12 +34,6 @@ namespace SE.Serialization.Resolvers
                 isDirty = true;
                 return null;
             };
-        }
-
-        private static class ResolverCache<T>
-        {
-            public static Converter<T> Converter;
-            public static bool Setup = false;
         }
 
         private void RegisterConverter(Type objType, Converter converter)
@@ -159,6 +154,12 @@ namespace SE.Serialization.Resolvers
         {
             if (isDirty)
                 Reset();
+        }
+
+        private static class ResolverCache<T>
+        {
+            public static Converter<T> Converter;
+            public static bool Setup;
         }
     }
 }

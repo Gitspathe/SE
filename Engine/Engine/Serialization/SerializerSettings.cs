@@ -8,13 +8,15 @@ namespace SE.Serialization
     public sealed class SerializerSettings
     {
         /// <summary>How the serializer handles null values.</summary>
-        public NullValueHandling NullValueHandling       = NullValueHandling.Ignore;
+        public NullValueHandling NullValueHandling         = NullValueHandling.Ignore;
         /// <summary>How the serializer handles default values.</summary>
-        public DefaultValueHandling DefaultValueHandling = DefaultValueHandling.Ignore;
+        public DefaultValueHandling DefaultValueHandling   = DefaultValueHandling.Ignore;
         /// <summary>How the serializer converts data. Determines performance and parsing error resilience.</summary>
-        public ConvertBehaviour ConvertBehaviour         = ConvertBehaviour.Order;
+        public ConvertBehaviour ConvertBehaviour           = ConvertBehaviour.Order;
+        /// <summary>How the serializer behaves when encountering a recursive loop of references.</summary>
+        public ReferenceLoopHandling ReferenceLoopHandling = ReferenceLoopHandling.Error;
         /// <summary>Which resolver is used to determine the Converters used for given types.</summary>
-        public ConverterResolver Resolver                = Serializer.DefaultResolver;
+        public ConverterResolver Resolver                  = Serializer.DefaultResolver;
     }
 
     /// <summary>
@@ -53,5 +55,17 @@ namespace SE.Serialization
 
         /// <summary>Default values are serialized.</summary>
         Serialize
+    }
+
+    /// <summary>
+    /// How the serializer behaves when encountering a recursive loop of references.
+    /// </summary>
+    public enum ReferenceLoopHandling
+    {
+        /// <summary>Reference loops are not serializer nor deserialized.</summary>
+        Ignore,
+
+        /// <summary>Reference loops will throw an error when detected.</summary>
+        Error
     }
 }

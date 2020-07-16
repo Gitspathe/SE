@@ -7,7 +7,7 @@ namespace SE.Serialization.Converters
     {
         public override Type Type => typeof(int?);
 
-        public override object Deserialize(FastReader reader, SerializerSettings settings)
+        public override object Deserialize(FastReader reader, ref SerializerTask task)
         {
             if (!reader.ReadBoolean()) 
                 return null;
@@ -15,7 +15,7 @@ namespace SE.Serialization.Converters
             return reader.ReadInt32();
         }
 
-        public override void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings)
+        public override void Serialize(object obj, FastMemoryWriter writer, ref SerializerTask task)
         {
             int? val = (int?) obj;
             bool hasValue = val.HasValue;
@@ -25,7 +25,7 @@ namespace SE.Serialization.Converters
             }
         }
 
-        public override int? DeserializeT(FastReader reader, SerializerSettings settings)
+        public override int? DeserializeT(FastReader reader, ref SerializerTask task)
         {
             if (!reader.ReadBoolean()) 
                 return null;
@@ -33,7 +33,7 @@ namespace SE.Serialization.Converters
             return reader.ReadInt32();
         }
 
-        public override void Serialize(int? obj, FastMemoryWriter writer, SerializerSettings settings)
+        public override void Serialize(int? obj, FastMemoryWriter writer, ref SerializerTask task)
         {
             bool hasValue = obj.HasValue;
             writer.Write(hasValue);

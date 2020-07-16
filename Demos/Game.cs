@@ -96,13 +96,17 @@ namespace SEDemos
 
             // Temporary serializer benchmark code.
             JsonSerializerSettings options = new JsonSerializerSettings {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
                 PreserveReferencesHandling = PreserveReferencesHandling.None,
                 Formatting = Formatting.None,
                 TypeNameHandling = TypeNameHandling.None,
                 TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
                 NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
                 DefaultValueHandling = DefaultValueHandling.Ignore
+            };
+
+            System.Text.Json.JsonSerializerOptions textJsonOptions = new System.Text.Json.JsonSerializerOptions() {
+                WriteIndented = false
             };
 
             int iterations = 50_000;
@@ -135,15 +139,15 @@ namespace SEDemos
                 s = new Stopwatch();
                 s.Start();
                 for (int i = 0; i < iterations; i++) {
-                    string bytes = System.Text.Json.JsonSerializer.Serialize(test);
-                    test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes);
+                    string bytes = System.Text.Json.JsonSerializer.Serialize(test, textJsonOptions);
+                    test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes, textJsonOptions);
                 }
                 s.Stop();
                 long s2 = s.ElapsedMilliseconds;
 
                 string percent = (((s2 / (float) s1) * 100.0f) - 100.0f).ToString("0.00");
                 Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
-                Console.WriteLine($"  New: {s1}, JSON: {s2} ({percent}% faster.)");
+                Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
             }
         }
 

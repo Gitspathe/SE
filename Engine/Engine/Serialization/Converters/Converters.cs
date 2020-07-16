@@ -16,8 +16,8 @@ namespace SE.Serialization.Converters
         private bool defaultCreated;
 
         public abstract Type Type { get; }
-        public abstract void Serialize(object obj, FastMemoryWriter writer, SerializerSettings settings);
-        public abstract object Deserialize(FastReader reader, SerializerSettings settings);
+        public abstract void Serialize(object obj, FastMemoryWriter writer, ref SerializerTask task);
+        public abstract object Deserialize(FastReader reader, ref SerializerTask task);
 
         public virtual bool IsDefault(object obj)
         {
@@ -45,8 +45,8 @@ namespace SE.Serialization.Converters
 
     public abstract class Converter<T> : Converter
     {
-        public abstract void Serialize(T obj, FastMemoryWriter writer, SerializerSettings settings);
-        public abstract T DeserializeT(FastReader reader, SerializerSettings settings);
+        public abstract void Serialize(T obj, FastMemoryWriter writer, ref SerializerTask task);
+        public abstract T DeserializeT(FastReader reader, ref SerializerTask task);
     }
 
     /// <summary>

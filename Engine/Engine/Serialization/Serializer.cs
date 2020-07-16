@@ -24,28 +24,32 @@ namespace SE.Serialization
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
+            SerializerTask task = new SerializerTask(settings);
             Converter converter = settings.Resolver.GetConverter(obj.GetType());
             using(FastMemoryWriter writer = new FastMemoryWriter()) {
                 if (converter == null)
                     return null;
 
-                SerializeWriter(obj, settings, converter, writer);
+                SerializeWriter(obj, converter, writer, ref task);
                 return writer.ToArray();
             }
         }
 
-        public static void SerializeWriter(object obj, SerializerSettings settings, Converter converter, FastMemoryWriter writer) 
-            => converter.Serialize(obj, writer, settings);
+        public static void SerializeWriter(object obj, Converter converter, FastMemoryWriter writer, ref SerializerTask task)
+        {
+            converter.Serialize(obj, writer, ref task);
+        }
 
         public static byte[] Serialize<T>(T obj, SerializerSettings settings)
         {
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
+            SerializerTask task = new SerializerTask(settings);
             Converter<T> converterT = settings.Resolver.GetConverter<T>();
             using(FastMemoryWriter writer = new FastMemoryWriter()) {
                 if (converterT != null) {
-                    SerializeWriter(obj, settings, converterT, writer);
+                    SerializeWriter(obj, converterT, writer, ref task);
                     return writer.ToArray();
                 }
 
@@ -54,13 +58,15 @@ namespace SE.Serialization
                 if(converter == null)
                     return null;
 
-                SerializeWriter(obj, settings, converter, writer);
+                SerializeWriter(obj, converter, writer, ref task);
                 return writer.ToArray();
             }
         }
 
-        public static void SerializeWriter<T>(T obj, SerializerSettings settings, Converter<T> serializer, FastMemoryWriter writer) 
-            => serializer.Serialize(obj, writer, settings);
+        public static void SerializeWriter<T>(T obj, Converter<T> serializer, FastMemoryWriter writer, ref SerializerTask task)
+        {
+            serializer.Serialize(obj, writer, ref task);
+        }
 
         public static T Deserialize<T>(byte[] data) 
             => Deserialize<T>(data, DefaultSettings);
@@ -72,23 +78,24 @@ namespace SE.Serialization
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
+            SerializerTask task = new SerializerTask(settings);
             Converter<T> converterT = settings.Resolver.GetConverter<T>();
             MemoryStream stream = new MemoryStream(data);
             using (FastReader reader = new FastReader(stream)) {
                 if (converterT != null) {
-                    return DeserializeReader(converterT, reader, settings);
+                    return DeserializeReader(converterT, reader, ref task);
                 }
 
                 // Get non-generic converter if above fails.
                 Converter converter = settings.Resolver.GetConverter(typeof(T));
-                return (T) DeserializeReader(converter, reader, settings);
+                return (T) DeserializeReader(converter, reader, ref task);
             }
         }
 
-        public static T DeserializeReader<T>(Converter<T> converter, FastReader reader, SerializerSettings settings) 
-            => converter.DeserializeT(reader, settings);
+        public static T DeserializeReader<T>(Converter<T> converter, FastReader reader, ref SerializerTask task) 
+            => converter.DeserializeT(reader, ref task);
 
-        public static object DeserializeReader(Converter converter, FastReader reader, SerializerSettings settings) 
-            => converter.Deserialize(reader, settings);
+        public static object DeserializeReader(Converter converter, FastReader reader, ref SerializerTask task) 
+            => converter.Deserialize(reader, ref task);
     }
 }
