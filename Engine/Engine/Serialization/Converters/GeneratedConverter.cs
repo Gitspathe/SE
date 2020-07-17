@@ -147,16 +147,20 @@ namespace SE.Serialization.Converters
         public override bool IsDefault(object obj) 
             => obj.Equals(defaultInstance);
 
-        public override void Serialize(object obj, FastMemoryWriter writer, ref SerializerTask task)
+        public override void Serialize(object obj, FastMemoryWriter writer, ref SerializeTask task)
         {
-            bool writeName = task.Settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
-            for (int i = 0; i < nodesArray.Length; i++) {
-                nodesArray[i].Write(obj, writer, writeName, ref task);
+            if (task.CurrentDepth < task.Settings.MaxDepth) {
+                bool writeName = task.Settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
+                for (int i = 0; i < nodesArray.Length; i++) {
+                    nodesArray[i].Write(obj, writer, writeName, ref task);
+                }
             }
+
+            // Always write delimiter, even when MaxDepth has been reached.
             writer.Write(_BREAK_DELIMITER);
         }
 
-        public override object Deserialize(FastReader reader, ref SerializerTask task)
+        public override object Deserialize(FastReader reader, ref DeserializeTask task)
         {
             // TODO: Error handling.
             // - Will need to throw an error when creating an instance fails.
@@ -175,7 +179,7 @@ namespace SE.Serialization.Converters
             return obj;
         }
 
-        private void DeserializeOrder(ref object obj, FastReader reader, ref SerializerTask task)
+        private void DeserializeOrder(ref object obj, FastReader reader, ref DeserializeTask task)
         {
             Stream stream = reader.BaseStream;
             while (stream.Position + 1 < stream.Length && reader.ReadByte() == _DELIMITER) {
@@ -197,7 +201,7 @@ namespace SE.Serialization.Converters
             }
         }
 
-        private void DeserializeNameAndOrder(ref object obj, FastReader reader, ref SerializerTask task)
+        private void DeserializeNameAndOrder(ref object obj, FastReader reader, ref DeserializeTask task)
         {
             Stream stream = reader.BaseStream;
             while (stream.Position + 1 < stream.Length && reader.ReadByte() == _DELIMITER) {
@@ -241,7 +245,7 @@ namespace SE.Serialization.Converters
             }
         }
 
-        public T Deserialize<T>(FastReader reader, ref SerializerTask task) 
+        public T Deserialize<T>(FastReader reader, ref DeserializeTask task) 
             => (T) Deserialize(reader, ref task);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -324,15 +328,14 @@ namespace SE.Serialization.Converters
                 }
             }
 
-            public void Read(object target, FastReader reader, ref SerializerTask task)
+            public void Read(object target, FastReader reader, ref DeserializeTask task)
             {
                 bool shouldReadBool = task.Settings.NullValueHandling == NullValueHandling.DefaultValue
                                       || task.Settings.DefaultValueHandling == DefaultValueHandling.Serialize;
 
                 bool shouldSetValue = !shouldReadBool || reader.ReadBoolean();
                 if (shouldSetValue) {
-                    SerializerTask clonedTask = task.Clone();
-                    SetValue(target, converter.Deserialize(reader, ref clonedTask));
+                    SetValue(target, Serializer.DeserializeReader(converter, reader, ref task));
                     return;
                 }
 
@@ -340,7 +343,7 @@ namespace SE.Serialization.Converters
                 SetValue(target, default);
             }
 
-            public void Write(object target, FastMemoryWriter writer, bool writeName, ref SerializerTask task)
+            public void Write(object target, FastMemoryWriter writer, bool writeName, ref SerializeTask task)
             {
                 object val = GetValue(target);
                 bool isDefault = converter.IsDefault(val);
@@ -365,8 +368,7 @@ namespace SE.Serialization.Converters
                         return;
                 }
 
-                SerializerTask clonedTask = task.Clone();
-                converter.Serialize(val, writer, ref clonedTask);
+                Serializer.SerializeWriter(val, converter, writer, ref task);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

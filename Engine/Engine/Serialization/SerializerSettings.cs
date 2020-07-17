@@ -15,6 +15,8 @@ namespace SE.Serialization
         public ConvertBehaviour ConvertBehaviour           = ConvertBehaviour.Order;
         /// <summary>How the serializer behaves when encountering a recursive loop of references.</summary>
         public ReferenceLoopHandling ReferenceLoopHandling = ReferenceLoopHandling.Error;
+        /// <summary>How many levels deep the serializer will process.</summary>
+        public int MaxDepth = 12;
         /// <summary>Which resolver is used to determine the Converters used for given types.</summary>
         public ConverterResolver Resolver                  = Serializer.DefaultResolver;
     }

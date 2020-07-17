@@ -7,7 +7,7 @@ namespace SE.Serialization.Converters
     {
         public override Type Type => typeof(Array);
 
-        public override object Deserialize(FastReader reader, ref SerializerTask task)
+        public override object Deserialize(FastReader reader, ref DeserializeTask task)
         {
             //if (!reader.ReadBoolean()) 
             //    return null;
@@ -22,14 +22,14 @@ namespace SE.Serialization.Converters
             return val;
         }
 
-        public override void Serialize(object obj, FastMemoryWriter writer, ref SerializerTask task)
+        public override void Serialize(object obj, FastMemoryWriter writer, ref SerializeTask task)
         {
             Array val = (Array) obj;
             writer.Write(val.Length);
 
             Converter serializer = task.Settings.Resolver.GetConverter(InnerTypes[0]);
             for (int i = 0; i < val.Length; i++) {
-                Serializer.SerializeWriter(val.GetValue(i), serializer, writer, ref task);
+                Serializer.SerializeWriter(val.GetValue(i), serializer, writer, ref task, false);
             }
         }
 
@@ -46,7 +46,7 @@ namespace SE.Serialization.Converters
     {
         public override Type Type => typeof(Nullable<>);
 
-        public override object Deserialize(FastReader reader, ref SerializerTask task)
+        public override object Deserialize(FastReader reader, ref DeserializeTask task)
         {
             if (!reader.ReadBoolean()) 
                 return null;
@@ -55,7 +55,7 @@ namespace SE.Serialization.Converters
             return serializer?.Deserialize(reader, ref task);
         }
 
-        public override void Serialize(object obj, FastMemoryWriter writer, ref SerializerTask task)
+        public override void Serialize(object obj, FastMemoryWriter writer, ref SerializeTask task)
         {
             bool hasValue = obj != null;
             writer.Write(hasValue);
