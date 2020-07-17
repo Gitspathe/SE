@@ -61,7 +61,8 @@ namespace SE.Serialization.Converters
                     continue;
 
                 // Set some default info.
-                Converter converter = resolver.GetConverter(member.Type);
+                bool recursiveMember = member.Type == type;
+                Converter converter = recursiveMember ? this : resolver.GetConverter(member.Type);
                 string realMemberName = member.Name;
                 string memberName = member.Name;
                 ushort index = curIndex;
@@ -90,7 +91,7 @@ namespace SE.Serialization.Converters
                 index = ResolveIndex(indexes, index);
 
                 // Create the node, and add it to the generated converter.
-                Node node = new Node(converter, accessor, memberName, realMemberName, index);
+                Node node = new Node(converter, accessor, memberName, realMemberName, index, recursiveMember);
                 nodesDictionary.Add(memberName, node);
                 tmpNodes.Add(node);
                 indexes.Add(index);
@@ -145,7 +146,7 @@ namespace SE.Serialization.Converters
             => objCtor = Expression.Lambda<Func<object>>(Expression.New(Type)).Compile();
 
         public override bool IsDefault(object obj) 
-            => obj.Equals(defaultInstance);
+            => obj is null || obj.Equals(defaultInstance);
 
         public override void Serialize(object obj, FastMemoryWriter writer, ref SerializeTask task)
         {
@@ -310,15 +311,17 @@ namespace SE.Serialization.Converters
 
             private Converter converter;
             private TypeAccessor accessor;
+            private bool recursive;
 
             // Faster access for delegate accessors.
             private TypeAccessor.DelegateAccessor delegateAccessor;
             private int accessorIndex;
 
-            public Node(Converter converter, TypeAccessor accessor, string name, string realName, ushort index)
+            public Node(Converter converter, TypeAccessor accessor, string name, string realName, ushort index, bool recursive)
             {
                 this.converter = converter;
                 this.accessor = accessor;
+                this.recursive = recursive;
                 Index = index;
                 Name = name;
                 RealName = realName;
@@ -330,6 +333,9 @@ namespace SE.Serialization.Converters
 
             public void Read(object target, FastReader reader, ref DeserializeTask task)
             {
+                if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
+                    throw new ReferenceLoopException();
+
                 bool shouldReadBool = task.Settings.NullValueHandling == NullValueHandling.DefaultValue
                                       || task.Settings.DefaultValueHandling == DefaultValueHandling.Serialize;
 
@@ -345,6 +351,9 @@ namespace SE.Serialization.Converters
 
             public void Write(object target, FastMemoryWriter writer, bool writeName, ref SerializeTask task)
             {
+                if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
+                    throw new ReferenceLoopException();
+
                 object val = GetValue(target);
                 bool isDefault = converter.IsDefault(val);
                 bool writeNull = task.Settings.NullValueHandling == NullValueHandling.DefaultValue;

@@ -192,6 +192,7 @@ namespace SEDemos
             public TestClass3 test2 { get; set; } = new TestClass3();
             public TestClass3 test3 { get; set; } = new TestClass3();
             public TestClass3 test4 { get; set; } = new TestClass3();
+            public TestClass2 testRecursive { get; set; } = null;
         }
 
         [JsonObject(MemberSerialization.OptOut)]
