@@ -21,6 +21,7 @@ using SE.Engine.Networking.Packets;
 
 namespace SE.Core
 {
+    // TODO: Option to ignore all errors to improve performance. (don't throw exceptions)
     public static class Network
     {
         #region VARIABLES & DELEGATE EVENT HANDLERS

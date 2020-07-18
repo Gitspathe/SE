@@ -126,28 +126,28 @@ namespace SEDemos
                 };
                 test.testClass1.test1.lol = 64;
 
-                //New serializer.
-                s.Start();
-                for (int i = 0; i < iterations; i++) {
-                    byte[] bytes = Serializer.Serialize(test);
-                    test = Serializer.Deserialize<TestClass>(bytes);
-                }
-                s.Stop();
-                long s1 = s.ElapsedMilliseconds;
+                ////New serializer.
+                //s.Start();
+                //for (int i = 0; i < iterations; i++) {
+                //    byte[] bytes = Serializer.Serialize(test);
+                //    test = Serializer.Deserialize<TestClass>(bytes);
+                //}
+                //s.Stop();
+                //long s1 = s.ElapsedMilliseconds;
 
-                // JSON serializer.
-                s = new Stopwatch();
-                s.Start();
-                for (int i = 0; i < iterations; i++) {
-                    string bytes = System.Text.Json.JsonSerializer.Serialize(test, textJsonOptions);
-                    test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes, textJsonOptions);
-                }
-                s.Stop();
-                long s2 = s.ElapsedMilliseconds;
+                //// JSON serializer.
+                //s = new Stopwatch();
+                //s.Start();
+                //for (int i = 0; i < iterations; i++) {
+                //    string bytes = System.Text.Json.JsonSerializer.Serialize(test, textJsonOptions);
+                //    test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes, textJsonOptions);
+                //}
+                //s.Stop();
+                //long s2 = s.ElapsedMilliseconds;
 
-                string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
-                Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
-                Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
+                //string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
+                //Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
+                //Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
             }
         }
 

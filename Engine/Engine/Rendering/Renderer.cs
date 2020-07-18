@@ -122,8 +122,7 @@ namespace SE.Rendering
             QuickList<IPartitionObject> renderedSprites = VisibleSprites;
             RenderContainer.Reset();
 
-            OrderablePartitioner<IPartitionObject> partitioner = Partitioner.Create(renderedSprites);
-            Parallel.ForEach(partitioner, (obj, loopstate) => {
+            QuickParallel.ForEach(renderedSprites, obj => {
                 IRenderable renderObj = (IRenderable) obj;
                 if (excludeUI && renderObj is IUISprite)
                     return;
