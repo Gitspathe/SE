@@ -61,6 +61,9 @@
     <Reference Include="SEUtility">
       <HintPath>..\SEUtility\bin\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
     </Reference>
+    <Reference Include="SESerializer">
+      <HintPath>..\SESerializer\SESerializer\bin\$(Configuration)\netstandard2.1\SESerializer.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Penumbra">
       <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\$(Configuration)\DesktopGL\MonoGame.Penumbra.dll</HintPath>
     </Reference>

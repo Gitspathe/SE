@@ -1,4 +1,5 @@
-﻿using SE.Serialization.Resolvers;
+﻿using SE.Core;
+using SE.Serialization.Resolvers;
 
 namespace SE.Serialization
 {
@@ -16,7 +17,7 @@ namespace SE.Serialization
         /// <summary>How the serializer behaves when encountering a recursive loop of references.</summary>
         public ReferenceLoopHandling ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         /// <summary>How many levels deep the serializer will process.</summary>
-        public int MaxDepth = 12;
+        public int MaxDepth = 10;
         /// <summary>Which resolver is used to determine the Converters used for given types.</summary>
         public ConverterResolver Resolver                  = Serializer.DefaultResolver;
     }

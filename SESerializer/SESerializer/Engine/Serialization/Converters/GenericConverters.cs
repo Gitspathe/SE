@@ -1,5 +1,6 @@
 ﻿using System;
 using FastStream;
+using SE.Core;
 
 namespace SE.Serialization.Converters
 {

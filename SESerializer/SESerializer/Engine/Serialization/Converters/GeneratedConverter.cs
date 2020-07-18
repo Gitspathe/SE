@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FastMember;
 using FastStream;
+using SE.Core;
 using SE.Serialization.Attributes;
 using SE.Serialization.Exceptions;
 using SE.Serialization.Resolvers;

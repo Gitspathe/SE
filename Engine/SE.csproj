@@ -70,6 +70,9 @@
     <Reference Include="SEUtility">
       <HintPath>..\SEUtility\bin\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
     </Reference>
+    <Reference Include="SESerializer">
+      <HintPath>..\SESerializer\SESerializer\bin\$(Configuration)\netstandard2.1\SESerializer.dll</HintPath>
+    </Reference>
     <Reference Include="SEParticles.MonoGame">
       <HintPath>..\SEParticles\bin\$(Configuration)\netstandard2.1\SEParticles.MonoGame.dll</HintPath>
     </Reference>

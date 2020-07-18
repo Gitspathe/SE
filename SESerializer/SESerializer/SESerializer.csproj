@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <RootNamespace>SE</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="FastMember">
+      <HintPath>..\..\_DEPENDENCIES\fast-member\FastMember\bin\$(Configuration)\netstandard2.1\FastMember.dll</HintPath>
+    </Reference>
+    <Reference Include="SEUtility">
+      <HintPath>..\..\SEUtility\bin\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Engine\" />
+    <Folder Include="Engine\Serialization\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FastStream" Version="1.6.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
 using FastStream;
+using SE.Serialization;
 using SE.Serialization.Converters;
-using SE.Serialization.Exceptions;
 using SE.Serialization.Resolvers;
 
-namespace SE.Serialization
+namespace SE.Core
 {
     public static class Serializer
     {
