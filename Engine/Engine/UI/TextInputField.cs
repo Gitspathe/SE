@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SE.Components.UI;
 using SE.Core;
-using SE.Engine.Input;
+using SE.Input;
 using SE.UI.Events;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;

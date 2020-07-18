@@ -3,7 +3,7 @@ using SE.Common;
 using SE.Components;
 using SE.Components.Network;
 using SE.Core;
-using SE.Engine.Input;
+using SE.Input;
 using SE.Physics;
 using SE.Rendering;
 using Vector2 = System.Numerics.Vector2;

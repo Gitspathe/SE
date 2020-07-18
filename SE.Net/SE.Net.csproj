@@ -4,6 +4,7 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <RootNamespace>SE</RootNamespace>
     <Platforms>AnyCPU</Platforms>
+    <AssemblyName>SE.Net</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
@@ -19,14 +20,14 @@
     <Reference Include="LiteNetLib">
       <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\$(Configuration)\netstandard2.0\LiteNetLib.dll</HintPath>
     </Reference>
-    <Reference Include="SEUtility">
-      <HintPath>..\SEUtility\bin\$(Configuration)\netstandard2.1\SEUtility.dll</HintPath>
+    <Reference Include="SE.Utility">
+      <HintPath>..\SE.Utility\bin\$(Configuration)\netstandard2.1\SE.Utility.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="SEUtility">
-      <HintPath>..\SEUtility\bin\$(Configuration)\$(TargetFramework)\SEUtility.dll</HintPath>
+    <Reference Include="SE.Utility">
+      <HintPath>..\SE.Utility\bin\$(Configuration)\$(TargetFramework)\SE.Utility.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>

@@ -16,12 +16,12 @@
 [submodule "_DEPENDENCIES/fast-member"]
 	path = _DEPENDENCIES/fast-member
 	url = https://github.com/Gitspathe/fast-member
-[submodule "SEInput"]
-	path = SEInput
-	url = https://github.com/Gitspathe/SEInput
-[submodule "SEUtility"]
-	path = SEUtility
-	url = https://github.com/Gitspathe/SEUtility
-[submodule "SEParticles"]
-	path = SEParticles
-	url = https://github.com/Gitspathe/SEParticles
+[submodule "SE.Input"]
+	path = SE.Input
+	url = https://github.com/Gitspathe/SE.Input
+[submodule "SE.Utility"]
+	path = SE.Utility
+	url = https://github.com/Gitspathe/SE.Utility
+[submodule "SE.Particles"]
+	path = SE.Particles
+	url = https://github.com/Gitspathe/SE.Particles

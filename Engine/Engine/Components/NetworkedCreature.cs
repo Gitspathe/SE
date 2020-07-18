@@ -1,7 +1,7 @@
 ﻿using System;
 using SE.Common;
 using SE.Core;
-using SE.Engine.Input;
+using SE.Input;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components
