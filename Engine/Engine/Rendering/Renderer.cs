@@ -122,12 +122,14 @@ namespace SE.Rendering
             QuickList<IPartitionObject> renderedSprites = VisibleSprites;
             RenderContainer.Reset();
 
-            QuickParallel.ForEach(renderedSprites, obj => {
-                IRenderable renderObj = (IRenderable) obj;
-                if (excludeUI && renderObj is IUISprite)
-                    return;
+            QuickParallel.ForEach(renderedSprites, (objects, count) => {
+                for (int i = 0; i < count; i++) {
+                    IRenderable renderObj = (IRenderable) objects[i];
+                    if (excludeUI && renderObj is IUISprite)
+                        continue;
 
-                RenderContainer.Add(renderObj, true);
+                    RenderContainer.Add(renderObj, true);
+                }
             });
         }
 

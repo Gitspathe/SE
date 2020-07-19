@@ -10,6 +10,13 @@ using Vector2 = System.Numerics.Vector2;
 namespace SE.Core
 {
     // TODO: Move dictionary<Type, list> to TOP level. (so organize partitions by type, not the partition tiles.)
+    // TODO: This could be solved by making this static class generic. (i.e, SpatialPartitionManager<Sprite>, etc.)
+
+    internal static class SpatialPartitionManager<T> where T : IPartitionObject<T>
+    {
+
+    }
+
     public static class SpatialPartitionManager
     {
         // Using a list for variable partition size.
