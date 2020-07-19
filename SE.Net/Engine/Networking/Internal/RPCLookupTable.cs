@@ -40,20 +40,24 @@ namespace SE.Engine.Networking.Internal
         public T GetRPCInfo(string id) 
             => RPCTableString[id];
 
-        public ushort? GetUshortID(string id)
+        public bool TryGetUshortID(string id, out ushort ushortID)
         {
+            ushortID = 0;
             if (TryGetRPCInfo(id, out T c)) {
-                return c.UshortID;
+                ushortID = c.UshortID;
+                return true;
             }
-            throw new InvalidRPCException("RPC with string ID '"+id+"' not found.");
+            return false;
         }
 
-        public string GetStringID(ushort id)
+        public bool TryGetStringID(ushort id, out string stringID)
         {
+            stringID = null;
             if (TryGetRPCInfo(id, out T c)) {
-                return c.StringID;
+                stringID = c.StringID;
+                return true;
             }
-            throw new InvalidRPCException("RPC with ushort ID '" + id + "' not found.");
+            return false;
         }
     }
 }

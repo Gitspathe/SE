@@ -21,9 +21,22 @@ namespace SE.Engine.Networking.Packets
             NetworkID = networkID;
             MethodID = methodID;
             Parameters = parameters;
-            RPCInfo = Network.InstanceType == NetInstanceType.Server
-                ? (RPCInfo) Network.ClientRPCLookupTable.GetRPCInfo(methodID)
-                : Network.ServerRPCLookupTable.GetRPCInfo(methodID);
+
+            switch (Network.InstanceType) {
+                case NetInstanceType.Server: {
+                    if (!Network.ClientRPCLookupTable.TryGetRPCInfo(methodID, out RPCClientInfo clientInfo)) {
+                        if (Network.Throw) throw new Exception(); return;
+                    }
+                    RPCInfo = clientInfo;
+                } break;
+                case NetInstanceType.Client: {
+                    if (!Network.ServerRPCLookupTable.TryGetRPCInfo(methodID, out RPCServerInfo serverInfo)) {
+                        if (Network.Throw) throw new Exception(); return;
+                    }
+                    RPCInfo = serverInfo;
+                } break;
+            }
+
             ParametersNum = RPCInfo.ParameterTypes.Length;
         }
 
@@ -37,21 +50,31 @@ namespace SE.Engine.Networking.Packets
         {
             try {
                 MethodID = message.GetUShort();
+                
+                switch (Network.InstanceType) {
+                    case NetInstanceType.Server: {
+                        if (!Network.ServerRPCLookupTable.TryGetRPCInfo(MethodID, out RPCServerInfo serverInfo)) {
+                            if (Network.Throw) throw new Exception(); return;
+                        }
+                        RPCInfo = serverInfo;
+                    } break;
+                    case NetInstanceType.Client: {
+                        if (!Network.ClientRPCLookupTable.TryGetRPCInfo(MethodID, out RPCClientInfo clientInfo)) {
+                            if (Network.Throw) throw new Exception(); return;
+                        }
+                        RPCInfo = clientInfo;
+                    } break;
+                }
 
-                RPCInfo = Network.InstanceType == NetInstanceType.Server
-                    ? (RPCInfo)Network.ServerRPCLookupTable.GetRPCInfo(MethodID)
-                    : Network.ClientRPCLookupTable.GetRPCInfo(MethodID);
                 ParametersNum = RPCInfo.ParameterTypes.Length;
-
                 if (Parameters.Length < ParametersNum) {
                     Parameters = new object[ParametersNum];
                 }
-
                 for (int i = 0; i < ParametersNum; i++) {
                     Parameters[i] = NetData.Read(RPCInfo.ParameterTypes[i], message);
                 }
             } catch (Exception e) {
-                throw new MalformedPacketException("Failed to read packet.", e);
+                if(Network.Throw) throw new MalformedPacketException("Failed to read packet.", e);
             }
         }
 
@@ -63,7 +86,7 @@ namespace SE.Engine.Networking.Packets
                     NetData.Write(RPCInfo.ParameterTypes[i], Parameters[i], message);
                 }
             } catch (Exception e) {
-                throw new MalformedPacketException("Failed to write packet.", e);
+                if(Network.Throw) throw new MalformedPacketException("Failed to write packet.", e);
             }
         }
     }
