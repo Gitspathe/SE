@@ -6,6 +6,7 @@ using SE.Components;
 using SE.Utility;
 using SE.World.Partitioning;
 using Vector2 = System.Numerics.Vector2;
+// ReSharper disable StaticMemberInGenericType
 
 namespace SE.Core
 {
@@ -13,6 +14,8 @@ namespace SE.Core
     {
         internal static QuickList<Action> ManagerUpdates = new QuickList<Action>();
         internal static QuickList<Action<Camera2D>> ManagerDraws = new QuickList<Action<Camera2D>>();
+
+        public static int TileSize { get; private set; } = 192;
 
         public static void Update()
         {
@@ -31,14 +34,14 @@ namespace SE.Core
 
     public static class SpatialPartitionManager<T> where T : IPartitionObject<T>
     {
-        // Using a list for variable partition size.
         private static SpatialPartition<T> partitions;
         private static PartitionTile<T> largeObjectTile;
         private static float pruneTime = 5.0f;
         private static float pruneTimer = pruneTime;
 
-        public static int TileSize { get; private set; }
-        internal static QuickList<GameObject> IgnoredGameObjects { get; } = new QuickList<GameObject>(256);
+        public static int TileSize => SpatialPartitionUtil.TileSize;
+
+        internal static QuickList<T> IgnoredObjects { get; } = new QuickList<T>(256);
 
         public static int EntitiesCount {
             get { throw new NotImplementedException(); }
@@ -47,8 +50,7 @@ namespace SE.Core
         static SpatialPartitionManager()
         {
             largeObjectTile = new PartitionTile<T>();
-            partitions = new SpatialPartition<T>(192);
-            TileSize = 192;
+            partitions = new SpatialPartition<T>(TileSize);
 
             SpatialPartitionUtil.ManagerUpdates.Add(Update);
             SpatialPartitionUtil.ManagerDraws.Add(DrawBoundingRectangle);
@@ -85,15 +87,15 @@ namespace SE.Core
         {
             obj.CurrentPartitionTile?.Remove(obj);
             if (obj is GameObject go) {
-                IgnoredGameObjects.Remove(go);
+                IgnoredObjects.Remove(obj);
                 largeObjectTile.Remove(obj);
             }
         }
 
-        internal static void AddIgnoredObject(GameObject go)
+        internal static void AddIgnoredObject(T obj)
         {
-            if (!IgnoredGameObjects.Contains(go)) {
-                IgnoredGameObjects.Add(go);
+            if (!IgnoredObjects.Contains(obj)) {
+                IgnoredObjects.Add(obj);
             }
         }
 
