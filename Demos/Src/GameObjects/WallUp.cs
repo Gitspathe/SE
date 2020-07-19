@@ -27,7 +27,7 @@ namespace SEDemos.GameObjects
             sprite.SpriteTexture = AssetManager.Get<SpriteTexture>(this, "wall_up");
             sprite.LayerDepth = 0.1f;
             sprite.ShadowType = ShadowCasterType.Map;
-            physicsObj.Body = Physics.CreateRectangle(new Rectangle(0, 0, 64, 16));
+            //physicsObj.Body = Physics.CreateRectangle(new Rectangle(0, 0, 64, 16));
         }
 
         /// <inheritdoc />

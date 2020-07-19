@@ -10,29 +10,10 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace SE.World.Partitioning
 {
-    internal struct PartitionPoint
+    internal class PartitionPointComparer : IEqualityComparer<Point>
     {
-        public int X;
-        public int Y;
-
-        public PartitionPoint(int x, int y)
-        {
-            X = x;
-            Y = y;
-        }
-    }
-
-    internal class PartitionPointComparer : IEqualityComparer<PartitionPoint>
-    {
-        public bool Equals(PartitionPoint x, PartitionPoint y)
-        {
-            return x.X == y.X && x.Y == y.Y;
-        }
-
-        public int GetHashCode(PartitionPoint obj)
-        {
-            return obj.X ^ obj.Y;
-        }
+        public bool Equals(Point x, Point y) => x.X == y.X && x.Y == y.Y;
+        public int GetHashCode(Point obj) => obj.X ^ obj.Y;
     }
 
     /// <summary>
@@ -40,10 +21,10 @@ namespace SE.World.Partitioning
     /// </summary>
     public class SpatialPartition
     {
-        internal Dictionary<PartitionPoint, PartitionTile> PartitionTiles = new Dictionary<PartitionPoint, PartitionTile>(128, new PartitionPointComparer());
-        private QuickList<PartitionPoint> toRemove = new QuickList<PartitionPoint>();
+        internal Dictionary<Point, PartitionTile> PartitionTiles = new Dictionary<Point, PartitionTile>(128, new PartitionPointComparer());
+        private QuickList<Point> toRemove = new QuickList<Point>();
 
-        private static ObjectPool<PartitionTile> tilePool = new ObjectPool<PartitionTile>();
+        private static ObjectPool<PartitionTile> tilePool = new ObjectPool<PartitionTile>(512);
 
         private int partitionTileSize;
 
@@ -55,12 +36,12 @@ namespace SE.World.Partitioning
         public void Prune()
         {
             toRemove.Clear();
-            foreach ((PartitionPoint point, PartitionTile tile) in PartitionTiles) {
+            foreach ((Point point, PartitionTile tile) in PartitionTiles) {
                 if (tile.ShouldPrune) {
                     toRemove.Add(point);
                 }
             }
-            foreach (PartitionPoint point in toRemove) {
+            foreach (Point point in toRemove) {
                 RemovePartitionTile(point);
             }
         }
@@ -74,12 +55,12 @@ namespace SE.World.Partitioning
         {
             int X = regionBounds.X / partitionTileSize;
             int Y = regionBounds.Y / partitionTileSize;
-            int width = Round(regionBounds.Width) / partitionTileSize;
-            int height = Round(regionBounds.Height) / partitionTileSize;
+            int width = RoundUp(regionBounds.Width) / partitionTileSize;
+            int height = RoundUp(regionBounds.Height) / partitionTileSize;
             regionBounds = new Rectangle(X, Y, width, height);
             for (int x = regionBounds.X; x < regionBounds.Width + regionBounds.X; x++) {
                 for (int y = regionBounds.Y; y < regionBounds.Height + regionBounds.Y; y++) {
-                    if (PartitionTiles.TryGetValue(new PartitionPoint(x, y), out PartitionTile tile)) {
+                    if (PartitionTiles.TryGetValue(new Point(x, y), out PartitionTile tile)) {
                         tile.Get(existingList);
                     }
                 }
@@ -95,34 +76,25 @@ namespace SE.World.Partitioning
         {
             int X = regionBounds.X / partitionTileSize;
             int Y = regionBounds.Y / partitionTileSize;
-            int width = Round(regionBounds.Width) / partitionTileSize;
-            int height = Round(regionBounds.Height) / partitionTileSize;
+            int width = RoundUp(regionBounds.Width) / partitionTileSize;
+            int height = RoundUp(regionBounds.Height) / partitionTileSize;
             regionBounds = new Rectangle(X, Y, width, height);
             for (int x = regionBounds.X; x < regionBounds.Width + regionBounds.X; x++) {
                 for (int y = regionBounds.Y; y < regionBounds.Height + regionBounds.Y; y++) {
-                    if (PartitionTiles.TryGetValue(new PartitionPoint(x, y), out PartitionTile tile)) {
+                    if (PartitionTiles.TryGetValue(new Point(x, y), out PartitionTile tile)) {
                         tile.GetRaw(existingList);
                     }
                 }
             }
         }
 
-        private int Round(float value)
+        private int RoundUp(float value)
         {
             float result = MathF.Ceiling(value / partitionTileSize);
             if (value > 0 && result == 0) {
                 result = 1;
             }
             return (int)(result * partitionTileSize)+partitionTileSize;
-        }
-
-        private int RoundPrecise(float value)
-        {
-            float result = MathF.Ceiling(value / partitionTileSize);
-            if (value > 0 && result == 0) {
-                result = 1;
-            }
-            return (int)(result * partitionTileSize);
         }
 
         /// <summary>
@@ -132,7 +104,7 @@ namespace SE.World.Partitioning
         /// <returns>PartitionTile from the position.</returns>
         internal PartitionTile GetTile(Vector2 position)
         {
-            PartitionPoint point = new PartitionPoint((int)position.X / partitionTileSize, (int)position.Y / partitionTileSize);
+            Point point = new Point((int) MathF.Floor(position.X / partitionTileSize), (int) MathF.Floor(position.Y / partitionTileSize));
             return PartitionTiles.TryGetValue(point, out PartitionTile tile) 
                 ? tile 
                 : AddNewTile(point);
@@ -145,10 +117,9 @@ namespace SE.World.Partitioning
         /// <returns>PartitionTile at specified index.</returns>
         internal PartitionTile GetTile(Point index)
         {
-            PartitionPoint point = new PartitionPoint(index.X, index.Y);
-            return PartitionTiles.TryGetValue(point, out PartitionTile tile) 
+            return PartitionTiles.TryGetValue(index, out PartitionTile tile) 
                 ? tile 
-                : AddNewTile(point);
+                : AddNewTile(index);
         }
 
         /// <summary>
@@ -160,8 +131,9 @@ namespace SE.World.Partitioning
         {
             int x = (int)position.X / partitionTileSize;
             int y = (int)position.Y / partitionTileSize;
-            return PartitionTiles.ContainsKey(new PartitionPoint(x, y))
-                ? new Point(x, y) 
+            Point point = new Point(x, y);
+            return PartitionTiles.ContainsKey(point)
+                ? point
                 : new Point(-1, -1);
         }
 
@@ -206,7 +178,7 @@ namespace SE.World.Partitioning
             partitionTile?.Remove(obj);
         }
 
-        internal PartitionTile AddNewTile(PartitionPoint point)
+        internal PartitionTile AddNewTile(Point point)
         {
             Rectangle bounds = new Rectangle(point.X * partitionTileSize, point.Y * partitionTileSize, partitionTileSize, partitionTileSize);
             PartitionTile tile = tilePool.Take();
@@ -215,7 +187,7 @@ namespace SE.World.Partitioning
             return tile;
         }
 
-        internal void RemovePartitionTile(PartitionPoint point)
+        internal void RemovePartitionTile(Point point)
         {
             if (PartitionTiles.TryGetValue(point, out PartitionTile tile)) {
                 PartitionTiles.Remove(point);
@@ -225,7 +197,7 @@ namespace SE.World.Partitioning
 
         internal void RemovePartitionTile(PartitionTile tile)
         {
-            PartitionPoint point = new PartitionPoint(tile.Bounds.X / partitionTileSize, tile.Bounds.Y / partitionTileSize);
+            Point point = new Point(tile.Bounds.X / partitionTileSize, tile.Bounds.Y / partitionTileSize);
             if (PartitionTiles.TryGetValue(point, out PartitionTile _)) {
                 PartitionTiles.Remove(point);
                 tilePool.Return(tile);

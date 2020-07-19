@@ -12,7 +12,13 @@ namespace SE.World.Partitioning
 
         internal QuickList<IPartitionObject> PartitionObjects = new QuickList<IPartitionObject>();
 
-        public bool ShouldPrune => PartitionObjects.Count < 1;
+        public bool ShouldPrune {
+            get {
+                lock (tileLock) {
+                    return PartitionObjects.Count < 1;
+                }
+            }
+        }
 
         private object tileLock = new object();
 
@@ -26,7 +32,9 @@ namespace SE.World.Partitioning
         public void Reset(Rectangle bounds)
         {
             Bounds = bounds;
-            PartitionObjects.Clear();
+            lock (tileLock) {
+                PartitionObjects.Clear();
+            }
         }
 
         public QuickList<T> Get<T>() where T : IPartitionObject

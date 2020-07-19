@@ -9,22 +9,16 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core
 {
-    // TODO: Move dictionary<Type, list> to TOP level. (so organize partitions by type, not the partition tiles.)
-    // TODO: Self growing partitions, don't have this stupid pooling shit.
     public static class SpatialPartitionManager
     {
         // Using a list for variable partition size.
         private static Dictionary<Type, SpatialPartition> partitions = new Dictionary<Type, SpatialPartition>();
-
+        private static PartitionTile largeObjectTile;
         private static float pruneTime = 5.0f;
         private static float pruneTimer = pruneTime;
 
-        //private static SpatialPartition partition;
-        private static PartitionTile largeObjectTile;
-
-        internal static QuickList<GameObject> IgnoredGameObjects { get; } = new QuickList<GameObject>(256);
-
         public static int TileSize { get; private set; }
+        internal static QuickList<GameObject> IgnoredGameObjects { get; } = new QuickList<GameObject>(256);
 
         public static int EntitiesCount {
             get { throw new NotImplementedException(); }
