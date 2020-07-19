@@ -23,7 +23,7 @@ namespace SE.Common
     /// <summary>
     /// GameObjects are containers for logic and components.
     /// </summary>
-    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IPartitionObjectExtended<GameObject>, IDisposable
+    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IPartitionObject<GameObject>, IDisposable
     {
         public string EngineName { get; set; }
 
@@ -659,8 +659,8 @@ namespace SE.Common
         {
             EnsureValidAccess();
             if (component is IPartitionObject pObj) {
-                pObj.RemoveFromPartition();
                 PartitionObjects.Remove(pObj);
+                ResetPartition();
             }
             component.AssetConsumer.DereferenceAssets();
             Components.Remove(component);
@@ -682,26 +682,10 @@ namespace SE.Common
             }
         }
 
-        public void InsertedIntoPartition(PartitionTile<GameObject> tile)
-        {
-            IPartitionObject[] array = PartitionObjects.Array;
-            for (int i = 0; i < PartitionObjects.Count; i++) {
-                array[i].InsertIntoPartition();
-            }
-        }
-
-        public void RemovedFromPartition(PartitionTile<GameObject> tile)
-        {
-            IPartitionObject[] array = PartitionObjects.Array;
-            for (int i = 0; i < PartitionObjects.Count; i++) {
-                array[i].RemoveFromPartition();
-            }
-        }
-
         internal void ResetPartition()
         {
-            SpatialPartitionManager<GameObject>.Remove(this);
-            SpatialPartitionManager<GameObject>.Insert(this);
+            RemoveFromPartition();
+            InsertIntoPartition();
         }
 
         protected internal void SortComponents() 
@@ -790,12 +774,23 @@ namespace SE.Common
 
         public void InsertIntoPartition()
         {
+            if(!Enabled)
+                return;
+
             SpatialPartitionManager<GameObject>.Insert(this);
+            IPartitionObject[] array = PartitionObjects.Array;
+            for (int i = 0; i < PartitionObjects.Count; i++) {
+                array[i].InsertIntoPartition();
+            }
         }
 
         public void RemoveFromPartition()
         {
             SpatialPartitionManager<GameObject>.Remove(this);
+            IPartitionObject[] array = PartitionObjects.Array;
+            for (int i = 0; i < PartitionObjects.Count; i++) {
+                array[i].RemoveFromPartition();
+            }
         }
     }
 }

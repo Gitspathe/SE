@@ -47,9 +47,6 @@ namespace SE.Lighting
             Hull.Points.AddRange(tmpList);
         }
 
-        public void InsertedIntoPartition(PartitionTile<ShadowCaster> tile) { }
-        public void RemovedFromPartition(PartitionTile<ShadowCaster> tile) { }
-
         public void InsertIntoPartition()
         {
             SpatialPartitionManager<ShadowCaster>.Insert(this);

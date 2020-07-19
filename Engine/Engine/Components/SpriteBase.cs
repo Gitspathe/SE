@@ -15,7 +15,7 @@ namespace SE.Components
 {
 
     [ExecuteInEditor]
-    public abstract class SpriteBase : Component, IRenderable, IPartitionObjectExtended<IRenderable>
+    public abstract class SpriteBase : Component, IRenderable
     {
         // NOTE: Private protected fields are for increased performance. Access the properties instead
         // when not dealing with the core rendering system.
@@ -150,20 +150,6 @@ namespace SE.Components
 
         public abstract void RecalculateBounds();
 
-        public void InsertedIntoPartition(PartitionTile<IRenderable> tile)
-        {
-            if (this is ILit lit && lit.Shadow != null) {
-                SpatialPartitionManager<ShadowCaster>.Insert(lit.Shadow);
-            }
-        }
-
-        public void RemovedFromPartition(PartitionTile<IRenderable> tile)
-        {
-            if (this is ILit lit) {
-                lit.Shadow?.CurrentPartitionTile?.Remove(lit.Shadow);
-            }
-        }
-
         internal override void OnInitializeInternal()
         {
             base.OnInitializeInternal();
@@ -205,11 +191,17 @@ namespace SE.Components
         public void InsertIntoPartition()
         {
             SpatialPartitionManager<IRenderable>.Insert(this);
+            if (this is ILit lit && lit.Shadow != null) {
+                SpatialPartitionManager<ShadowCaster>.Insert(lit.Shadow);
+            }
         }
 
         public void RemoveFromPartition()
         {
             SpatialPartitionManager<IRenderable>.Remove(this);
+            if (this is ILit lit) {
+                lit.Shadow?.CurrentPartitionTile?.Remove(lit.Shadow);
+            }
         }
     }
 

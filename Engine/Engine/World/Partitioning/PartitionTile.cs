@@ -53,9 +53,6 @@ namespace SE.World.Partitioning
             lock (TileLock) {
                 PartitionObjects.Add(obj);
                 obj.CurrentPartitionTile = this;
-                if (obj is IPartitionObjectExtended<T> ext) {
-                    ext.InsertedIntoPartition(this);
-                }
             }
         }
 
@@ -64,9 +61,6 @@ namespace SE.World.Partitioning
             lock (TileLock) {
                 PartitionObjects.Remove(obj);
                 obj.CurrentPartitionTile = null;
-                if (obj is IPartitionObjectExtended<T> ext) {
-                    ext.RemovedFromPartition(this);
-                }
             }
         }
     }
