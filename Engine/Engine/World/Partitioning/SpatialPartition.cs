@@ -67,27 +67,6 @@ namespace SE.World.Partitioning
             }
         }
 
-        /// <summary>
-        /// Gets all GameObjects from within a Rectangle region. Allocates minimal memory.
-        /// </summary>
-        /// <param name="existingList">List of GameObject lists to allocate.</param>
-        /// <param name="regionBounds">Rectangle bounds to check.</param>
-        public void GetFromRegionRaw(QuickList<IPartitionObject<T>> existingList, Rectangle regionBounds)
-        {
-            int startX = regionBounds.X / PartitionTileSize;
-            int startY = regionBounds.Y / PartitionTileSize;
-            int width = RoundUp(regionBounds.Width) / PartitionTileSize;
-            int height = RoundUp(regionBounds.Height) / PartitionTileSize;
-            regionBounds = new Rectangle(startX, startY, width, height);
-            for (int x = regionBounds.X; x < regionBounds.Width + regionBounds.X; x++) {
-                for (int y = regionBounds.Y; y < regionBounds.Height + regionBounds.Y; y++) {
-                    if (PartitionTiles.TryGetValue(new Point(x, y), out PartitionTile<T> tile)) {
-                        tile.GetRaw(existingList);
-                    }
-                }
-            }
-        }
-
         protected int RoundUp(float value)
         {
             float result = MathF.Ceiling(value / PartitionTileSize);
@@ -162,7 +141,7 @@ namespace SE.World.Partitioning
         /// Inserts a GameObject into the grid system.
         /// </summary>
         /// <param name="go">GameObject to add.</param>
-        internal void Insert(IPartitionObject<T> obj)
+        internal void Insert(T obj)
         {
             PartitionTile<T> partitionTile = GetTile(obj.PartitionPosition);
             partitionTile?.Insert(obj);
@@ -172,7 +151,7 @@ namespace SE.World.Partitioning
         /// Removes a GameObject from the grid system.
         /// </summary>
         /// <param name="go">GameObject to remove.</param>
-        internal void Remove(IPartitionObject<T> obj)
+        internal void Remove(T obj)
         {
             PartitionTile<T> partitionTile = obj.CurrentPartitionTile;
             partitionTile?.Remove(obj);

@@ -63,7 +63,7 @@ namespace SE.Core
             }
         }
 
-        public static void Insert(IPartitionObject<T> obj)
+        public static void Insert(T obj)
         {
             if (obj is Component c && !c.Enabled)
                 return;
@@ -81,7 +81,7 @@ namespace SE.Core
             partitions.Insert(obj);
         }
 
-        public static void Remove(IPartitionObject<T> obj)
+        public static void Remove(T obj)
         {
             obj.CurrentPartitionTile?.Remove(obj);
             if (obj is GameObject go) {
@@ -101,12 +101,6 @@ namespace SE.Core
         {
             partitions.GetFromRegion(existingList, regionBounds);
             largeObjectTile.Get(existingList);
-        }
-
-        public static void GetFromRegionRaw(QuickList<IPartitionObject<T>> existingList, Rectangle regionBounds)
-        {
-            partitions.GetFromRegionRaw(existingList, regionBounds);
-            largeObjectTile.GetRaw(existingList);
         }
 
         internal static PartitionTile<T> GetTile(Type type, Vector2 position) 

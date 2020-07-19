@@ -8,7 +8,7 @@ namespace SE.World.Partitioning
 {
     public class PartitionTile<T> where T : IPartitionObject<T>
     {
-        internal QuickList<IPartitionObject<T>> PartitionObjects = new QuickList<IPartitionObject<T>>();
+        internal QuickList<T> PartitionObjects = new QuickList<T>();
 
         public bool ShouldPrune {
             get {
@@ -41,21 +41,11 @@ namespace SE.World.Partitioning
         public void Get(QuickList<T> existingList)
         {
             lock (TileLock) {
-                IPartitionObject<T>[] array = PartitionObjects.Array;
-                for (int i = 0; i < PartitionObjects.Count; i++) {
-                    existingList.Add((T)array[i]);
-                }
-            }
-        }
-
-        public void GetRaw(QuickList<IPartitionObject<T>> existingList)
-        {
-            lock (TileLock) {
                 existingList.AddRange(PartitionObjects);
             }
         }
 
-        public void Insert(IPartitionObject<T> obj)
+        public void Insert(T obj)
         {
             if (obj.CurrentPartitionTile != null)
                 SpatialPartitionManager<T>.Remove(obj);
@@ -69,7 +59,7 @@ namespace SE.World.Partitioning
             }
         }
 
-        public void Remove(IPartitionObject<T> obj)
+        public void Remove(T obj)
         {
             lock (TileLock) {
                 PartitionObjects.Remove(obj);
