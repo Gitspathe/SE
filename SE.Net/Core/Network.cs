@@ -22,6 +22,7 @@ using SE.Engine.Networking.Packets;
 namespace SE.Core
 {
     // TODO: Option to ignore all errors to improve performance. (don't throw exceptions)
+    // TODO: Peer-to-peer support?
     public static class Network
     {
         #region VARIABLES & DELEGATE EVENT HANDLERS
@@ -92,6 +93,9 @@ namespace SE.Core
         #endregion
 
         #region PROPERTIES
+
+        public static bool ThrowErrors { get; set; } = true;
+
         public static NetStatistics Statistics {
             get {
                 switch (InstanceType) {
@@ -449,7 +453,9 @@ namespace SE.Core
 
         public static void SendPacketServer<T>(INetLogic netLogic, NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender) where T : PacketProcessor
         {
-            ushort s = PacketProcessorManager.GetVal(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
+            if (!PacketProcessorManager.GetVal(typeof(T), out ushort s)) {
+                if(ThrowErrors) throw new Exception($"No network processor for type {typeof(T)} was found."); return;
+            }
             SEPacket packet = new SEPacket(s, netLogic.ID, netWriter.Data, netWriter.Length);
             
             // Find recipients who should receive the RPC.
@@ -482,7 +488,9 @@ namespace SE.Core
 
         public static void SendPacketClient<T>(INetLogic netLogic, NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel) where T : PacketProcessor
         {
-            ushort s = PacketProcessorManager.GetVal(typeof(T)) ?? throw new Exception($"No network processor for type {typeof(T)} was found.");
+            if (!PacketProcessorManager.GetVal(typeof(T), out ushort s)) {
+                if(ThrowErrors) throw new Exception($"No network processor for type {typeof(T)} was found."); return;
+            }
             SEPacket packet = new SEPacket(s, netLogic.ID, netWriter.Data, netWriter.Length);
 
             // Find recipients.
@@ -502,8 +510,9 @@ namespace SE.Core
 
         private static void SendRPCServer(NetDataWriter writer, uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender, string method, params object[] parameters)
         {
-            if (targets == Scope.None)
-                throw new Exception("Invalid RPC send: server RPC target scope not specified during method " + method + ".");
+            if (targets == Scope.None) {
+                if(ThrowErrors) throw new Exception($"Invalid RPC send: server RPC target scope not specified during method {method}."); return;
+            }
 
             // Get the unique method signature string for the RPC.
             string methodSignature = method;
@@ -512,14 +521,17 @@ namespace SE.Core
 
             // Convert the method signature into an ID which can then be sent over the network.
             ushort? methodID = ClientRPCLookupTable.GetUshortID(methodSignature);
-            if (!methodID.HasValue)
-                throw new InvalidRPCException("Invalid RPC send: server RPC method '" + method + "' not found.");
+            if (!methodID.HasValue) {
+                if(ThrowErrors) throw new InvalidRPCException($"Invalid RPC send: server RPC method '{method}' not found."); return;
+            }
+                
 
             // Find INetLogic object for network ID.
             INetLogic netLogic;
             lock (netLogicLock) {
-                if (!NetworkObjects.TryGetValue(networkIdentity, out netLogic))
-                    throw new InvalidRPCException($"No object for network ID {networkIdentity} found.");
+                if (!NetworkObjects.TryGetValue(networkIdentity, out netLogic)) {
+                    if(ThrowErrors) throw new InvalidRPCException($"No object for network ID {networkIdentity} found."); return;
+                }
             }
 
             lock (rpcLock) {
@@ -540,14 +552,16 @@ namespace SE.Core
 
             // Convert the method signature into an ID which can then be sent over the network.
             ushort? methodID = ServerRPCLookupTable.GetUshortID(methodSignature);
-            if (!methodID.HasValue)
-                throw new InvalidRPCException("Invalid RPC send: client RPC method '" + method + "' not found.");
+            if (!methodID.HasValue) {
+                if(ThrowErrors) throw new InvalidRPCException($"Invalid RPC send: client RPC method '{method}' not found."); return;
+            }
 
             // Find INetLogic object for network ID.
             INetLogic netLogic;
             lock (netLogicLock) {
-                if (!NetworkObjects.TryGetValue(networkIdentity, out netLogic))
-                    throw new InvalidRPCException($"No object for network ID {networkIdentity} found.");
+                if (!NetworkObjects.TryGetValue(networkIdentity, out netLogic)) {
+                    if(ThrowErrors) throw new InvalidRPCException($"No object for network ID {networkIdentity} found."); return;
+                }
             }
 
             lock (rpcLock) {
@@ -578,9 +592,9 @@ namespace SE.Core
 
                     // Invalid network states.
                     case NetInstanceType.None:
-                        throw new InvalidRPCException("Invalid RPC send: attempted to send RPC '" + method + "' without connection.");
+                        if(ThrowErrors) throw new InvalidRPCException($"Invalid RPC send: attempted to send RPC '{method}' without connection."); return;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        if(ThrowErrors) throw new ArgumentOutOfRangeException(); return;
                 }
             } catch (Exception e) {
                 NetworkPool.ReturnWriter(writer);
@@ -610,8 +624,7 @@ namespace SE.Core
                     NetworkObjects.TryGetValue(rpcFunc.NetworkID, out nObj);
                 }
                 if (nObj == null) {
-                    LogWarning(exception: new Exception("No NetworkObject for ID: " + rpcFunc.NetworkID + " found."));
-                    return;
+                    if(ThrowErrors) LogWarning(exception: new Exception($"No NetworkObject for ID: {rpcFunc.NetworkID} found.")); return;
                 }
 
                 // Search the client or server RPC lookup tables for the method which the RPC needs to invoke.
@@ -627,12 +640,13 @@ namespace SE.Core
                         }
                     } break;
                     case NetInstanceType.None:
-                        throw new InvalidRPCException("Invalid RPC invocation: attempted to invoke RPC '" + rpcFunc.MethodID + "' without connection.");
+                        if(ThrowErrors) throw new InvalidRPCException($"Invalid RPC invocation: attempted to invoke RPC '{rpcFunc.MethodID}' without connection."); return;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                if (rpcInfo == null)
-                    throw new InvalidRPCException("Invalid RPC invocation: RPC method " + rpcFunc.MethodID + " not found.");
+                if (rpcInfo == null) {
+                    if (ThrowErrors) throw new InvalidRPCException($"Invalid RPC invocation: RPC method '{rpcFunc.MethodID}' not found."); return;
+                }
 
                 // If networkID is zero, invoke the RPC on this (Network static).
                 object[] parameters = GetSubArray(rpcFunc.Parameters, 0, rpcFunc.ParametersNum);
@@ -640,14 +654,15 @@ namespace SE.Core
                     rpcInfo.Invoke(null, parameters);
                 } else {
                     // if networkID is greater than zero, find the INetLogic the RPC needs to be invoked on.
-                    if (!NetworkObjects.TryGetValue(rpcFunc.NetworkID, out INetLogic nObject))
-                        throw new InvalidRPCException("Invalid RPC invocation: object with networkID "+rpcFunc.NetworkID+" does not exist.");
-                    
+                    if (!NetworkObjects.TryGetValue(rpcFunc.NetworkID, out INetLogic nObject)) {
+                        if(ThrowErrors) throw new InvalidRPCException($"Invalid RPC invocation: object with networkID {rpcFunc.NetworkID} does not exist."); return;
+                    }
+
                     // Invoke the RPC.
                     try {
                         rpcInfo.Invoke(nObject, parameters);
                     } catch (Exception e) {
-                        throw new InvalidRPCException("Failed to invoke RPC ID '"+rpcFunc.MethodID+"'. Ensure that the parameters passed are valid.", e);
+                        if(ThrowErrors) throw new InvalidRPCException($"Failed to invoke RPC ID '{rpcFunc.MethodID}'. Ensure that the parameters passed are valid.", e);
                     }
                 }
             }
@@ -687,7 +702,9 @@ namespace SE.Core
                     t = typeof(Network);
                 } else if (NetworkObjects.TryGetValue(networkID, out INetLogic nObject)) {
                     t = nObject.GetType();
-                } else throw new KeyNotFoundException("Method signature not found: " + method);
+                } else {
+                    if(ThrowErrors) throw new KeyNotFoundException("Method signature not found: " + method); return null;
+                }
 
                 signatureBuilder.Append(t).Append(method).Append(" (");
                 if (parameters.Length > 0) {

@@ -25,12 +25,9 @@ namespace SE.Engine.Networking.Packets
         public static PacketProcessor GetProcessor(ushort val) 
             => packetProcessorsVal.TryGetValue(val, out PacketProcessor processor) ? processor : null;
 
-        public static ushort? GetVal(Type type)
+        public static bool GetVal(Type type, out ushort s)
         {
-            if (valConversionTable.TryGetValue(type, out ushort s)) {
-                return s;
-            }
-            return null;
+            return valConversionTable.TryGetValue(type, out s);
         }
     }
 }
