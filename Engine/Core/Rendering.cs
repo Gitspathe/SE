@@ -18,7 +18,7 @@ namespace SE.Core
 {
     public static class Rendering
     {
-        public static QuickList<IPartitionObject> VisibleSprites = new QuickList<IPartitionObject>(512);
+        public static QuickList<IRenderable> VisibleSprites = new QuickList<IRenderable>(512);
         public static SpriteBatch SpriteBatch;
 
         public static DepthStencilState DepthStencilLess = new DepthStencilState {
@@ -186,7 +186,7 @@ namespace SE.Core
             VisibleSprites.Clear();
             //Rectangle viewRect = camera.Zoom > 1.0f ? camera.UnscaledViewBounds : camera.Bounds;
             Rectangle viewRect = camera.ViewBounds;
-            SpatialPartitionManager.GetFromRegionRaw<IRenderable>(VisibleSprites, viewRect);
+            SpatialPartitionManager<IRenderable>.GetFromRegion(VisibleSprites, viewRect);
         }
 
         public static void Prepare()

@@ -19,24 +19,24 @@ namespace SE.World.Partitioning
     /// <summary>
     /// Partitions GameObjects.
     /// </summary>
-    public class SpatialPartition
+    public class SpatialPartition<T> where T : IPartitionObject<T>
     {
-        internal Dictionary<Point, PartitionTile> PartitionTiles = new Dictionary<Point, PartitionTile>(128, new PartitionPointComparer());
+        internal Dictionary<Point, PartitionTile<T>> PartitionTiles = new Dictionary<Point, PartitionTile<T>>(128, new PartitionPointComparer());
         private QuickList<Point> toRemove = new QuickList<Point>();
 
-        private static ObjectPool<PartitionTile> tilePool = new ObjectPool<PartitionTile>(512);
+        private static ObjectPool<PartitionTile<T>> tilePool = new ObjectPool<PartitionTile<T>>(512);
 
-        private int partitionTileSize;
+        protected int PartitionTileSize;
 
         internal SpatialPartition(int tSize)
         {
-            partitionTileSize = tSize;
+            PartitionTileSize = tSize;
         }
 
         public void Prune()
         {
             toRemove.Clear();
-            foreach ((Point point, PartitionTile tile) in PartitionTiles) {
+            foreach ((Point point, PartitionTile<T> tile) in PartitionTiles) {
                 if (tile.ShouldPrune) {
                     toRemove.Add(point);
                 }
@@ -51,16 +51,16 @@ namespace SE.World.Partitioning
         /// </summary>
         /// <param name="existingList">List of GameObject lists to allocate.</param>
         /// <param name="regionBounds">Rectangle bounds to check.</param>
-        public void GetFromRegion<T>(QuickList<T> existingList, Rectangle regionBounds) where T : IPartitionObject
+        public void GetFromRegion(QuickList<T> existingList, Rectangle regionBounds)
         {
-            int X = regionBounds.X / partitionTileSize;
-            int Y = regionBounds.Y / partitionTileSize;
-            int width = RoundUp(regionBounds.Width) / partitionTileSize;
-            int height = RoundUp(regionBounds.Height) / partitionTileSize;
-            regionBounds = new Rectangle(X, Y, width, height);
+            int startX = regionBounds.X / PartitionTileSize;
+            int startY = regionBounds.Y / PartitionTileSize;
+            int width = RoundUp(regionBounds.Width) / PartitionTileSize;
+            int height = RoundUp(regionBounds.Height) / PartitionTileSize;
+            regionBounds = new Rectangle(startX, startY, width, height);
             for (int x = regionBounds.X; x < regionBounds.Width + regionBounds.X; x++) {
                 for (int y = regionBounds.Y; y < regionBounds.Height + regionBounds.Y; y++) {
-                    if (PartitionTiles.TryGetValue(new Point(x, y), out PartitionTile tile)) {
+                    if (PartitionTiles.TryGetValue(new Point(x, y), out PartitionTile<T> tile)) {
                         tile.Get(existingList);
                     }
                 }
@@ -72,29 +72,29 @@ namespace SE.World.Partitioning
         /// </summary>
         /// <param name="existingList">List of GameObject lists to allocate.</param>
         /// <param name="regionBounds">Rectangle bounds to check.</param>
-        public void GetFromRegionRaw(QuickList<IPartitionObject> existingList, Rectangle regionBounds)
+        public void GetFromRegionRaw(QuickList<IPartitionObject<T>> existingList, Rectangle regionBounds)
         {
-            int X = regionBounds.X / partitionTileSize;
-            int Y = regionBounds.Y / partitionTileSize;
-            int width = RoundUp(regionBounds.Width) / partitionTileSize;
-            int height = RoundUp(regionBounds.Height) / partitionTileSize;
-            regionBounds = new Rectangle(X, Y, width, height);
+            int startX = regionBounds.X / PartitionTileSize;
+            int startY = regionBounds.Y / PartitionTileSize;
+            int width = RoundUp(regionBounds.Width) / PartitionTileSize;
+            int height = RoundUp(regionBounds.Height) / PartitionTileSize;
+            regionBounds = new Rectangle(startX, startY, width, height);
             for (int x = regionBounds.X; x < regionBounds.Width + regionBounds.X; x++) {
                 for (int y = regionBounds.Y; y < regionBounds.Height + regionBounds.Y; y++) {
-                    if (PartitionTiles.TryGetValue(new Point(x, y), out PartitionTile tile)) {
+                    if (PartitionTiles.TryGetValue(new Point(x, y), out PartitionTile<T> tile)) {
                         tile.GetRaw(existingList);
                     }
                 }
             }
         }
 
-        private int RoundUp(float value)
+        protected int RoundUp(float value)
         {
-            float result = MathF.Ceiling(value / partitionTileSize);
+            float result = MathF.Ceiling(value / PartitionTileSize);
             if (value > 0 && result == 0) {
                 result = 1;
             }
-            return (int)(result * partitionTileSize)+partitionTileSize;
+            return (int)(result * PartitionTileSize)+PartitionTileSize;
         }
 
         /// <summary>
@@ -102,10 +102,10 @@ namespace SE.World.Partitioning
         /// </summary>
         /// <param name="position">Position in pixels.</param>
         /// <returns>PartitionTile from the position.</returns>
-        internal PartitionTile GetTile(Vector2 position)
+        internal PartitionTile<T> GetTile(Vector2 position)
         {
-            Point point = new Point((int) MathF.Floor(position.X / partitionTileSize), (int) MathF.Floor(position.Y / partitionTileSize));
-            return PartitionTiles.TryGetValue(point, out PartitionTile tile) 
+            Point point = new Point((int) MathF.Floor(position.X / PartitionTileSize), (int) MathF.Floor(position.Y / PartitionTileSize));
+            return PartitionTiles.TryGetValue(point, out PartitionTile<T> tile) 
                 ? tile 
                 : AddNewTile(point);
         }
@@ -115,9 +115,9 @@ namespace SE.World.Partitioning
         /// </summary>
         /// <param name="index">Index of the PartitionTile.</param>
         /// <returns>PartitionTile at specified index.</returns>
-        internal PartitionTile GetTile(Point index)
+        internal PartitionTile<T> GetTile(Point index)
         {
-            return PartitionTiles.TryGetValue(index, out PartitionTile tile) 
+            return PartitionTiles.TryGetValue(index, out PartitionTile<T> tile) 
                 ? tile 
                 : AddNewTile(index);
         }
@@ -129,8 +129,8 @@ namespace SE.World.Partitioning
         /// <returns>PartitionTile at position.</returns>
         internal Point GetTileIndex(Vector2 position)
         {
-            int x = (int)position.X / partitionTileSize;
-            int y = (int)position.Y / partitionTileSize;
+            int x = (int)position.X / PartitionTileSize;
+            int y = (int)position.Y / PartitionTileSize;
             Point point = new Point(x, y);
             return PartitionTiles.ContainsKey(point)
                 ? point
@@ -144,27 +144,27 @@ namespace SE.World.Partitioning
         /// <param name="start">Starting point of the line.</param>
         /// <param name="end">Destination point of the line.</param>
         /// <returns></returns>
-        internal void GetTilesFromLine(List<PartitionTile> tiles, Vector2 start, Vector2 end)
+        internal void GetTilesFromLine(List<PartitionTile<T>> tiles, Vector2 start, Vector2 end)
         {
             Point pStart = GetTileIndex(start);
             Point pEnd = GetTileIndex(end);
             Point[] points = null; //Core.Physics.BresenhamLine(pStart, pEnd);
             throw new NotImplementedException();
-            for (int i = 0; i < points.Length; i++) {
-                PartitionTile t = GetTile(points[i]);
-                if (t != null) {
-                    tiles.Add(GetTile(points[i]));
-                }
-            }
+            //for (int i = 0; i < points.Length; i++) {
+            //    PartitionTile t = GetTile(points[i]);
+            //    if (t != null) {
+            //        tiles.Add(GetTile(points[i]));
+            //    }
+            //}
         }
 
         /// <summary>
         /// Inserts a GameObject into the grid system.
         /// </summary>
         /// <param name="go">GameObject to add.</param>
-        internal void Insert(IPartitionObject obj)
+        internal void Insert(IPartitionObject<T> obj)
         {
-            PartitionTile partitionTile = GetTile(obj.PartitionPosition);
+            PartitionTile<T> partitionTile = GetTile(obj.PartitionPosition);
             partitionTile?.Insert(obj);
         }
 
@@ -172,33 +172,23 @@ namespace SE.World.Partitioning
         /// Removes a GameObject from the grid system.
         /// </summary>
         /// <param name="go">GameObject to remove.</param>
-        internal void Remove(IPartitionObject obj)
+        internal void Remove(IPartitionObject<T> obj)
         {
-            PartitionTile partitionTile = obj.CurrentPartitionTile;
+            PartitionTile<T> partitionTile = obj.CurrentPartitionTile;
             partitionTile?.Remove(obj);
         }
 
-        internal PartitionTile AddNewTile(Point point)
+        internal PartitionTile<T> AddNewTile(Point point)
         {
-            Rectangle bounds = new Rectangle(point.X * partitionTileSize, point.Y * partitionTileSize, partitionTileSize, partitionTileSize);
-            PartitionTile tile = tilePool.Take();
-            tile.Reset(bounds);
+            PartitionTile<T> tile = tilePool.Take();
+            tile.Reset();
             PartitionTiles.Add(point, tile);
             return tile;
         }
 
         internal void RemovePartitionTile(Point point)
         {
-            if (PartitionTiles.TryGetValue(point, out PartitionTile tile)) {
-                PartitionTiles.Remove(point);
-                tilePool.Return(tile);
-            }
-        }
-
-        internal void RemovePartitionTile(PartitionTile tile)
-        {
-            Point point = new Point(tile.Bounds.X / partitionTileSize, tile.Bounds.Y / partitionTileSize);
-            if (PartitionTiles.TryGetValue(point, out PartitionTile _)) {
+            if (PartitionTiles.TryGetValue(point, out PartitionTile<T> tile)) {
                 PartitionTiles.Remove(point);
                 tilePool.Return(tile);
             }
@@ -209,74 +199,10 @@ namespace SE.World.Partitioning
         /// </summary>
         internal void DrawBoundingRectangle(Camera2D camera)
         {
-            foreach (PartitionTile val in PartitionTiles.Values) {
-                Rectangle r = val.Bounds;
-                Debug.DrawUtility.DrawRectangle(camera, r);
+            foreach (Point point in PartitionTiles.Keys) {
+                Rectangle bounds = new Rectangle(point.X * PartitionTileSize, point.Y * PartitionTileSize, PartitionTileSize, PartitionTileSize);
+                Debug.DrawUtility.DrawRectangle(camera, bounds);
             }
-        }
-
-        /// <summary>
-        /// Gets a 3x3 chunk of PartitionTiles from a specific position.
-        /// </summary>
-        /// <param name="tileList">A pre-initialized List of PartitionTiles for allocation.</param>
-        /// <param name="position">Position of the center PartitionTile.</param>
-        /// <returns>List of valid PartitionTiles within a 3x3 area.</returns>
-        internal void GetAdjacentTiles(List<PartitionTile> tileList, Vector2 position)
-        {
-            PartitionTile t = GetTile(position);
-            if (t != null) {
-                GetAdjacentTiles(tileList, t);
-            }
-        }
-
-        /// <summary>
-        /// Gets a 3x3 chunk of PartitionTiles, using a PartitionTile as the centre of the chunk.
-        /// </summary>
-        /// <param name="tileList">A pre-initialized List of PartitionTiles for allocation.</param>
-        /// <param name="tile">The center PartitionTile.</param>
-        /// <returns>List of valid PartitionTiles within a 3x3 area. NULL if no valid PartitionTiles are found.</returns>
-        internal void GetAdjacentTiles(List<PartitionTile> tileList, PartitionTile tile)
-        {
-            Vector2 partitionTilePos = new Vector2(tile.Bounds.X, tile.Bounds.Y);
-            Point partitionTileIndex = GetTileIndex(partitionTilePos);
-            if (partitionTileIndex.X == -1 && partitionTileIndex.Y == -1) {
-                return;
-            }
-
-            tileList.Add(tile);
-            // TODO
-            //// North
-            //if (partitionTileIndex.Y - 1 >= 0) {
-            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X][partitionTileIndex.Y - 1]);
-            //}
-            //// North east
-            //if (partitionTileIndex.Y - 1 >= 0 && partitionTileIndex.X + 1 < partitionTilesX) {
-            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X + 1][partitionTileIndex.Y - 1]);
-            //}
-            //// East
-            //if (partitionTileIndex.X + 1 < partitionTilesX) {
-            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X + 1][partitionTileIndex.Y]);
-            //}
-            //// South east
-            //if (partitionTileIndex.Y + 1 < partitionTilesY && partitionTileIndex.X + 1 < partitionTilesX) {
-            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X + 1][partitionTileIndex.Y + 1]);
-            //}
-            //// South
-            //if (partitionTileIndex.Y + 1 < partitionTilesY) {
-            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X][partitionTileIndex.Y + 1]);
-            //}
-            //// South west
-            //if (partitionTileIndex.Y + 1 < partitionTilesY && partitionTileIndex.X - 1 >= 0) {
-            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X - 1][partitionTileIndex.Y + 1]);
-            //}
-            //// West
-            //if (partitionTileIndex.X - 1 >= 0) {
-            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X - 1][partitionTileIndex.Y]);
-            //}
-            //// North west
-            //if (partitionTileIndex.Y - 1 >= 0 && partitionTileIndex.X - 1 >= 0) {
-            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X - 1][partitionTileIndex.Y - 1]);
-            //}
         }
     }
 }

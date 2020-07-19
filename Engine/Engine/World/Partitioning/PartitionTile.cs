@@ -6,85 +6,75 @@ using SE.Utility;
 
 namespace SE.World.Partitioning
 {
-    public class PartitionTile
+    public class PartitionTile<T> where T : IPartitionObject<T>
     {
-        public Rectangle Bounds { get; private set; }
-
-        internal QuickList<IPartitionObject> PartitionObjects = new QuickList<IPartitionObject>();
+        internal QuickList<IPartitionObject<T>> PartitionObjects = new QuickList<IPartitionObject<T>>();
 
         public bool ShouldPrune {
             get {
-                lock (tileLock) {
+                lock (TileLock) {
                     return PartitionObjects.Count < 1;
                 }
             }
         }
 
-        private object tileLock = new object();
+        protected object TileLock = new object();
 
-        internal PartitionTile(Rectangle bounds)
+        public void Reset()
         {
-            Bounds = bounds;
-        }
-
-        public PartitionTile() { }
-
-        public void Reset(Rectangle bounds)
-        {
-            Bounds = bounds;
-            lock (tileLock) {
+            lock (TileLock) {
                 PartitionObjects.Clear();
             }
         }
 
-        public QuickList<T> Get<T>() where T : IPartitionObject
+        public QuickList<T> Get()
         {
-            lock (tileLock) {
+            lock (TileLock) {
                 QuickList<T> newList = new QuickList<T>();
-                foreach (IPartitionObject obj in PartitionObjects) {
+                foreach (IPartitionObject<T> obj in PartitionObjects) {
                     newList.Add((T) obj);
                 }
                 return newList;
             }
         }
 
-        public void Get<T>(QuickList<T> existingList) where T : IPartitionObject
+        public void Get(QuickList<T> existingList)
         {
-            lock (tileLock) {
-                IPartitionObject[] array = PartitionObjects.Array;
+            lock (TileLock) {
+                IPartitionObject<T>[] array = PartitionObjects.Array;
                 for (int i = 0; i < PartitionObjects.Count; i++) {
                     existingList.Add((T)array[i]);
                 }
             }
         }
 
-        public void GetRaw(QuickList<IPartitionObject> existingList)
+        public void GetRaw(QuickList<IPartitionObject<T>> existingList)
         {
-            lock (tileLock) {
+            lock (TileLock) {
                 existingList.AddRange(PartitionObjects);
             }
         }
 
-        public void Insert(IPartitionObject obj)
+        public void Insert(IPartitionObject<T> obj)
         {
             if (obj.CurrentPartitionTile != null)
-                SpatialPartitionManager.Remove(obj);
+                SpatialPartitionManager<T>.Remove(obj);
 
-            lock (tileLock) {
+            lock (TileLock) {
                 PartitionObjects.Add(obj);
                 obj.CurrentPartitionTile = this;
-                if (obj is IPartitionObjectExtended ext) {
+                if (obj is IPartitionObjectExtended<T> ext) {
                     ext.InsertedIntoPartition(this);
                 }
             }
         }
 
-        public void Remove(IPartitionObject obj)
+        public void Remove(IPartitionObject<T> obj)
         {
-            lock (tileLock) {
+            lock (TileLock) {
                 PartitionObjects.Remove(obj);
                 obj.CurrentPartitionTile = null;
-                if (obj is IPartitionObjectExtended ext) {
+                if (obj is IPartitionObjectExtended<T> ext) {
                     ext.RemovedFromPartition(this);
                 }
             }

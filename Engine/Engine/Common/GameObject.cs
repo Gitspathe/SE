@@ -23,7 +23,7 @@ namespace SE.Common
     /// <summary>
     /// GameObjects are containers for logic and components.
     /// </summary>
-    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IPartitionObjectExtended, IDisposable
+    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IPartitionObjectExtended<GameObject>, IDisposable
     {
         public string EngineName { get; set; }
 
@@ -42,9 +42,8 @@ namespace SE.Common
         /// <summary>True if Destroy() was called on the GameObject this frame.</summary>
         public bool Destroyed { get; private set; }
 
-        public Vector2 PartitionPosition => Transform.GlobalPositionInternal;
-        public Type PartitionObjectType => typeof(GameObject);
-        public PartitionTile CurrentPartitionTile { get; set; }
+        public Vector2 PartitionPosition => Transform?.GlobalPositionInternal ?? Vector2.Zero;
+        public PartitionTile<GameObject> CurrentPartitionTile { get; set; }
 
         public AssetConsumer AssetConsumer { get; } = new AssetConsumer();
 
@@ -660,7 +659,7 @@ namespace SE.Common
         {
             EnsureValidAccess();
             if (component is IPartitionObject pObj) {
-                SpatialPartitionManager.Remove(pObj);
+                pObj.RemoveFromPartition();
                 PartitionObjects.Remove(pObj);
             }
             component.AssetConsumer.DereferenceAssets();
@@ -683,26 +682,26 @@ namespace SE.Common
             }
         }
 
-        public void InsertedIntoPartition(PartitionTile tile)
+        public void InsertedIntoPartition(PartitionTile<GameObject> tile)
         {
             IPartitionObject[] array = PartitionObjects.Array;
             for (int i = 0; i < PartitionObjects.Count; i++) {
-                SpatialPartitionManager.Insert(array[i]);
+                array[i].InsertIntoPartition();
             }
         }
 
-        public void RemovedFromPartition(PartitionTile tile)
+        public void RemovedFromPartition(PartitionTile<GameObject> tile)
         {
             IPartitionObject[] array = PartitionObjects.Array;
             for (int i = 0; i < PartitionObjects.Count; i++) {
-                SpatialPartitionManager.Remove(array[i]);
+                array[i].RemoveFromPartition();
             }
         }
 
         internal void ResetPartition()
         {
-            SpatialPartitionManager.Remove(this);
-            SpatialPartitionManager.Insert(this);
+            SpatialPartitionManager<GameObject>.Remove(this);
+            SpatialPartitionManager<GameObject>.Insert(this);
         }
 
         protected internal void SortComponents() 
@@ -787,6 +786,16 @@ namespace SE.Common
         public void Dispose()
         {
             Dispose(true);
+        }
+
+        public void InsertIntoPartition()
+        {
+            SpatialPartitionManager<GameObject>.Insert(this);
+        }
+
+        public void RemoveFromPartition()
+        {
+            SpatialPartitionManager<GameObject>.Remove(this);
         }
     }
 }

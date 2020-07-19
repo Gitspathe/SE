@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Penumbra;
+using SE.Core;
+using SE.Rendering;
 using SE.World.Partitioning;
 using Vector2 = System.Numerics.Vector2;
 using MonoGameVector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace SE.Lighting
 {
-    public class ShadowCaster : IPartitionObject
+    public class ShadowCaster : IPartitionObject<ShadowCaster>
     {
         public ShadowCasterType ShadowCastType = ShadowCasterType.Dynamic;
 
@@ -24,8 +26,7 @@ namespace SE.Lighting
         private List<MonoGameVector2> tmpList = new List<MonoGameVector2>();
 
         public Vector2 PartitionPosition => Position;
-        public Type PartitionObjectType => GetType();
-        public PartitionTile CurrentPartitionTile { get; set; }
+        public PartitionTile<ShadowCaster> CurrentPartitionTile { get; set; }
 
         public void Enable()
             => Enabled = true;
@@ -46,7 +47,17 @@ namespace SE.Lighting
             Hull.Points.AddRange(tmpList);
         }
 
-        public void InsertedIntoPartition(PartitionTile tile) { }
-        public void RemovedFromPartition(PartitionTile tile) { }
+        public void InsertedIntoPartition(PartitionTile<ShadowCaster> tile) { }
+        public void RemovedFromPartition(PartitionTile<ShadowCaster> tile) { }
+
+        public void InsertIntoPartition()
+        {
+            SpatialPartitionManager<ShadowCaster>.Insert(this);
+        }
+
+        public void RemoveFromPartition()
+        {
+            SpatialPartitionManager<ShadowCaster>.Remove(this);
+        }
     }
 }

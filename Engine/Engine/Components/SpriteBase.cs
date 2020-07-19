@@ -8,21 +8,20 @@ using SE.Rendering;
 using SE.World.Partitioning;
 using SE.Core.Extensions;
 using Vector2 = System.Numerics.Vector2;
+using SE.Lighting;
 // ReSharper disable InconsistentNaming
 
 namespace SE.Components
 {
 
     [ExecuteInEditor]
-    public abstract class SpriteBase : Component, IRenderable, IPartitionObjectExtended
+    public abstract class SpriteBase : Component, IRenderable, IPartitionObjectExtended<IRenderable>
     {
         // NOTE: Private protected fields are for increased performance. Access the properties instead
         // when not dealing with the core rendering system.
 
         public Vector2 PartitionPosition => Owner.Transform.GlobalPositionInternal;
-        public Type PartitionObjectType => typeof(IRenderable);
-        public IRenderable PartitionObject => this;
-        public PartitionTile CurrentPartitionTile { get; set; }
+        public PartitionTile<IRenderable> CurrentPartitionTile { get; set; }
 
         public override int Queue => 100;
 
@@ -151,14 +150,14 @@ namespace SE.Components
 
         public abstract void RecalculateBounds();
 
-        public void InsertedIntoPartition(PartitionTile tile)
+        public void InsertedIntoPartition(PartitionTile<IRenderable> tile)
         {
             if (this is ILit lit && lit.Shadow != null) {
-                SpatialPartitionManager.Insert(lit.Shadow);
+                SpatialPartitionManager<ShadowCaster>.Insert(lit.Shadow);
             }
         }
 
-        public void RemovedFromPartition(PartitionTile tile)
+        public void RemovedFromPartition(PartitionTile<IRenderable> tile)
         {
             if (this is ILit lit) {
                 lit.Shadow?.CurrentPartitionTile?.Remove(lit.Shadow);
@@ -202,6 +201,16 @@ namespace SE.Components
         }
 
         public abstract void Render(Camera2D camera, Space space);
+       
+        public void InsertIntoPartition()
+        {
+            SpatialPartitionManager<IRenderable>.Insert(this);
+        }
+
+        public void RemoveFromPartition()
+        {
+            SpatialPartitionManager<IRenderable>.Remove(this);
+        }
     }
 
 }

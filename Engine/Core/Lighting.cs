@@ -95,7 +95,7 @@ namespace SE.Core
                 l.PenumbraLight.Rotation = l.Rotation;
             }
 
-            SpatialPartitionManager.GetFromRegion(shadowCasterList, camera.ViewBounds);
+            SpatialPartitionManager<ShadowCaster>.GetFromRegion(shadowCasterList, camera.ViewBounds);
             shadowCasterList.AddRange(SceneManager.CurrentScene.MapShadows);
 
             for (int i = 0; i < shadowCasterList.Count; i++) {

@@ -152,7 +152,7 @@ namespace SE.Common
         internal void Enable()
         {
             if (this is IPartitionObject pObj) {
-                SpatialPartitionManager.Insert(pObj);
+                pObj.InsertIntoPartition();
             }
             OnEnable();
         }
@@ -165,7 +165,7 @@ namespace SE.Common
         internal void Disable()
         {
             if (this is IPartitionObject pObj) {
-                SpatialPartitionManager.Remove(pObj);
+                pObj.RemoveFromPartition();
             }
             OnDisable();
         }

@@ -132,7 +132,7 @@ namespace SE
                 if (!Screen.IsFullHeadless)
                     Core.Lighting.Initialize();
 
-                SpatialPartitionManager.Initialize(192);
+                //SpatialPartitionManager.Initialize(192);
                 Core.Physics.Initialize();
 
                 Network.OnLogInfo += (msg, important) => Console.LogInfo(msg, important, LogSource.Network);
@@ -341,13 +341,13 @@ namespace SE
                 AllGameObjects.Add(go);
                 CurrentScene.GameObjectsToRemove.Remove(go);
                 if (go.IgnoreCulling) {
-                    SpatialPartitionManager.AddIgnoredObject(go);
+                    SpatialPartitionManager<GameObject>.AddIgnoredObject(go);
                 }
 
                 if (go.IsDynamic) {
                     DynamicGameObjects.Add(go);
                 } else if (!go.IgnoreCulling) {
-                    SpatialPartitionManager.Insert(go);
+                    SpatialPartitionManager<GameObject>.Insert(go);
                 }
 
                 if (go.DestroyOnLoad) {
@@ -368,7 +368,7 @@ namespace SE
             lock (gameObjectHandlerLock) {
                 DynamicGameObjects.Remove(go);
                 CurrentScene.GameObjectsToRemove.Add(go);
-                SpatialPartitionManager.Remove(go);
+                SpatialPartitionManager<GameObject>.Remove(go);
                 if (destroyed) {
                     AllGameObjects.Remove(go);
                 }
