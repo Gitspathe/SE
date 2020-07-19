@@ -3,77 +3,66 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using SE.Components;
 using SE.Core;
+using SE.Pooling;
 using SE.Utility;
 using Random = System.Random;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.World.Partitioning
 {
+    internal struct PartitionPoint
+    {
+        public int X;
+        public int Y;
+
+        public PartitionPoint(int x, int y)
+        {
+            X = x;
+            Y = y;
+        }
+    }
+
+    internal class PartitionPointComparer : IEqualityComparer<PartitionPoint>
+    {
+        public bool Equals(PartitionPoint x, PartitionPoint y)
+        {
+            return x.X == y.X && x.Y == y.Y;
+        }
+
+        public int GetHashCode(PartitionPoint obj)
+        {
+            return obj.X ^ obj.Y;
+        }
+    }
+
     /// <summary>
     /// Partitions GameObjects.
     /// </summary>
     public class SpatialPartition
     {
-        internal bool NeedsPrune;
-        internal PartitionTile[][] GridPartitionTiles;
+        internal Dictionary<PartitionPoint, PartitionTile> PartitionTiles = new Dictionary<PartitionPoint, PartitionTile>(128, new PartitionPointComparer());
+        private QuickList<PartitionPoint> toRemove = new QuickList<PartitionPoint>();
 
-        private int partitionTileSize, partitionTilesX, partitionTilesY;
-        private int pruneOffset;
-        private float pruneCounter;
+        private static ObjectPool<PartitionTile> tilePool = new ObjectPool<PartitionTile>();
 
-        public Vector2 Position { get; private set; }
-        public Rectangle Bounds { get; private set; }
-        public bool IsActive { get; internal set; }
+        private int partitionTileSize;
 
-        internal SpatialPartition(int tSize, Rectangle bounds)
+        internal SpatialPartition(int tSize)
         {
-            Bounds = bounds;
-            Position = new Vector2(bounds.X, bounds.Y);
-            GridPartitionTiles = null;
-
             partitionTileSize = tSize;
-            partitionTilesX = bounds.Width / partitionTileSize;
-            partitionTilesY = bounds.Height / partitionTileSize;
-            GridPartitionTiles = new PartitionTile[partitionTilesX][];
-            for (int x = 0; x < partitionTilesX; x++) {
-                GridPartitionTiles[x] = new PartitionTile[partitionTilesX];
-                for (int y = 0; y < partitionTilesY; y++) {
-                    Rectangle b = new Rectangle(x * partitionTileSize, y * partitionTileSize, partitionTileSize, partitionTileSize);
-                    GridPartitionTiles[x][y] = new PartitionTile(b);
-                }
-            }
-            pruneOffset = SE.Utility.Random.Next(0, 120);
         }
 
-        internal void UpdatePosition(Point newPos)
+        public void Prune()
         {
-            Position = new Vector2(newPos.X, newPos.Y);
-            Bounds = new Rectangle(newPos.X, newPos.Y, Bounds.Width, Bounds.Height);
-        }
-
-        internal void Update()
-        {
-            if (pruneOffset > 0) {
-                pruneOffset--;
-            } else {
-                pruneCounter -= Time.UnscaledDeltaTime;
-                if (pruneCounter <= 0) {
-                    NeedsPrune = ShouldPrune();
-                    pruneCounter = 5.0f;
+            toRemove.Clear();
+            foreach ((PartitionPoint point, PartitionTile tile) in PartitionTiles) {
+                if (tile.ShouldPrune) {
+                    toRemove.Add(point);
                 }
             }
-        }
-
-        private bool ShouldPrune()
-        {
-            for (int x = 0; x < partitionTilesX; x++) {
-                for (int y = 0; y < partitionTilesY; y++) {
-                    PartitionTile tile = GridPartitionTiles[x][y];
-                    if (tile.PartitionObjects.Count > 0)
-                        return false;
-                }
+            foreach (PartitionPoint point in toRemove) {
+                RemovePartitionTile(point);
             }
-            return true;
         }
 
         /// <summary>
@@ -90,10 +79,9 @@ namespace SE.World.Partitioning
             regionBounds = new Rectangle(X, Y, width, height);
             for (int x = regionBounds.X; x < regionBounds.Width + regionBounds.X; x++) {
                 for (int y = regionBounds.Y; y < regionBounds.Height + regionBounds.Y; y++) {
-                    if (x < 0 || y < 0 || x > partitionTilesX - 1 || y > partitionTilesY - 1)
-                        continue;
-
-                    GridPartitionTiles[x][y].Get(existingList);
+                    if (PartitionTiles.TryGetValue(new PartitionPoint(x, y), out PartitionTile tile)) {
+                        tile.Get(existingList);
+                    }
                 }
             }
         }
@@ -103,7 +91,7 @@ namespace SE.World.Partitioning
         /// </summary>
         /// <param name="existingList">List of GameObject lists to allocate.</param>
         /// <param name="regionBounds">Rectangle bounds to check.</param>
-        public void GetFromRegionRaw<T>(QuickList<IPartitionObject> existingList, Rectangle regionBounds) where T : IPartitionObject
+        public void GetFromRegionRaw(QuickList<IPartitionObject> existingList, Rectangle regionBounds)
         {
             int X = regionBounds.X / partitionTileSize;
             int Y = regionBounds.Y / partitionTileSize;
@@ -112,10 +100,9 @@ namespace SE.World.Partitioning
             regionBounds = new Rectangle(X, Y, width, height);
             for (int x = regionBounds.X; x < regionBounds.Width + regionBounds.X; x++) {
                 for (int y = regionBounds.Y; y < regionBounds.Height + regionBounds.Y; y++) {
-                    if (x < 0 || y < 0 || x > partitionTilesX - 1 || y > partitionTilesY - 1)
-                        continue;
-
-                    GridPartitionTiles[x][y].GetRaw<T>(existingList);
+                    if (PartitionTiles.TryGetValue(new PartitionPoint(x, y), out PartitionTile tile)) {
+                        tile.GetRaw(existingList);
+                    }
                 }
             }
         }
@@ -138,50 +125,6 @@ namespace SE.World.Partitioning
             return (int)(result * partitionTileSize);
         }
 
-        internal void GetTilesFromRegionOrdered(PartitionTile[][] tiles, Rectangle regionBounds)
-        {
-            int X = regionBounds.X / partitionTileSize;
-            int Y = regionBounds.Y / partitionTileSize;
-            int width = RoundPrecise(regionBounds.Width) / partitionTileSize;
-            int height = RoundPrecise(regionBounds.Height) / partitionTileSize;
-            regionBounds = new Rectangle(X, Y, width, height);
-
-            int xIndex = 0, yIndex = 0;
-            for (int x = regionBounds.X; x < regionBounds.Width + regionBounds.X; x++) {
-                for (int y = regionBounds.Y; y < regionBounds.Height + regionBounds.Y; y++) {
-                    if (x < 0 || y < 0 || x > partitionTilesX - 1 || y > partitionTilesY - 1) {
-                        yIndex++;
-                        continue;
-                    }
-                    tiles[xIndex][yIndex] = GridPartitionTiles[x][y];
-                    yIndex++;
-                }
-                xIndex++;
-            }
-        }
-
-        internal void GetTilesFromRegion(QuickList<PartitionTile> tileList, Rectangle regionBounds)
-        {
-            int X = regionBounds.X / partitionTileSize;
-            int Y = regionBounds.Y / partitionTileSize;
-            int width = RoundPrecise(regionBounds.Width) / partitionTileSize;
-            int height = RoundPrecise(regionBounds.Height) / partitionTileSize;
-            regionBounds = new Rectangle(X, Y, width, height);
-
-            int xIndex = 0, yIndex = 0;
-            for (int x = regionBounds.X; x < regionBounds.Width + regionBounds.X; x++) {
-                for (int y = regionBounds.Y; y < regionBounds.Height + regionBounds.Y; y++) {
-                    if (x < 0 || y < 0 || x > partitionTilesX - 1 || y > partitionTilesY - 1) {
-                        yIndex++;
-                        continue;
-                    }
-                    tileList.Add(GridPartitionTiles[x][y]);
-                    yIndex++;
-                }
-                xIndex++;
-            }
-        }
-
         /// <summary>
         /// Gets which PartitionTile a position belongs to.
         /// </summary>
@@ -189,12 +132,10 @@ namespace SE.World.Partitioning
         /// <returns>PartitionTile from the position.</returns>
         internal PartitionTile GetTile(Vector2 position)
         {
-            int x = (int)position.X / partitionTileSize;
-            int y = (int)position.Y / partitionTileSize;
-            if (x < 0 || y < 0 || x > partitionTilesX-1 || y > partitionTilesY-1)
-                return null;
-            
-            return GridPartitionTiles[x][y];
+            PartitionPoint point = new PartitionPoint((int)position.X / partitionTileSize, (int)position.Y / partitionTileSize);
+            return PartitionTiles.TryGetValue(point, out PartitionTile tile) 
+                ? tile 
+                : AddNewTile(point);
         }
 
         /// <summary>
@@ -204,12 +145,10 @@ namespace SE.World.Partitioning
         /// <returns>PartitionTile at specified index.</returns>
         internal PartitionTile GetTile(Point index)
         {
-            int x = index.X;
-            int y = index.Y;
-            if (x < 0 || y < 0 || x > partitionTilesX-1 || y > partitionTilesY-1)
-                return null;
-
-            return GridPartitionTiles[x][y];
+            PartitionPoint point = new PartitionPoint(index.X, index.Y);
+            return PartitionTiles.TryGetValue(point, out PartitionTile tile) 
+                ? tile 
+                : AddNewTile(point);
         }
 
         /// <summary>
@@ -221,10 +160,9 @@ namespace SE.World.Partitioning
         {
             int x = (int)position.X / partitionTileSize;
             int y = (int)position.Y / partitionTileSize;
-            if (x < 0 || y < 0 || x > partitionTilesX - 1 || y > partitionTilesY - 1)
-                return new Point(-1,-1);
-            
-            return new Point(x, y);
+            return PartitionTiles.ContainsKey(new PartitionPoint(x, y))
+                ? new Point(x, y) 
+                : new Point(-1, -1);
         }
 
         /// <summary>
@@ -239,6 +177,7 @@ namespace SE.World.Partitioning
             Point pStart = GetTileIndex(start);
             Point pEnd = GetTileIndex(end);
             Point[] points = null; //Core.Physics.BresenhamLine(pStart, pEnd);
+            throw new NotImplementedException();
             for (int i = 0; i < points.Length; i++) {
                 PartitionTile t = GetTile(points[i]);
                 if (t != null) {
@@ -253,7 +192,7 @@ namespace SE.World.Partitioning
         /// <param name="go">GameObject to add.</param>
         internal void Insert(IPartitionObject obj)
         {
-            PartitionTile partitionTile = GetTile(obj.PartitionPosition - Position);
+            PartitionTile partitionTile = GetTile(obj.PartitionPosition);
             partitionTile?.Insert(obj);
         }
 
@@ -267,22 +206,40 @@ namespace SE.World.Partitioning
             partitionTile?.Remove(obj);
         }
 
+        internal PartitionTile AddNewTile(PartitionPoint point)
+        {
+            Rectangle bounds = new Rectangle(point.X * partitionTileSize, point.Y * partitionTileSize, partitionTileSize, partitionTileSize);
+            PartitionTile tile = tilePool.Take();
+            tile.Reset(bounds);
+            PartitionTiles.Add(point, tile);
+            return tile;
+        }
+
+        internal void RemovePartitionTile(PartitionPoint point)
+        {
+            if (PartitionTiles.TryGetValue(point, out PartitionTile tile)) {
+                PartitionTiles.Remove(point);
+                tilePool.Return(tile);
+            }
+        }
+
+        internal void RemovePartitionTile(PartitionTile tile)
+        {
+            PartitionPoint point = new PartitionPoint(tile.Bounds.X / partitionTileSize, tile.Bounds.Y / partitionTileSize);
+            if (PartitionTiles.TryGetValue(point, out PartitionTile _)) {
+                PartitionTiles.Remove(point);
+                tilePool.Return(tile);
+            }
+        }
+
         /// <summary>
         /// Draws a representation of the grid. Useful for debugging.
         /// </summary>
         internal void DrawBoundingRectangle(Camera2D camera)
         {
-            for(int x = 0; x < GridPartitionTiles.Length; x++) {
-                for(int y = 0; y < GridPartitionTiles[x].Length; y++) {
-                    if (GridPartitionTiles[x][y] == null)
-                        continue;
-
-                    Rectangle r = GridPartitionTiles[x][y].Bounds;
-                    r.X += Bounds.X;
-                    r.Y += Bounds.Y;
-
-                    Debug.DrawUtility.DrawRectangle(camera, r);
-                }
+            foreach (PartitionTile val in PartitionTiles.Values) {
+                Rectangle r = val.Bounds;
+                Debug.DrawUtility.DrawRectangle(camera, r);
             }
         }
 
@@ -315,38 +272,39 @@ namespace SE.World.Partitioning
             }
 
             tileList.Add(tile);
-            // North
-            if (partitionTileIndex.Y - 1 >= 0) {
-                tileList.Add(GridPartitionTiles[partitionTileIndex.X][partitionTileIndex.Y - 1]);
-            }
-            // North east
-            if (partitionTileIndex.Y - 1 >= 0 && partitionTileIndex.X + 1 < partitionTilesX) {
-                tileList.Add(GridPartitionTiles[partitionTileIndex.X + 1][partitionTileIndex.Y - 1]);
-            }
-            // East
-            if (partitionTileIndex.X + 1 < partitionTilesX) {
-                tileList.Add(GridPartitionTiles[partitionTileIndex.X + 1][partitionTileIndex.Y]);
-            }
-            // South east
-            if (partitionTileIndex.Y + 1 < partitionTilesY && partitionTileIndex.X + 1 < partitionTilesX) {
-                tileList.Add(GridPartitionTiles[partitionTileIndex.X + 1][partitionTileIndex.Y + 1]);
-            }
-            // South
-            if (partitionTileIndex.Y + 1 < partitionTilesY) {
-                tileList.Add(GridPartitionTiles[partitionTileIndex.X][partitionTileIndex.Y + 1]);
-            }
-            // South west
-            if (partitionTileIndex.Y + 1 < partitionTilesY && partitionTileIndex.X - 1 >= 0) {
-                tileList.Add(GridPartitionTiles[partitionTileIndex.X - 1][partitionTileIndex.Y + 1]);
-            }
-            // West
-            if (partitionTileIndex.X - 1 >= 0) {
-                tileList.Add(GridPartitionTiles[partitionTileIndex.X - 1][partitionTileIndex.Y]);
-            }
-            // North west
-            if (partitionTileIndex.Y - 1 >= 0 && partitionTileIndex.X - 1 >= 0) {
-                tileList.Add(GridPartitionTiles[partitionTileIndex.X - 1][partitionTileIndex.Y - 1]);
-            }
+            // TODO
+            //// North
+            //if (partitionTileIndex.Y - 1 >= 0) {
+            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X][partitionTileIndex.Y - 1]);
+            //}
+            //// North east
+            //if (partitionTileIndex.Y - 1 >= 0 && partitionTileIndex.X + 1 < partitionTilesX) {
+            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X + 1][partitionTileIndex.Y - 1]);
+            //}
+            //// East
+            //if (partitionTileIndex.X + 1 < partitionTilesX) {
+            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X + 1][partitionTileIndex.Y]);
+            //}
+            //// South east
+            //if (partitionTileIndex.Y + 1 < partitionTilesY && partitionTileIndex.X + 1 < partitionTilesX) {
+            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X + 1][partitionTileIndex.Y + 1]);
+            //}
+            //// South
+            //if (partitionTileIndex.Y + 1 < partitionTilesY) {
+            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X][partitionTileIndex.Y + 1]);
+            //}
+            //// South west
+            //if (partitionTileIndex.Y + 1 < partitionTilesY && partitionTileIndex.X - 1 >= 0) {
+            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X - 1][partitionTileIndex.Y + 1]);
+            //}
+            //// West
+            //if (partitionTileIndex.X - 1 >= 0) {
+            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X - 1][partitionTileIndex.Y]);
+            //}
+            //// North west
+            //if (partitionTileIndex.Y - 1 >= 0 && partitionTileIndex.X - 1 >= 0) {
+            //    tileList.Add(GridPartitionTiles[partitionTileIndex.X - 1][partitionTileIndex.Y - 1]);
+            //}
         }
     }
 }

@@ -132,7 +132,7 @@ namespace SE
                 if (!Screen.IsFullHeadless)
                     Core.Lighting.Initialize();
 
-                SpatialPartitionManager.Initialize(192, 192 * 8);
+                SpatialPartitionManager.Initialize(192);
                 Core.Physics.Initialize();
 
                 Network.OnLogInfo += (msg, important) => Console.LogInfo(msg, important, LogSource.Network);

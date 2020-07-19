@@ -8,9 +8,11 @@ namespace SE.World.Partitioning
 {
     public class PartitionTile
     {
-        public Rectangle Bounds { get; }
+        public Rectangle Bounds { get; private set; }
 
-        internal Dictionary<Type, QuickList<IPartitionObject>> PartitionObjects = new Dictionary<Type, QuickList<IPartitionObject>>();
+        internal QuickList<IPartitionObject> PartitionObjects = new QuickList<IPartitionObject>();
+
+        public bool ShouldPrune => PartitionObjects.Count < 1;
 
         private object tileLock = new object();
 
@@ -19,14 +21,19 @@ namespace SE.World.Partitioning
             Bounds = bounds;
         }
 
+        public PartitionTile() { }
+
+        public void Reset(Rectangle bounds)
+        {
+            Bounds = bounds;
+            PartitionObjects.Clear();
+        }
+
         public QuickList<T> Get<T>() where T : IPartitionObject
         {
             lock (tileLock) {
-                if (!PartitionObjects.TryGetValue(typeof(T), out QuickList<IPartitionObject> objects)) 
-                    return null;
-
                 QuickList<T> newList = new QuickList<T>();
-                foreach (IPartitionObject obj in objects) {
+                foreach (IPartitionObject obj in PartitionObjects) {
                     newList.Add((T) obj);
                 }
                 return newList;
@@ -36,23 +43,17 @@ namespace SE.World.Partitioning
         public void Get<T>(QuickList<T> existingList) where T : IPartitionObject
         {
             lock (tileLock) {
-                if (!PartitionObjects.TryGetValue(typeof(T), out QuickList<IPartitionObject> objects)) 
-                    return;
-
-                IPartitionObject[] array = objects.Array;
-                for (int i = 0; i < objects.Count; i++) {
+                IPartitionObject[] array = PartitionObjects.Array;
+                for (int i = 0; i < PartitionObjects.Count; i++) {
                     existingList.Add((T)array[i]);
                 }
             }
         }
 
-        public void GetRaw<T>(QuickList<IPartitionObject> existingList) where T : IPartitionObject
+        public void GetRaw(QuickList<IPartitionObject> existingList)
         {
             lock (tileLock) {
-                if (!PartitionObjects.TryGetValue(typeof(T), out QuickList<IPartitionObject> objects))
-                    return;
-
-                existingList.AddRange(objects);
+                existingList.AddRange(PartitionObjects);
             }
         }
 
@@ -62,13 +63,7 @@ namespace SE.World.Partitioning
                 SpatialPartitionManager.Remove(obj);
 
             lock (tileLock) {
-                Type type = obj.PartitionObjectType;
-                if (PartitionObjects.TryGetValue(type, out QuickList<IPartitionObject> list)) {
-                    list.Add(obj);
-                } else {
-                    QuickList<IPartitionObject> newList = new QuickList<IPartitionObject> { obj };
-                    PartitionObjects.Add(type, newList);
-                }
+                PartitionObjects.Add(obj);
                 obj.CurrentPartitionTile = this;
                 if (obj is IPartitionObjectExtended ext) {
                     ext.InsertedIntoPartition(this);
@@ -79,15 +74,7 @@ namespace SE.World.Partitioning
         public void Remove(IPartitionObject obj)
         {
             lock (tileLock) {
-                Type type = obj.PartitionObjectType;
-                if (PartitionObjects.TryGetValue(type, out QuickList<IPartitionObject> list)) {
-                    if (!list.Remove(obj)) {
-                        throw new NullReferenceException("The IPartitionObject wasn't found!");
-                    }
-                    if (list.Count < 1) {
-                        PartitionObjects.Remove(type);
-                    }
-                }
+                PartitionObjects.Remove(obj);
                 obj.CurrentPartitionTile = null;
                 if (obj is IPartitionObjectExtended ext) {
                     ext.RemovedFromPartition(this);

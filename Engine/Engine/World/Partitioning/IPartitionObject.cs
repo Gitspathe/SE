@@ -6,7 +6,6 @@ namespace SE.World.Partitioning
     /// <summary>
     /// Represents an object which can be added to the spatial partitioning system.
     /// </summary>
-    // TODO: IPartitionObject<T> ?
     public interface IPartitionObject
     {
         /// <summary>Object's position.</summary>
@@ -15,11 +14,6 @@ namespace SE.World.Partitioning
         Type PartitionObjectType { get; }
         /// <summary>Should never be modified manually!</summary>
         PartitionTile CurrentPartitionTile { get; set; }
-    }
-
-    public interface IPartitionObject<T> : IPartitionObject
-    {
-
     }
 
     /// <summary>
