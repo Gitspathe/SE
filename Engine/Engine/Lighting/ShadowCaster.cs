@@ -47,14 +47,10 @@ namespace SE.Lighting
             Hull.Points.AddRange(tmpList);
         }
 
-        public void InsertIntoPartition()
-        {
-            SpatialPartitionManager.Insert(this);
-        }
+        public void InsertIntoPartition() 
+            => SpatialPartitionManager.Insert(this);
 
         public void RemoveFromPartition()
-        {
-            SpatialPartitionManager.Remove(this);
-        }
+            => SpatialPartitionManager.Remove(this);
     }
 }

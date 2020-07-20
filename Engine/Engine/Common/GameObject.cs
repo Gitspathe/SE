@@ -684,7 +684,8 @@ namespace SE.Common
 
         internal void ResetPartition()
         {
-            SpatialPartitionManager.Reset(this);
+            RemoveFromPartition();
+            InsertIntoPartition();
         }
 
         protected internal void SortComponents() 
@@ -776,7 +777,7 @@ namespace SE.Common
             if (SpatialPartitionManager.Insert(this)) {
                 IPartitionObject[] array = PartitionObjects.Array;
                 for (int i = 0; i < PartitionObjects.Count; i++) {
-                    SpatialPartitionManager.Insert(array[i]);
+                    array[i].InsertIntoPartition();
                 }
             }
         }
@@ -786,7 +787,7 @@ namespace SE.Common
             SpatialPartitionManager.Remove(this);
             IPartitionObject[] array = PartitionObjects.Array;
             for (int i = 0; i < PartitionObjects.Count; i++) {
-                SpatialPartitionManager.Remove(array[i]);
+                array[i].RemoveFromPartition();
             }
         }
     }

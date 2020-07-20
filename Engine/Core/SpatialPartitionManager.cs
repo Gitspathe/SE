@@ -69,7 +69,7 @@ namespace SE.Core
         internal static void Remove(T obj)
         {
             obj.CurrentPartitionTile?.Remove(obj);
-            if (obj is GameObject go) {
+            if (obj is GameObject) {
                 IgnoredObjects.Remove(obj);
                 largeObjectTile.Remove(obj);
             }
@@ -119,22 +119,6 @@ namespace SE.Core
         public static void Remove<T>(IPartitionObject<T> obj) where T : IPartitionObject<T>
         {
             SpatialPartitionManager<T>.Remove((T) obj);
-        }
-
-        public static void Insert(IPartitionObject obj)
-        {
-            obj.InsertIntoPartition();
-        }
-
-        public static void Remove(IPartitionObject obj)
-        {
-            obj.RemoveFromPartition();
-        }
-
-        public static void Reset(IPartitionObject obj)
-        {
-            obj.RemoveFromPartition();
-            obj.InsertIntoPartition();
         }
 
         public static void DebugDraw(Camera2D cam)
