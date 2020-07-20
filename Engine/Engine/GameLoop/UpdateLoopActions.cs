@@ -46,7 +46,7 @@ namespace SE.GameLoop
     public class LoopSpatialPartition : IUpdateLoopAction
     {
         public string Name => "Update spatial partition manager";
-        public void Invoke() => SpatialPartitionUtil.Update();
+        public void Invoke() => SpatialPartitionManager.Update();
     }
 
     public class LoopConsole : IUpdateLoopAction

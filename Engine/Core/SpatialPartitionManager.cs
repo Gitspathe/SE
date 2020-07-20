@@ -10,28 +10,6 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core
 {
-    public static class SpatialPartitionUtil
-    {
-        internal static QuickList<Action> ManagerUpdates = new QuickList<Action>();
-        internal static QuickList<Action<Camera2D>> ManagerDraws = new QuickList<Action<Camera2D>>();
-
-        public static int TileSize { get; private set; } = 192;
-
-        public static void Update()
-        {
-            foreach (Action a in ManagerUpdates) {
-                a.Invoke();
-            }
-        }
-
-        public static void DebugDraw(Camera2D cam)
-        {
-            foreach (Action<Camera2D> a in ManagerDraws) {
-                a.Invoke(cam);
-            }
-        }
-    }
-
     public static class SpatialPartitionManager<T> where T : IPartitionObject<T>
     {
         private static SpatialPartition<T> partitions;
@@ -39,7 +17,7 @@ namespace SE.Core
         private static float pruneTime = 5.0f;
         private static float pruneTimer = pruneTime;
 
-        public static int TileSize => SpatialPartitionUtil.TileSize;
+        public static int TileSize => SpatialPartitionManager.TileSize;
 
         internal static QuickList<T> IgnoredObjects { get; } = new QuickList<T>(256);
 
@@ -52,11 +30,11 @@ namespace SE.Core
             largeObjectTile = new PartitionTile<T>();
             partitions = new SpatialPartition<T>(TileSize);
 
-            SpatialPartitionUtil.ManagerUpdates.Add(Update);
-            SpatialPartitionUtil.ManagerDraws.Add(DrawBoundingRectangle);
+            SpatialPartitionManager.ManagerUpdates.Add(Update);
+            SpatialPartitionManager.ManagerDraws.Add(DrawBoundingRectangle);
         }
 
-        public static void Update()
+        internal static void Update()
         {
             pruneTimer -= Time.UnscaledDeltaTime;
             if (pruneTimer <= 0.0f) {
@@ -65,30 +43,41 @@ namespace SE.Core
             }
         }
 
-        public static void Insert(T obj)
+        internal static bool Insert(T obj)
         {
             if (obj is Component c && !c.Enabled)
-                return;
+                return false;
 
             if (obj is GameObject go) {
                 if (!go.Enabled || go.IgnoreCulling)
-                    return;
+                    return false;
 
                 RectangleF bounds = go.Bounds;
                 if (bounds.Width > TileSize || bounds.Height > TileSize) {
                     largeObjectTile.Insert(obj);
-                    return;
+                    return false;
                 }
             } 
+            if (obj.CurrentPartitionTile != null) {
+                obj.RemoveFromPartition();
+            }
+
             partitions.Insert(obj);
+            if (obj is IPartitionObjectExtended<T> ext) {
+                ext.InsertedIntoPartition();
+            }
+            return true;
         }
 
-        public static void Remove(T obj)
+        internal static void Remove(T obj)
         {
             obj.CurrentPartitionTile?.Remove(obj);
             if (obj is GameObject go) {
                 IgnoredObjects.Remove(obj);
                 largeObjectTile.Remove(obj);
+            }
+            if (obj is IPartitionObjectExtended<T> ext) {
+                ext.RemovedFromPartition();
             }
         }
 
@@ -111,6 +100,38 @@ namespace SE.Core
         internal static void DrawBoundingRectangle(Camera2D camera)
         {
             partitions.DrawBoundingRectangle(camera);
+        }
+    }
+
+    public static class SpatialPartitionManager
+    {
+        internal static QuickList<Action> ManagerUpdates = new QuickList<Action>();
+        internal static QuickList<Action<Camera2D>> ManagerDraws = new QuickList<Action<Camera2D>>();
+
+        public static int TileSize { get; private set; } = 192;
+
+        public static void Update()
+        {
+            foreach (Action a in ManagerUpdates) {
+                a.Invoke();
+            }
+        }
+
+        public static void Insert(IPartitionObject obj)
+        {
+            obj.InsertIntoPartition();
+        }
+
+        public static void Remove(IPartitionObject obj)
+        {
+            obj.RemoveFromPartition();
+        }
+
+        public static void DebugDraw(Camera2D cam)
+        {
+            foreach (Action<Camera2D> a in ManagerDraws) {
+                a.Invoke(cam);
+            }
         }
     }
 }

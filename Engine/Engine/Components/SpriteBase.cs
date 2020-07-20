@@ -188,17 +188,15 @@ namespace SE.Components
 
         public abstract void Render(Camera2D camera, Space space);
        
-        public void InsertIntoPartition()
+        public void InsertedIntoPartition()
         {
-            SpatialPartitionManager<IRenderable>.Insert(this);
-            if (this is ILit lit && lit.Shadow != null) {
-                SpatialPartitionManager<ShadowCaster>.Insert(lit.Shadow);
+            if (this is ILit lit) {
+                lit.Shadow?.InsertIntoPartition();
             }
         }
 
-        public void RemoveFromPartition()
+        public void RemovedFromPartition()
         {
-            SpatialPartitionManager<IRenderable>.Remove(this);
             if (this is ILit lit) {
                 lit.Shadow?.CurrentPartitionTile?.Remove(lit.Shadow);
             }

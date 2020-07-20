@@ -23,7 +23,7 @@ namespace SE.Common
     /// <summary>
     /// GameObjects are containers for logic and components.
     /// </summary>
-    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IPartitionObject<GameObject>, IDisposable
+    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IPartitionObjectExtended<GameObject>, IDisposable
     {
         public string EngineName { get; set; }
 
@@ -684,8 +684,8 @@ namespace SE.Common
 
         internal void ResetPartition()
         {
-            RemoveFromPartition();
-            InsertIntoPartition();
+            SpatialPartitionManager.Remove(this);
+            SpatialPartitionManager.Insert(this);
         }
 
         protected internal void SortComponents() 
@@ -772,24 +772,19 @@ namespace SE.Common
             Dispose(true);
         }
 
-        public void InsertIntoPartition()
+        public void InsertedIntoPartition()
         {
-            if(!Enabled)
-                return;
-
-            SpatialPartitionManager<GameObject>.Insert(this);
             IPartitionObject[] array = PartitionObjects.Array;
             for (int i = 0; i < PartitionObjects.Count; i++) {
-                array[i].InsertIntoPartition();
+                SpatialPartitionManager.Insert(array[i]);
             }
         }
 
-        public void RemoveFromPartition()
+        public void RemovedFromPartition()
         {
-            SpatialPartitionManager<GameObject>.Remove(this);
             IPartitionObject[] array = PartitionObjects.Array;
             for (int i = 0; i < PartitionObjects.Count; i++) {
-                array[i].RemoveFromPartition();
+                SpatialPartitionManager.Remove(array[i]);
             }
         }
     }

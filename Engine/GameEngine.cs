@@ -20,6 +20,7 @@ using static SE.Core.SceneManager;
 using Console = SE.Core.Console;
 using SE.Serialization;
 using SE.GameLoop;
+using SE.World.Partitioning;
 
 [assembly: InternalsVisibleTo("SEEditor")]
 namespace SE
@@ -347,7 +348,7 @@ namespace SE
                 if (go.IsDynamic) {
                     DynamicGameObjects.Add(go);
                 } else if (!go.IgnoreCulling) {
-                    go.InsertIntoPartition();
+                    SpatialPartitionManager.Insert(go);
                 }
 
                 if (go.DestroyOnLoad) {
@@ -368,7 +369,7 @@ namespace SE
             lock (gameObjectHandlerLock) {
                 DynamicGameObjects.Remove(go);
                 CurrentScene.GameObjectsToRemove.Add(go);
-                go.RemoveFromPartition();
+                SpatialPartitionManager.Remove(go);
                 if (destroyed) {
                     AllGameObjects.Remove(go);
                 }

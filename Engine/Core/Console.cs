@@ -369,7 +369,7 @@ namespace SE.Core
                 //NavigationManager.DebugDraw(camera, spriteBatch);
             }
             if (showGrid) {
-                SpatialPartitionUtil.DebugDraw(camera);
+                SpatialPartitionManager.DebugDraw(camera);
             }
             Rendering.EndDrawCall();
         }
