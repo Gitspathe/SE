@@ -41,6 +41,11 @@ namespace SE.Core
             return angle;
         }
 
+        public static System.Numerics.Vector2 GetCenter(this Rectangle rectangle)
+        {
+            return new System.Numerics.Vector2(rectangle.X + (rectangle.Width / 2), rectangle.Y + (rectangle.Height / 2));
+        }
+
         public static System.Numerics.Vector2 ToNumericsVector2(this Vector2 vector)
         {
             return new System.Numerics.Vector2(vector.X, vector.Y);

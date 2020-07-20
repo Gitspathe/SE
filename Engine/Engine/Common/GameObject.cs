@@ -42,7 +42,7 @@ namespace SE.Common
         /// <summary>True if Destroy() was called on the GameObject this frame.</summary>
         public bool Destroyed { get; private set; }
 
-        public Vector2 PartitionPosition => Transform?.GlobalPositionInternal ?? Vector2.Zero;
+        public Rectangle PartitionAABB => (Rectangle) Bounds;
         public PartitionTile<GameObject> CurrentPartitionTile { get; set; }
 
         public AssetConsumer AssetConsumer { get; } = new AssetConsumer();
@@ -82,13 +82,16 @@ namespace SE.Common
 
         /// <summary>The bounds of a GameObject, scaled to the object's transform scale.</summary>
         public RectangleF Bounds {
-            get => new RectangleF(unscaledBounds.X, unscaledBounds.Y,
-                (int) (unscaledBounds.Width * Transform.Scale.X),
-                (int) (unscaledBounds.Height * Transform.Scale.Y));
-            set => UnscaledBounds = new RectangleF(value.X, value.Y,
-                (int) (value.Width * Transform.Scale.X),
-                (int) (value.Height * Transform.Scale.Y));
+            get => scaledBounds;
+            set {
+                EnsureValidAccess();
+                UnscaledBounds = new RectangleF(value.X, value.Y,
+                    (int) (value.Width * Transform.Scale.X),
+                    (int) (value.Height * Transform.Scale.Y));
+                UpdateSpriteBounds();
+            }
         }
+        private RectangleF scaledBounds = RectangleF.Empty;
 
         public RectangleF UnscaledBounds {
             get => unscaledBounds;
@@ -183,8 +186,16 @@ namespace SE.Common
 
             UpdateSpriteBounds();
             if (!AutoBounds || Sprites.Count < 1) {
-                unscaledBounds = new RectangleF(Transform.GlobalPositionInternal.X, Transform.GlobalPositionInternal.Y,
-                    unscaledBounds.Width, unscaledBounds.Height);
+                unscaledBounds = new RectangleF(
+                    Transform.GlobalPositionInternal.X,
+                    Transform.GlobalPositionInternal.Y,
+                    unscaledBounds.Width, 
+                    unscaledBounds.Height);
+                scaledBounds = new RectangleF(
+                    unscaledBounds.X, 
+                    unscaledBounds.Y, 
+                    (int) (unscaledBounds.Width * Transform.Scale.X), 
+                    (int) (unscaledBounds.Height * Transform.Scale.Y));
                 return;
             }
 
@@ -203,6 +214,13 @@ namespace SE.Common
             }
 
             unscaledBounds = new RectangleF(minX, minY, largestWidth, largestHeight);
+            scaledBounds = new RectangleF(
+                unscaledBounds.X, 
+                unscaledBounds.Y, 
+                (int) (unscaledBounds.Width * Transform.Scale.X), 
+                (int) (unscaledBounds.Height * Transform.Scale.Y));
+
+            InsertIntoPartition();
         }
 
         internal virtual void OnInitializeInternal()

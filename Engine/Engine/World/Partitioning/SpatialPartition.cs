@@ -143,7 +143,7 @@ namespace SE.World.Partitioning
         /// <param name="go">GameObject to add.</param>
         internal void Insert(T obj)
         {
-            PartitionTile<T> partitionTile = GetTile(obj.PartitionPosition);
+            PartitionTile<T> partitionTile = GetTile(obj.PartitionAABB.GetCenter());
             partitionTile?.Insert(obj);
         }
 

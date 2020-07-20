@@ -20,7 +20,7 @@ namespace SE.Components
         // NOTE: Private protected fields are for increased performance. Access the properties instead
         // when not dealing with the core rendering system.
 
-        public Vector2 PartitionPosition => Owner.Transform.GlobalPositionInternal;
+        public Rectangle PartitionAABB => bounds;
         public PartitionTile<IRenderable> CurrentPartitionTile { get; set; }
 
         public override int Queue => 100;
