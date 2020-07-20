@@ -49,12 +49,12 @@ namespace SE.Lighting
 
         public void InsertIntoPartition()
         {
-            SpatialPartitionManager<ShadowCaster>.Insert(this);
+            SpatialPartitionManager.Insert(this);
         }
 
         public void RemoveFromPartition()
         {
-            SpatialPartitionManager<ShadowCaster>.Remove(this);
+            SpatialPartitionManager.Remove(this);
         }
     }
 }

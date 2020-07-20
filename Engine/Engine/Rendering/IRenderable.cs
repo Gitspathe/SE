@@ -3,7 +3,7 @@ using SE.World.Partitioning;
 
 namespace SE.Rendering
 {
-    public interface IRenderable : IPartitionObjectExtended<IRenderable>
+    public interface IRenderable : IPartitionObject<IRenderable>
     {
         void Render(Camera2D camera, Space space);
         int DrawCallID { get; }

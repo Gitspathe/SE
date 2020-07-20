@@ -63,9 +63,6 @@ namespace SE.Core
             }
 
             partitions.Insert(obj);
-            if (obj is IPartitionObjectExtended<T> ext) {
-                ext.InsertedIntoPartition();
-            }
             return true;
         }
 
@@ -75,9 +72,6 @@ namespace SE.Core
             if (obj is GameObject go) {
                 IgnoredObjects.Remove(obj);
                 largeObjectTile.Remove(obj);
-            }
-            if (obj is IPartitionObjectExtended<T> ext) {
-                ext.RemovedFromPartition();
             }
         }
 
@@ -117,6 +111,16 @@ namespace SE.Core
             }
         }
 
+        public static bool Insert<T>(IPartitionObject<T> obj) where T : IPartitionObject<T>
+        {
+            return SpatialPartitionManager<T>.Insert((T) obj);
+        }
+
+        public static void Remove<T>(IPartitionObject<T> obj) where T : IPartitionObject<T>
+        {
+            SpatialPartitionManager<T>.Remove((T) obj);
+        }
+
         public static void Insert(IPartitionObject obj)
         {
             obj.InsertIntoPartition();
@@ -125,6 +129,12 @@ namespace SE.Core
         public static void Remove(IPartitionObject obj)
         {
             obj.RemoveFromPartition();
+        }
+
+        public static void Reset(IPartitionObject obj)
+        {
+            obj.RemoveFromPartition();
+            obj.InsertIntoPartition();
         }
 
         public static void DebugDraw(Camera2D cam)

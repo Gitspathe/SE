@@ -348,7 +348,7 @@ namespace SE
                 if (go.IsDynamic) {
                     DynamicGameObjects.Add(go);
                 } else if (!go.IgnoreCulling) {
-                    SpatialPartitionManager.Insert(go);
+                    SpatialPartitionManager.Insert((IPartitionObject) go);
                 }
 
                 if (go.DestroyOnLoad) {
@@ -369,7 +369,7 @@ namespace SE
             lock (gameObjectHandlerLock) {
                 DynamicGameObjects.Remove(go);
                 CurrentScene.GameObjectsToRemove.Add(go);
-                SpatialPartitionManager.Remove(go);
+                SpatialPartitionManager.Remove((IPartitionObject) go);
                 if (destroyed) {
                     AllGameObjects.Remove(go);
                 }

@@ -187,18 +187,27 @@ namespace SE.Components
         }
 
         public abstract void Render(Camera2D camera, Space space);
-       
-        public void InsertedIntoPartition()
+
+        public void InsertIntoPartition()
         {
-            if (this is ILit lit) {
-                lit.Shadow?.InsertIntoPartition();
+            if (!SpatialPartitionManager.Insert(this)) 
+                return;
+            if (!(this is ILit lit)) 
+                return;
+
+            if (lit.Shadow != null) {
+                SpatialPartitionManager.Insert(lit.Shadow);
             }
         }
 
-        public void RemovedFromPartition()
+        public void RemoveFromPartition()
         {
-            if (this is ILit lit) {
-                lit.Shadow?.CurrentPartitionTile?.Remove(lit.Shadow);
+            SpatialPartitionManager.Remove(this);
+            if (!(this is ILit lit)) 
+                return;
+
+            if (lit.Shadow != null) {
+                SpatialPartitionManager.Remove(lit.Shadow);
             }
         }
     }

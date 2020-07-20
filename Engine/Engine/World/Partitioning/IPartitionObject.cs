@@ -19,14 +19,5 @@ namespace SE.World.Partitioning
         Vector2 PartitionPosition { get; }
         /// <summary>Should never be modified manually!</summary>
         PartitionTile<T> CurrentPartitionTile { get; set; }
-
-        void IPartitionObject.InsertIntoPartition() => SpatialPartitionManager<T>.Insert((T)this);
-        void IPartitionObject.RemoveFromPartition() => SpatialPartitionManager<T>.Remove((T)this);
-    }
-
-    public interface IPartitionObjectExtended<T> : IPartitionObject<T> where T : IPartitionObject<T>
-    {
-        void InsertedIntoPartition();
-        void RemovedFromPartition();
     }
 }
