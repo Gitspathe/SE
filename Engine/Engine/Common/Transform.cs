@@ -298,7 +298,7 @@ namespace SE.Common
                 }
             }
             GameObject.PhysicsObject?.OverridePosition(GlobalPositionInternal);
-            GameObject.ResetPartition();
+            GameObject.RecalculateBounds();
         }
 
         protected virtual Matrix4x4 UpdateTransformationMatrix()

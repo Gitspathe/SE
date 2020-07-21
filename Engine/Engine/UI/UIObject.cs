@@ -250,6 +250,7 @@ namespace SE.UI
             if (ScissorRect.HasValue) {
                 UpdateChildScissorRect(ScissorRect);
             }
+            RecalculateBounds(); // TODO: Remove this. Bounds should be updated when needed, not every update!
         }
 
         /// <inheritdoc />

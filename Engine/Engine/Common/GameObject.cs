@@ -397,7 +397,7 @@ namespace SE.Common
                     curStep++;
                 }
             }
-            RecalculateBounds();
+            //RecalculateBounds(); // TODO: Get rid of this. Bounds should be updated as needed!
         }
 
         /// <summary>
