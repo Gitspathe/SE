@@ -8,15 +8,30 @@ using SE.Rendering;
 
 namespace SE.AssetManagement
 {
-    public class Asset<T> : SEObject, IAsset, IAssetConsumer
+    public abstract class Asset : SEObject, IAssetConsumer
     {
         public ulong AssetID { get; internal set; }
-        public string ID { get; internal set; }
+        public uint LoadOrder { get; internal set; } 
+        public bool Loaded { get; internal set; }
+        internal HashSet<AssetConsumer> References { get; set; } = new HashSet<AssetConsumer>();
         public AssetConsumer AssetConsumer { get; }
-        public HashSet<AssetConsumer> References { get; set; } = new HashSet<AssetConsumer>();
+
+        internal abstract void RemoveReference(AssetConsumer reference);
+        internal abstract void AddReference(AssetConsumer reference);
+        internal abstract void Load();
+        internal abstract void Unload();
+        internal abstract void Purge();
+
+        public Asset()
+        {
+            AssetConsumer = new AssetConsumer();
+        }
+    }
+
+    public class Asset<T> : Asset
+    {
+        public string ID { get; internal set; }
         public ContentLoader ContentLoader { get; }
-        public uint LoadOrder { get; set; }
-        public bool Loaded { get; set; }
 
         private IAssetProcessor processor;
 
@@ -45,19 +60,16 @@ namespace SE.AssetManagement
             ID = id;
             LoadOrder = AssetManager.CurrentAssetPriority++;
 
-            AssetConsumer = new AssetConsumer();
             ContentLoader = contentLoader;
             this.processor = processor;
-            HashSet<IAsset> refAssets = processor.GetReferencedAssets();
+            HashSet<Asset> refAssets = processor.GetReferencedAssets();
             if(refAssets == null)
                 return;
 
-            foreach (IAsset refAsset in processor.GetReferencedAssets()) {
+            foreach (Asset refAsset in processor.GetReferencedAssets()) {
                 refAsset?.AddReference(AssetConsumer);
             }
         }
-
-        public IAsset AsIAsset() => this;
 
         internal T Get(IAssetConsumer consumer)
         {
@@ -76,7 +88,7 @@ namespace SE.AssetManagement
             return Value;
         }
 
-        public void AddReference(AssetConsumer consumer)
+        internal override void AddReference(AssetConsumer consumer)
         {
             if (consumer == null)
                 throw new NullReferenceException("The IAssetConsumer instance was null.");
@@ -90,7 +102,7 @@ namespace SE.AssetManagement
             }
         }
 
-        public void RemoveReference(AssetConsumer consumer)
+        internal override void RemoveReference(AssetConsumer consumer)
         {
             if (consumer == AssetConsumer)
                 throw new NullReferenceException("The IAssetConsumer instance was null.");
@@ -102,7 +114,7 @@ namespace SE.AssetManagement
             }
         }
 
-        public void Load()
+        internal override void Load()
         {
             if(Loaded)
                 return;
@@ -113,7 +125,7 @@ namespace SE.AssetManagement
             ContentLoader.AddReference(this);
         }
 
-        public void Unload()
+        internal override void Unload()
         {
             if(!Loaded)
                 return;
@@ -125,24 +137,11 @@ namespace SE.AssetManagement
             Value = default;
         }
 
-        public void Purge()
+        internal override void Purge()
         {
             if (References.Count < 1) {
                 Unload();
             }
         }
-    }
-
-    public interface IAsset
-    {
-        uint LoadOrder { get; set; } 
-        bool Loaded { get; set; }
-        HashSet<AssetConsumer> References { get; set; }
-
-        void RemoveReference(AssetConsumer reference);
-        void AddReference(AssetConsumer reference);
-        void Load();
-        void Unload();
-        void Purge();
     }
 }

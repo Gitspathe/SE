@@ -44,7 +44,7 @@ namespace SE.AssetManagement
         public void Clear()
         {
             foreach (KeyValuePair<string, Asset<TValue>> pair in data) {
-                pair.Value.AsIAsset().Unload();
+                pair.Value.Unload();
             }
             data.Clear();
         }

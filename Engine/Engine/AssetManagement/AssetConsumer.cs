@@ -4,42 +4,42 @@ namespace SE.AssetManagement
 {
     public class AssetConsumer
     {
-        public HashSet<IAsset> ReferencedAssets { get; set; }
+        internal HashSet<Asset> ReferencedAssets { get; set; }
 
-        public void ReferenceAssets()
+        internal void ReferenceAssets()
         {
             if(ReferencedAssets == null)
-                ReferencedAssets = new HashSet<IAsset>();
+                ReferencedAssets = new HashSet<Asset>();
 
-            HashSet<IAsset> tmp = new HashSet<IAsset>(ReferencedAssets);
-            foreach (IAsset asset in tmp) {
+            HashSet<Asset> tmp = new HashSet<Asset>(ReferencedAssets);
+            foreach (Asset asset in tmp) {
                 asset.AddReference(this);
             }
         }
 
-        public void DereferenceAssets()
+        internal void DereferenceAssets()
         {
             if (ReferencedAssets == null)
-                ReferencedAssets = new HashSet<IAsset>();
+                ReferencedAssets = new HashSet<Asset>();
 
-            HashSet<IAsset> tmp = new HashSet<IAsset>(ReferencedAssets);
-            foreach (IAsset asset in tmp) {
+            HashSet<Asset> tmp = new HashSet<Asset>(ReferencedAssets);
+            foreach (Asset asset in tmp) {
                 asset.RemoveReference(this);
             }
         }
 
-        public void AddReference(IAsset reference)
+        internal void AddReference(Asset reference)
         {
             if (ReferencedAssets == null)
-                ReferencedAssets = new HashSet<IAsset>();
+                ReferencedAssets = new HashSet<Asset>();
 
             ReferencedAssets.Add(reference);
         }
 
-        public void RemoveReference(IAsset reference)
+        internal void RemoveReference(Asset reference)
         {
             if (ReferencedAssets == null)
-                ReferencedAssets = new HashSet<IAsset>();
+                ReferencedAssets = new HashSet<Asset>();
 
             ReferencedAssets.Remove(reference);
         }
@@ -47,6 +47,6 @@ namespace SE.AssetManagement
 
     public interface IAssetConsumer
     {
-        public AssetConsumer AssetConsumer { get; }
+        AssetConsumer AssetConsumer { get; }
     }
 }

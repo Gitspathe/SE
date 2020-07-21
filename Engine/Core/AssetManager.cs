@@ -96,18 +96,6 @@ namespace SE.Core
         }
 
         /// <summary>
-        /// Gets an asset in as IAsset.
-        /// </summary>
-        /// <typeparam name="TValue">Asset type.</typeparam>
-        /// <param name="key">Key used for retrieval</param>
-        /// <returns>IAsset instance.</returns>
-        public static IAsset GetIAsset<TValue>(dynamic key)
-        {
-            Asset<TValue> asset = GetAsset<TValue>(key);
-            return asset?.AsIAsset();
-        }
-
-        /// <summary>
         /// Gets a packed Asset instance.
         /// </summary>
         /// <typeparam name="TValue">Asset type.</typeparam>

@@ -11,10 +11,9 @@ namespace SE.AssetManagement.Processors
         private string textureAssetKey;
         private Rectangle sourceRect;
 
-        public override HashSet<IAsset> GetReferencedAssets()
+        public override HashSet<Asset> GetReferencedAssets()
         {
-            IAsset asset = AssetManager.GetIAsset<Texture2D>(textureAssetKey);
-            return new HashSet<IAsset> { asset };
+            return new HashSet<Asset> { AssetManager.GetAsset<Texture2D>(textureAssetKey) };
         }
 
         public override object Construct()

@@ -20,9 +20,9 @@ namespace SE.AssetManagement
         public string ID { get; }
 
         /// <summary>Holds current asset references.</summary>
-        internal HashSet<IAsset> References = new HashSet<IAsset>();
+        internal HashSet<Asset> References = new HashSet<Asset>();
         /// <summary>Holds all asset references, including ones which aren't active.</summary>
-        internal HashSet<IAsset> AllRefs = new HashSet<IAsset>();
+        internal HashSet<Asset> AllRefs = new HashSet<Asset>();
 
         internal HashSet<string> PreloadFiles = new HashSet<string>();
 
@@ -32,7 +32,7 @@ namespace SE.AssetManagement
         private GraphicsDevice gfxDevice;
         private bool loaded;
         private float timeInactive;
-        private List<IAsset> orderedReferences = new List<IAsset>();
+        private List<Asset> orderedReferences = new List<Asset>();
 
         public ContentLoader(IServiceProvider serviceProvider, string id, string rootDirectory) : base(serviceProvider, rootDirectory)
         {
@@ -107,17 +107,17 @@ namespace SE.AssetManagement
 
             // Reload all references in order from lowest to highest LoadOrder.
             // All references are loaded initially in order to build up the dependencies.
-            foreach (IAsset reference in orderedReferences) {
+            foreach (Asset reference in orderedReferences) {
                 reference.Load();
             }
 
             // Remove unneeded references. TODO: Might cause an exception, investigate.
-            foreach (IAsset reference in orderedReferences) {
+            foreach (Asset reference in orderedReferences) {
                 reference.Purge();
             }
         }
 
-        internal void AddReference(IAsset reference)
+        internal void AddReference(Asset reference)
         {
             References.Add(reference);
             AllRefs.Add(reference);
@@ -126,13 +126,13 @@ namespace SE.AssetManagement
             }
         }
 
-        internal void RemoveReference(IAsset reference)
+        internal void RemoveReference(Asset reference)
         {
             References.Remove(reference);
 
             // Clear stale entries.
-            HashSet<IAsset> copy = new HashSet<IAsset>(References);
-            foreach (IAsset assetRef in copy) {
+            HashSet<Asset> copy = new HashSet<Asset>(References);
+            foreach (Asset assetRef in copy) {
                 assetRef.Purge();
             }
         }
@@ -150,7 +150,7 @@ namespace SE.AssetManagement
             }
 
             // Unload all assets from this content loader from memory.
-            foreach (IAsset asset in AllRefs) {
+            foreach (Asset asset in AllRefs) {
                 asset.Unload();
             }
             base.Unload();

@@ -4,7 +4,7 @@ namespace SE.AssetManagement.Processors
 {
     public abstract class AssetProcessor : IAssetProcessor
     {
-        public abstract HashSet<IAsset> GetReferencedAssets();
+        public abstract HashSet<Asset> GetReferencedAssets();
         public abstract object Construct();
     }
 

@@ -19,6 +19,7 @@ namespace SE.World.Partitioning
         /// <summary>Object's position.</summary>
         Rectangle PartitionAABB { get; }
         /// <summary>Should never be modified manually!</summary>
+        // TODO: Get rid of this and use a Dictionary<IPartitionObject, PartitionTile> instead?
         PartitionTile<T> CurrentPartitionTile { get; set; }
     }
 }

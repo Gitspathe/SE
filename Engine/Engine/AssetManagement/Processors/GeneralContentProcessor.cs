@@ -10,7 +10,7 @@ namespace SE.AssetManagement.Processors
         private string contentLoaderID;
         private string assetID;
 
-        public override HashSet<IAsset> GetReferencedAssets()
+        public override HashSet<Asset> GetReferencedAssets()
         {
             return null;
         }

@@ -9,7 +9,7 @@ namespace SE.AssetManagement.Processors
     {
         private Func<Vector2, GameObject> func;
 
-        public override HashSet<IAsset> GetReferencedAssets()
+        public override HashSet<Asset> GetReferencedAssets()
         {
             return null;
         }
