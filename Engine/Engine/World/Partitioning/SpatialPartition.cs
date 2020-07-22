@@ -24,7 +24,7 @@ namespace SE.World.Partitioning
         internal Dictionary<Point, PartitionTile<T>> PartitionTiles = new Dictionary<Point, PartitionTile<T>>(128, new PartitionPointComparer());
         private QuickList<Point> toRemove = new QuickList<Point>();
 
-        private static ObjectPool<PartitionTile<T>> tilePool = new ObjectPool<PartitionTile<T>>(512);
+        private static FuncObjectPool<PartitionTile<T>> tilePool = new FuncObjectPool<PartitionTile<T>>(() => new PartitionTile<T>(), 512);
 
         protected int PartitionTileSize;
 
@@ -143,7 +143,7 @@ namespace SE.World.Partitioning
         /// <param name="go">GameObject to add.</param>
         internal void Insert(T obj)
         {
-            PartitionTile<T> partitionTile = GetTile(obj.PartitionAABB.GetCenter());
+            PartitionTile<T> partitionTile = GetTile(obj.AABB.GetCenter());
             partitionTile?.Insert(obj);
         }
 

@@ -5,9 +5,14 @@ using System.Numerics;
 
 namespace SE.World.Partitioning
 {
-    public interface IPartitionObject
+    // TODO: Move this to SE.Common or something?
+    public interface IAABB
     {
-        Rectangle PartitionAABB { get; }
+        Rectangle AABB { get; }
+    }
+
+    public interface IPartitionObject : IAABB
+    {
         void InsertIntoPartition();
         void RemoveFromPartition();
     }
@@ -18,7 +23,6 @@ namespace SE.World.Partitioning
     public interface IPartitionObject<T> : IPartitionObject where T : IPartitionObject<T>
     {
         /// <summary>Current partition tile the object is in. It'd be unwise to modify this manually!</summary>
-        // TODO: Get rid of this and use a Dictionary<IPartitionObject, PartitionTile> instead?
         PartitionTile<T> CurrentPartitionTile { get; set; }
     }
 }

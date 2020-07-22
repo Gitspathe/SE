@@ -25,7 +25,7 @@ namespace SE.Lighting
 
         private List<MonoGameVector2> tmpList = new List<MonoGameVector2>();
 
-        public Rectangle PartitionAABB => Bounds;
+        public Rectangle AABB => Bounds;
         public PartitionTile<ShadowCaster> CurrentPartitionTile { get; set; }
 
         public void Enable()

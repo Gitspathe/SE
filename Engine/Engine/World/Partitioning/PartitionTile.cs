@@ -58,5 +58,7 @@ namespace SE.World.Partitioning
                 obj.CurrentPartitionTile = null;
             }
         }
+
+        internal PartitionTile() { }
     }
 }

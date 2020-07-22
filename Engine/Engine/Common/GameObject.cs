@@ -42,7 +42,7 @@ namespace SE.Common
         /// <summary>True if Destroy() was called on the GameObject this frame.</summary>
         public bool Destroyed { get; private set; }
 
-        public Rectangle PartitionAABB => (Rectangle) Bounds;
+        public Rectangle AABB => (Rectangle) Bounds;
         public PartitionTile<GameObject> CurrentPartitionTile { get; set; }
 
         public AssetConsumer AssetConsumer { get; } = new AssetConsumer();

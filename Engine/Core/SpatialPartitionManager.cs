@@ -83,7 +83,7 @@ namespace SE.Core
                 obj.RemoveFromPartition();
             }
 
-            Rectangle aabb = obj.PartitionAABB;
+            Rectangle aabb = obj.AABB;
             if (aabb.Width > TileSize || aabb.Height > TileSize) {
                 largeObjectTile.Insert(obj);
                 return true;

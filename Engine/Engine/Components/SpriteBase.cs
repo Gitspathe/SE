@@ -20,7 +20,7 @@ namespace SE.Components
         // NOTE: Private protected fields are for increased performance. Access the properties instead
         // when not dealing with the core rendering system.
 
-        public Rectangle PartitionAABB => bounds;
+        public Rectangle AABB => bounds;
         public PartitionTile<IRenderable> CurrentPartitionTile { get; set; }
 
         public override int Queue => 100;
@@ -36,7 +36,7 @@ namespace SE.Components
                 if (Owner == null)
                     return unscaledOffset;
 
-                Vector2 scale = Owner.Transform.GlobalScale;
+                Vector2 scale = Owner.Transform.GlobalScaleInternal;
                 return new Point((int)(unscaledOffset.X * scale.X), (int)(unscaledOffset.Y * scale.Y));
             }
             set {
@@ -45,7 +45,7 @@ namespace SE.Components
                     return;
                 }
 
-                Vector2 scale = Owner.Transform.GlobalScale;
+                Vector2 scale = Owner.Transform.GlobalScaleInternal;
                 unscaledOffset = new Point((int)(value.X * scale.X), (int)(value.Y * scale.Y));
                 RecalculateBounds();
             }
@@ -65,7 +65,7 @@ namespace SE.Components
                 if (Owner == null)
                     return unscaledSize;
 
-                Vector2 scale = Owner.Transform.GlobalScale;
+                Vector2 scale = Owner.Transform.GlobalScaleInternal;
                 return new Point((int)(unscaledSize.X * scale.X), (int)(unscaledSize.Y * scale.Y));
             }
             set {
@@ -74,7 +74,7 @@ namespace SE.Components
                     return;
                 }
 
-                Vector2 scale = Owner.Transform.GlobalScale;
+                Vector2 scale = Owner.Transform.GlobalScaleInternal;
                 UnscaledSize = new Point((int)(value.X * scale.X), (int)(value.Y * scale.Y));
                 RecalculateBounds();
             }
