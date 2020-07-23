@@ -235,7 +235,7 @@ namespace SE.Common
         /// Adds a child to the Transform.
         /// </summary>
         /// <param name="child">Child Transform.</param>
-        public void AddChild(Transform child)
+        private void AddChild(Transform child)
         {
             Children.Add(child);
             UpdateTransformation();
@@ -247,7 +247,7 @@ namespace SE.Common
         /// Removes a child from the Transform.
         /// </summary>
         /// <param name="child">Child Transform.</param>
-        public void RemoveChild(Transform child)
+        private void RemoveChild(Transform child)
         {
             if (child.Parent != this)
                 return;
@@ -264,7 +264,7 @@ namespace SE.Common
         /// </summary>
         /// <param name="children"></param>
         /// <returns></returns>
-        public List<Transform> GetAllChildren(List<Transform> children)
+        public QuickList<Transform> GetAllChildren(QuickList<Transform> children)
         {
             foreach (Transform child in Children) {
                 children.Add(child);
@@ -277,7 +277,7 @@ namespace SE.Common
         /// Gets all of this Transform's children, including the children of it's children. Non-allocating.
         /// </summary>
         /// <param name="children">List which the children will be added to.</param>
-        public void GetAllChildrenNonAlloc(List<Transform> children)
+        public void GetAllChildrenNonAlloc(QuickList<Transform> children)
         {
             foreach (Transform child in Children) {
                 children.Add(child);
@@ -294,7 +294,7 @@ namespace SE.Common
                 UpdateTransformationMatrix();
             } else {
                 for (int i = 0; i < Children.Count; i++) {
-                    Children[i].UpdateTransformation();
+                    Children.Array[i].UpdateTransformation();
                 }
             }
             GameObject.PhysicsObject?.OverridePosition(GlobalPositionInternal);
@@ -379,7 +379,7 @@ namespace SE.Common
         /// <summary>
         /// A node within the Transform state tree.
         /// </summary>
-        public struct TransformNode
+        internal struct TransformNode
         {
             /// <summary>Enabled/disabled state of the node.</summary>
             public bool State;
@@ -388,7 +388,7 @@ namespace SE.Common
             public Transform Transform;
 
             /// <summary>Children of the node's Transform.</summary>
-            public List<TransformNode> Children;
+            public QuickList<TransformNode> Children;
 
             /// <summary>
             /// Creates a new Transform node for use in a state tree.
@@ -399,7 +399,7 @@ namespace SE.Common
             {
                 Transform = transform;
                 State = transform.GameObject.Enabled;
-                Children = new List<TransformNode>();
+                Children = new QuickList<TransformNode>();
                 Transform[] transformChildren = transform.Children.Array;
                 for (int i = 0; i < transform.Children.Count; i++) {
                     Children.Add(new TransformNode(transformChildren[i]));
@@ -418,7 +418,7 @@ namespace SE.Common
                     Transform.GameObject.Enable(isRoot);
                 }
                 for (int i = 0; i < Children.Count; i++) {
-                    Children[i].Restore(root);
+                    Children.Array[i].Restore(root);
                 }
             }
         }

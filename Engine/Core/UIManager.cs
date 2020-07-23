@@ -9,6 +9,7 @@ using SE.Editor.UI;
 using SE.Input;
 using SE.UI;
 using SE.UI.Events;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core
@@ -33,7 +34,7 @@ namespace SE.Core
 
         // Caching...
         private static UIObject mouseBlocker;
-        private static List<Transform> menuTransforms = new List<Transform>();
+        private static QuickList<Transform> menuTransforms = new QuickList<Transform>();
         private static List<UIObject> menuUIObjects = new List<UIObject>();
         private static List<UIObject> tmpUIObjects = new List<UIObject>();
         private static UIObject uiObject;
@@ -220,7 +221,7 @@ namespace SE.Core
                 menuTransforms.Add(menu.Transform);
                 menu.Transform.GetAllChildrenNonAlloc(menuTransforms);
                 for (int i = 0; i < menuTransforms.Count; i++) {
-                    GameObject menuGO = menuTransforms[i].GameObject;
+                    GameObject menuGO = menuTransforms.Array[i].GameObject;
                     if (menuGO.Enabled && menuGO is UIObject uiObj) {
                         menuUIObjects.Add(uiObj);
                     }

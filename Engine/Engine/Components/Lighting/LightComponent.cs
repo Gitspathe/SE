@@ -8,7 +8,9 @@ using PenumbraLight = Penumbra.Light;
 
 namespace SE.Components.Lighting
 {
-
+    // TODO: DRUNK: Fix bug relating to SpatialPartition<T>, where performance is low when the origin point (0,0) is on-screen.
+    // TODO: Seems to be caused by Components Enabled state automatically being set to true.
+    // TODO: FIXED THIS WITH (ENABLED) ON INITIALIZE();
     [ExecuteInEditor]
     public class LightComponent : Component
     {
@@ -22,7 +24,8 @@ namespace SE.Components.Lighting
                     Core.Lighting.RemoveLight(light);
                 }
                 light = value;
-                Core.Lighting.AddLight(light);
+                if(Enabled) 
+                    Core.Lighting.AddLight(light);
             }
         }
         
@@ -32,7 +35,6 @@ namespace SE.Components.Lighting
                 if(value == LightType)
                     return;
 
-                Light l = new Light(value, Texture);
                 Light = new Light(value, Texture) {
                     Position = Position,
                     Offset = Offset,
@@ -44,7 +46,6 @@ namespace SE.Components.Lighting
                     ConeDecay = ConeDecay,
                     Texture = Texture
                 };
-                Light = l;
             }
         }
 
@@ -136,7 +137,8 @@ namespace SE.Components.Lighting
             if (Light == null)
                 return;
 
-            Core.Lighting.AddLight(Light);
+            if(Enabled)
+                Core.Lighting.AddLight(Light);
         }
 
         protected override void OnDestroy()

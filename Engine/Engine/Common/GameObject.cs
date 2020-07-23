@@ -220,7 +220,7 @@ namespace SE.Common
                 (int) (unscaledBounds.Width * Transform.Scale.X), 
                 (int) (unscaledBounds.Height * Transform.Scale.Y));
 
-            InsertIntoPartition();
+            ResetPartition();
         }
 
         internal virtual void OnInitializeInternal()
@@ -700,12 +700,6 @@ namespace SE.Common
             }
         }
 
-        internal void ResetPartition()
-        {
-            RemoveFromPartition();
-            InsertIntoPartition();
-        }
-
         protected internal void SortComponents() 
             => Components.Sort(new ComponentQueueComparer());
 
@@ -788,6 +782,13 @@ namespace SE.Common
         public void Dispose()
         {
             Dispose(true);
+        }
+
+        internal void ResetPartition()
+        {
+            RemoveFromPartition();
+            if(Enabled)
+                InsertIntoPartition();
         }
 
         public void InsertIntoPartition()

@@ -195,9 +195,7 @@ namespace SE.Components
             if (!(this is ILit lit)) 
                 return;
 
-            if (lit.Shadow != null) {
-                SpatialPartitionManager.Insert(lit.Shadow);
-            }
+            lit.Shadow?.InsertIntoPartition();
         }
 
         public void RemoveFromPartition()
@@ -206,9 +204,7 @@ namespace SE.Components
             if (!(this is ILit lit)) 
                 return;
 
-            if (lit.Shadow != null) {
-                SpatialPartitionManager.Remove(lit.Shadow);
-            }
+            lit.Shadow?.InsertIntoPartition();
         }
     }
 

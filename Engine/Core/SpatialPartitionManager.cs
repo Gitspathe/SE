@@ -10,6 +10,8 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core
 {
+    // TODO: Fix weird inconsistent fps bug? (If origin/0,0 if offscreen, fps is much higher.)
+    // TODO: Update on above issue: It is related to lights! (Notice how lights are spawned at 0,0 currently, and set correctly after 1st update.)
     public static class SpatialPartitionManager
     {
         internal static QuickList<Action> ManagerUpdates = new QuickList<Action>();
