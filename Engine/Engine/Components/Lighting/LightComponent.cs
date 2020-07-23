@@ -8,9 +8,6 @@ using PenumbraLight = Penumbra.Light;
 
 namespace SE.Components.Lighting
 {
-    // TODO: DRUNK: Fix bug relating to SpatialPartition<T>, where performance is low when the origin point (0,0) is on-screen.
-    // TODO: Seems to be caused by Components Enabled state automatically being set to true.
-    // TODO: FIXED THIS WITH (ENABLED) ON INITIALIZE();
     [ExecuteInEditor]
     public class LightComponent : Component
     {
@@ -137,6 +134,8 @@ namespace SE.Components.Lighting
             if (Light == null)
                 return;
 
+            // This (the Enabled check) fixes a low FPS bug.
+            // TODO: Investigate a better way to handle this?
             if(Enabled)
                 Core.Lighting.AddLight(Light);
         }
