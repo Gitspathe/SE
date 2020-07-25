@@ -34,24 +34,16 @@ namespace SE.Core
         public static bool IsClient => InstanceType == NetInstanceType.Client;
         public static uint CurrentNetworkID { get; set; } = 1;
 
+        internal static object NetworkLock = new object();
+
         public static ConcurrentDictionary<uint, SpawnedNetObject> SpawnedNetObjects = new ConcurrentDictionary<uint, SpawnedNetObject>();
         public static ConcurrentDictionary<uint, INetLogic> NetworkObjects = new ConcurrentDictionary<uint, INetLogic>();
         public static Dictionary<string, NetPeer> Connections = new Dictionary<string, NetPeer>();
 
-        internal static RPCLookupTable<RPCServerInfo> ServerRPCLookupTable;
-        internal static RPCLookupTable<RPCClientInfo> ClientRPCLookupTable;
-
         private static Dictionary<Type, INetworkExtension> networkExtensions = new Dictionary<Type, INetworkExtension>();
-        private static bool initialized;
-
-        private static object networkLock = new object();
-
-        // Cache packets to reduce memory allocations and CPU overhead.
-        internal static RPCFunction CacheRPCFunc = new RPCFunction();
         private static EventBasedNetListener listener;
-        private static StringBuilder signatureBuilder = new StringBuilder(256);
-        private static StringBuilder methodNameBuilder = new StringBuilder(256);
         private static List<NetPeer> recipients = new List<NetPeer>();
+        private static bool initialized;
 
         private static OnServerStartedEventHandler onServerStartedHandler;
         public static event OnServerStartedEventHandler OnServerStarted {
@@ -157,11 +149,8 @@ namespace SE.Core
 
         public static T GetNetworkObject<T>(uint networkID) where T : class, INetLogic
         {
-            lock (networkLock) {
-                if (NetworkObjects.TryGetValue(networkID, out INetLogic netLogic)) {
-                    return (T) netLogic;
-                }
-                return null;
+            lock (NetworkLock) {
+                return NetworkObjects.TryGetValue(networkID, out INetLogic netLogic) ? (T) netLogic : null;
             }
         }
 
@@ -171,7 +160,6 @@ namespace SE.Core
                 return;
 
             LogInfo("Initializing network manager...", true);
-
             NetworkReflection.Initialize();
 
             // Adding user-defined net logics before initialization.
@@ -180,58 +168,7 @@ namespace SE.Core
                 SetupNetLogic(extension.Value, true);
             }
 
-            // Use reflection to determine which functions in the assemblies are RPCs.
-            LogInfo("  Loading RPC methods...", true);
-            List<MethodData> methodBundlesServerRPC = new List<MethodData>();
-            List<MethodData> methodBundlesClientRPC = new List<MethodData>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                MethodInfo[] methods = assembly.GetTypes()
-                    .SelectMany(t => t.GetMethods())
-                    .Where(m => m.GetCustomAttributes(typeof(ServerRPCAttribute), false).Length > 0)
-                    .ToArray();
-                foreach (MethodInfo info in methods) {
-                    methodBundlesServerRPC.Add(new MethodData(GetName(info), info));
-                    LogInfo("  S-RPC: " + GetName(info));
-                }
-
-                methods = assembly.GetTypes()
-                    .SelectMany(t => t.GetMethods())
-                    .Where(m => m.GetCustomAttributes(typeof(ClientRPCAttribute), false).Length > 0)
-                    .ToArray();
-                foreach (MethodInfo info in methods) {
-                    string methodName = GetName(info).Replace("_CLIENT", "");
-                    methodBundlesClientRPC.Add(new MethodData(methodName, info));
-                    LogInfo("  C-RPC: " + methodName);
-                }
-            }
-
-            // Construct server RPC tables.
-            ServerRPCLookupTable = new RPCLookupTable<RPCServerInfo>();
-            MethodData[] methodData = methodBundlesServerRPC.OrderBy(a => a.ID).ToArray();
-            for (ushort i = 0; i < methodData.Length; i++) {
-                MethodData data = methodData[i];
-                ServerRPCAttribute attribute = data.Info.GetCustomAttribute<ServerRPCAttribute>();
-                ServerRPCLookupTable.Add(new RPCServerInfo(
-                    attribute, 
-                    new RPCCache(data.Info), 
-                    i, 
-                    data.ID, 
-                    data.Info.GetParameterTypes()));
-            }
-
-            // Construct client RPC tables.
-            ClientRPCLookupTable = new RPCLookupTable<RPCClientInfo>();
-            methodData = methodBundlesClientRPC.OrderBy(a => a.ID).ToArray();
-            for (ushort i = 0; i < methodData.Length; i++) {
-                MethodData data = methodData[i];
-                ClientRPCAttribute attribute = data.Info.GetCustomAttribute<ClientRPCAttribute>();
-                ClientRPCLookupTable.Add(new RPCClientInfo(
-                    attribute,
-                    new RPCCache(data.Info), 
-                    i, 
-                    data.ID, 
-                    data.Info.GetParameterTypes()));
-            }
+            NetworkRPC.Initialize();
             initialized = true;
         }
 
@@ -264,7 +201,7 @@ namespace SE.Core
 
         internal static void SetupNetLogic(INetLogic logic, bool isOwner, NetDataReader reader = null)
         {
-            lock (networkLock) {
+            lock (NetworkLock) {
                 logic.Setup(CurrentNetworkID, isOwner);
                 if (logic is INetPersistable persist && reader != null)
                     persist.RestoreNetworkState(reader);
@@ -276,7 +213,7 @@ namespace SE.Core
 
         internal static void SetupNetLogic(INetLogic logic, uint networkID, bool isOwner, NetDataReader reader = null)
         {
-            lock (networkLock) {
+            lock (NetworkLock) {
                 logic.Setup(networkID, isOwner);
                 if (logic is INetPersistable persist && reader != null)
                     persist.RestoreNetworkState(reader);
@@ -306,7 +243,7 @@ namespace SE.Core
                 PacketProcessor processor = PacketProcessorManager.GetProcessor(packet.PacketType);
 
                 INetLogic netLogic;
-                lock (networkLock) {
+                lock (NetworkLock) {
                     if (!NetworkObjects.TryGetValue(packet.NetworkID, out netLogic)) {
                         if(Report) LogWarning($"No object for network ID {packet.NetworkID} found."); return;
                     }
@@ -335,6 +272,7 @@ namespace SE.Core
                     request.Reject();
             };
 
+            // TODO: Do not accept other packets until all buffered data is received. This should fix 'No object ID found ...' spam.
             listener.PeerConnectedEvent += peer => {
                 Console.WriteLine("Connection established: " + peer.EndPoint);
                 if (Connections.ContainsKey(peer.GetUniqueID())) 
@@ -510,157 +448,12 @@ namespace SE.Core
             NetworkPool.ReturnWriter(writer);
         }
 
-        private static void SendRPCServer(NetDataWriter writer, uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender, string method, params object[] parameters)
-        {
-            if (targets == Scope.None) {
-                if(Report) LogError(exception: new Exception($"Invalid RPC send: server RPC target scope not specified during method {method}.")); return;
-            }
-
-            // Get the unique method signature string for the RPC.
-            string methodSignature = method;
-            if (!method.Contains("("))
-                methodSignature = GetMethodSignature(networkIdentity, method, parameters);
-
-            // Convert the method signature into an ID which can then be sent over the network.
-            if (!ClientRPCLookupTable.TryGetUshortID(methodSignature, out ushort methodID)) {
-                if(Report) LogError(exception: new InvalidRPCException($"Invalid RPC send: server RPC method '{method}' not found.")); return;
-            }
-
-            // Find INetLogic object for network ID.
-            lock (networkLock) {
-                if (!NetworkObjects.TryGetValue(networkIdentity, out INetLogic netLogic)) {
-                    if(Report) LogWarning(exception: new InvalidRPCException($"No object for network ID {networkIdentity} found.")); return;
-                }
-
-                // Construct NetOutgoingMessage.
-                CacheRPCFunc.Reset(networkIdentity, methodID, parameters);
-                CacheRPCFunc.WriteTo(writer);
-                SendPacketServer<RPCFunctionProcessor>(netLogic, writer, deliveryMethod, channel, targets, connections, sender);
-            }
-        }
-
-        private static void SendRPCClient(NetDataWriter writer, uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, string method, params object[] parameters)
-        {
-            // TODO: Allow clients to specify scope in some way. Needs to be secure. Maybe use attributes??
-            // Get the unique method signature string for the RPC.
-            string methodSignature = method;
-            if (!method.Contains("("))
-                methodSignature = GetMethodSignature(networkIdentity, method, parameters);
-
-            // Convert the method signature into an ID which can then be sent over the network.
-            if(!ServerRPCLookupTable.TryGetUshortID(methodSignature, out ushort methodID)) {
-                if(Report) LogError(exception: new InvalidRPCException($"Invalid RPC send: client RPC method '{method}' not found.")); return;
-            }
-
-            // Find INetLogic object for network ID.
-            lock (networkLock) {
-                if (!NetworkObjects.TryGetValue(networkIdentity, out INetLogic netLogic)) {
-                    if(Report) LogWarning(exception: new InvalidRPCException($"No object for network ID {networkIdentity} found.")); return;
-                }
-
-                // Construct a data writer.
-                CacheRPCFunc.Reset(networkIdentity, methodID, parameters);
-                CacheRPCFunc.WriteTo(writer);
-                SendPacketClient<RPCFunctionProcessor>(netLogic, writer, deliveryMethod, channel);
-            }
-        }
-
-        #region RPC METHODS
-        internal static void SendRPC(uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender, string method, params object[] parameters)
-        {
-            NetDataWriter writer = NetworkPool.GetWriter();
-            try {
-                if (!initialized)
-                    LogError(exception: new InvalidOperationException("Network manager is not initialized."));
-
-                switch (InstanceType) {
-                    // Send server -> client(s) RPC.
-                    case NetInstanceType.Server:
-                        SendRPCServer(writer, networkIdentity, deliveryMethod, channel, targets, connections, sender, method, parameters);
-                        break;
-                    // Send client -> server RPC.
-                    case NetInstanceType.Client:
-                        SendRPCClient(writer, networkIdentity, deliveryMethod, channel, method, parameters);
-                        break;
-
-                    // Invalid network states.
-                    case NetInstanceType.None:
-                        if(Report) LogError(exception: new InvalidRPCException($"Invalid RPC send: attempted to send RPC '{method}' without connection.")); return;
-                    default:
-                        if(Report) LogError(exception: new ArgumentOutOfRangeException()); return;
-                }
-            } catch (Exception e) {
-                NetworkPool.ReturnWriter(writer);
-                NetProtector.ReportError(e);
-            } finally {
-                NetworkPool.ReturnWriter(writer);
-            }
-        }
-
         public static void SendRPC(RPCMethod method, params object[] parameters)
-            => SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, null, null, method.Method, parameters);
+            => NetworkRPC.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, null, null, method.Method, parameters);
         public static void SendRPC(RPCMethod method, NetPeer recipient, params object[] parameters)
-            => SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, new [] { recipient }, null, method.Method, parameters);
+            => NetworkRPC.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, new [] { recipient }, null, method.Method, parameters);
         public static void SendRPC(RPCMethod method, NetPeer[] recipients, params object[] parameters) 
-            => SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, recipients, null, method.Method, parameters);
-
-        internal static void InvokeRPC(RPCFunction rpcFunc)
-        {
-            if (!initialized)
-                LogError(exception: new InvalidOperationException("Network manager is not initialized."));
-
-            INetLogic nObj = null;
-            RPCInfo rpcInfo = null;
-
-            lock(networkLock) {
-                // If the networkID is zero, the RPC's target is this (Network static). Otherwise, search current NetworkObjects for the RPC target.
-                if (rpcFunc.NetworkID != 0) {
-                    NetworkObjects.TryGetValue(rpcFunc.NetworkID, out nObj);
-                }
-                if (nObj == null) {
-                    if(Report) LogWarning(exception: new Exception($"No NetworkObject for ID: {rpcFunc.NetworkID} found.")); return;
-                }
-
-                // Search the client or server RPC lookup tables for the method which the RPC needs to invoke.
-                switch (InstanceType) {
-                    case NetInstanceType.Server: {
-                        if (ServerRPCLookupTable.TryGetRPCInfo(rpcFunc.MethodID, out RPCServerInfo serverRPC)) {
-                            rpcInfo = serverRPC;
-                        }
-                    } break;
-                    case NetInstanceType.Client: {
-                        if (ClientRPCLookupTable.TryGetRPCInfo(rpcFunc.MethodID, out RPCClientInfo clientRPC)) {
-                            rpcInfo = clientRPC;
-                        }
-                    } break;
-                    case NetInstanceType.None:
-                        if(Report) LogError(exception: new InvalidRPCException($"Invalid RPC invocation: attempted to invoke RPC '{rpcFunc.MethodID}' without connection.")); return;
-                    default:
-                        if(Report) LogError(exception: new ArgumentOutOfRangeException()); return;
-                }
-                if (rpcInfo == null) {
-                    if (Report) LogError(exception: new InvalidRPCException($"Invalid RPC invocation: RPC method '{rpcFunc.MethodID}' not found.")); return;
-                }
-
-                // If networkID is zero, invoke the RPC on this (Network static).
-                object[] parameters = GetSubArray(rpcFunc.Parameters, 0, rpcFunc.ParametersNum);
-                if (rpcFunc.NetworkID == 0) {
-                    rpcInfo.Invoke(null, parameters);
-                } else {
-                    // if networkID is greater than zero, find the INetLogic the RPC needs to be invoked on.
-                    if (!NetworkObjects.TryGetValue(rpcFunc.NetworkID, out INetLogic nObject)) {
-                        if(Report) LogError(exception: new InvalidRPCException($"Invalid RPC invocation: object with networkID {rpcFunc.NetworkID} does not exist.")); return;
-                    }
-
-                    // Invoke the RPC.
-                    try {
-                        rpcInfo.Invoke(nObject, parameters);
-                    } catch (Exception e) {
-                        if(Report) LogError(exception: new InvalidRPCException($"Failed to invoke RPC ID '{rpcFunc.MethodID}'. Ensure that the parameters passed are valid.", e));
-                    }
-                }
-            }
-        }
+            => NetworkRPC.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, recipients, null, method.Method, parameters);
 
         public static T[] GetSubArray<T>(T[] data, int index, int length)
         {
@@ -669,46 +462,5 @@ namespace SE.Core
             Array.Copy(data, index, result, 0, length);
             return result;
         }
-
-        #endregion
-
-        #region UTILITY METHODS
-        private static string GetName(MethodInfo info)
-        {
-            lock (networkLock) {
-                methodNameBuilder.Clear();
-                ParameterInfo[] pInfo = info.GetParameters();
-                methodNameBuilder.Append(info.DeclaringType).Append(info.Name).Append(" (");
-                for (int i = 0; i < pInfo.Length; i++) {
-                    methodNameBuilder.Append(pInfo[i].ParameterType.FullName);
-                }
-                return methodNameBuilder.ToString();
-            }
-        }
-
-        private static string GetMethodSignature(uint networkID, string method, object[] parameters)
-        {
-            lock (networkLock) {
-                signatureBuilder.Clear();
-                Type t;
-                if (networkID == 0) {
-                    t = typeof(Network);
-                } else if (NetworkObjects.TryGetValue(networkID, out INetLogic nObject)) {
-                    t = nObject.GetType();
-                } else {
-                    if(Report) LogError(exception: new KeyNotFoundException("Method signature not found: " + method)); return null;
-                }
-
-                signatureBuilder.Append(t).Append(method).Append(" (");
-                if (parameters.Length > 0) {
-                    for (int i = 0; i < parameters.Length; i++) {
-                        signatureBuilder.Append(parameters[i].GetType().FullName);
-                    }
-                }
-
-                return signatureBuilder.ToString();
-            }
-        }
-        #endregion
     }
 }

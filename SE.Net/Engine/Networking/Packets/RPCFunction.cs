@@ -24,13 +24,13 @@ namespace SE.Engine.Networking.Packets
 
             switch (Network.InstanceType) {
                 case NetInstanceType.Server: {
-                    if (!Network.ClientRPCLookupTable.TryGetRPCInfo(methodID, out RPCClientInfo clientInfo)) {
+                    if (!NetworkRPC.ClientRPCLookupTable.TryGetRPCInfo(methodID, out RPCClientInfo clientInfo)) {
                         if (Network.Report) throw new Exception(); return;
                     }
                     RPCInfo = clientInfo;
                 } break;
                 case NetInstanceType.Client: {
-                    if (!Network.ServerRPCLookupTable.TryGetRPCInfo(methodID, out RPCServerInfo serverInfo)) {
+                    if (!NetworkRPC.ServerRPCLookupTable.TryGetRPCInfo(methodID, out RPCServerInfo serverInfo)) {
                         if (Network.Report) throw new Exception(); return;
                     }
                     RPCInfo = serverInfo;
@@ -53,13 +53,13 @@ namespace SE.Engine.Networking.Packets
                 
                 switch (Network.InstanceType) {
                     case NetInstanceType.Server: {
-                        if (!Network.ServerRPCLookupTable.TryGetRPCInfo(MethodID, out RPCServerInfo serverInfo)) {
+                        if (!NetworkRPC.ServerRPCLookupTable.TryGetRPCInfo(MethodID, out RPCServerInfo serverInfo)) {
                             if (Network.Report) throw new Exception(); return;
                         }
                         RPCInfo = serverInfo;
                     } break;
                     case NetInstanceType.Client: {
-                        if (!Network.ClientRPCLookupTable.TryGetRPCInfo(MethodID, out RPCClientInfo clientInfo)) {
+                        if (!NetworkRPC.ClientRPCLookupTable.TryGetRPCInfo(MethodID, out RPCClientInfo clientInfo)) {
                             if (Network.Report) throw new Exception(); return;
                         }
                         RPCInfo = clientInfo;
@@ -96,15 +96,15 @@ namespace SE.Engine.Networking.Packets
         public override void OnReceive(INetLogic netLogic, NetDataReader reader, NetPeer peer, DeliveryMethod deliveryMethod)
         {
             // Invoke on server.
-            RPCFunction func = Network.CacheRPCFunc;
+            RPCFunction func = NetworkRPC.CacheRPCFunc;
             func.Reset(netLogic.ID, reader);
-            Network.InvokeRPC(func);
+            NetworkRPC.InvokeRPC(func);
 
             if (Network.IsServer) {
                 // If the options has CallClientRPC flag, invoke the RPC on all clients.
-                Network.ServerRPCLookupTable.TryGetRPCInfo(Network.CacheRPCFunc.MethodID, out RPCServerInfo info);
+                NetworkRPC.ServerRPCLookupTable.TryGetRPCInfo(NetworkRPC.CacheRPCFunc.MethodID, out RPCServerInfo info);
                 if (info.Options.CallClientRPC) {
-                    Network.SendRPC(func.NetworkID, deliveryMethod, 0, Scope.Broadcast, null, peer, info.StringID, func.Parameters);
+                    NetworkRPC.SendRPC(func.NetworkID, deliveryMethod, 0, Scope.Broadcast, null, peer, info.StringID, func.Parameters);
                 }
             }
         }
