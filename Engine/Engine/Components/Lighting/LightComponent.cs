@@ -135,7 +135,7 @@ namespace SE.Components.Lighting
                 return;
 
             // This (the Enabled check) fixes a low FPS bug.
-            // TODO: Investigate a better way to handle this?
+            // TODO: Investigate a better way to handle this? This may also be a very viable way to handle it, however!
             if(Enabled)
                 Core.Lighting.AddLight(Light);
         }

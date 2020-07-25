@@ -25,13 +25,13 @@ namespace SE.Engine.Networking.Packets
             switch (Network.InstanceType) {
                 case NetInstanceType.Server: {
                     if (!Network.ClientRPCLookupTable.TryGetRPCInfo(methodID, out RPCClientInfo clientInfo)) {
-                        if (Network.Throw) throw new Exception(); return;
+                        if (Network.Report) throw new Exception(); return;
                     }
                     RPCInfo = clientInfo;
                 } break;
                 case NetInstanceType.Client: {
                     if (!Network.ServerRPCLookupTable.TryGetRPCInfo(methodID, out RPCServerInfo serverInfo)) {
-                        if (Network.Throw) throw new Exception(); return;
+                        if (Network.Report) throw new Exception(); return;
                     }
                     RPCInfo = serverInfo;
                 } break;
@@ -54,13 +54,13 @@ namespace SE.Engine.Networking.Packets
                 switch (Network.InstanceType) {
                     case NetInstanceType.Server: {
                         if (!Network.ServerRPCLookupTable.TryGetRPCInfo(MethodID, out RPCServerInfo serverInfo)) {
-                            if (Network.Throw) throw new Exception(); return;
+                            if (Network.Report) throw new Exception(); return;
                         }
                         RPCInfo = serverInfo;
                     } break;
                     case NetInstanceType.Client: {
                         if (!Network.ClientRPCLookupTable.TryGetRPCInfo(MethodID, out RPCClientInfo clientInfo)) {
-                            if (Network.Throw) throw new Exception(); return;
+                            if (Network.Report) throw new Exception(); return;
                         }
                         RPCInfo = clientInfo;
                     } break;
@@ -74,7 +74,7 @@ namespace SE.Engine.Networking.Packets
                     Parameters[i] = NetData.Read(RPCInfo.ParameterTypes[i], message);
                 }
             } catch (Exception e) {
-                if(Network.Throw) throw new MalformedPacketException("Failed to read packet.", e);
+                if(Network.Report) throw new MalformedPacketException("Failed to read packet.", e);
             }
         }
 
@@ -86,7 +86,7 @@ namespace SE.Engine.Networking.Packets
                     NetData.Write(RPCInfo.ParameterTypes[i], Parameters[i], message);
                 }
             } catch (Exception e) {
-                if(Network.Throw) throw new MalformedPacketException("Failed to write packet.", e);
+                if(Network.Report) throw new MalformedPacketException("Failed to write packet.", e);
             }
         }
     }

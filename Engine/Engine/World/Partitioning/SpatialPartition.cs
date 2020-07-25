@@ -13,7 +13,16 @@ namespace SE.World.Partitioning
     internal class PartitionPointComparer : IEqualityComparer<Point>
     {
         public bool Equals(Point x, Point y) => x.X == y.X && x.Y == y.Y;
-        public int GetHashCode(Point obj) => obj.X ^ obj.Y;
+
+        public int GetHashCode(Point obj)
+        {
+            unchecked {
+                int hash = 17;
+                hash = hash * 23 + obj.X;
+                hash = hash * 23 + obj.Y;
+                return hash;
+            }
+        }
     }
 
     /// <summary>

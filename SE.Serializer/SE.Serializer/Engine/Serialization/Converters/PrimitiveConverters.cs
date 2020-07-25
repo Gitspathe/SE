@@ -76,7 +76,7 @@ namespace SE.Serialization.Converters
     public sealed class IntConverter : Converter<int>
     {
         public override Type Type => typeof(int);
-        
+
         public override void Serialize(object obj, FastMemoryWriter writer, ref SerializeTask task) 
             => writer.Write((int) obj);
         public override object Deserialize(FastReader reader, ref DeserializeTask task) 
