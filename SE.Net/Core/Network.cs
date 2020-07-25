@@ -44,9 +44,7 @@ namespace SE.Core
         private static Dictionary<Type, INetworkExtension> networkExtensions = new Dictionary<Type, INetworkExtension>();
         private static bool initialized;
 
-        private static object rpcLock = new object();
-        private static object netLogicLock = new object();
-        private static object signatureLock = new object();
+        private static object networkLock = new object();
 
         // Cache packets to reduce memory allocations and CPU overhead.
         internal static RPCFunction CacheRPCFunc = new RPCFunction();
@@ -159,7 +157,7 @@ namespace SE.Core
 
         public static T GetNetworkObject<T>(uint networkID) where T : class, INetLogic
         {
-            lock (netLogicLock) {
+            lock (networkLock) {
                 if (NetworkObjects.TryGetValue(networkID, out INetLogic netLogic)) {
                     return (T) netLogic;
                 }
@@ -266,7 +264,7 @@ namespace SE.Core
 
         internal static void SetupNetLogic(INetLogic logic, bool isOwner, NetDataReader reader = null)
         {
-            lock (netLogicLock) {
+            lock (networkLock) {
                 logic.Setup(CurrentNetworkID, isOwner);
                 if (logic is INetPersistable persist && reader != null)
                     persist.RestoreNetworkState(reader);
@@ -278,7 +276,7 @@ namespace SE.Core
 
         internal static void SetupNetLogic(INetLogic logic, uint networkID, bool isOwner, NetDataReader reader = null)
         {
-            lock (netLogicLock) {
+            lock (networkLock) {
                 logic.Setup(networkID, isOwner);
                 if (logic is INetPersistable persist && reader != null)
                     persist.RestoreNetworkState(reader);
@@ -308,7 +306,7 @@ namespace SE.Core
                 PacketProcessor processor = PacketProcessorManager.GetProcessor(packet.PacketType);
 
                 INetLogic netLogic;
-                lock (netLogicLock) {
+                lock (networkLock) {
                     if (!NetworkObjects.TryGetValue(packet.NetworkID, out netLogic)) {
                         if(Report) LogWarning($"No object for network ID {packet.NetworkID} found."); return;
                     }
@@ -529,14 +527,11 @@ namespace SE.Core
             }
 
             // Find INetLogic object for network ID.
-            INetLogic netLogic;
-            lock (netLogicLock) {
-                if (!NetworkObjects.TryGetValue(networkIdentity, out netLogic)) {
+            lock (networkLock) {
+                if (!NetworkObjects.TryGetValue(networkIdentity, out INetLogic netLogic)) {
                     if(Report) LogWarning(exception: new InvalidRPCException($"No object for network ID {networkIdentity} found.")); return;
                 }
-            }
 
-            lock (rpcLock) {
                 // Construct NetOutgoingMessage.
                 CacheRPCFunc.Reset(networkIdentity, methodID, parameters);
                 CacheRPCFunc.WriteTo(writer);
@@ -558,14 +553,11 @@ namespace SE.Core
             }
 
             // Find INetLogic object for network ID.
-            INetLogic netLogic;
-            lock (netLogicLock) {
-                if (!NetworkObjects.TryGetValue(networkIdentity, out netLogic)) {
+            lock (networkLock) {
+                if (!NetworkObjects.TryGetValue(networkIdentity, out INetLogic netLogic)) {
                     if(Report) LogWarning(exception: new InvalidRPCException($"No object for network ID {networkIdentity} found.")); return;
                 }
-            }
 
-            lock (rpcLock) {
                 // Construct a data writer.
                 CacheRPCFunc.Reset(networkIdentity, methodID, parameters);
                 CacheRPCFunc.WriteTo(writer);
@@ -620,7 +612,7 @@ namespace SE.Core
             INetLogic nObj = null;
             RPCInfo rpcInfo = null;
 
-            lock(rpcLock) {
+            lock(networkLock) {
                 // If the networkID is zero, the RPC's target is this (Network static). Otherwise, search current NetworkObjects for the RPC target.
                 if (rpcFunc.NetworkID != 0) {
                     NetworkObjects.TryGetValue(rpcFunc.NetworkID, out nObj);
@@ -683,7 +675,7 @@ namespace SE.Core
         #region UTILITY METHODS
         private static string GetName(MethodInfo info)
         {
-            lock (signatureLock) {
+            lock (networkLock) {
                 methodNameBuilder.Clear();
                 ParameterInfo[] pInfo = info.GetParameters();
                 methodNameBuilder.Append(info.DeclaringType).Append(info.Name).Append(" (");
@@ -696,7 +688,7 @@ namespace SE.Core
 
         private static string GetMethodSignature(uint networkID, string method, object[] parameters)
         {
-            lock (signatureLock) {
+            lock (networkLock) {
                 signatureBuilder.Clear();
                 Type t;
                 if (networkID == 0) {
