@@ -14,11 +14,11 @@ namespace SE.Serialization.Resolvers
         private Dictionary<Type, GeneratedConverter> generatedConverters = new Dictionary<Type, GeneratedConverter>();
         private Dictionary<Type, Type> genericTypeConverterTypes         = new Dictionary<Type, Type>();
 
-        private Func<Type, bool> converterPredicate = myType 
-            => myType != typeof(GeneratedConverter) 
-               && myType.IsClass 
-               && !myType.IsAbstract 
-               && typeof(Converter).IsAssignableFrom(myType);
+        private Func<Type, bool> converterPredicate = myType
+            => typeof(Converter).IsAssignableFrom(myType)
+               && myType != typeof(GeneratedConverter)
+               && myType.IsClass
+               && !myType.IsAbstract;
 
         private Func<Type, bool> genericConverterPredicate = myType
             => typeof(GenericConverter).IsAssignableFrom(myType) 

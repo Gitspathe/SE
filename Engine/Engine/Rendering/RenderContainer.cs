@@ -31,8 +31,8 @@ namespace SE.Rendering
         {
             // Determine if the sprite ignores light or not.
             bool ignoreLight = true;
-            if (renderObj is ILit lit) {
-                ignoreLight = lit.IgnoreLight;
+            if (renderObj.ILit != null) {
+                ignoreLight = renderObj.ILit.IgnoreLight;
             }
 
             // Index of the specific RenderList the sprite should be added to.

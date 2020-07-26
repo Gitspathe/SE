@@ -9,6 +9,7 @@ using SE.World.Partitioning;
 using SE.Core.Extensions;
 using Vector2 = System.Numerics.Vector2;
 using SE.Lighting;
+using SE.Components.UI;
 // ReSharper disable InconsistentNaming
 
 namespace SE.Components
@@ -145,6 +146,18 @@ namespace SE.Components
             private set => drawCallID = value;
         }
 
+        internal ILit ILitInternal;
+        public ILit ILit {
+            get => ILitInternal;
+            protected set => ILitInternal = value;
+        }
+
+        internal IUISprite IUISpriteInternal;
+        public IUISprite IUISprite {
+            get => IUISpriteInternal;
+            protected set => IUISpriteInternal = value;
+        }
+
         /// <summary>Cached owner transform. DO NOT MODIFY!</summary>
         protected Transform ownerTransform;
 
@@ -153,6 +166,8 @@ namespace SE.Components
         internal override void OnInitializeInternal()
         {
             base.OnInitializeInternal();
+            ILit = this as ILit;
+            IUISprite = this as IUISprite;
             if (Enabled && !Owner.Sprites.Contains(this))
                 Owner.AddSprite(this);
 
@@ -192,19 +207,15 @@ namespace SE.Components
         {
             if (!SpatialPartitionManager.Insert(this)) 
                 return;
-            if (!(this is ILit lit)) 
-                return;
 
-            lit.Shadow?.InsertIntoPartition();
+            ILit?.Shadow?.InsertIntoPartition();
         }
 
         public void RemoveFromPartition()
         {
             SpatialPartitionManager.Remove(this);
-            if (!(this is ILit lit)) 
-                return;
 
-            lit.Shadow?.InsertIntoPartition();
+            ILit?.Shadow?.InsertIntoPartition();
         }
     }
 
