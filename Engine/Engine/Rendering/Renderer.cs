@@ -106,7 +106,7 @@ namespace SE.Rendering
             for (int i = 0; i < renderedSprites.Count; i++) {
                 IRenderable renderObj = spriteArray[i];
                 RenderableTypeInfo typeInfo = renderObj.RenderableTypeInfo;
-                if (excludeUI && renderObj.RenderableTypeInfo.uiSprite != null)
+                if (excludeUI && typeInfo.UISprite != null)
                     continue;
 
                 RenderContainer.Add(renderObj, typeInfo);
@@ -122,7 +122,7 @@ namespace SE.Rendering
                 for (int i = 0; i < count; i++) {
                     IRenderable renderObj = objects[i];
                     RenderableTypeInfo typeInfo = renderObj.RenderableTypeInfo;
-                    if (excludeUI && renderObj.RenderableTypeInfo.uiSprite != null)
+                    if (excludeUI && typeInfo.UISprite != null)
                         continue;
 
                     RenderContainer.Add(renderObj, typeInfo, true);

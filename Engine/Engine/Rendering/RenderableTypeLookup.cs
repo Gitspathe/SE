@@ -21,15 +21,15 @@ namespace SE.Rendering
         }
     }
 
-    public class RenderableTypeInfo
+    public sealed class RenderableTypeInfo
     {
-        internal ILit lit;
-        internal IUISprite uiSprite;
+        internal ILit Lit;
+        internal IUISprite UISprite;
 
         internal RenderableTypeInfo(IRenderable renderable)
         {
-            lit = renderable as ILit;
-            uiSprite = renderable as IUISprite;
+            Lit = renderable as ILit;
+            UISprite = renderable as IUISprite;
         }
     }
 }

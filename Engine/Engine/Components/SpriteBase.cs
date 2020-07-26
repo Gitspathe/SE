@@ -197,14 +197,14 @@ namespace SE.Components
             if (!SpatialPartitionManager.Insert(this)) 
                 return;
 
-            RenderableTypeInfo.lit?.Shadow?.InsertIntoPartition();
+            RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
         }
 
         public void RemoveFromPartition()
         {
             SpatialPartitionManager.Remove(this);
 
-            RenderableTypeInfo.lit?.Shadow?.InsertIntoPartition();
+            RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
         }
     }
 

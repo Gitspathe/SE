@@ -88,7 +88,7 @@ namespace SE.Common
                 UnscaledBounds = new RectangleF(value.X, value.Y,
                     (int) (value.Width * Transform.Scale.X),
                     (int) (value.Height * Transform.Scale.Y));
-                UpdateSpriteBounds();
+                RecalculateBounds();
             }
         }
         private RectangleF scaledBounds = RectangleF.Empty;
@@ -98,7 +98,7 @@ namespace SE.Common
             set {
                 EnsureValidAccess();
                 unscaledBounds = value;
-                UpdateSpriteBounds();
+                RecalculateBounds();
             }
         }
         private RectangleF unscaledBounds = RectangleF.Empty;
