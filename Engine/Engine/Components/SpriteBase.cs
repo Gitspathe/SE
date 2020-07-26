@@ -146,17 +146,7 @@ namespace SE.Components
             private set => drawCallID = value;
         }
 
-        internal ILit ILitInternal;
-        public ILit ILit {
-            get => ILitInternal;
-            protected set => ILitInternal = value;
-        }
-
-        internal IUISprite IUISpriteInternal;
-        public IUISprite IUISprite {
-            get => IUISpriteInternal;
-            protected set => IUISpriteInternal = value;
-        }
+        public RenderableTypeCache RenderableTypeCache { get; protected set; }
 
         /// <summary>Cached owner transform. DO NOT MODIFY!</summary>
         protected Transform ownerTransform;
@@ -166,8 +156,7 @@ namespace SE.Components
         internal override void OnInitializeInternal()
         {
             base.OnInitializeInternal();
-            ILit = this as ILit;
-            IUISprite = this as IUISprite;
+            RenderableTypeCache = RenderableTypeLookup.Retrieve(this);
             if (Enabled && !Owner.Sprites.Contains(this))
                 Owner.AddSprite(this);
 
@@ -208,14 +197,14 @@ namespace SE.Components
             if (!SpatialPartitionManager.Insert(this)) 
                 return;
 
-            ILit?.Shadow?.InsertIntoPartition();
+            RenderableTypeCache.lit?.Shadow?.InsertIntoPartition();
         }
 
         public void RemoveFromPartition()
         {
             SpatialPartitionManager.Remove(this);
 
-            ILit?.Shadow?.InsertIntoPartition();
+            RenderableTypeCache.lit?.Shadow?.InsertIntoPartition();
         }
     }
 

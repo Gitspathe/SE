@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Common;
 using SE.Components;
-using SE.Components.UI;
 using SE.Core;
 using SE.Particles;
 using SE.UI;
 using SE.Utility;
-using SE.World.Partitioning;
-using Console = SE.Core.Console;
+using System;
+using System.Collections.Generic;
 using static SE.Core.Rendering;
 using Color = Microsoft.Xna.Framework.Color;
-using ParticleSystem = SE.Components.ParticleSystem;
+using Console = SE.Core.Console;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Rendering
@@ -110,10 +105,11 @@ namespace SE.Rendering
             IRenderable[] spriteArray = renderedSprites.Array;
             for (int i = 0; i < renderedSprites.Count; i++) {
                 IRenderable renderObj = spriteArray[i];
-                if (excludeUI && renderObj.IUISprite != null)
+                RenderableTypeCache typeCache = renderObj.RenderableTypeCache;
+                if (excludeUI && renderObj.RenderableTypeCache.uiSprite != null)
                     continue;
 
-                RenderContainer.Add(renderObj);
+                RenderContainer.Add(renderObj, typeCache);
             }
         }
 
@@ -125,10 +121,11 @@ namespace SE.Rendering
             QuickParallel.ForEach(renderedSprites, (objects, count) => {
                 for (int i = 0; i < count; i++) {
                     IRenderable renderObj = objects[i];
-                    if (excludeUI && renderObj.IUISprite != null)
+                    RenderableTypeCache typeCache = renderObj.RenderableTypeCache;
+                    if (excludeUI && renderObj.RenderableTypeCache.uiSprite != null)
                         continue;
 
-                    RenderContainer.Add(renderObj, true);
+                    RenderContainer.Add(renderObj, typeCache, true);
                 }
             });
         }
