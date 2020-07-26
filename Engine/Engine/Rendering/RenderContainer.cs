@@ -27,12 +27,12 @@ namespace SE.Rendering
             }
         }
 
-        public void Add(IRenderable renderObj, RenderableTypeCache typeCache, bool threadSafe = false)
+        public void Add(IRenderable renderObj, RenderableTypeInfo typeInfo, bool threadSafe = false)
         {
             // Determine if the sprite ignores light or not.
             bool ignoreLight = true;
-            if (typeCache.lit != null) {
-                ignoreLight = typeCache.lit.IgnoreLight;
+            if (typeInfo.lit != null) {
+                ignoreLight = typeInfo.lit.IgnoreLight;
             }
 
             // Index of the specific RenderList the sprite should be added to.

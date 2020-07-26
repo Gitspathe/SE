@@ -6,27 +6,27 @@ namespace SE.Rendering
 {
     public static class RenderableTypeLookup
     {
-        private static Dictionary<Type, RenderableTypeCache> lookup = new Dictionary<Type, RenderableTypeCache>();
+        private static Dictionary<Type, RenderableTypeInfo> lookup = new Dictionary<Type, RenderableTypeInfo>();
 
-        public static RenderableTypeCache Retrieve(IRenderable renderable)
+        public static RenderableTypeInfo Retrieve(IRenderable renderable)
         {
             Type t = renderable.GetType();
-            if (lookup.TryGetValue(t, out RenderableTypeCache info)) {
+            if (lookup.TryGetValue(t, out RenderableTypeInfo info)) {
                 return info;
             }
 
-            info = new RenderableTypeCache(renderable);
+            info = new RenderableTypeInfo(renderable);
             lookup.Add(t, info);
             return info;
         }
     }
 
-    public class RenderableTypeCache
+    public class RenderableTypeInfo
     {
         internal ILit lit;
         internal IUISprite uiSprite;
 
-        internal RenderableTypeCache(IRenderable renderable)
+        internal RenderableTypeInfo(IRenderable renderable)
         {
             lit = renderable as ILit;
             uiSprite = renderable as IUISprite;

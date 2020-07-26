@@ -105,11 +105,11 @@ namespace SE.Rendering
             IRenderable[] spriteArray = renderedSprites.Array;
             for (int i = 0; i < renderedSprites.Count; i++) {
                 IRenderable renderObj = spriteArray[i];
-                RenderableTypeCache typeCache = renderObj.RenderableTypeCache;
-                if (excludeUI && renderObj.RenderableTypeCache.uiSprite != null)
+                RenderableTypeInfo typeInfo = renderObj.RenderableTypeInfo;
+                if (excludeUI && renderObj.RenderableTypeInfo.uiSprite != null)
                     continue;
 
-                RenderContainer.Add(renderObj, typeCache);
+                RenderContainer.Add(renderObj, typeInfo);
             }
         }
 
@@ -121,11 +121,11 @@ namespace SE.Rendering
             QuickParallel.ForEach(renderedSprites, (objects, count) => {
                 for (int i = 0; i < count; i++) {
                     IRenderable renderObj = objects[i];
-                    RenderableTypeCache typeCache = renderObj.RenderableTypeCache;
-                    if (excludeUI && renderObj.RenderableTypeCache.uiSprite != null)
+                    RenderableTypeInfo typeInfo = renderObj.RenderableTypeInfo;
+                    if (excludeUI && renderObj.RenderableTypeInfo.uiSprite != null)
                         continue;
 
-                    RenderContainer.Add(renderObj, typeCache, true);
+                    RenderContainer.Add(renderObj, typeInfo, true);
                 }
             });
         }

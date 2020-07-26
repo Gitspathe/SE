@@ -8,7 +8,7 @@ namespace SE.Rendering
     {
         void Render(Camera2D camera, Space space);
         int DrawCallID { get; }
-        RenderableTypeCache RenderableTypeCache { get; }
+        RenderableTypeInfo RenderableTypeInfo { get; }
         BlendMode BlendMode { get; }
     }
 

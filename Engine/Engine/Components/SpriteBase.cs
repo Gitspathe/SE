@@ -146,7 +146,7 @@ namespace SE.Components
             private set => drawCallID = value;
         }
 
-        public RenderableTypeCache RenderableTypeCache { get; protected set; }
+        public RenderableTypeInfo RenderableTypeInfo { get; protected set; }
 
         /// <summary>Cached owner transform. DO NOT MODIFY!</summary>
         protected Transform ownerTransform;
@@ -156,7 +156,7 @@ namespace SE.Components
         internal override void OnInitializeInternal()
         {
             base.OnInitializeInternal();
-            RenderableTypeCache = RenderableTypeLookup.Retrieve(this);
+            RenderableTypeInfo = RenderableTypeLookup.Retrieve(this);
             if (Enabled && !Owner.Sprites.Contains(this))
                 Owner.AddSprite(this);
 
@@ -197,14 +197,14 @@ namespace SE.Components
             if (!SpatialPartitionManager.Insert(this)) 
                 return;
 
-            RenderableTypeCache.lit?.Shadow?.InsertIntoPartition();
+            RenderableTypeInfo.lit?.Shadow?.InsertIntoPartition();
         }
 
         public void RemoveFromPartition()
         {
             SpatialPartitionManager.Remove(this);
 
-            RenderableTypeCache.lit?.Shadow?.InsertIntoPartition();
+            RenderableTypeInfo.lit?.Shadow?.InsertIntoPartition();
         }
     }
 
