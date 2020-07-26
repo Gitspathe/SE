@@ -136,6 +136,7 @@ namespace SE.Core
 
         #region LOGGING
 
+        // TODO: NetworkLogger.
         internal static void LogInfo(string msg, bool important = false)
             => onLogInfoHandler?.Invoke(msg, important);
         internal static void LogWarning(string msg = null, Exception exception = null)

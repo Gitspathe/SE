@@ -56,19 +56,7 @@ namespace SE.Serialization.Converters
     public abstract class GenericConverter : Converter
     {
         /// <summary>Generic type arguments.</summary>
-        protected internal Type[] InnerTypes;
-
-        public GenericConverter() { /* Empty constructor for reflection. */ }
-    }
-
-    /// <summary>
-    /// Serializes generic objects of a specified underlying generic type.
-    /// One GenericTypeSerializer instance for EACH inner type combination is generated at runtime.
-    /// </summary>
-    public abstract class GenericConverter<T> : Converter<T>
-    {
-        /// <summary>Generic type arguments.</summary>
-        protected internal Type[] InnerTypes;
+        protected internal Type[] TypeArguments;
 
         public GenericConverter() { /* Empty constructor for reflection. */ }
     }

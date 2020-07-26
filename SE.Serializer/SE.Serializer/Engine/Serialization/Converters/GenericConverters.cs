@@ -14,8 +14,8 @@ namespace SE.Serialization.Converters
             //    return null;
 
             int arrLength = reader.ReadInt32();
-            Array val = Array.CreateInstance(InnerTypes[0], arrLength);
-            Converter serializer = task.Settings.Resolver.GetConverter(InnerTypes[0]);
+            Array val = Array.CreateInstance(TypeArguments[0], arrLength);
+            Converter serializer = task.Settings.Resolver.GetConverter(TypeArguments[0]);
             for (int i = 0; i < arrLength; i++) {
                 val.SetValue(Serializer.DeserializeReader(serializer, reader, ref task), i);
             }
@@ -28,7 +28,7 @@ namespace SE.Serialization.Converters
             Array val = (Array) obj;
             writer.Write(val.Length);
 
-            Converter serializer = task.Settings.Resolver.GetConverter(InnerTypes[0]);
+            Converter serializer = task.Settings.Resolver.GetConverter(TypeArguments[0]);
             for (int i = 0; i < val.Length; i++) {
                 Serializer.SerializeWriter(val.GetValue(i), serializer, writer, ref task, false);
             }
@@ -52,7 +52,7 @@ namespace SE.Serialization.Converters
             if (!reader.ReadBoolean()) 
                 return null;
 
-            Converter serializer = task.Settings.Resolver.GetConverter(InnerTypes[0]);
+            Converter serializer = task.Settings.Resolver.GetConverter(TypeArguments[0]);
             return serializer?.Deserialize(reader, ref task);
         }
 
@@ -61,7 +61,7 @@ namespace SE.Serialization.Converters
             bool hasValue = obj != null;
             writer.Write(hasValue);
             if (hasValue) {
-                task.Settings.Resolver.GetConverter(InnerTypes[0])?.Serialize(obj, writer, ref task);
+                task.Settings.Resolver.GetConverter(TypeArguments[0])?.Serialize(obj, writer, ref task);
             }
         }
     }

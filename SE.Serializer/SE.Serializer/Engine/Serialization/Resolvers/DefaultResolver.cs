@@ -60,8 +60,8 @@ namespace SE.Serialization.Resolvers
             // Step 3: Test to see if it's a specially recognized type.
             // A) Flat array.
             if (objType.IsArray) {
-                Type[] innerTypes = { objType.GetElementType() };
-                return CreateGenericTypeConverter(objType, typeof(Array), innerTypes);
+                Type[] typeArgs = { objType.GetElementType() };
+                return CreateGenericTypeConverter(objType, typeof(Array), typeArgs);
             }
 
             // B) TODO: Multidimensional array. NOTE: Jagged array seems to already work!!
@@ -110,11 +110,11 @@ namespace SE.Serialization.Resolvers
             return null;
         }
 
-        public GenericConverter CreateGenericTypeConverter(Type concreteType, Type genericType, Type[] innerTypes)
+        public GenericConverter CreateGenericTypeConverter(Type concreteType, Type genericType, Type[] typeArgs)
         {
             if (genericTypeConverterTypes.TryGetValue(genericType, out Type serializerType)) {
                 GenericConverter newSerializer = (GenericConverter) Activator.CreateInstance(serializerType);
-                newSerializer.InnerTypes = innerTypes;
+                newSerializer.TypeArguments = typeArgs;
                 RegisterConverter(concreteType, newSerializer);
                 return newSerializer;
             }
