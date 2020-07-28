@@ -13,12 +13,18 @@ namespace SE.AssetManagement.Processors
 
         public override HashSet<Asset> GetReferencedAssets()
         {
-            return new HashSet<Asset> { AssetManager.GetAsset<Texture2D>(textureAssetKey) };
+            // Don't reference Texture2D if in headless mode!
+            return Screen.IsFullHeadless
+                ? new HashSet<Asset>()
+                : new HashSet<Asset> { AssetManager.GetAsset<Texture2D>(textureAssetKey) };
         }
 
         public override object Construct()
         {
-            Asset<Texture2D> asset = AssetManager.GetAsset<Texture2D>(textureAssetKey);
+            Asset<Texture2D> asset = Screen.IsFullHeadless 
+                ? null 
+                : AssetManager.GetAsset<Texture2D>(textureAssetKey);
+
             return new SpriteTexture(asset, sourceRect);
         }
 

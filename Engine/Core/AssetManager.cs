@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.Core.Exceptions;
 
@@ -17,6 +18,11 @@ namespace SE.Core
         internal static uint CurrentAssetPriority;
 
         private static Dictionary<string, ContentLoader> contentManagers = new Dictionary<string, ContentLoader>();
+
+        private static HashSet<Type> noHeadlessSupportTypes = new HashSet<Type> {
+            typeof(Texture2D), 
+            typeof(SpriteFont)
+        };
 
         public static void Update(float deltaTime)
         {
@@ -77,8 +83,15 @@ namespace SE.Core
         /// <param name="key">Key used for retrieval.</param>
         /// <param name="value">Array resource returned.</param>
         /// <returns>True if successful.</returns>
-        public static bool TryGet<TValue>(IAssetConsumer consumer, string key, out dynamic value) 
-            => LookupDictionary[typeof(Asset<TValue>)].TryGet(consumer, key, out value);
+        public static bool TryGet<TValue>(IAssetConsumer consumer, string key, out dynamic value)
+        {
+            if (Screen.IsFullHeadless && noHeadlessSupportTypes.Contains(typeof(TValue))) {
+                Console.LogWarning($"Asset with key '{key}' was not retrieved in headless mode.");
+                value = default;
+                return false;
+            }
+            return LookupDictionary[typeof(Asset<TValue>)].TryGet(consumer, key, out value);
+        }
 
         /// <summary>
         /// Retrieves an unpacked asset instance.
@@ -89,6 +102,10 @@ namespace SE.Core
         /// <returns>An unpacked asset.</returns>
         public static TValue Get<TValue>(IAssetConsumer consumer, dynamic key)
         {
+            if (Screen.IsFullHeadless && noHeadlessSupportTypes.Contains(typeof(TValue))) {
+                Console.LogWarning($"Asset with key '{key}' was not retrieved in headless mode.");
+                return default;
+            }
             if (LookupDictionary.ContainsKey(typeof(Asset<TValue>))) {
                 return LookupDictionary[typeof(Asset<TValue>)].Get(consumer, key);
             }
@@ -103,6 +120,10 @@ namespace SE.Core
         /// <returns>Packed Asset instance.</returns>
         public static Asset<TValue> GetAsset<TValue>(dynamic key)
         {
+            if (Screen.IsFullHeadless && noHeadlessSupportTypes.Contains(typeof(TValue))) {
+                Console.LogWarning($"Asset with key '{key}' was not retrieved in headless mode.");
+                return default;
+            }
             if (LookupDictionary.ContainsKey(typeof(Asset<TValue>))) {
                 return LookupDictionary[typeof(Asset<TValue>)].GetAsset(key);
             }

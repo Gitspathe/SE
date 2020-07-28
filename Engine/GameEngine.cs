@@ -130,7 +130,7 @@ namespace SE
                 ParticleEngine.Initialize();
 
                 UIManager.Initialize();
-                if (!Screen.IsFullHeadless)
+                if (!Screen.IsFullHeadless) 
                     Core.Lighting.Initialize();
 
                 //SpatialPartitionManager.Initialize(192);
