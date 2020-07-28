@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
@@ -23,7 +24,7 @@ namespace SE.Serialization.Converters
         private Func<object> objCtor;
         private bool isValueType;
 
-        private Dictionary<string, Node> nodesDictionary = new Dictionary<string, Node>();
+        private Dictionary<string, Node> nodesDictionary;
         private Node[] nodesArray;
 
         private const int _NODE_HEADER_SIZE = sizeof(byte) + sizeof(ushort);
@@ -51,9 +52,10 @@ namespace SE.Serialization.Converters
                 defaultSerialization = serializeObjAttribute.ObjectSerialization;
             }
 
-            QuickList<Node> tmpNodes = new QuickList<Node>();
-            HashSet<ushort> indexes = new HashSet<ushort>();
             List<Member> members = accessor.Members;
+            nodesDictionary = new Dictionary<string, Node>(members.Count);
+            QuickList<Node> tmpNodes = new QuickList<Node>(members.Count);
+            HashSet<ushort> indexes = new HashSet<ushort>(members.Count);
             ushort curIndex = 0;
             foreach (Member member in members) {
                 // Skip member if it has an ignore attribute.
@@ -359,9 +361,7 @@ namespace SE.Serialization.Converters
                 bool isDefault = converter.IsDefault(val);
                 bool writeNull = task.Settings.NullValueHandling == NullValueHandling.DefaultValue;
                 bool writeDefault = task.Settings.DefaultValueHandling == DefaultValueHandling.Serialize;
-                if(!writeNull && val == null)
-                    return;
-                if(!writeDefault && isDefault)
+                if(!writeNull && val == null || !writeDefault && isDefault)
                     return;
 
                 writer.Write(_DELIMITER);

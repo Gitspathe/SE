@@ -6,7 +6,6 @@ using DeeZ.Editor.GUI.ValueDrawers;
 using SE.Core;
 using DeeZ.Editor.GUI.Viewport;
 using ImGuiNET;
-using SE.Engine.Utility;
 using SE.Utility;
 
 namespace DeeZ.Editor.GUI

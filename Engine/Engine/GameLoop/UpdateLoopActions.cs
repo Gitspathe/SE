@@ -64,6 +64,8 @@ namespace SE.GameLoop
     public class LoopBeginAsyncParticles : IUpdateLoopAction
     {
         public string Name => "Begin asyncronous particles update task";
+
+        // TODO: Actually support zero or more cameras properly!
         public void Invoke() => ParticleEngine.Update(Time.DeltaTime, Core.Rendering.CameraBounds[0]);
     }
 

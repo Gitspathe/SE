@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using SE;
 using SE.Common;
-using SE.Engine.Utility;
 using SE.Utility;
 
 namespace DeeZ.Editor.GUI.Hierarchy

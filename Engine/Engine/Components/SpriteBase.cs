@@ -26,10 +26,9 @@ namespace SE.Components
 
         public override int Queue => 100;
 
-        internal BlendMode blendMode;
         public BlendMode BlendMode {
-            get => blendMode;
-            set => blendMode = value;
+            get => Info.BlendMode;
+            set => Info.BlendMode = value;
         }
 
         public virtual Point Offset {
@@ -140,23 +139,26 @@ namespace SE.Components
             }
         }
 
-        private protected int drawCallID = -1;
         public int DrawCallID { 
-            get => drawCallID;
-            private set => drawCallID = value;
+            get => Info.DrawCallID;
+            private set => Info.DrawCallID = value;
         }
 
-        public RenderableTypeInfo RenderableTypeInfo { get; protected set; }
+        public RenderableInfo Info { get; }
 
         /// <summary>Cached owner transform. DO NOT MODIFY!</summary>
         protected Transform ownerTransform;
+
+        public SpriteBase()
+        {
+            Info = new RenderableInfo(this);
+        }
 
         public abstract void RecalculateBounds();
 
         internal override void OnInitializeInternal()
         {
             base.OnInitializeInternal();
-            RenderableTypeInfo = RenderableTypeLookup.Retrieve(this);
             if (Enabled && !Owner.Sprites.Contains(this))
                 Owner.AddSprite(this);
 
@@ -191,20 +193,20 @@ namespace SE.Components
         }
 
         public abstract void Render(Camera2D camera, Space space);
-
+        
         public void InsertIntoPartition()
         {
             if (!SpatialPartitionManager.Insert(this)) 
                 return;
 
-            RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
+            Info.RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
         }
 
         public void RemoveFromPartition()
         {
             SpatialPartitionManager.Remove(this);
 
-            RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
+            Info.RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
         }
     }
 
