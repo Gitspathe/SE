@@ -12,6 +12,7 @@ using static SE.Core.Rendering;
 using Color = Microsoft.Xna.Framework.Color;
 using Console = SE.Core.Console;
 using Vector2 = System.Numerics.Vector2;
+using Vector4 = System.Numerics.Vector4;
 
 namespace SE.Rendering
 {
@@ -332,13 +333,12 @@ namespace SE.Rendering
                 int size = particles.Length;
                 Particle* tail = ptr + size;
                 for (Particle* particle = ptr; particle < tail; particle++) {
-                    Rectangle sourceRect = particle->SourceRectangle.ToRectangle();
-                    Vector2 origin = new Vector2(
-                        sourceRect.Width / 2.0f,
-                        sourceRect.Width / 2.0f);
+                    ref Int4 particleRect = ref particle->SourceRectangle;
+                    ref Vector4 particleCol = ref particle->Color;
 
-                    System.Numerics.Vector4 particleC = particle->Color;
-                    Color color = new Color(particleC.X / 360, particleC.Y, particleC.Z, particleC.W);
+                    Rectangle sourceRect = new Rectangle(particleRect.X, particleRect.Y, particleRect.Width, particleRect.Height);
+                    Vector2 origin = new Vector2(sourceRect.Width / 2.0f, sourceRect.Width / 2.0f);
+                    Color color = new Color(particleCol.X / 360, particleCol.Y, particleCol.Z, particleCol.W);
                     Core.Rendering.SpriteBatch.Draw(tex, 
                         particle->Position - camPos,
                         sourceRect,

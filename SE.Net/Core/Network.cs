@@ -141,8 +141,12 @@ namespace SE.Core
             => onLogInfoHandler?.Invoke(msg, important);
         internal static void LogWarning(string msg = null, Exception exception = null)
             => onLogWarningHandler?.Invoke(msg, exception);
+        internal static void LogWarning(Exception exception = null)
+            => LogWarning(null, exception);
         internal static void LogError(string msg = null, Exception exception = null)
             => onLogErrorHandler?.Invoke(msg, exception);
+        internal static void LogError(Exception exception = null)
+            => LogError(null, exception);
 
         #endregion
 
@@ -263,7 +267,7 @@ namespace SE.Core
         public static void StartServer(int incomingPort, int outgoingPort, int maxConnections = 128, bool loopBack = false)
         {
             if (!initialized)
-                LogError(exception: new InvalidOperationException("Network manager not yet initialized."));
+                LogError(new InvalidOperationException("Network manager not yet initialized."));
 
             ResetListener();
             listener.ConnectionRequestEvent += request => {
@@ -319,7 +323,7 @@ namespace SE.Core
         public static void Connect(string host, int incomingPort, int outgoingPort)
         {
             if (!initialized)
-                LogError(exception: new InvalidOperationException("Network manager not yet initialized."));
+                LogError(new InvalidOperationException("Network manager not yet initialized."));
 
             ResetListener();
 
@@ -363,14 +367,14 @@ namespace SE.Core
                 await device.CreatePortMapAsync(new Mapping(Protocol.Udp, internalPort, externalPort, description));
                 Console.WriteLine("Forwarded external port '" + externalPort + "' to internal port '" + internalPort + "' using UPnP.");
             } catch (Exception e) {
-                LogWarning(exception: new Exception("Failed to forward port " + externalPort + " with UPnP. Exception occurred.", e));
+                LogWarning(new Exception("Failed to forward port " + externalPort + " with UPnP. Exception occurred.", e));
             }
         }
 
         public static void Disconnect()
         {
             if (!initialized)
-                LogError(exception: new InvalidOperationException("Network manager not yet initialized."));
+                LogError(new InvalidOperationException("Network manager not yet initialized."));
 
             if (InstanceType == NetInstanceType.Client) {
                 Client.DisconnectAll();
@@ -395,7 +399,7 @@ namespace SE.Core
         public static void SendPacketServer<T>(INetLogic netLogic, NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender) where T : PacketProcessor
         {
             if (!PacketProcessorManager.GetVal(typeof(T), out ushort s)) {
-                if(Report) LogError(exception: new Exception($"No network processor for type {typeof(T)} was found.")); return;
+                if(Report) LogError(new Exception($"No network processor for type {typeof(T)} was found.")); return;
             }
             SEPacket packet = new SEPacket(s, netLogic.ID, netWriter.Data, netWriter.Length);
             
@@ -430,7 +434,7 @@ namespace SE.Core
         public static void SendPacketClient<T>(INetLogic netLogic, NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel) where T : PacketProcessor
         {
             if (!PacketProcessorManager.GetVal(typeof(T), out ushort s)) {
-                if(Report) LogError(exception: new Exception($"No network processor for type {typeof(T)} was found.")); return;
+                if(Report) LogError(new Exception($"No network processor for type {typeof(T)} was found.")); return;
             }
             SEPacket packet = new SEPacket(s, netLogic.ID, netWriter.Data, netWriter.Length);
 
@@ -463,5 +467,11 @@ namespace SE.Core
             Array.Copy(data, index, result, 0, length);
             return result;
         }
+    }
+
+    public ref struct PeerErrorInfo
+    {
+        public NetPeer Sender;
+
     }
 }
