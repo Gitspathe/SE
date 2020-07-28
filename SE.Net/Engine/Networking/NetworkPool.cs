@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using LiteNetLib.Utils;
+using SE.Core;
 using SE.Pooling;
 
 namespace SE.Engine.Networking
@@ -13,13 +14,13 @@ namespace SE.Engine.Networking
 
         internal static NetDataReader GetReader()
         {
-            lock (readerPool)
+            lock (Network.NetworkLock) 
                 return readerPool.Take();
         }
 
         internal static NetDataReader GetReader(byte[] data)
         {
-            lock (readerPool) {
+            lock (Network.NetworkLock) {
                 NetDataReader reader = readerPool.Take();
                 reader.SetSource(data);
                 return reader;
@@ -28,13 +29,13 @@ namespace SE.Engine.Networking
 
         internal static void ReturnReader(NetDataReader reader)
         {
-            lock (readerPool)
+            lock (Network.NetworkLock)
                 readerPool.Return(reader);
         }
 
         internal static NetDataWriter GetWriter()
         {
-            lock (writerPool) {
+            lock (Network.NetworkLock) {
                 NetDataWriter writer = writerPool.Take();
                 writer.Reset();
                 return writer;
@@ -43,7 +44,7 @@ namespace SE.Engine.Networking
 
         internal static void ReturnWriter(NetDataWriter writer)
         {
-            lock (writerPool)
+            lock (Network.NetworkLock)
                 writerPool.Return(writer);
         }
     }

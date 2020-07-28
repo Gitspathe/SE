@@ -421,14 +421,16 @@ namespace SE.Core
             }
             if (recipients.Count <= 0) 
                 return;
-
-            // Send the RPC message to any recipient(s).
-            NetDataWriter writer = NetworkPool.GetWriter();
-            packet.WriteTo(writer);
-            for (int i = 0; i < recipients.Count; i++) {
-                recipients[i].Send(writer, channel, deliveryMethod);
+                
+            lock(NetworkLock) {
+                // Send the RPC message to any recipient(s).
+                NetDataWriter writer = NetworkPool.GetWriter();
+                packet.WriteTo(writer);
+                for (int i = 0; i < recipients.Count; i++) {
+                    recipients[i].Send(writer, channel, deliveryMethod);
+                }
+                NetworkPool.ReturnWriter(writer);
             }
-            NetworkPool.ReturnWriter(writer);
         }
 
         public static void SendPacketClient<T>(INetLogic netLogic, NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel) where T : PacketProcessor
@@ -444,13 +446,15 @@ namespace SE.Core
             if (recipients.Count <= 0) 
                 return;
 
-            // Send the RPC message to any recipient(s).
-            NetDataWriter writer = NetworkPool.GetWriter();
-            packet.WriteTo(writer);
-            for (int i = 0; i < recipients.Count; i++) {
-                recipients[i].Send(writer, channel, deliveryMethod);
+            lock(NetworkLock) {
+                // Send the RPC message to any recipient(s).
+                NetDataWriter writer = NetworkPool.GetWriter();
+                packet.WriteTo(writer);
+                for (int i = 0; i < recipients.Count; i++) {
+                    recipients[i].Send(writer, channel, deliveryMethod);
+                }
+                NetworkPool.ReturnWriter(writer);
             }
-            NetworkPool.ReturnWriter(writer);
         }
 
         public static void SendRPC(RPCMethod method, params object[] parameters)

@@ -1,4 +1,5 @@
 ﻿using LiteNetLib.Utils;
+using SE.Core;
 
 namespace SE.Engine.Networking
 {
@@ -58,17 +59,21 @@ namespace SE.Engine.Networking
     {
         public static byte[] SerializePersistable(INetPersistable persist)
         {
-            NetDataWriter writer = NetworkPool.GetWriter();
-            byte[] bytes = persist.SerializeNetworkState(writer);
-            NetworkPool.ReturnWriter(writer);
-            return bytes;
+            lock (Network.NetworkLock) {
+                NetDataWriter writer = NetworkPool.GetWriter();
+                byte[] bytes = persist.SerializeNetworkState(writer);
+                NetworkPool.ReturnWriter(writer);
+                return bytes;
+            }
         }
 
         public static void RestorePersistable(INetPersistable persist, byte[] bytes)
         {
-            NetDataReader reader = NetworkPool.GetReader(bytes);
-            persist.RestoreNetworkState(reader);
-            NetworkPool.ReturnReader(reader);
+            lock (Network.NetworkLock) {
+                NetDataReader reader = NetworkPool.GetReader(bytes);
+                persist.RestoreNetworkState(reader);
+                NetworkPool.ReturnReader(reader);
+            }
         }
     }
 
