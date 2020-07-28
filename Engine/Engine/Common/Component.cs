@@ -6,6 +6,7 @@ using SE.Serialization;
 using SE.World.Partitioning;
 using SE.Core.Extensions;
 using System;
+using SE.Core.Internal;
 
 namespace SE.Common
 {
@@ -16,12 +17,14 @@ namespace SE.Common
     public class Component : SEObject, IAssetConsumer, IDisposable
     {
         public bool Serialized => !NeverSerialize && InstantiatedFromAttribute;
+        
+        /// <summary>If true, Component will be able to be serialized.</summary>
+        internal bool InstantiatedFromAttribute = false;
 
         /// <summary>If true, Component will be serialized into it's owner's data.</summary>
         public virtual bool NeverSerialize => false;
-
-        /// <summary>If true, Component will be able to be serialized.</summary>
-        internal bool InstantiatedFromAttribute = false;
+        /// <summary>Internal reflection information based on Component type.</summary>
+        internal Reflection.ComponentInfo ReflectionInfo { get; }
 
         /// <summary>The component's order in which it is processed. Lower = earlier update loop and initialize.</summary>
         public virtual int Queue { get; } = 0;
@@ -77,6 +80,11 @@ namespace SE.Common
         private EngineSerializerBase serializer;
 
         private bool isDisposed;
+
+        public Component()
+        {
+            ReflectionInfo = Reflection.GetComponentInfo(GetType());
+        }
 
         /// <summary>
         /// Runs before initialize.

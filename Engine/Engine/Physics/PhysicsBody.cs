@@ -262,6 +262,7 @@ namespace SE.Physics
         private bool OnBodyCollisionEvent(AetherFixture sender, AetherFixture other, AetherContact contact)
         {
             if (ValidState) {
+                //OnCollisionEventHandler?.Invoke(sender.DependencyFixture as Fixture, other.DependencyFixture as Fixture, new Contact(contact));
                 AddCollisionEvent(this, sender, other, contact);
             }
             return true;

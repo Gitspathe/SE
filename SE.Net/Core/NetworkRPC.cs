@@ -83,7 +83,7 @@ namespace SE.Core
             initialized = true;
         }
 
-        internal static void SendRPCClient(NetDataWriter writer, uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, string method, params object[] parameters)
+        internal static void SendRPCClient(uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, string method, params object[] parameters)
         {
             // TODO: Allow clients to specify scope in some way. Needs to be secure. Maybe use attributes??
             // Get the unique method signature string for the RPC.
@@ -103,13 +103,18 @@ namespace SE.Core
                 }
 
                 // Construct a data writer.
-                CacheRPCFunc.Reset(networkIdentity, methodID, parameters);
-                CacheRPCFunc.WriteTo(writer);
-                SendPacketClient<RPCFunctionProcessor>(netLogic, writer, deliveryMethod, channel);
+                NetDataWriter writer = NetworkPool.GetWriter();
+                try {
+                    CacheRPCFunc.Reset(networkIdentity, methodID, parameters);
+                    CacheRPCFunc.WriteTo(writer);
+                    SendPacketClient<RPCFunctionProcessor>(netLogic, writer, deliveryMethod, channel);
+                } finally {
+                    NetworkPool.ReturnWriter(writer);
+                }
             }
         }
 
-        internal static void SendRPCServer(NetDataWriter writer, uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender, string method, params object[] parameters)
+        internal static void SendRPCServer(uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender, string method, params object[] parameters)
         {
             if (targets == Scope.None) {
                 if(Report) LogError(new Exception($"Invalid RPC send: server RPC target scope not specified during method {method}.")); return;
@@ -132,15 +137,19 @@ namespace SE.Core
                 }
 
                 // Construct NetOutgoingMessage.
-                CacheRPCFunc.Reset(networkIdentity, methodID, parameters);
-                CacheRPCFunc.WriteTo(writer);
-                SendPacketServer<RPCFunctionProcessor>(netLogic, writer, deliveryMethod, channel, targets, connections, sender);
+                NetDataWriter writer = NetworkPool.GetWriter();
+                try {
+                    CacheRPCFunc.Reset(networkIdentity, methodID, parameters);
+                    CacheRPCFunc.WriteTo(writer);
+                    SendPacketServer<RPCFunctionProcessor>(netLogic, writer, deliveryMethod, channel, targets, connections, sender);
+                } finally {
+                    NetworkPool.ReturnWriter(writer);
+                }
             }
         }
 
         internal static void SendRPC(uint networkIdentity, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender, string method, params object[] parameters)
         {
-            NetDataWriter writer = NetworkPool.GetWriter();
             try {
                 if (!initialized)
                     LogError(new InvalidOperationException("Network manager is not initialized."));
@@ -148,11 +157,11 @@ namespace SE.Core
                 switch (InstanceType) {
                     // Send server -> client(s) RPC.
                     case NetInstanceType.Server:
-                        SendRPCServer(writer, networkIdentity, deliveryMethod, channel, targets, connections, sender, method, parameters);
+                        SendRPCServer(networkIdentity, deliveryMethod, channel, targets, connections, sender, method, parameters);
                         break;
                     // Send client -> server RPC.
                     case NetInstanceType.Client:
-                        SendRPCClient(writer, networkIdentity, deliveryMethod, channel, method, parameters);
+                        SendRPCClient(networkIdentity, deliveryMethod, channel, method, parameters);
                         break;
 
                     // Invalid network states.
@@ -162,10 +171,7 @@ namespace SE.Core
                         if(Report) LogError(new ArgumentOutOfRangeException()); return;
                 }
             } catch (Exception e) {
-                NetworkPool.ReturnWriter(writer);
                 NetProtector.ReportError(e);
-            } finally {
-                NetworkPool.ReturnWriter(writer);
             }
         }
 

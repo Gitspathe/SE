@@ -24,6 +24,8 @@ namespace SE.Core
         private static HashSet<PhysicsBody> pendingCreateList = new HashSet<PhysicsBody>();
         private static List<RayCast2DHit> tmpHits = new List<RayCast2DHit>(32);
 
+        internal static object PhysicsLock = new object();
+
         internal static QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)> CollisionEvents 
             = new QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)>();
 
@@ -96,14 +98,14 @@ namespace SE.Core
 
         internal static void AddCollisionEvent(PhysicsBody body, AetherFixture sender, AetherFixture other, AetherContact contact)
         {
-            lock (CollisionEvents) {
+            lock (PhysicsLock) {
                 CollisionEvents.Add((body, sender, other, contact));
             }
         }
 
         internal static void AddSeparationEvent(PhysicsBody body, AetherFixture sender, AetherFixture other, AetherContact contact)
         {
-            lock (SeparationEvents) {
+            lock (PhysicsLock) {
                 SeparationEvents.Add((body, sender, other, contact));
             }
         }

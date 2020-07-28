@@ -41,6 +41,8 @@ namespace SE.Common
         public bool PendingDestroy { get; private set; }
         /// <summary>True if Destroy() was called on the GameObject this frame.</summary>
         public bool Destroyed { get; private set; }
+        /// <summary>Internal reflection information based on GameObject type.</summary>
+        internal Reflection.GameObjectInfo ReflectionInfo { get; }
 
         public Rectangle AABB => (Rectangle) Bounds;
         public PartitionTile<GameObject> CurrentPartitionTile { get; set; }
@@ -125,6 +127,8 @@ namespace SE.Common
         /// <param name="scale">Scale.</param>
         public GameObject(Vector2 pos, float rot, Vector2 scale)
         {
+            ReflectionInfo = Reflection.GetGameObjectInfo(GetType());
+
             // Skip this constructor if the GameObject is a UIObject.
             if (this is UIObject) 
                 return;
@@ -156,14 +160,10 @@ namespace SE.Common
         }
 
         public bool ExecuteIsValid(Component component)
-        {
-            return ExecuteIsValid() && Reflection.GetComponentInfo(component.GetType()).Execute;
-        }
+            => ExecuteIsValid() && component.ReflectionInfo.Execute;
 
         public bool ExecuteIsValid()
-        {
-            return Reflection.GetGameObjectInfo(GetType()).Execute;
-        }
+            => ReflectionInfo.Execute;
 
         internal void AddSprite(SpriteBase s) 
             => Sprites.Add(s);
