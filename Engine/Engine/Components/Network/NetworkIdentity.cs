@@ -126,8 +126,8 @@ namespace SE.Components.Network
         {
             List<uint> goNetIDs = NetIDs;
             for (int i = 0; i < goNetIDs.Count; i++) {
-                NetworkObjects.TryRemove(goNetIDs[i], out _);
-                SpawnedNetObjects.TryRemove(goNetIDs[i], out _);
+                NetworkObjects.Remove(goNetIDs[i]);
+                SpawnedNetObjects.Remove(goNetIDs[i]);
             }
             Owner.OnDestroyInternal();
         }

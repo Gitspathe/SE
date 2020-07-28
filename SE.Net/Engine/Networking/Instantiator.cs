@@ -41,16 +41,20 @@ namespace SE.Engine.Networking
 
         public void OnPeerConnected(NetPeer peer)
         {
-            foreach (uint i in SpawnedNetObjects.Keys) { 
-                InstantiateFromBuffer(SpawnedNetObjects[i], peer, i);
+            lock (NetworkLock) {
+                foreach (uint i in SpawnedNetObjects.Keys) {
+                    InstantiateFromBuffer(SpawnedNetObjects[i], peer, i);
+                }
             }
         }
 
         internal bool CleanNetObject(SpawnedNetObject netObj)
         {
-            SpawnedNetObjects.TryRemove(netObj.NetworkID, out _);
-            if (netObj.NetLogic is INetInstantiatable instantiatable)
-                instantiatable.NetClean();
+            lock (NetworkLock) {
+                SpawnedNetObjects.Remove(netObj.NetworkID);
+                if (netObj.NetLogic is INetInstantiatable instantiatable)
+                    instantiatable.NetClean();
+            }
 
             return true;
         }
@@ -64,148 +68,169 @@ namespace SE.Engine.Networking
             byte[] netState = null;
             byte[] instantiateParams = null;
             NetDataWriter writer = null;
+            lock (NetworkLock) {
+                try {
+                    if (netObj.NetLogic is INetInstantiatable instantiatable) {
+                        writer = NetworkPool.GetWriter();
+                        object[] parameters = instantiatable.InstantiateParameters;
+                        foreach (object writeObj in parameters) {
+                            writer.Put(NetData.PacketConverters[writeObj.GetType()]);
+                            NetData.Write(writeObj.GetType(), writeObj, writer);
+                        }
 
-            try {
-                if (netObj.NetLogic is INetInstantiatable instantiatable) {
-                    writer = NetworkPool.GetWriter();
-                    object[] parameters = instantiatable.InstantiateParameters;
-                    foreach (object writeObj in parameters) {
-                        writer.Put(NetData.PacketConverters[writeObj.GetType()]);
-                        NetData.Write(writeObj.GetType(), writeObj, writer);
+                        instantiateParams = writer.CopyData();
+                        NetworkPool.ReturnWriter(writer);
+
+                        writer = NetworkPool.GetWriter();
+                        data = instantiatable.GetBufferedData(writer);
+                        NetworkPool.ReturnWriter(writer);
                     }
 
-                    instantiateParams = writer.CopyData();
+                    if (netObj.NetLogic is INetPersistable persist) {
+                        writer = NetworkPool.GetWriter();
+                        netState = persist.SerializeNetworkState(writer);
+                        NetworkPool.ReturnWriter(writer);
+                    }
+                } catch (Exception) {
                     NetworkPool.ReturnWriter(writer);
-
-                    writer = NetworkPool.GetWriter();
-                    data = instantiatable.GetBufferedData(writer);
-                    NetworkPool.ReturnWriter(writer);
+                    throw;
                 }
-
-                if (netObj.NetLogic is INetPersistable persist) {
-                    writer = NetworkPool.GetWriter();
-                    netState = persist.SerializeNetworkState(writer);
-                    NetworkPool.ReturnWriter(writer);
-                }
-            } catch (Exception) {
-                NetworkPool.ReturnWriter(writer);
-                throw;
             }
 
-            SendRPC(instantiateMethod, conn, netObj.SpawnableID, conn.GetUniqueID() == netObj.Owner, netObj.NetworkID, netState ?? new byte[0], data ?? new byte[0], instantiateParams ?? new byte[0]);
+            SendRPC(instantiateMethod, 
+                conn, 
+                netObj.SpawnableID, 
+                conn.GetUniqueID() == netObj.Owner,
+                netObj.NetworkID, 
+                netState ?? new byte[0], 
+                data ?? new byte[0], 
+                instantiateParams ?? new byte[0]);
         }
 
         public void Instantiate(string type, string owner = "SERVER", object[] parameters = null)
         {
             NetDataWriter writer = null;
-            try {
-                if (InstanceType != NetInstanceType.Server)
-                    throw new InvalidOperationException("Attempted to instantiate on a client. Instantiate can only be called on the server.");
-                if (!spawnables.TryGetValue(type, out Type t))
-                    throw new Exception("No Spawnable of Type " + type + " found in dictionary.");
+            INetLogic logic = null;
+            byte[] returned = null;
+            byte[] netState = null;
+            byte[] paramsData;
 
-                object obj = parameters != null
-                    ? Activator.CreateInstance(t, parameters)
-                    : Activator.CreateInstance(t);
+            lock(NetworkLock) {
+                try {
+                    if (InstanceType != NetInstanceType.Server)
+                        throw new InvalidOperationException("Attempted to instantiate on a client. Instantiate can only be called on the server.");
+                    if (!spawnables.TryGetValue(type, out Type t))
+                        throw new Exception("No Spawnable of Type " + type + " found in dictionary.");
 
-                INetLogic logic = null;
-                if (obj is INetLogicProxy proxy)
-                    logic = proxy.NetLogic;
-                else if (obj is INetLogic netLogic)
-                    logic = netLogic;
+                    object obj = parameters != null
+                        ? Activator.CreateInstance(t, parameters)
+                        : Activator.CreateInstance(t);
 
-                if (logic == null)
-                    throw new Exception("NetLogic not found.");
+                    if (obj is INetLogicProxy proxy)
+                        logic = proxy.NetLogic;
+                    else if (obj is INetLogic netLogic)
+                        logic = netLogic;
 
-                SetupNetLogic(logic, owner == "SERVER");
-                SpawnedNetObjects.TryAdd(logic.ID, new SpawnedNetObject(logic, logic.ID, type, owner));
+                    if (logic == null)
+                        throw new Exception("NetLogic not found.");
 
-                byte[] returned = null;
-                byte[] netState = null;
+                    SetupNetLogic(logic, owner == "SERVER");
+                    SpawnedNetObjects.Add(logic.ID, new SpawnedNetObject(logic, logic.ID, type, owner));
 
-                writer = NetworkPool.GetWriter();
-                if (parameters != null) {
-                    foreach (object writeObj in parameters) {
-                        writer.Put(NetData.PacketConverters[writeObj.GetType()]);
-                        NetData.Write(writeObj.GetType(), writeObj, writer);
+                    writer = NetworkPool.GetWriter();
+                    if (parameters != null) {
+                        foreach (object writeObj in parameters) {
+                            writer.Put(NetData.PacketConverters[writeObj.GetType()]);
+                            NetData.Write(writeObj.GetType(), writeObj, writer);
+                        }
                     }
-                }
-                byte[] paramsData = writer.Length > 0 ? writer.CopyData() : null;
-                NetworkPool.ReturnWriter(writer);
 
-                if (logic is INetInstantiatable instantiatable) {
-                    writer = NetworkPool.GetWriter();
-                    instantiatable.OnNetworkInstantiatedServer(type, owner, writer);
+                    paramsData = writer.Length > 0 ? writer.CopyData() : null;
                     NetworkPool.ReturnWriter(writer);
 
-                    writer = NetworkPool.GetWriter();
-                    returned = instantiatable.GetBufferedData(writer);
-                    NetworkPool.ReturnWriter(writer);
-                }
-                if (logic is INetPersistable persist) {
-                    writer = NetworkPool.GetWriter();
-                    netState = persist.SerializeNetworkState(writer);
-                    NetworkPool.ReturnWriter(writer);
-                }
+                    if (logic is INetInstantiatable instantiatable) {
+                        writer = NetworkPool.GetWriter();
+                        instantiatable.OnNetworkInstantiatedServer(type, owner, writer);
+                        NetworkPool.ReturnWriter(writer);
 
-                foreach (string playerID in Connections.Keys) {
-                    SendRPC(instantiateMethod, Connections[playerID], type, playerID == owner, logic.ID, netState ?? new byte[0], returned ?? new byte[0], paramsData ?? new byte[0]);
+                        writer = NetworkPool.GetWriter();
+                        returned = instantiatable.GetBufferedData(writer);
+                        NetworkPool.ReturnWriter(writer);
+                    }
+
+                    if (logic is INetPersistable persist) {
+                        writer = NetworkPool.GetWriter();
+                        netState = persist.SerializeNetworkState(writer);
+                        NetworkPool.ReturnWriter(writer);
+                    }
+                } catch (Exception e) {
+                    NetworkPool.ReturnWriter(writer);
+                    LogError(null, new Exception("OOF!", e));
+                    return;
                 }
-            } catch (Exception e) {
-                NetworkPool.ReturnWriter(writer);
-                LogError(null, new Exception("OOF!" ,e));
+            }
+
+            foreach (string playerID in Connections.Keys) {
+                SendRPC(instantiateMethod, 
+                    Connections[playerID], 
+                    type, 
+                    playerID == owner, 
+                    logic.ID, 
+                    netState ?? new byte[0], 
+                    returned ?? new byte[0], 
+                    paramsData ?? new byte[0]);
             }
         }
 
         [ClientRPC(frequent: true)]
         public void Instantiate_CLIENT(string type, bool isOwner, uint netID, byte[] netState, byte[] data, byte[] paramsData)
         {
-            NetDataReader reader = null;
-            try {
-                if (!spawnables.TryGetValue(type, out Type t))
-                    throw new Exception("No Spawnable of Type " + type + " found in dictionary.");
+            lock(NetworkLock) {
+                NetDataReader reader = null;
+                try {
+                    if (!spawnables.TryGetValue(type, out Type t))
+                        throw new Exception("No Spawnable of Type " + type + " found in dictionary.");
 
-                List<object> instantiateParameters = new List<object>();
-                reader = NetworkPool.GetReader(paramsData);
-                while (!reader.EndOfData) {
-                    instantiateParameters.Add(NetData.Read(NetData.PacketBytes[reader.GetByte()], reader));
-                }
-                NetworkPool.ReturnReader(reader);
-
-                // TODO: Temporary fix to prevent error where JSON deserializes floats to doubles.
-                for (int i = 0; i < instantiateParameters.Count; i++) {
-                    if (instantiateParameters[i] is double) {
-                        instantiateParameters[i] = Convert.ToSingle(instantiateParameters[i]);
+                    List<object> instantiateParameters = new List<object>();
+                    reader = NetworkPool.GetReader(paramsData);
+                    while (!reader.EndOfData) {
+                        instantiateParameters.Add(NetData.Read(NetData.PacketBytes[reader.GetByte()], reader));
                     }
-                }
-
-                object obj = instantiateParameters != null
-                    ? Activator.CreateInstance(t, instantiateParameters.ToArray())
-                    : Activator.CreateInstance(t);
-
-                INetLogic logic = null;
-                if (obj is INetLogicProxy proxy)
-                    logic = proxy.NetLogic;
-                else if (obj is INetLogic netLogic)
-                    logic = netLogic;
-
-                if (logic == null)
-                    throw new Exception("NetLogic not found.");
-
-                reader = NetworkPool.GetReader(netState);
-                SetupNetLogic(logic, netID, isOwner, reader);
-                NetworkPool.ReturnReader(reader);
-
-                SpawnedNetObjects.TryAdd(logic.ID, new SpawnedNetObject(logic, logic.ID, type));
-
-                if (logic is INetInstantiatable instantiatable) {
-                    reader = NetworkPool.GetReader(data);
-                    instantiatable.OnNetworkInstantiatedClient(type, isOwner, reader);
                     NetworkPool.ReturnReader(reader);
+
+                    // TODO: Temporary fix to prevent error where JSON deserializes floats to doubles.
+                    for (int i = 0; i < instantiateParameters.Count; i++) {
+                        if (instantiateParameters[i] is double) {
+                            instantiateParameters[i] = Convert.ToSingle(instantiateParameters[i]);
+                        }
+                    }
+
+                    object obj = Activator.CreateInstance(t, instantiateParameters.ToArray());
+
+                    INetLogic logic = null;
+                    if (obj is INetLogicProxy proxy)
+                        logic = proxy.NetLogic;
+                    else if (obj is INetLogic netLogic)
+                        logic = netLogic;
+
+                    if (logic == null)
+                        throw new Exception("NetLogic not found.");
+
+                    reader = NetworkPool.GetReader(netState);
+                    SetupNetLogic(logic, netID, isOwner, reader);
+                    NetworkPool.ReturnReader(reader);
+
+                    SpawnedNetObjects.Add(logic.ID, new SpawnedNetObject(logic, logic.ID, type));
+
+                    if (logic is INetInstantiatable instantiatable) {
+                        reader = NetworkPool.GetReader(data);
+                        instantiatable.OnNetworkInstantiatedClient(type, isOwner, reader);
+                        NetworkPool.ReturnReader(reader);
+                    }
+                } catch (Exception) {
+                    NetworkPool.ReturnReader(reader);
+                    throw;
                 }
-            } catch (Exception) {
-                NetworkPool.ReturnReader(reader);
-                throw;
             }
         }
 
@@ -226,7 +251,7 @@ namespace SE.Engine.Networking
         [ClientRPC(frequent: true)]
         public void Destroy_CLIENT(uint netID)
         {
-            lock (SpawnedNetObjects) {
+            lock (NetworkLock) {
                 if (SpawnedNetObjects.TryGetValue(netID, out SpawnedNetObject netObj)) {
                     CleanNetObject(netObj);
                 } else {

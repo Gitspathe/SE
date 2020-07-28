@@ -36,8 +36,8 @@ namespace SE.Core
 
         internal static object NetworkLock = new object();
 
-        public static ConcurrentDictionary<uint, SpawnedNetObject> SpawnedNetObjects = new ConcurrentDictionary<uint, SpawnedNetObject>();
-        public static ConcurrentDictionary<uint, INetLogic> NetworkObjects = new ConcurrentDictionary<uint, INetLogic>();
+        public static Dictionary<uint, SpawnedNetObject> SpawnedNetObjects = new Dictionary<uint, SpawnedNetObject>();
+        public static Dictionary<uint, INetLogic> NetworkObjects = new Dictionary<uint, INetLogic>();
         public static Dictionary<string, NetPeer> Connections = new Dictionary<string, NetPeer>();
 
         private static Dictionary<Type, INetworkExtension> networkExtensions = new Dictionary<Type, INetworkExtension>();
@@ -211,7 +211,7 @@ namespace SE.Core
                 if (logic is INetPersistable persist && reader != null)
                     persist.RestoreNetworkState(reader);
 
-                NetworkObjects.TryAdd(CurrentNetworkID, logic);
+                NetworkObjects.Add(CurrentNetworkID, logic);
                 CurrentNetworkID++;
             }
         }
@@ -223,7 +223,7 @@ namespace SE.Core
                 if (logic is INetPersistable persist && reader != null)
                     persist.RestoreNetworkState(reader);
 
-                NetworkObjects.TryAdd(networkID, logic);
+                NetworkObjects.Add(networkID, logic);
                 if (networkID > CurrentNetworkID)
                     CurrentNetworkID = networkID;
                 if (networkID == CurrentNetworkID)
