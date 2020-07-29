@@ -9,6 +9,7 @@
     <RootNamespace>SEDemos</RootNamespace>
     <Platforms>AnyCPU</Platforms>
     <Configurations>Debug;Release</Configurations>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
