@@ -23,7 +23,7 @@ namespace SE.Lighting
 
         internal Hull Hull = new Hull();
 
-        private List<MonoGameVector2> tmpList = new List<MonoGameVector2>();
+        private List<MonoGameVector2> pointList = new List<MonoGameVector2>();
 
         public Rectangle AABB => Bounds;
         public PartitionTile<ShadowCaster> CurrentPartitionTile { get; set; }
@@ -37,14 +37,14 @@ namespace SE.Lighting
         public void CalculateHull(bool newBounds = false)
         {
             if (newBounds) {
-                tmpList.Clear();
-                tmpList.Add(new MonoGameVector2(Bounds.X, Bounds.Y));
-                tmpList.Add(new MonoGameVector2(Bounds.Width, Bounds.Y));
-                tmpList.Add(new MonoGameVector2(Bounds.Width, Bounds.Height));
-                tmpList.Add(new MonoGameVector2(Bounds.X, Bounds.Height));
+                pointList.Clear();
+                pointList.Add(new MonoGameVector2(Bounds.X, Bounds.Y));
+                pointList.Add(new MonoGameVector2(Bounds.Width, Bounds.Y));
+                pointList.Add(new MonoGameVector2(Bounds.Width, Bounds.Height));
+                pointList.Add(new MonoGameVector2(Bounds.X, Bounds.Height));
             }
             Hull.Points.Clear();
-            Hull.Points.AddRange(tmpList);
+            Hull.Points.AddRange(pointList);
         }
 
         public void InsertIntoPartition() 

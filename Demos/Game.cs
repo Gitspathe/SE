@@ -21,8 +21,12 @@ using Vector2 = System.Numerics.Vector2;
 using DisplayMode = SE.DisplayMode;
 using SE.Serialization;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using Newtonsoft.Json;
 using SE.Input;
+using SE.Particles;
 using SE.Serialization.Attributes;
 using Console = SE.Core.Console;
 using DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling;
@@ -149,6 +153,11 @@ namespace SEDemos
             //    Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
             //    Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
             //}
+
+            long before = GC.GetTotalMemory(true);
+            object o = new GameObject();
+            long after = GC.GetTotalMemory(true);
+            Console.WriteLine(after - before);
         }
 
         public class TestClassBase
@@ -357,14 +366,14 @@ namespace SEDemos
         private float timer = 1.0f;
         protected override void OnUpdate(GameTime gameTime)
         {
-            timer -= Time.DeltaTime;
-            if (timer <= 0.0f && Network.IsServer) {
-                for (int i = 0; i < 5; i++) {
-                    NetHelper.Instantiate("bouncy", "SERVER",
-                        new Vector2(128 + SE.Utility.Random.Next(0.0f, 1024.0f), 128 + SE.Utility.Random.Next(0.0f, 1024.0f)));
-                }
-                timer = 0.25f;
-            }
+            //timer -= Time.DeltaTime;
+            //if (timer <= 0.0f && Network.IsServer) {
+            //    for (int i = 0; i < 5; i++) {
+            //        NetHelper.Instantiate("bouncy", "SERVER",
+            //            new Vector2(128 + SE.Utility.Random.Next(0.0f, 1024.0f), 128 + SE.Utility.Random.Next(0.0f, 1024.0f)));
+            //    }
+            //    timer = 0.25f;
+            //}
 
             if (IsEditor) {
                 if (InputManager.KeyCodePressed(Keys.F3)) {

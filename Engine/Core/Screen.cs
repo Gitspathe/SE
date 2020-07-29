@@ -46,6 +46,7 @@ namespace SE.Core
 
         public static DisplayMode DisplayMode { get; internal set; } = DisplayMode.Normal;
 
+        // TODO: Tidy this up. Maybe have stuff like Capabilities.HasGPU, etc. Then I can have headless with GPU but no window.
         public static bool IsFullHeadless => DisplayMode == DisplayMode.Decapitated;
 
         internal static void CalculateScreenScale()

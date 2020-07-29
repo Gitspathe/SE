@@ -115,7 +115,6 @@ namespace SE.Common
         internal PooledList<SpriteBase> Sprites = new PooledList<SpriteBase>(Config.Performance.UseArrayPoolCore);
         internal PooledList<IPartitionObject> PartitionObjects = new PooledList<IPartitionObject>(Config.Performance.UseArrayPoolCore);
         internal PooledList<Component> Components = new PooledList<Component>(Config.Performance.UseArrayPoolCore);
-        internal PooledList<Component> SerializedComponents = new PooledList<Component>(Config.Performance.UseArrayPoolCore);
         internal PhysicsObject PhysicsObject = null;
         private bool isDisposed;
 
@@ -636,9 +635,6 @@ namespace SE.Common
                     component.Initialize();
                 }
             }
-            if (component.Serialized && !SerializedComponents.Contains(component)) {
-                SerializedComponents.Add(component);
-            }
             SortComponents();
             return component;
         }
@@ -682,7 +678,6 @@ namespace SE.Common
             }
             component.AssetConsumer.DereferenceAssets();
             Components.Remove(component);
-            SerializedComponents.Remove(component);
             component.Destroy();
             SortComponents();
         }
@@ -721,8 +716,11 @@ namespace SE.Common
                 Scale = Transform.Scale,
                 componentData = new QuickList<ComponentData>()
             };
-            for (int i = 0; i < SerializedComponents.Count; i++) {
-                Component component = SerializedComponents.Array[i];
+            for (int i = 0; i < Components.Count; i++) {
+                Component component = Components.Array[i];
+                if(!component.Serialized)
+                    continue;
+
                 ComponentData componentData = component.Serialize();
                 componentData.ComponentIndex = (ulong) i;
                 data.componentData.Add(componentData);
@@ -743,11 +741,13 @@ namespace SE.Common
 
             // Deserialize any valid components...
             foreach (ComponentData serializedComponent in data.componentData) {
-                for (int i = 0; i < SerializedComponents.Count; i++) {
+                for (int i = 0; i < Components.Count; i++) {
+                    if(!Components.Array[i].Serialized)
+                        continue;
                     if(serializedComponent.ComponentIndex != (ulong) i)
                         continue;
 
-                    Component component = SerializedComponents.Array[i];
+                    Component component = Components.Array[i];
                     component.Deserialize(serializedComponent);
                 }
             }
@@ -770,7 +770,6 @@ namespace SE.Common
             if (disposing) {
                 if (Config.Performance.UseArrayPoolCore) {
                     Components.Dispose();
-                    SerializedComponents.Dispose();
                     Sprites.Dispose();
                     PartitionObjects.Dispose();
                 }
