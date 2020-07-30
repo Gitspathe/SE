@@ -45,6 +45,8 @@ namespace SE.Components
         public Vector2 Position { get; private set; } = Vector2.Zero;
         public Rectangle ViewBounds { get; private set; }
 
+        public static Camera2D Main => Core.Rendering.Cameras.Array[0];
+
         protected override void OnInitialize()
         {
             base.OnInitialize();
@@ -90,7 +92,10 @@ namespace SE.Components
             ScaleMatrix = Matrix.CreateScale(new MonoGameVector3(Zoom, Zoom, 1));
         }
 
-        public Vector2? CameraPointToWorld(Vector2? screenPoint)
+        public Vector2? MouseToWorldPoint() 
+            => ScreenToWorldPoint(Screen.MousePoint);
+
+        public Vector2? ScreenToWorldPoint(Vector2? screenPoint)
         {
             if (screenPoint.HasValue) {
                 return new Vector2(
@@ -100,7 +105,7 @@ namespace SE.Components
             return null;
         }
 
-        public Vector2? WorldPointToCamera(Vector2? worldPoint)
+        public Vector2? WorldToCameraPoint(Vector2? worldPoint)
         {
             if (worldPoint.HasValue) {
                 return new Vector2(

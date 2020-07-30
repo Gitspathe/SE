@@ -44,12 +44,10 @@ namespace SE.Editor.Debug.GameObjects
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            Vector2? vec = GameEngine.EditorCamera?.CameraPointToWorld(Screen.MousePoint);
-            if (vec.HasValue) {
-                p.Light.Offset =vec.Value - Transform.GlobalPositionInternal;
-            } else {
-                p.Light.Offset = new Vector2(-999999.9f, -999999.9f);
-            }
+            Vector2? vec = GameEngine.EditorCamera?.MouseToWorldPoint();
+            p.Light.Offset = vec.HasValue
+                ? vec.Value - Transform.GlobalPositionInternal
+                : new Vector2(-999999.9f, -999999.9f);
         }
 
     }

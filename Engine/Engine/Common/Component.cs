@@ -68,7 +68,7 @@ namespace SE.Common
         protected virtual GameObject OwnerProp { get; set; }
 
         /// <summary>Serializer for the component. Only valid when in the editor.</summary>
-        public EngineSerializerBase Serializer {
+        internal EngineSerializerBase Serializer {
             get => serializer;
             private set {
                 if (serializer != null || (value == null && serializer != null))
@@ -78,6 +78,8 @@ namespace SE.Common
             }
         }
         private EngineSerializerBase serializer;
+
+        public Transform Transform => Owner.Transform;
 
         private bool isDisposed;
 
@@ -199,7 +201,7 @@ namespace SE.Common
             OnInitialize();
         }
 
-        public ComponentData Serialize()
+        internal ComponentData Serialize()
         {
             ComponentData data = new ComponentData {
                 Type = GetType()
@@ -218,10 +220,10 @@ namespace SE.Common
             return data;
         }
 
-        public void Deserialize(string jsonData) 
+        internal void Deserialize(string jsonData) 
             => Deserialize(jsonData.Deserialize<ComponentData>());
 
-        public void Deserialize(ComponentData data)
+        internal void Deserialize(ComponentData data)
         {
             // If serializer is null, initialize it.
             if (Serializer == null) {

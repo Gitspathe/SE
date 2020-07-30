@@ -80,12 +80,12 @@ namespace SE.Common
 
         /// <summary>If true, the GameObject will have it's bounds automatically calculated from it's sprites' bounds.
         ///          Defaults to true for regular GameObjects, defaults to false for UIObjects.</summary>
-        public virtual bool AutoBounds { get; set; } = true;
+        public virtual bool AutoBounds { get; } = true;
 
         /// <summary>The bounds of a GameObject, scaled to the object's transform scale.</summary>
         public RectangleF Bounds {
             get => scaledBounds;
-            set {
+            internal set {
                 EnsureValidAccess();
                 UnscaledBounds = new RectangleF(value.X, value.Y,
                     (int) (value.Width * Transform.Scale.X),
@@ -344,7 +344,7 @@ namespace SE.Common
 
         protected virtual void OnAwake() { }
 
-        protected void OnAwakeInternal()
+        private protected void OnAwakeInternal()
         {
             EnsureValidAccess();
 
@@ -449,7 +449,7 @@ namespace SE.Common
         /// </summary>
         protected virtual void OnEnable(bool isRoot = true) { }
 
-        protected void OnEnableInternal(bool isRoot = true)
+        private protected void OnEnableInternal(bool isRoot = true)
         {
             EnsureValidAccess();
             bool execute = ExecuteIsValid();
@@ -480,7 +480,7 @@ namespace SE.Common
         /// </summary>
         protected virtual void OnDisable(bool isRoot = true) { }
 
-        protected void OnDisableInternal(bool isRoot = true)
+        private protected void OnDisableInternal(bool isRoot = true)
         {
             EnsureValidAccess();
             bool execute = ExecuteIsValid();
@@ -698,7 +698,7 @@ namespace SE.Common
         protected internal void SortComponents() 
             => Components.Sort(new ComponentQueueComparer());
 
-        public string SerializeJson()
+        internal string SerializeJson()
         {
             GameObjectData data = Serialize();
             string str = data.Serialize();
@@ -706,7 +706,7 @@ namespace SE.Common
             return str;
         }
 
-        public GameObjectData Serialize()
+        internal GameObjectData Serialize()
         {
             GameObjectData data = new GameObjectData {
                 EngineName = EngineName,
@@ -728,10 +728,10 @@ namespace SE.Common
             return data;
         }
 
-        public void Deserialize(string jsonData) 
+        internal void Deserialize(string jsonData) 
             => Deserialize(jsonData.Deserialize<GameObjectData>());
 
-        public void Deserialize(GameObjectData data)
+        internal void Deserialize(GameObjectData data)
         {
             // Deserialize primary data...
             EngineName = data.EngineName;

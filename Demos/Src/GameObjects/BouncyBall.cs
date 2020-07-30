@@ -1,23 +1,22 @@
 ﻿using LiteNetLib.Utils;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using SE.Attributes;
 using SE.Common;
 using SE.Components;
 using SE.Components.Lighting;
 using SE.Components.Network;
 using SE.Core;
+using SE.Core.Extensions;
 using SE.Engine.Networking;
 using SE.Physics;
 using SE.Rendering;
-using SE.Core.Extensions;
-using SE.Networking.Internal;
 using Random = SE.Utility.Random;
 using Vector2 = System.Numerics.Vector2;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace SEDemos.GameObjects
 {
-    
+
     [Components(
         typeof(NetworkIdentity),
         typeof(NetTransform),
@@ -82,6 +81,7 @@ namespace SEDemos.GameObjects
             light.Size = new Vector2(400, 400);
             light.Color = c;
             light.Intensity = 1.0f;
+
             //light.Enabled = false;
             base.OnInitialize();
         }
