@@ -20,6 +20,9 @@ using System.Data.Common;
 
 namespace SE.Common
 {
+
+    // TODO: Maybe make GameObject not IPartitionObject, and instead add & removed partitioned components when needed.
+
     /// <summary>
     /// GameObjects are containers for logic and components.
     /// </summary>

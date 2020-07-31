@@ -58,12 +58,13 @@ namespace SEDemos.GameObjects
             system.Texture = AssetManager.Get<Texture2D>(this, "Smoke");
             system.SourceRect = tex.SourceRectangle;
 
+            Sprite s = sprite;
             networkIdentity.OnSerializeNetworkState += () => {
                 NetDataWriter writer = new NetDataWriter();
-                writer.Put(sprite.Color.R);
-                writer.Put(sprite.Color.G);
-                writer.Put(sprite.Color.B);
-                writer.Put(sprite.Color.A);
+                writer.Put(s.Color.R);
+                writer.Put(s.Color.G);
+                writer.Put(s.Color.B);
+                writer.Put(s.Color.A);
                 return writer.CopyData();
             };
 
