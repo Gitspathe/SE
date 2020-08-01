@@ -119,7 +119,6 @@ namespace SE.Common
         internal PooledList<IPartitionObject> PartitionObjects = new PooledList<IPartitionObject>(Config.Performance.UseArrayPoolCore);
         internal PooledList<Component> Components = new PooledList<Component>(Config.Performance.UseArrayPoolCore);
         internal PhysicsObject PhysicsObject = null;
-        private bool isDisposed;
 
         /// <summary>
         /// Creates a new GameObject instance.
@@ -767,9 +766,6 @@ namespace SE.Common
 
         protected virtual void Dispose(bool disposing)
         {
-            if (isDisposed) 
-                return;
-
             if (disposing) {
                 if (Config.Performance.UseArrayPoolCore) {
                     Components.Dispose();
@@ -778,7 +774,6 @@ namespace SE.Common
                 }
                 Transform.Dispose();
             }
-            isDisposed = true;
         }
 
         public void Dispose()

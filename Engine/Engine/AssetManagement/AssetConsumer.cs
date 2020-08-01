@@ -9,7 +9,7 @@ namespace SE.AssetManagement
         internal void ReferenceAssets()
         {
             if(ReferencedAssets == null)
-                ReferencedAssets = new HashSet<Asset>();
+                return;
 
             HashSet<Asset> tmp = new HashSet<Asset>(ReferencedAssets);
             foreach (Asset asset in tmp) {
@@ -20,7 +20,7 @@ namespace SE.AssetManagement
         internal void DereferenceAssets()
         {
             if (ReferencedAssets == null)
-                ReferencedAssets = new HashSet<Asset>();
+                return;
 
             HashSet<Asset> tmp = new HashSet<Asset>(ReferencedAssets);
             foreach (Asset asset in tmp) {

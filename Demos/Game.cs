@@ -153,6 +153,11 @@ namespace SEDemos
             //    Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
             //    Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
             //}
+
+            long before = GC.GetTotalMemory(true);
+            new GameObject();
+            long after = GC.GetTotalMemory(true);
+            Console.WriteLine(after - before);
         }
 
         public class TestClassBase

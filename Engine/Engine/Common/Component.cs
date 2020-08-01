@@ -81,8 +81,6 @@ namespace SE.Common
 
         public Transform Transform => Owner.Transform;
 
-        private bool isDisposed;
-
         public Component()
         {
             ReflectionInfo = Reflection.GetComponentInfo(GetType());
@@ -247,11 +245,7 @@ namespace SE.Common
 
         protected virtual void Dispose(bool disposing = true)
         {
-            if(isDisposed)
-                return;
-
             Serializer = null;
-            isDisposed = true;
         }
     }
 }

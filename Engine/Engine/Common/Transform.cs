@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using SE.Utility;
 using Quaternion = System.Numerics.Quaternion;
@@ -21,7 +20,7 @@ namespace SE.Common
         public Transform Parent { get; private set; }
 
         /// <summary>Children of this Transform.</summary>
-        public QuickList<Transform> Children { get; } = new QuickList<Transform>();
+        public QuickList<Transform> Children { get; } = new QuickList<Transform>(0);
 
         /// <summary>Holds child Transforms enable or disabled state.</summary>
         internal StateTree ChildStateTree;
@@ -172,7 +171,6 @@ namespace SE.Common
         private Vector2 localPosition;
         private Vector2 localScale;
         private float localRotation;
-        private bool isDisposed;
 
         /// <summary>
         /// Creates a new Transform instance.
@@ -319,9 +317,6 @@ namespace SE.Common
 
         protected virtual void Dispose(bool disposing = true)
         {
-            if(isDisposed)
-                return;
-
             ParentSet = null;
             ChildAdded = null;
             ChildRemoved = null;
@@ -399,7 +394,7 @@ namespace SE.Common
             {
                 Transform = transform;
                 State = transform.GameObject.Enabled;
-                Children = new QuickList<TransformNode>();
+                Children = new QuickList<TransformNode>(transform.Children.Count);
                 Transform[] transformChildren = transform.Children.Array;
                 for (int i = 0; i < transform.Children.Count; i++) {
                     Children.Add(new TransformNode(transformChildren[i]));
