@@ -154,10 +154,12 @@ namespace SEDemos
             //    Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
             //}
 
-            long before = GC.GetTotalMemory(true);
-            new GameObject();
-            long after = GC.GetTotalMemory(true);
-            Console.WriteLine(after - before);
+            for (int i = 0; i < 5; i++) {
+                long before = GC.GetTotalMemory(true);
+                new GameObject(Vector2.Zero, 0f, Vector2.One);
+                long after = GC.GetTotalMemory(true);
+                Console.WriteLine(after - before);
+            }
         }
 
         public class TestClassBase

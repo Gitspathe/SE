@@ -341,18 +341,20 @@ namespace SE
 
                 AllGameObjects.Add(go);
                 CurrentScene.GameObjectsToRemove.Remove(go);
+                
+                if (go.DestroyOnLoad) {
+                    CurrentScene.AttachedGameObjects.Add(go);
+                }
+                
+                // TODO: Changed this section. Check previous commits. Seemed bugged(??), but not sure.
                 if (go.IgnoreCulling) {
                     SpatialPartitionManager<GameObject>.AddIgnoredObject(go);
+                } else {
+                    go.InsertIntoPartition();
                 }
 
                 if (go.IsDynamic) {
                     DynamicGameObjects.Add(go);
-                } else if (!go.IgnoreCulling) {
-                    go.InsertIntoPartition();
-                }
-
-                if (go.DestroyOnLoad) {
-                    CurrentScene.AttachedGameObjects.Add(go);
                 }
                 go.AddedToGameManager = true;
                 EngineUtility.TransformHierarchyDirty = true;
