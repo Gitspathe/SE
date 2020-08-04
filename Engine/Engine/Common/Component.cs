@@ -186,6 +186,9 @@ namespace SE.Common
         public void Destroy()
         {
             PendingDestroy = true;
+            if (this is IPartitionObject pObj) {
+                pObj.RemoveFromPartition();
+            }
             OnDestroy();
             Dispose(true);
         }
