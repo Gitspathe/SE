@@ -7,6 +7,7 @@ using SE.World.Partitioning;
 using SE.Core.Extensions;
 using System;
 using SE.Core.Internal;
+using Microsoft.Xna.Framework;
 
 namespace SE.Common
 {
@@ -81,9 +82,12 @@ namespace SE.Common
 
         public Transform Transform => Owner.Transform;
 
+        private IPartitionObject pObj;
+
         public Component()
         {
             ReflectionInfo = Reflection.GetComponentInfo(GetType());
+            pObj = this as IPartitionObject;
         }
 
         /// <summary>
@@ -94,6 +98,9 @@ namespace SE.Common
         internal void InitializeInternal(GameObject owner)
         {
             Owner = owner;
+            if (enabled) {
+                pObj?.InsertIntoPartition();
+            }
             if (GameEngine.IsEditor) {
                 GenerateSerializer();
             }
@@ -159,9 +166,7 @@ namespace SE.Common
 
         internal void Enable()
         {
-            if (this is IPartitionObject pObj) {
-                pObj.InsertIntoPartition();
-            }
+            pObj?.InsertIntoPartition();
             OnEnable();
         }
 
@@ -172,9 +177,7 @@ namespace SE.Common
 
         internal void Disable()
         {
-            if (this is IPartitionObject pObj) {
-                pObj.RemoveFromPartition();
-            }
+            pObj?.RemoveFromPartition();
             OnDisable();
         }
 
@@ -186,11 +189,16 @@ namespace SE.Common
         public void Destroy()
         {
             PendingDestroy = true;
-            if (this is IPartitionObject pObj) {
-                pObj.RemoveFromPartition();
-            }
+            pObj?.RemoveFromPartition();
             OnDestroy();
             Dispose(true);
+        }
+
+        internal void OwnerBoundsUpdated()
+        {
+            if (enabled) {
+                pObj?.InsertIntoPartition();
+            }
         }
 
         /// <summary>

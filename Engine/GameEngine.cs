@@ -347,11 +347,11 @@ namespace SE
                 }
                 
                 // TODO: Changed this section. Check previous commits. Seemed bugged(??), but not sure.
-                if (go.IgnoreCulling) {
-                    SpatialPartitionManager<GameObject>.AddIgnoredObject(go);
-                } else {
-                    go.InsertIntoPartition();
-                }
+                //if (go.IgnoreCulling) {
+                //    SpatialPartitionManager<GameObject>.AddIgnoredObject(go);
+                //} else {
+                //    go.InsertIntoPartition();
+                //}
 
                 if (go.IsDynamic) {
                     DynamicGameObjects.Add(go);
@@ -371,7 +371,7 @@ namespace SE
             lock (gameObjectHandlerLock) {
                 DynamicGameObjects.Remove(go);
                 CurrentScene.GameObjectsToRemove.Add(go);
-                go.RemoveFromPartition();
+                //go.RemoveFromPartition();
                 if (destroyed) {
                     AllGameObjects.Remove(go);
                 }

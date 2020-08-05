@@ -18,7 +18,6 @@ using SE.Rendering;
 
 namespace SE.Core
 {
-
     public static class Console
     {
         /// <summary>If true, all exceptions passed to the console are unhandled and terminate the program.</summary>
@@ -83,7 +82,7 @@ namespace SE.Core
         };
 
         private static AssetConsumerContext assetConsumerContext = new AssetConsumerContext();
-        public static string LogPath { get; } = FileIO.DataDirectory + "\\LOG.txt";
+        public static string LogPath { get; } = FileIO.DataDirectory + Path.DirectorySeparatorChar + "LOG.txt";
 
         static Console()
         {

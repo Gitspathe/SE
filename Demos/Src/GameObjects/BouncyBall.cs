@@ -22,7 +22,7 @@ namespace SEDemos.GameObjects
         typeof(NetTransform),
         typeof(Sprite),
         typeof(PhysicsObject),
-        typeof(ParticleSystem),
+        //typeof(ParticleSystem),
         typeof(LightComponent)
         )]
 
@@ -54,9 +54,9 @@ namespace SEDemos.GameObjects
 
             SpriteTexture tex = AssetManager.Get<SpriteTexture>(this, "circle");
 
-            ParticleSystem system = GetComponent<ParticleSystem>();
-            system.Texture = AssetManager.Get<Texture2D>(this, "Smoke");
-            system.SourceRect = tex.SourceRectangle;
+            //ParticleSystem system = GetComponent<ParticleSystem>();
+            //system.Texture = AssetManager.Get<Texture2D>(this, "Smoke");
+            //system.SourceRect = tex.SourceRectangle;
 
             Sprite s = sprite;
             networkIdentity.OnSerializeNetworkState += () => {

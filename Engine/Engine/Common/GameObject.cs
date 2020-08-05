@@ -26,7 +26,7 @@ namespace SE.Common
     /// <summary>
     /// GameObjects are containers for logic and components.
     /// </summary>
-    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IPartitionObject<GameObject>, IDisposable
+    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IDisposable
     {
         public string EngineName { get; set; }
 
@@ -46,9 +46,6 @@ namespace SE.Common
         public bool Destroyed { get; private set; }
         /// <summary>Internal reflection information based on GameObject type.</summary>
         internal Reflection.GameObjectInfo ReflectionInfo { get; }
-
-        public Rectangle AABB => (Rectangle) Bounds;
-        public PartitionTile<GameObject> CurrentPartitionTile { get; set; }
 
         public AssetConsumer AssetConsumer { get; } = new AssetConsumer();
 
@@ -116,7 +113,6 @@ namespace SE.Common
 
         internal bool AddedToGameManager;
         internal PooledList<SpriteBase> Sprites = new PooledList<SpriteBase>(Config.Performance.UseArrayPoolCore);
-        internal PooledList<IPartitionObject> PartitionObjects = new PooledList<IPartitionObject>(Config.Performance.UseArrayPoolCore);
         internal PooledList<Component> Components = new PooledList<Component>(Config.Performance.UseArrayPoolCore);
         internal PhysicsObject PhysicsObject = null;
 
@@ -221,7 +217,10 @@ namespace SE.Common
                 (int) (unscaledBounds.Width * Transform.Scale.X), 
                 (int) (unscaledBounds.Height * Transform.Scale.Y));
 
-            ResetPartition();
+            Component[] componentArr = Components.Array;
+            for (int i = 0; i < Components.Count; i++) {
+                componentArr[i].OwnerBoundsUpdated();
+            }
         }
 
         internal virtual void OnInitializeInternal()
@@ -629,10 +628,6 @@ namespace SE.Common
             if (!Components.Contains(component)) {
                 Components.Add(component);
                 component.InitializeInternal(this);
-                if (component is IPartitionObject pObj) {
-                    PartitionObjects.Add(pObj);
-                    ResetPartition();
-                }
                 if (doInitialize && ExecuteIsValid(component)) {
                     component.Initialize();
                 }
@@ -674,10 +669,6 @@ namespace SE.Common
         public void RemoveComponent(Component component)
         {
             EnsureValidAccess();
-            if (component is IPartitionObject pObj) {
-                PartitionObjects.Remove(pObj);
-                ResetPartition();
-            }
             component.AssetConsumer.DereferenceAssets();
             Components.Remove(component);
             component.Destroy();
@@ -770,7 +761,6 @@ namespace SE.Common
                 if (Config.Performance.UseArrayPoolCore) {
                     Components.Dispose();
                     Sprites.Dispose();
-                    PartitionObjects.Dispose();
                 }
                 Transform.Dispose();
             }
@@ -779,32 +769,6 @@ namespace SE.Common
         public void Dispose()
         {
             Dispose(true);
-        }
-
-        internal void ResetPartition()
-        {
-            RemoveFromPartition();
-            if(Enabled)
-                InsertIntoPartition();
-        }
-
-        public void InsertIntoPartition()
-        {
-            if (SpatialPartitionManager.Insert(this)) {
-                IPartitionObject[] array = PartitionObjects.Array;
-                for (int i = 0; i < PartitionObjects.Count; i++) {
-                    array[i].InsertIntoPartition();
-                }
-            }
-        }
-
-        public void RemoveFromPartition()
-        {
-            SpatialPartitionManager.Remove(this);
-            IPartitionObject[] array = PartitionObjects.Array;
-            for (int i = 0; i < PartitionObjects.Count; i++) {
-                array[i].RemoveFromPartition();
-            }
         }
     }
 }
