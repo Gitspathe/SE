@@ -109,7 +109,6 @@ namespace SE.Core
 
         public static void Initialize()
         {
-            IAssetConsumer consumer;
             if (!Screen.IsFullHeadless) {
                 DebugFont = AssetManager.Get<SpriteFont>(assetConsumerContext, "editor_subheading");
                 ConsoleFont = AssetManager.Get<SpriteFont>(assetConsumerContext, "editor");

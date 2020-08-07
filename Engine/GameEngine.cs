@@ -35,7 +35,7 @@ namespace SE
         public static UpdateLoop UpdateLoop;
         public GraphicsDeviceManager GraphicsDeviceManager;
         
-        internal static QuickList<GameObject> DynamicGameObjects = new QuickList<GameObject>();
+        internal static HashSet<GameObject> DynamicGameObjects = new HashSet<GameObject>();
         internal static HashSet<GameObject> AllGameObjects = new HashSet<GameObject>();
         internal GameObject Player;
         internal GameTime GameTime;
@@ -336,8 +336,8 @@ namespace SE
         internal static void AddGameObject(GameObject go)
         {
             lock (gameObjectHandlerLock) {
-                if (go.AddedToGameManager)
-                    return;
+                if (AllGameObjects.Contains(go))
+                    RemoveGameObject(go);
 
                 AllGameObjects.Add(go);
                 CurrentScene.GameObjectsToRemove.Remove(go);
@@ -345,18 +345,10 @@ namespace SE
                 if (go.DestroyOnLoad) {
                     CurrentScene.AttachedGameObjects.Add(go);
                 }
-                
-                // TODO: Changed this section. Check previous commits. Seemed bugged(??), but not sure.
-                //if (go.IgnoreCulling) {
-                //    SpatialPartitionManager<GameObject>.AddIgnoredObject(go);
-                //} else {
-                //    go.InsertIntoPartition();
-                //}
 
                 if (go.IsDynamic) {
                     DynamicGameObjects.Add(go);
                 }
-                go.AddedToGameManager = true;
                 EngineUtility.TransformHierarchyDirty = true;
             }
         }
@@ -371,11 +363,9 @@ namespace SE
             lock (gameObjectHandlerLock) {
                 DynamicGameObjects.Remove(go);
                 CurrentScene.GameObjectsToRemove.Add(go);
-                //go.RemoveFromPartition();
                 if (destroyed) {
                     AllGameObjects.Remove(go);
                 }
-                go.AddedToGameManager = false;
                 EngineUtility.TransformHierarchyDirty = true;
             }
         }

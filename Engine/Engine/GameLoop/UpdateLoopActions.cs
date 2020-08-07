@@ -1,4 +1,6 @@
-﻿using SE.Core;
+﻿using System.Buffers;
+using SE.Common;
+using SE.Core;
 
 namespace SE.GameLoop
 {
@@ -23,11 +25,16 @@ namespace SE.GameLoop
     public class LoopDynamicUpdateObjects : IUpdateLoopAction
     {
         public string Name => "Update dynamic GameObjects";
+
         public void Invoke()
         {
-            for (int i = 0; i < GameEngine.DynamicGameObjects.Count; i++) {
-                GameEngine.DynamicGameObjects.Array[i].Update();
+            int count = GameEngine.DynamicGameObjects.Count;
+            GameObject[] goArray = ArrayPool<GameObject>.Shared.Rent(count);
+            GameEngine.DynamicGameObjects.CopyTo(goArray);
+            for (int i = 0; i < count; i++) {
+                goArray[i].Update();
             }
+            ArrayPool<GameObject>.Shared.Return(goArray);
         }
     }
 

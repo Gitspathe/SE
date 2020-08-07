@@ -31,7 +31,7 @@ namespace SE.World
         internal QuickList<ShadowCaster> MapShadows = new QuickList<ShadowCaster>();
 
         internal HashSet<GameObject> AttachedGameObjects = new HashSet<GameObject>();
-        internal QuickList<GameObject> GameObjectsToRemove = new QuickList<GameObject>();
+        internal HashSet<GameObject> GameObjectsToRemove = new HashSet<GameObject>();
         internal Dictionary<string, Func<Vector2, GameObject>> TileSet;
 
         private QuickList<TileSpot.ShadowTemplate> shadowTemplates = new QuickList<TileSpot.ShadowTemplate>();
@@ -59,8 +59,8 @@ namespace SE.World
 
         internal void DestroyPending()
         {
-            for (int i = 0; i < GameObjectsToRemove.Count; i++) {
-                AttachedGameObjects.Remove(GameObjectsToRemove.Array[i]);
+            foreach (GameObject go in GameObjectsToRemove) {
+                AttachedGameObjects.Remove(go);
             }
             GameObjectsToRemove.Clear();
         }

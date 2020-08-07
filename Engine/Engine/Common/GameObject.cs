@@ -10,19 +10,14 @@ using SE.Core.Internal;
 using SE.Pooling;
 using SE.Serialization;
 using SE.UI;
-using SE.World.Partitioning;
 using SE.Core.Extensions;
 using SE.Engine.Networking;
 using SE.Networking.Internal;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
-using System.Data.Common;
 
 namespace SE.Common
 {
-
-    // TODO: Maybe make GameObject not IPartitionObject, and instead add & removed partitioned components when needed.
-
     /// <summary>
     /// GameObjects are containers for logic and components.
     /// </summary>
@@ -111,7 +106,6 @@ namespace SE.Common
 
         protected virtual Transform TransformProp { get; set; }
 
-        internal bool AddedToGameManager;
         internal PooledList<SpriteBase> Sprites = new PooledList<SpriteBase>(Config.Performance.UseArrayPoolCore);
         internal PooledList<Component> Components = new PooledList<Component>(Config.Performance.UseArrayPoolCore);
         internal PhysicsObject PhysicsObject = null;
@@ -196,7 +190,7 @@ namespace SE.Common
                 return;
             }
 
-            float largestWidth = 0, largestHeight = 0, minX = int.MaxValue, minY = int.MaxValue;
+            float largestWidth = 0.0f, largestHeight = 0.0f, minX = int.MaxValue, minY = int.MaxValue;
             for (int i = 0; i < Sprites.Count; i++) {
                 SpriteBase sprite = Sprites.Array[i];
                 Rectangle bounds = sprite.Bounds;
