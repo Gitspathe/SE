@@ -4,16 +4,16 @@ using System.Text;
 
 namespace SE.AssetManagement.FileProcessors
 {
-    public struct SEFileHeader
+    public readonly struct SEFileHeader
     {
-        public bool Loaded;
+        public readonly bool Loaded;
 
-        public SEFileHeaderFlags HeaderFlags;
-        public ushort Version;
-        public string OriginalExtension;
-        public byte[] AdditionalHeaderData;
-        public uint FileSize;
-        public uint HeaderSize;
+        public readonly SEFileHeaderFlags HeaderFlags;
+        public readonly ushort Version;
+        public readonly string OriginalExtension;
+        public readonly byte[] AdditionalHeaderData;
+        public readonly uint FileSize;
+        public readonly uint HeaderSize;
 
         public SEFileHeader(SEFileHeaderFlags flags, ushort version, string extension, byte[] additionalData, uint fileSize)
         {
@@ -24,12 +24,35 @@ namespace SE.AssetManagement.FileProcessors
             AdditionalHeaderData = additionalData;
             FileSize = fileSize;
             HeaderSize = (uint) (
-                  sizeof(SEFileHeaderFlags)                 // Flags.
-                + sizeof(ushort) * 2                        // Version + AdditionalHeaderData length.
-                + sizeof(byte)                              // OriginalExtension length.
-                + Encoding.UTF8.GetBytes(extension).Length  // OriginalExtension.
-                + sizeof(byte) * additionalData.Length      // AdditionalHeaderData.
-                + sizeof(uint));                            // HeaderSize.
+                  sizeof(SEFileHeaderFlags)                // Flags.
+                + sizeof(ushort) * 2                       // Version + AdditionalHeaderData length.
+                + sizeof(byte)                             // OriginalExtension length.
+                + Encoding.UTF8.GetBytes(extension).Length // OriginalExtension.
+                + sizeof(byte) * additionalData.Length     // AdditionalHeaderData.
+                + sizeof(uint));                           // HeaderSize.
+        }
+
+        public SEFileHeader(BinaryReader reader)
+        {
+            Loaded = true;
+            HeaderFlags = (SEFileHeaderFlags) reader.ReadByte();
+            Version = reader.ReadUInt16();
+
+            byte[] originalExtension = new byte[reader.ReadByte()];
+            originalExtension = reader.ReadBytes(originalExtension.Length);
+            OriginalExtension = Encoding.UTF8.GetString(originalExtension);
+            
+            byte[] additionalData = new byte[reader.ReadUInt16()];
+            AdditionalHeaderData = reader.ReadBytes(additionalData.Length);
+
+            FileSize = reader.ReadUInt32();
+            HeaderSize = (uint) (
+                sizeof(SEFileHeaderFlags)              // Flags.
+                + sizeof(ushort) * 2                   // Version + AdditionalHeaderData length.
+                + sizeof(byte)                         // OriginalExtension length.
+                + originalExtension.Length             // OriginalExtension.
+                + sizeof(byte) * additionalData.Length // AdditionalHeaderData.
+                + sizeof(uint));                       // HeaderSize.
         }
 
         public void WriteToStream(BinaryWriter writer)
@@ -43,24 +66,14 @@ namespace SE.AssetManagement.FileProcessors
             writer.Write(FileSize);
         }
 
-        public static SEFileHeader ReadFromStream(BinaryReader reader)
-        {
-            byte flags = reader.ReadByte();
-            ushort version = reader.ReadUInt16();
-            byte[] originalExtension = new byte[reader.ReadByte()];
-            originalExtension = reader.ReadBytes(originalExtension.Length);
-            byte[] additionalData = new byte[reader.ReadUInt16()];
-            additionalData = reader.ReadBytes(additionalData.Length);
-            uint fileSize = reader.ReadUInt32();
-            return new SEFileHeader((SEFileHeaderFlags) flags, version, Encoding.UTF8.GetString(originalExtension), additionalData, fileSize);
-        }
+        public static SEFileHeader FromStream(BinaryReader reader) 
+            => new SEFileHeader(reader);
     }
 
     [Flags]
     public enum SEFileHeaderFlags : byte
     {
         None         = 0b_0000_0000,
-
         IsCompressed = 0b_0000_0001, // 0
         Reserved1    = 0b_0000_0010, // 1
         Reserved2    = 0b_0000_0100, // 2

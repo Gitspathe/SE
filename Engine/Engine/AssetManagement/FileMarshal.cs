@@ -297,7 +297,7 @@ namespace SE.AssetManagement
                     Stream stream = TitleContainer.OpenStream(AppRelativeDirectory);
                     BinaryReader reader = new BinaryReader(stream);
                     try {
-                        Header = SEFileHeader.ReadFromStream(reader);
+                        Header = SEFileHeader.FromStream(reader);
                     } finally {
                         reader.Close();
                         UpdateState();

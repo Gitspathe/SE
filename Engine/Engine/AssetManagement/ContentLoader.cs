@@ -48,17 +48,16 @@ namespace SE.AssetManagement
         public override T Load<T>(string name)
         {
             try {
-
-                // Try to load from the FileMarshal.
+                // First try to load using the FileMarshal.
                 string path = FixPath(Path.Combine(rootDirectory, name));
                 if (FileMarshal.TryLoad(path, out T file)) {
                     return file;
                 }
 
-                // Otherwise, return from MG content manager.
+                // No custom FileProcessor was found, fall back to the MG content manager.
                 return base.Load<T>(name);
             } catch (ArgumentNullException e) {
-                if (Screen.IsFullHeadless)
+                if (Screen.IsFullHeadless) // No gfx device.
                     throw new HeadlessNotSupportedException("Content could not be loaded in fully headless display mode.", e);
 
                 throw;
