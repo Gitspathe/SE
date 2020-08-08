@@ -98,9 +98,7 @@ namespace SE.Common
         internal void InitializeInternal(GameObject owner)
         {
             Owner = owner;
-            if (enabled) {
-                pObj?.InsertIntoPartition();
-            }
+            InsertPartition();
             if (GameEngine.IsEditor) {
                 GenerateSerializer();
             }
@@ -166,7 +164,7 @@ namespace SE.Common
 
         internal void Enable()
         {
-            pObj?.InsertIntoPartition();
+            InsertPartition();
             OnEnable();
         }
 
@@ -177,7 +175,7 @@ namespace SE.Common
 
         internal void Disable()
         {
-            pObj?.RemoveFromPartition();
+            RemovePartition();
             OnDisable();
         }
 
@@ -189,16 +187,14 @@ namespace SE.Common
         public void Destroy()
         {
             PendingDestroy = true;
-            pObj?.RemoveFromPartition();
+            RemovePartition();
             OnDestroy();
             Dispose(true);
         }
 
         internal void OwnerBoundsUpdated()
         {
-            if (enabled) {
-                pObj?.InsertIntoPartition();
-            }
+            InsertPartition();
         }
 
         /// <summary>
@@ -208,6 +204,18 @@ namespace SE.Common
         {
             Initialized = false;
             OnInitialize();
+        }
+
+        private void InsertPartition()
+        {
+            if (enabled) {
+                pObj?.InsertIntoPartition();
+            }
+        }
+
+        private void RemovePartition()
+        {
+            pObj?.RemoveFromPartition();
         }
 
         internal ComponentData Serialize()

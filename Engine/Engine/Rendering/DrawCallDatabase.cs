@@ -10,7 +10,7 @@ namespace SE.Rendering
         public static QuickList<DrawCall> LookupArray = new QuickList<DrawCall>();
         private static Dictionary<DrawCall, int> drawCallDictionary = new Dictionary<DrawCall, int>(128, new DrawCallComparer());
 
-        private static int curIndex = 0;
+        private static int curIndex;
 
         public static int TryGetID(DrawCall drawCall)
         {

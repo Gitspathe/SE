@@ -196,16 +196,16 @@ namespace SE.Components
         
         public void InsertIntoPartition()
         {
-            if (!SpatialPartitionManager.Insert(this)) 
+            if(Info.UISprite != null)
                 return;
 
+            SpatialPartitionManager.Insert(this);
             Info.RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
         }
 
         public void RemoveFromPartition()
         {
             SpatialPartitionManager.Remove(this);
-
             Info.RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
         }
     }

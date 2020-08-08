@@ -12,7 +12,6 @@ namespace SE.World
     public class TileMap : GameObject
     {
         public override bool DestroyOnLoad => true;
-        public override bool IgnoreCulling => true;
         public override bool IsDynamic => true;
         public override bool AutoBounds => false;
 

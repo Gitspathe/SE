@@ -13,7 +13,6 @@ namespace SE
     {
         public override bool DestroyOnLoad => false;
         public override bool IsDynamic => true;
-        public override bool IgnoreCulling => true;
 
         public Camera2D Camera { get; private set; }
 

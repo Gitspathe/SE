@@ -24,7 +24,7 @@ namespace SE.Core
             }
         }
 
-        public static bool Insert<T>(IPartitionObject<T> obj) where T : IPartitionObject<T> 
+        public static void Insert<T>(IPartitionObject<T> obj) where T : IPartitionObject<T> 
             => SpatialPartitionManager<T>.Insert((T) obj);
 
         public static void Remove<T>(IPartitionObject<T> obj) where T : IPartitionObject<T> 
@@ -46,8 +46,6 @@ namespace SE.Core
         private static float pruneTimer = pruneTime;
 
         public static int TileSize => SpatialPartitionManager.TileSize;
-
-        internal static QuickList<T> IgnoredObjects { get; } = new QuickList<T>(256);
 
         public static int EntitiesCount {
             get { throw new NotImplementedException(); }
@@ -71,14 +69,8 @@ namespace SE.Core
             }
         }
 
-        internal static bool Insert(T obj)
+        internal static void Insert(T obj)
         {
-            if (obj is Component c && !c.Enabled)
-                return false;
-            if (obj is GameObject go)
-                if (!go.Enabled || go.IgnoreCulling)
-                    return false;
-
             if (obj.CurrentPartitionTile != null) {
                 obj.RemoveFromPartition();
             }
@@ -86,27 +78,15 @@ namespace SE.Core
             Rectangle aabb = obj.AABB;
             if (aabb.Width > TileSize || aabb.Height > TileSize) {
                 largeObjectTile.Insert(obj);
-                return true;
             }
 
             partition.Insert(obj);
-            return true;
         }
 
         internal static void Remove(T obj)
         {
             obj.CurrentPartitionTile?.Remove(obj);
             largeObjectTile.Remove(obj);
-            if (obj is GameObject) {
-                IgnoredObjects.Remove(obj);
-            }
-        }
-
-        internal static void AddIgnoredObject(T obj)
-        {
-            if (!IgnoredObjects.Contains(obj)) {
-                IgnoredObjects.Add(obj);
-            }
         }
 
         public static void GetFromRegion(QuickList<T> existingList, Rectangle regionBounds)

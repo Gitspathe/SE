@@ -56,17 +56,6 @@ namespace SE.Common
         }
         private bool dynamic;
 
-        /// <summary>If this GameObject ignores the culling grid.</summary>
-        public virtual bool IgnoreCulling {
-            get => ignoreCulling;
-            protected set {
-                EnsureValidAccess();
-                ignoreCulling = value;
-                GameEngine.UpdateGameObjectState(this);
-            }
-        }
-        private bool ignoreCulling;
-
         /// <summary>The GameObject's transform.</summary>
         public Transform Transform {
             get => TransformProp;

@@ -34,9 +34,6 @@ namespace SE.UI
         /// <inheritdoc />
         public sealed override bool IsDynamic => true;
 
-        /// <inheritdoc />
-        public sealed override bool IgnoreCulling => true;
-
         public override bool AutoBounds => false;
 
         public new UITransform Transform => (UITransform)TransformProp;
