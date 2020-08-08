@@ -3,6 +3,7 @@ using SE.Core.Extensions;
 
 namespace SE.Core
 {
+    // TODO: Use ini instead of json for config.
     public static class Config
     {
         private const string _CONFIG_FILE_NAME = "SE_CONFIG.json";

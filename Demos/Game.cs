@@ -245,11 +245,23 @@ namespace SEDemos
                 );
 
                 AssetManager.Add(new AssetBuilder<Texture2D>()
+                   .ID("grasstex")
+                   .Create(new GeneralContentProcessor<Texture2D>("Content1", "Images/grass"))
+                   .FromContent(content2)
+                );
+
+                AssetManager.Add(new AssetBuilder<Texture2D>()
                    .ID("Smoke")
                    .Create(new GeneralContentProcessor<Texture2D>("Content1", "Images/Smoke"))
                    .FromContent(content)
                 );
             }
+
+            AssetManager.Add(new AssetBuilder<SpriteTexture>()
+               .ID("grass")
+               .Create(new SpriteTextureProcessor("grasstex", new Rectangle(0, 0, 64, 64)))
+               .FromContent(content2)
+            );
 
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("unload_test")
@@ -368,14 +380,13 @@ namespace SEDemos
         private float timer = 1.0f;
         protected override void OnUpdate(GameTime gameTime)
         {
-            timer -= Time.DeltaTime;
-            if (timer <= 0.0f && Network.IsServer) {
-                for (int i = 0; i < 50; i++) {
-                    NetHelper.Instantiate("bouncy", "SERVER",
-                        new Vector2(128 + SE.Utility.Random.Next(0.0f, 1024.0f), 128 + SE.Utility.Random.Next(0.0f, 1024.0f)));
-                }
-                timer = 0.1f;
-            }
+            //timer -= Time.DeltaTime;
+            //if (timer <= 0.0f && Network.IsServer) {
+            //    for (int i = 0; i < 15; i++) {
+            //        NetHelper.Instantiate("bouncy", "SERVER", new Vector2(128 + SE.Utility.Random.Next(0.0f, 1024.0f), 128 + SE.Utility.Random.Next(0.0f, 1024.0f)));
+            //    }
+            //    timer = 0.1f;
+            //}
 
             if (IsEditor) {
                 if (InputManager.KeyCodePressed(Keys.F3)) {

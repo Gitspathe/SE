@@ -58,7 +58,7 @@ namespace SE.Core
         }
 
         private static QuickList<Vector4> tmpCamBounds = new QuickList<Vector4>();
-        public static Effect TestEffect;
+        public static Effect ParticleShader;
 
         public static void Update()
         {
@@ -91,7 +91,7 @@ namespace SE.Core
             GraphicsDeviceManager = gdm;
             GraphicsDevice = gd;
             SpriteBatch = new SpriteBatch(gd);
-            TestEffect = GameEngine.EngineContent.Load<Effect>("shader");
+            ParticleShader = GameEngine.EngineContent.Load<Effect>("shader");
         }
 
         public static void ResetRenderTargets()
@@ -104,6 +104,11 @@ namespace SE.Core
                 UIRender.Dispose();
                 while (!UIRender.IsDisposed) { } // Possible hard-lock.
             }
+
+            // TODO: Settings config file?
+            //GraphicsDeviceManager.PreferMultiSampling = true;
+            //GraphicsDevice.PresentationParameters.MultiSampleCount = 16;
+
             SceneRender = new RenderTarget2D(GraphicsDevice, GraphicsDeviceManager.PreferredBackBufferWidth,
                 GraphicsDeviceManager.PreferredBackBufferHeight, false,
                 GraphicsDevice.PresentationParameters.BackBufferFormat, GraphicsDevice.PresentationParameters.DepthStencilFormat,

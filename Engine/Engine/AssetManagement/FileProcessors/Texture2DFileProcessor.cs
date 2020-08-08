@@ -13,6 +13,7 @@ namespace SE.AssetManagement.FileProcessors
         public override Type Type => typeof(Texture2D);
         public override string[] FileExtensions => new [] { ".png", ".dds" };
 
+        // TODO: Pre-multiply alpha?
         protected override bool LoadFile(GraphicsDevice gfxDevice, BinaryReader reader, ref SEFileHeader header, out object obj)
         {
             if (gfxDevice == null)

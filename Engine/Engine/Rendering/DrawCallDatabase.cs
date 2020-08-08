@@ -10,6 +10,8 @@ namespace SE.Rendering
         public static QuickList<DrawCall> LookupArray = new QuickList<DrawCall>();
         private static Dictionary<DrawCall, int> drawCallDictionary = new Dictionary<DrawCall, int>(128, new DrawCallComparer());
 
+        private static int curIndex = 0;
+
         public static int TryGetID(DrawCall drawCall)
         {
             if (drawCall.Texture == null)
@@ -18,10 +20,13 @@ namespace SE.Rendering
                 return i;
 
             // Create entry
-            drawCallDictionary.Add(drawCall, LookupArray.Count);
+            drawCallDictionary.Add(drawCall, curIndex);
             LookupArray.Add(drawCall);
+            curIndex++;
 
-            return LookupArray.Count-1;
+            // TODO: If running out of space, find empty spaces to insert entries.
+
+            return curIndex - 1;
         }
 
         internal static void PruneAsset<T>(T asset)
@@ -30,11 +35,13 @@ namespace SE.Rendering
                 case Texture2D texture: {
                     for (int i = 0; i < LookupArray.Count; i++) {
                         Texture2D existingTexture = LookupArray.Array[i].Texture;
+                        if(existingTexture == null)
+                            return;
 
                         // Compare name and ContentManager to check for equality.
                         if (existingTexture.Name == texture.Name && existingTexture.ContentManager == texture.ContentManager) {
                             drawCallDictionary.Remove(LookupArray.Array[i]);
-                            LookupArray.RemoveAt(i);
+                            LookupArray.Array[i] = default;
                         }
                     }
                     break;
@@ -42,18 +49,18 @@ namespace SE.Rendering
                 case Effect effect: {
                     for (int i = 0; i < LookupArray.Count; i++) {
                         Effect existingEffect = LookupArray.Array[i].Effect;
+                        if(existingEffect == null)
+                            return;
 
                         // Compare name and ContentManager to check for equality.
                         if (existingEffect.Name == effect.Name && existingEffect.ContentManager == effect.ContentManager) {
                             drawCallDictionary.Remove(LookupArray.Array[i]);
-                            LookupArray.RemoveAt(i);
+                            LookupArray.Array[i] = default;
                         }
                     }
                     break;
                 }
             }
-
-            // TODO: Regenerate lookup dictionary.
         }
 
     }

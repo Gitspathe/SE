@@ -47,7 +47,7 @@ namespace SE.AssetManagement.FileProcessors
 
             FileSize = reader.ReadUInt32();
             HeaderSize = (uint) (
-                sizeof(SEFileHeaderFlags)              // Flags.
+                  sizeof(SEFileHeaderFlags)            // Flags.
                 + sizeof(ushort) * 2                   // Version + AdditionalHeaderData length.
                 + sizeof(byte)                         // OriginalExtension length.
                 + originalExtension.Length             // OriginalExtension.

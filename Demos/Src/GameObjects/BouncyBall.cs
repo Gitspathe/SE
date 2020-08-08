@@ -45,7 +45,7 @@ namespace SEDemos.GameObjects
                 myPhysics.Body.SetRestitution(0.5f);
                 myPhysics.Body.SetFriction(0.0f);
 
-                myPhysics.Body.OnCollision += Body_OnCollision; // Test event code.
+                //myPhysics.Body.OnCollision += Body_OnCollision; // Test event code.
                 SetV(new Vector2(Random.Next(256, 512), Random.Next(256, 512)));
                 c = new Color(Random.Next(100, 255), Random.Next(100, 255), Random.Next(100, 255));
             } else {
@@ -83,7 +83,7 @@ namespace SEDemos.GameObjects
             light.Color = c;
             light.Intensity = 1.0f;
 
-            light.Enabled = false;
+            //light.Enabled = false;
             base.OnInitialize();
         }
 

@@ -155,7 +155,7 @@ namespace SE.Rendering
                         ChangeDrawCall(
                             SpriteSortMode.Deferred, 
                             camera.ScaleMatrix, 
-                            BlendState.AlphaBlend, 
+                            BlendState.NonPremultiplied, // Fix: was BlendState.AlphaBlend.
                             SamplerState.PointClamp, 
                             DepthStencilGreater, 
                             null, 
@@ -308,7 +308,7 @@ namespace SE.Rendering
             tmpEmitters.Clear();
             ParticleEngine.GetEmitters(Particles.BlendMode.Alpha, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
-                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, TestEffect);
+                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, ParticleShader);
                 foreach (Emitter pEmitter in tmpEmitters) {
                     DrawNewParticleEmitter(cam, pEmitter);
                 }
@@ -317,7 +317,7 @@ namespace SE.Rendering
             tmpEmitters.Clear();
             ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
-                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, TestEffect);
+                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, ParticleShader);
                 foreach (Emitter pEmitter in tmpEmitters) {
                     DrawNewParticleEmitter(cam, pEmitter);
                 }
