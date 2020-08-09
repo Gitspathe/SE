@@ -6,7 +6,7 @@
     <ApplicationIcon />
     <StartupObject />
     <TieredCompilation>false</TieredCompilation>
-    <RootNamespace>DeeZ</RootNamespace>
+    <RootNamespace>SE</RootNamespace>
     <Platforms>AnyCPU</Platforms>
     <Configurations>Debug;Release</Configurations>
     <AssemblyName>SEEditor</AssemblyName>

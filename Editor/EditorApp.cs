@@ -8,14 +8,13 @@ using DeeZ.Editor.ImGUI;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SE;
 using SE.AssetManagement;
 using SE.Components;
 using SE.Core;
 using Console = SE.Core.Console;
 using Vector2 = System.Numerics.Vector2;
 
-namespace DeeZ
+namespace SE
 {
     /// <summary>
     /// This is the main type for your game.
@@ -51,7 +50,7 @@ namespace DeeZ
         {
             gfxDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 0.0f, 1);
 
-            Rendering.ChangeDrawCall(SpriteSortMode.Immediate, null, BlendState.AlphaBlend);
+            Core.Rendering.ChangeDrawCall(SpriteSortMode.Immediate, null, BlendState.AlphaBlend);
 
             ImGuiRenderer.BeforeLayout(gameTime);
             EditorGUI.Paint();

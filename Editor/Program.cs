@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using DeeZ;
 
-namespace DeeZ
+namespace SE
 {
     public static class Program
     {

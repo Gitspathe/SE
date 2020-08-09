@@ -196,6 +196,7 @@ namespace SE.Components
         
         public void InsertIntoPartition()
         {
+            // UISprites ignore partitioning.
             if(Info.UISprite != null)
                 return;
 

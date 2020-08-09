@@ -112,9 +112,9 @@ namespace SE
             GraphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
             IsFixedTimeStep = Screen.IsFullHeadless;
             TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 60);
-            InactiveSleepTime = IsEditor ? TimeSpan.FromSeconds(1.0f / 2000) : TimeSpan.FromSeconds(1.0f / 60); // Alt-tabbed update rate.
+            InactiveSleepTime = TimeSpan.FromSeconds(1.0f / 60); // Alt-tabbed update rate.
 
-            // If the engine ISN'T initialized (i.e, in editor mode)...
+            // If the engine ISN'T initialized (i.e, not in editor mode)...
             if (!isInitialized) {
                 ThreadPool.SetMinThreads(Environment.ProcessorCount, 8);
 
