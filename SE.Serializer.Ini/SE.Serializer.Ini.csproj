@@ -16,8 +16,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Engine\" />
-    <Folder Include="Engine\Serialization.Ini\" />
+    <Folder Include="Engine\Serialization\Ini\Attributes\" />
+    <Folder Include="Engine\Serialization\Ini\Converters\" />
+    <Folder Include="Engine\Serialization\Ini\Exceptions\" />
   </ItemGroup>
 
   <ItemGroup>
