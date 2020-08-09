@@ -85,6 +85,10 @@
       <HintPath>..\SE.Serializer\SE.Serializer\bin\$(Configuration)\netstandard2.1\SE.Serializer.dll</HintPath>
       <Private>true</Private>
     </Reference>
+    <Reference Include="SE.Serializer.Ini">
+      <HintPath>..\SE.Serializer.Ini\bin\$(Configuration)\netstandard2.1\SE.Serializer.Ini.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
     <Reference Include="MonoGame.Penumbra">
       <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\$(Configuration)\DesktopGL\MonoGame.Penumbra.dll</HintPath>
     </Reference>

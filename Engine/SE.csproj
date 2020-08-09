@@ -77,6 +77,10 @@
       <HintPath>..\SE.Serializer\SE.Serializer\bin\$(Configuration)\netstandard2.1\SE.Serializer.dll</HintPath>
       <Private>true</Private>
     </Reference>
+    <Reference Include="SE.Serializer.Ini">
+      <HintPath>..\SE.Serializer.Ini\bin\$(Configuration)\netstandard2.1\SE.Serializer.Ini.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
     <Reference Include="SE.Particles.MonoGame">
       <HintPath>..\SE.Particles\bin\$(Configuration)\netstandard2.1\SE.Particles.MonoGame.dll</HintPath>
       <Private>true</Private>
