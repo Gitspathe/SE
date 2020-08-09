@@ -25,6 +25,4 @@
 [submodule "SE.Particles"]
 	path = SE.Particles
 	url = https://github.com/Gitspathe/SE.Particles
-[submodule "_DEPENDENCIES/Ini-parser"]
-	path = _DEPENDENCIES/Ini-parser
-	url = https://github.com/Gitspathe/Ini-parser
+

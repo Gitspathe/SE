@@ -28,9 +28,6 @@
     <Reference Include="SE.Utility">
       <HintPath>..\SE.Utility\bin\$(Configuration)\netstandard2.1\SE.Utility.dll</HintPath>
     </Reference>
-    <Reference Include="IniParser">
-      <HintPath>..\_DEPENDENCIES\Ini-parser\src\IniParser\bin\$(Configuration)\netstandard2.0\IniParser.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
