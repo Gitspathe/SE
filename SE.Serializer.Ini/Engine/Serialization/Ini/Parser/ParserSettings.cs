@@ -1,14 +1,17 @@
-﻿namespace SE.Serialization.Ini.Parser
+﻿using System;
+
+namespace SE.Serialization.Ini.Parser
 {
     public class ParserSettings
     {
         public ParserCharacters Characters = new ParserCharacters();
+        public IIniParser Parser = new DefaultParser();
 
         public static ParserSettings Default { get; } = new ParserSettings();
 
         public class ParserCharacters
         {
-            public char NewLine = '\n';
+            public string NewLine = Environment.NewLine;
             public char Separator = '=';
             public char Comment = '#';
             public char SectionStart = '[';

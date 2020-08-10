@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -52,7 +53,9 @@ namespace SE.Serialization.Converters
                 defaultSerialization = serializeObjAttribute.ObjectSerialization;
             }
 
-            List<Member> members = accessor.Members;
+            // Order members by declaration order.
+            List<Member> members = accessor.Members.OrderBy(member => member.Info.MetadataToken).ToList();
+
             nodesDictionary = new Dictionary<string, Node>(members.Count);
             QuickList<Node> tmpNodes = new QuickList<Node>(members.Count);
             HashSet<ushort> indexes = new HashSet<ushort>(members.Count);

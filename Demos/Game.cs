@@ -28,6 +28,7 @@ using Newtonsoft.Json;
 using SE.Input;
 using SE.Particles;
 using SE.Serialization.Attributes;
+using SE.Serialization.Ini.Parser;
 using Console = SE.Core.Console;
 using DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling;
 using MemberSerialization = Newtonsoft.Json.MemberSerialization;
@@ -112,6 +113,10 @@ namespace SEDemos
             System.Text.Json.JsonSerializerOptions textJsonOptions = new System.Text.Json.JsonSerializerOptions() {
                 WriteIndented = false
             };
+
+            string test = FileIO.ReadFileString("testIni.ini");
+            IniData testDat = IniSerializer.Parse(test);
+
 
             //int iterations = 50_000;
             //int innerIterations = 3;

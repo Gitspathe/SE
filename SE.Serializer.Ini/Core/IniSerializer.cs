@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SE.Serialization.Ini.Parser;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,6 +7,22 @@ namespace SE.Core
 {
     public static class IniSerializer
     {
+        public static IniData Parse(string iniString, ParserSettings settings = null)
+        {
+            if(settings == null)
+                settings = ParserSettings.Default;
+
+            return settings.Parser.Parse(iniString, settings);
+        }
+
+        public static string Compose(IniData iniData, ParserSettings settings = null)
+        {
+            if(settings == null)
+                settings = ParserSettings.Default;
+
+            return settings.Parser.Compose(iniData, settings);
+        }
+
         // How the ini serializer will work:
         //     - Entries are grouped into sections. Entries are pretty much an entry within a Dictionary<string, string>.
         //
@@ -18,11 +35,12 @@ namespace SE.Core
         //                    KEY   = Left side of the separator char '='.
         //                    VALUE = Right side of the separator char.
         // 
-        // THE SERIALIZER:
-        //     - The serializer is used to serialize custom classes from and to INI.
+        // THE CONVERTER:
+        //     - The converter is used to serialize custom classes from and to INI.
         //     - For reading, works after the parser has done it's work.
         //     - Use attributes to separate sections within custom classes.
-        //     TODO: Plan.
+        //     - Order properties by MetadataToken if no IniProperty attribute exists.
+        //     TODO: More planning.
 
         // PARSER ATTRIBUTES EXAMPLE:
         //
