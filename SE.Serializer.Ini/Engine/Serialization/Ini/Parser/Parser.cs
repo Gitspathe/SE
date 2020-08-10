@@ -16,6 +16,14 @@
             return str[0] == character;
         }
 
+        public static bool EndsWith(this string str, char character)
+        {
+            if(string.IsNullOrEmpty(str))
+                return false;
+
+            return str[str.Length - 1] == character;
+        }
+
         public static string ReadBetween(this string str, char start, char end)
         {
             if(string.IsNullOrEmpty(str) || str[0] != start || str[str.Length - 1] != end)

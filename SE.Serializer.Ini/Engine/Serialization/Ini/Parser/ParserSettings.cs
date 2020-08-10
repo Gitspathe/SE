@@ -16,6 +16,7 @@ namespace SE.Serialization.Ini.Parser
             public char Comment = '#';
             public char SectionStart = '[';
             public char SectionEnd = ']';
+            public char Continuation = '\\';
         }
     }
 }
