@@ -117,7 +117,6 @@ namespace SEDemos
             string test = FileIO.ReadFileString("testIni.ini");
             IniData testDat = IniSerializer.Parse(test);
 
-
             //int iterations = 50_000;
             //int innerIterations = 3;
 

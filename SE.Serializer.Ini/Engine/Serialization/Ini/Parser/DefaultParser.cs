@@ -28,7 +28,7 @@ namespace SE.Serialization.Ini.Parser
 
                 } else if(line.StartsWith(chars.SectionStart)) {
                     // Line indicates start of a new section.
-                    iniData.Sections.Add(currentSection);
+                    iniData.AddSection(currentSection);
                     currentSection = new IniSection(
                         line.ReadBetween(chars.SectionStart, chars.SectionEnd), 
                         nextNodeComments.Copy(), 
@@ -38,7 +38,7 @@ namespace SE.Serialization.Ini.Parser
                 } else {
                     // Line is a key+value pair.
                     (string key, string value) = line.GetKeyValuePair(chars.Separator);
-                    currentSection.Nodes.Add(new IniNode(
+                    currentSection.AddNode(new IniNode(
                         key, 
                         value, 
                         nextNodeComments.Copy()));
@@ -49,7 +49,7 @@ namespace SE.Serialization.Ini.Parser
                 lineIndex++;
             }
 
-            iniData.Sections.Add(currentSection);
+            iniData.AddSection(currentSection);
             return iniData;
         }
 
