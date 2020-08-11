@@ -1,6 +1,3 @@
-[submodule "_DEPENDENCIES/MonoGame"]
-	path = _DEPENDENCIES/MonoGame
-	url = https://github.com/Gitspathe/MonoGame
 [submodule "_DEPENDENCIES/LiteNetLib"]
 	path = _DEPENDENCIES/LiteNetLib
 	url = https://github.com/Gitspathe/LiteNetLib
