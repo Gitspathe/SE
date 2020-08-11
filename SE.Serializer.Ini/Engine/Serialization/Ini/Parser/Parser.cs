@@ -8,6 +8,14 @@
 
     public static class ParserStringExtensions
     {
+        public static string[] Trim(this string[] strArray)
+        {
+            for (int i = 0; i < strArray.Length; i++) {
+                strArray[i] = strArray[i].Trim();
+            }
+            return strArray;
+        }
+
         public static bool StartsWith(this string str, char character)
         {
             if(string.IsNullOrEmpty(str))

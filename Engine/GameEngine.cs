@@ -21,6 +21,7 @@ using Console = SE.Core.Console;
 using SE.Serialization;
 using SE.GameLoop;
 using SE.World.Partitioning;
+using SE.Particles.Shapes;
 
 [assembly: InternalsVisibleTo("SEEditor")]
 namespace SE

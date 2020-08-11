@@ -155,7 +155,7 @@ namespace SE.Serialization.Ini.Parser
         }
         private string name;
 
-        public string Value;
+        public QuickList<string> Values;
 
         internal IniSection ParentSection;
 
@@ -163,15 +163,15 @@ namespace SE.Serialization.Ini.Parser
         
         public IniNode() { }
 
-        public IniNode(string name, string value, QuickList<string> comments)
+        public IniNode(string name, QuickList<string> value, QuickList<string> comments)
         {
             this.name = name;
-            Value = value;
+            Values = value ?? new QuickList<string>();
             Comments = comments ?? new QuickList<string>();
         }
 
         public IniNode Clone() 
-            => new IniNode(Name, Value, Comments.Copy());
+            => new IniNode(Name, Values.Copy(), Comments.Copy());
     }
 
     internal static class DataHelper

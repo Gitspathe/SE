@@ -6,6 +6,8 @@ namespace SE.Serialization.Ini.Parser
 {
     public class DefaultParser : IIniParser
     {
+        // TODO: Array support. Separate values with ','
+
         public IniData Parse(string iniString, ParserSettings settings)
         {
             ParserSettings.ParserCharacters chars = settings.Characters;
@@ -15,7 +17,7 @@ namespace SE.Serialization.Ini.Parser
             // Trim whitespace.
             for (int i = 0; i < lines.Length; i++) {
                 string line = lines[i];
-                if(string.IsNullOrEmpty(line))
+                if(string.IsNullOrWhiteSpace(line))
                     continue;
 
                 linesList.Add(line.Trim());
@@ -43,17 +45,11 @@ namespace SE.Serialization.Ini.Parser
             QuickList<string> nextNodeComments = new QuickList<string>();
             int lineIndex = 0;
 
-            // TODO: Support comments on same line as values and sections.
             // TODO: Support special characters in strings / values via " and ' characters.
 
             while (lineIndex < lines.Length) {
                 string line = lines[lineIndex];
 
-                if (string.IsNullOrEmpty(line)) {
-                    lineIndex++;
-                    continue;
-                }
-                
                 if (line.StartsWith(chars.Comment)) {
                     // Line is a comment.
                     nextNodeComments.Add(line.Substring(1));
@@ -70,9 +66,11 @@ namespace SE.Serialization.Ini.Parser
                 } else {
                     // Line is a key+value pair.
                     (string key, string value) = line.GetKeyValuePair(chars.Separator);
+
+                    string[] values = value.Split(chars.ArraySeparator).Trim();
                     currentSection.AddNode(new IniNode(
-                        key, 
-                        value, 
+                        key,
+                        new QuickList<string>(values),
                         nextNodeComments.Copy()));
 
                     nextNodeComments.Clear();
