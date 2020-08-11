@@ -23,3 +23,6 @@
 	path = SE.Particles
 	url = https://github.com/Gitspathe/SE.Particles
 
+[submodule "_DEPENDENCIES/MonoGame"]
+	path = _DEPENDENCIES/MonoGame
+	url = https://github.com/Gitspathe/MonoGame
