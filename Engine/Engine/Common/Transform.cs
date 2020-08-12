@@ -129,16 +129,6 @@ namespace SE.Common
         }
 
         /// <summary>
-        /// Parent size. Returns current Transform size if there is no parent.
-        /// </summary>
-        protected Vector2 ParentSize {
-            get {
-                RectangleF parentBounds = Parent?.GameObject.Bounds ?? GameObject.Bounds;
-                return new Vector2(parentBounds.Width, parentBounds.Height);
-            }
-        }
-
-        /// <summary>
         /// Gets the root, top-most parent of this Transform.
         /// </summary>
         /// <returns>Root Transform.</returns>

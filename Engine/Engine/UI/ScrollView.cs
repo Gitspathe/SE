@@ -84,14 +84,17 @@ namespace SE.UI
 
             QuickList<Transform> children = Transform.Children;
             for (int i = 0; i < children.Count; i++) {
-                Transform child = children.Array[i];
+                UITransform child = children.Array[i] as UITransform;
+                if(child == null)
+                    continue;
+
                 if (child.GameObject.Enabled) {
-                    if (!child.GameObject.Bounds.Intersects(ScissorRect.Value)) {
+                    if (!child.UIObject.Bounds.Intersects(ScissorRect.Value)) {
                         child.GameObject.Disable();
                     }
                 } else {
                     child.GameObject.RecalculateBounds();
-                    if (child.GameObject.Bounds.Intersects(ScissorRect.Value)) {
+                    if (child.UIObject.Bounds.Intersects(ScissorRect.Value)) {
                         child.GameObject.Enable();
                     }
                 }

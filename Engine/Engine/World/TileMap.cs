@@ -13,7 +13,6 @@ namespace SE.World
     {
         public override bool DestroyOnLoad => true;
         public override bool IsDynamic => true;
-        public override bool AutoBounds => false;
 
         public int ChunkSize { get; private set; }
         public int TileSize { get; private set; }

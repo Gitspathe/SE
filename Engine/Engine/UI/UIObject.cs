@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using SE.Common;
+using SE.Components;
 using SE.Components.UI;
 using SE.Core;
 using SE.UI.Events;
@@ -34,7 +35,33 @@ namespace SE.UI
         /// <inheritdoc />
         public sealed override bool IsDynamic => true;
 
-        public override bool AutoBounds => false;
+        /// <summary>If true, the GameObject will have it's bounds automatically calculated from it's sprites' bounds.
+        ///          Defaults to true for regular GameObjects, defaults to false for UIObjects.</summary>
+        public virtual bool AutoBounds { get; } = true;
+
+        /// <summary>The bounds of a GameObject, scaled to the object's transform scale.</summary>
+        public RectangleF Bounds {
+            get => scaledBounds;
+            internal set {
+                EnsureValidAccess();
+                UnscaledBounds = new RectangleF(value.X, value.Y,
+                    (int) (value.Width * Transform.Scale.X),
+                    (int) (value.Height * Transform.Scale.Y));
+                RecalculateBounds();
+            }
+        }
+        private RectangleF scaledBounds = RectangleF.Empty;
+
+        public RectangleF UnscaledBounds {
+            get => unscaledBounds;
+            set {
+                EnsureValidAccess();
+                unscaledBounds = value;
+                RecalculateBounds();
+            }
+        }
+        private RectangleF unscaledBounds = RectangleF.Empty;
+
 
         public new UITransform Transform => (UITransform)TransformProp;
 
@@ -69,7 +96,6 @@ namespace SE.UI
             }
         }
 
-        private Color color;
         public Color SpriteColor {
             get => color;
             set {
@@ -79,6 +105,7 @@ namespace SE.UI
                 }
             }
         }
+        private Color color;
 
         public bool Interactable {
             get => IsInteractable;
@@ -148,6 +175,53 @@ namespace SE.UI
             SetPriority(Priority);
         }
 
+        internal override void RecalculateBounds()
+        {
+            if (Transform == null)
+                return;
+
+            UpdateSpriteBounds();
+            if (!AutoBounds || Sprites.Count < 1) {
+                unscaledBounds = new RectangleF(
+                    Transform.GlobalPositionInternal.X,
+                    Transform.GlobalPositionInternal.Y,
+                    unscaledBounds.Width, 
+                    unscaledBounds.Height);
+                scaledBounds = new RectangleF(
+                    unscaledBounds.X, 
+                    unscaledBounds.Y, 
+                    (int) (unscaledBounds.Width * Transform.Scale.X), 
+                    (int) (unscaledBounds.Height * Transform.Scale.Y));
+                return;
+            }
+
+            float largestWidth = 0.0f, largestHeight = 0.0f, minX = int.MaxValue, minY = int.MaxValue;
+            for (int i = 0; i < Sprites.Count; i++) {
+                SpriteBase sprite = Sprites.Array[i];
+                Rectangle bounds = sprite.Bounds;
+                if (bounds.X < minX)
+                    minX = bounds.X;
+                if (bounds.Y < minY)
+                    minY = bounds.Y;
+                if (bounds.Width + sprite.Offset.X > largestWidth)
+                    largestWidth = bounds.Width + sprite.Offset.X;
+                if (bounds.Height + sprite.Offset.Y > largestHeight)
+                    largestHeight = bounds.Height + sprite.Offset.Y;
+            }
+
+            unscaledBounds = new RectangleF(minX, minY, largestWidth, largestHeight);
+            scaledBounds = new RectangleF(
+                unscaledBounds.X, 
+                unscaledBounds.Y, 
+                (int) (unscaledBounds.Width * Transform.Scale.X), 
+                (int) (unscaledBounds.Height * Transform.Scale.Y));
+
+            Component[] componentArr = Components.Array;
+            for (int i = 0; i < Components.Count; i++) {
+                componentArr[i].OwnerBoundsUpdated();
+            }
+        }
+
         internal void UpdateChildScissorRect(Rectangle? sr)
         {
             if (ScissorRect.HasValue) {
@@ -179,6 +253,8 @@ namespace SE.UI
             if (IsRootUIMenu) {
                 UIManager.RegisterMenu(RootUIName, this, RootUIPriority);
             }
+
+            RecalculateBounds();
         }
 
         /// <inheritdoc />

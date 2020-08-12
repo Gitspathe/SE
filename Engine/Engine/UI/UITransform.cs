@@ -2,6 +2,7 @@
 using System.Numerics;
 using SE.Common;
 using SE.Components;
+using SE.Utility;
 using Point = Microsoft.Xna.Framework.Point;
 
 namespace SE.UI
@@ -24,7 +25,20 @@ namespace SE.UI
             set {
                 size = value;
                 Scale = new Vector2((float)size.X / baseSize.X, (float)size.Y / baseSize.Y);
-                GameObject.RecalculateBounds();
+                ((UIObject)GameObject).RecalculateBounds();
+            }
+        }
+
+        public UIObject UIObject => (UIObject) GameObject;
+
+        /// <summary>
+        /// Parent size. Returns current Transform size if there is no parent.
+        /// </summary>
+        protected Vector2 ParentSize {
+            get {
+                UITransform parentTransform = (UITransform)Parent;
+                RectangleF parentBounds = parentTransform?.UIObject.Bounds ?? UIObject.Bounds;
+                return new Vector2(parentBounds.Width, parentBounds.Height);
             }
         }
 
@@ -52,23 +66,23 @@ namespace SE.UI
             Vector2 parentSize = ParentSize;
             Vector2 origin = Vector2.Zero;
             if ((align & Alignment.Center) == Alignment.Center) {
-                size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
+                size = new Vector2(UIObject.Bounds.Width, UIObject.Bounds.Height);
                 origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), -(parentSize.Y / 2) + (size.Y / 2));
             }
             if ((align & Alignment.Up) == Alignment.Up) {
-                size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
+                size = new Vector2(UIObject.Bounds.Width, UIObject.Bounds.Height);
                 origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), 0);
             }
             if ((align & Alignment.Right) == Alignment.Right) {
-                size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
+                size = new Vector2(UIObject.Bounds.Width, UIObject.Bounds.Height);
                 origin += new Vector2(-(parentSize.X) + size.X, -(parentSize.Y / 2) + (size.Y / 2));
             }
             if ((align & Alignment.Down) == Alignment.Down) {
-                size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
+                size = new Vector2(UIObject.Bounds.Width, UIObject.Bounds.Height);
                 origin += new Vector2(-(parentSize.X / 2) + (size.X / 2), -(parentSize.Y) + (size.Y / 2));
             }
             if ((align & Alignment.Left) == Alignment.Left) {
-                size = new Vector2(GameObject.Bounds.Width, GameObject.Bounds.Height);
+                size = new Vector2(UIObject.Bounds.Width, UIObject.Bounds.Height);
                 origin += new Vector2(0, -(parentSize.Y / 2) + (size.Y / 2));
             }
             for (int i = 0; i < GameObject.Sprites.Count; i++) {

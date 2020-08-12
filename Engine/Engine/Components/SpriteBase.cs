@@ -101,7 +101,7 @@ namespace SE.Components
             set {
                 origin = value;
                 if (Owner != null && !Owner.IsDynamic) {
-                    Owner.RecalculateBounds();
+                    //Owner.RecalculateBounds();
                 }
             }
         }

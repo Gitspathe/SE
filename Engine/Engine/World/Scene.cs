@@ -186,7 +186,11 @@ namespace SE.World
 
                             Sprite sprite = (Sprite)go.Sprites.Array[s];
                             Rectangle shadowBounds = sprite.Shadow.Bounds;
-                            MapData[x][y].ShadowTemplates.Add(new TileSpot.ShadowTemplate(new Point((int)go.Bounds.X, (int)go.Bounds.Y), shadowBounds));
+                            MapData[x][y].ShadowTemplates.Add(new TileSpot.ShadowTemplate(
+                                new Point(
+                                    (int)sprite.Bounds.X, 
+                                    (int)sprite.Bounds.Y), 
+                                shadowBounds));
                         }
                     }
                 }

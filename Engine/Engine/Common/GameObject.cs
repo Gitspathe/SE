@@ -62,33 +62,6 @@ namespace SE.Common
             protected set => TransformProp = value;
         }
 
-        /// <summary>If true, the GameObject will have it's bounds automatically calculated from it's sprites' bounds.
-        ///          Defaults to true for regular GameObjects, defaults to false for UIObjects.</summary>
-        public virtual bool AutoBounds { get; } = true;
-
-        /// <summary>The bounds of a GameObject, scaled to the object's transform scale.</summary>
-        public RectangleF Bounds {
-            get => scaledBounds;
-            internal set {
-                EnsureValidAccess();
-                UnscaledBounds = new RectangleF(value.X, value.Y,
-                    (int) (value.Width * Transform.Scale.X),
-                    (int) (value.Height * Transform.Scale.Y));
-                RecalculateBounds();
-            }
-        }
-        private RectangleF scaledBounds = RectangleF.Empty;
-
-        public RectangleF UnscaledBounds {
-            get => unscaledBounds;
-            set {
-                EnsureValidAccess();
-                unscaledBounds = value;
-                RecalculateBounds();
-            }
-        }
-        private RectangleF unscaledBounds = RectangleF.Empty;
-
         public INetLogic NetLogic => NetIdentity;
 
         public NetworkIdentity NetIdentity { get; internal set; }
@@ -133,7 +106,7 @@ namespace SE.Common
         /// <summary>
         /// Throws exceptions if the GameObject cannot be accessed.
         /// </summary>
-        private void EnsureValidAccess()
+        private protected void EnsureValidAccess()
         {
             if (Destroyed)
                 throw new InvalidOperationException("Attempted to access destroyed GameObject.");
@@ -159,51 +132,9 @@ namespace SE.Common
             }
         }
 
-        internal void RecalculateBounds()
+        internal virtual void RecalculateBounds()
         {
-            if (Transform == null)
-                return;
 
-            UpdateSpriteBounds();
-            if (!AutoBounds || Sprites.Count < 1) {
-                unscaledBounds = new RectangleF(
-                    Transform.GlobalPositionInternal.X,
-                    Transform.GlobalPositionInternal.Y,
-                    unscaledBounds.Width, 
-                    unscaledBounds.Height);
-                scaledBounds = new RectangleF(
-                    unscaledBounds.X, 
-                    unscaledBounds.Y, 
-                    (int) (unscaledBounds.Width * Transform.Scale.X), 
-                    (int) (unscaledBounds.Height * Transform.Scale.Y));
-                return;
-            }
-
-            float largestWidth = 0.0f, largestHeight = 0.0f, minX = int.MaxValue, minY = int.MaxValue;
-            for (int i = 0; i < Sprites.Count; i++) {
-                SpriteBase sprite = Sprites.Array[i];
-                Rectangle bounds = sprite.Bounds;
-                if (bounds.X < minX)
-                    minX = bounds.X;
-                if (bounds.Y < minY)
-                    minY = bounds.Y;
-                if (bounds.Width + sprite.Offset.X > largestWidth)
-                    largestWidth = bounds.Width + sprite.Offset.X;
-                if (bounds.Height + sprite.Offset.Y > largestHeight)
-                    largestHeight = bounds.Height + sprite.Offset.Y;
-            }
-
-            unscaledBounds = new RectangleF(minX, minY, largestWidth, largestHeight);
-            scaledBounds = new RectangleF(
-                unscaledBounds.X, 
-                unscaledBounds.Y, 
-                (int) (unscaledBounds.Width * Transform.Scale.X), 
-                (int) (unscaledBounds.Height * Transform.Scale.Y));
-
-            Component[] componentArr = Components.Array;
-            for (int i = 0; i < Components.Count; i++) {
-                componentArr[i].OwnerBoundsUpdated();
-            }
         }
 
         internal virtual void OnInitializeInternal()
@@ -254,8 +185,6 @@ namespace SE.Common
                 }
             }
             Initialized = true;
-
-            RecalculateBounds();
         }
 
         public void Update()
