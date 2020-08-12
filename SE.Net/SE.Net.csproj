@@ -29,9 +29,6 @@
     <Reference Include="SE.Utility">
       <HintPath>..\SE.Utility\bin\$(Configuration)\$(TargetFramework)\SE.Utility.dll</HintPath>
     </Reference>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
