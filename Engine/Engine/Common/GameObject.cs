@@ -61,12 +61,11 @@ namespace SE.Common
             get => TransformProp;
             protected set => TransformProp = value;
         }
+        protected virtual Transform TransformProp { get; set; }
 
         public INetLogic NetLogic => NetIdentity;
 
         public NetworkIdentity NetIdentity { get; internal set; }
-
-        protected virtual Transform TransformProp { get; set; }
 
         internal PooledList<SpriteBase> Sprites = new PooledList<SpriteBase>(Config.Performance.UseArrayPoolCore);
         internal PooledList<Component> Components = new PooledList<Component>(Config.Performance.UseArrayPoolCore);

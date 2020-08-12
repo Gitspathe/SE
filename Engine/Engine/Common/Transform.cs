@@ -18,7 +18,6 @@ namespace SE.Common
             get => GameObjectProp;
             private protected set => GameObjectProp = value;
         }
-
         private protected virtual GameObject GameObjectProp { get; set; }
 
         /// <summary>Parent Transform.</summary>
