@@ -89,12 +89,12 @@ namespace SE.UI
                     continue;
 
                 if (child.GameObject.Enabled) {
-                    if (!child.UIObject.Bounds.Intersects(ScissorRect.Value)) {
+                    if (!child.GameObject.Bounds.Intersects(ScissorRect.Value)) {
                         child.GameObject.Disable();
                     }
                 } else {
-                    child.GameObject.RecalculateBounds();
-                    if (child.UIObject.Bounds.Intersects(ScissorRect.Value)) {
+                    child.GameObject.RecalculateBoundsInternal();
+                    if (child.GameObject.Bounds.Intersects(ScissorRect.Value)) {
                         child.GameObject.Enable();
                     }
                 }

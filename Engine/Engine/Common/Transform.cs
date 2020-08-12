@@ -13,8 +13,13 @@ namespace SE.Common
     /// </summary>
     public class Transform : IDisposable
     {
-        /// <summary>GameObject owner GameObject of this Transform.</summary>
-        public GameObject GameObject { get; }
+        /// <summary>The GameObject's transform.</summary>
+        public GameObject GameObject {
+            get => GameObjectProp;
+            private protected set => GameObjectProp = value;
+        }
+
+        private protected virtual GameObject GameObjectProp { get; set; }
 
         /// <summary>Parent Transform.</summary>
         public Transform Parent { get; private set; }
@@ -124,7 +129,7 @@ namespace SE.Common
 
                 localScale = value;
                 UpdateTransformation();
-                GameObject.RecalculateBounds();
+                GameObject.RecalculateBoundsInternal();
             }
         }
 
@@ -204,7 +209,7 @@ namespace SE.Common
                 UpdateTransformation();
             }
 
-            GameObject.RecalculateBounds();
+            GameObject.RecalculateBoundsInternal();
             ParentSet?.Invoke(transform);
             EngineUtility.TransformHierarchyDirty = true;
         }
@@ -286,7 +291,7 @@ namespace SE.Common
                 }
             }
             GameObject.PhysicsObject?.OverridePosition(GlobalPositionInternal);
-            GameObject.RecalculateBounds();
+            GameObject.RecalculateBoundsInternal();
         }
 
         protected virtual Matrix4x4 UpdateTransformationMatrix()

@@ -47,7 +47,7 @@ namespace SE.UI
                 UnscaledBounds = new RectangleF(value.X, value.Y,
                     (int) (value.Width * Transform.Scale.X),
                     (int) (value.Height * Transform.Scale.Y));
-                RecalculateBounds();
+                RecalculateBoundsInternal();
             }
         }
         private RectangleF scaledBounds = RectangleF.Empty;
@@ -57,7 +57,7 @@ namespace SE.UI
             set {
                 EnsureValidAccess();
                 unscaledBounds = value;
-                RecalculateBounds();
+                RecalculateBoundsInternal();
             }
         }
         private RectangleF unscaledBounds = RectangleF.Empty;
@@ -180,7 +180,6 @@ namespace SE.UI
             if (Transform == null)
                 return;
 
-            UpdateSpriteBounds();
             if (!AutoBounds || Sprites.Count < 1) {
                 unscaledBounds = new RectangleF(
                     Transform.GlobalPositionInternal.X,
@@ -215,11 +214,6 @@ namespace SE.UI
                 unscaledBounds.Y, 
                 (int) (unscaledBounds.Width * Transform.Scale.X), 
                 (int) (unscaledBounds.Height * Transform.Scale.Y));
-
-            Component[] componentArr = Components.Array;
-            for (int i = 0; i < Components.Count; i++) {
-                componentArr[i].OwnerBoundsUpdated();
-            }
         }
 
         internal void UpdateChildScissorRect(Rectangle? sr)
@@ -254,7 +248,7 @@ namespace SE.UI
                 UIManager.RegisterMenu(RootUIName, this, RootUIPriority);
             }
 
-            RecalculateBounds();
+            RecalculateBoundsInternal();
         }
 
         /// <inheritdoc />
@@ -323,7 +317,7 @@ namespace SE.UI
             if (ScissorRect.HasValue) {
                 UpdateChildScissorRect(ScissorRect);
             }
-            RecalculateBounds(); // TODO: Remove this. Bounds should be updated when needed, not every update!
+            RecalculateBoundsInternal(); // TODO: Remove this. Bounds should be updated when needed, not every update!
         }
 
         /// <inheritdoc />

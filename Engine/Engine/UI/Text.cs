@@ -31,7 +31,7 @@ namespace SE.UI
                 sprite.UnscaledSize = size.ToPoint();
                 Bounds = new RectangleF(Transform.GlobalPositionInternal.X, Transform.GlobalPositionInternal.Y, (int)size.X, (int)size.Y);
                 Transform.UpdateTransformation();
-                RecalculateBounds();
+                RecalculateBoundsInternal();
             }
         }
 

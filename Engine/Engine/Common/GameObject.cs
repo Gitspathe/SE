@@ -132,9 +132,16 @@ namespace SE.Common
             }
         }
 
-        internal virtual void RecalculateBounds()
-        {
+        internal virtual void RecalculateBounds() { }
 
+        internal void RecalculateBoundsInternal()
+        {
+            UpdateSpriteBounds();
+            RecalculateBounds();
+            Component[] componentArr = Components.Array;
+            for (int i = 0; i < Components.Count; i++) {
+                componentArr[i].OwnerBoundsUpdated();
+            }
         }
 
         internal virtual void OnInitializeInternal()
@@ -185,6 +192,7 @@ namespace SE.Common
                 }
             }
             Initialized = true;
+            RecalculateBoundsInternal();
         }
 
         public void Update()
