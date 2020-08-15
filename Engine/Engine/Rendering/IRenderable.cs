@@ -25,6 +25,7 @@ namespace SE.Rendering
         Material Material { get; }
     }
 
+    // TODO: Allow this to be an Asset somehow?
     public sealed class Material
     {
         public RenderableTypeInfo RenderableTypeInfo;
