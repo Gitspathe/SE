@@ -10,10 +10,12 @@ using SE.World.Partitioning;
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
 using Vector4 = System.Numerics.Vector4;
+using Quaternion = System.Numerics.Quaternion;
 
 using MGVector2 = Microsoft.Xna.Framework.Vector2;
 using MGVector3 = Microsoft.Xna.Framework.Vector3;
 using MGVector4 = Microsoft.Xna.Framework.Vector4;
+using MGQuaternion = Microsoft.Xna.Framework.Quaternion;
 
 namespace SE.Rendering
 {
@@ -104,6 +106,18 @@ namespace SE.Rendering
             Effect.Parameters[parameter].SetValue(value);
         }
 
+        public void SetParameter(string parameter, Matrix4x4 value)
+        {
+            CloneEffectIfNeeded();
+            Effect.Parameters[parameter].SetValue(value);
+        }
+
+        public void SetParameter(string parameter, Matrix4x4[] value)
+        {
+            CloneEffectIfNeeded();
+            Effect.Parameters[parameter].SetValue(value);
+        }
+
         public void SetParameter(string parameter, float value)
         {
             CloneEffectIfNeeded();
@@ -125,22 +139,46 @@ namespace SE.Rendering
         public void SetParameter(string parameter, Vector2 value)
         {
             CloneEffectIfNeeded();
-            Effect.Parameters[parameter].SetValue(new MGVector2(value.X, value.Y));
+            Effect.Parameters[parameter].SetValue(value);
+        }
+
+        public void SetParameter(string parameter, Vector2[] value)
+        {
+            CloneEffectIfNeeded();
+            Effect.Parameters[parameter].SetValue(value);
         }
 
         public void SetParameter(string parameter, Vector3 value)
         {
             CloneEffectIfNeeded();
-            Effect.Parameters[parameter].SetValue(new MGVector3(value.X, value.Y, value.Z));
+            Effect.Parameters[parameter].SetValue(value);
+        }
+
+        public void SetParameter(string parameter, Vector3[] value)
+        {
+            CloneEffectIfNeeded();
+            Effect.Parameters[parameter].SetValue(value);
         }
 
         public void SetParameter(string parameter, Vector4 value)
         {
             CloneEffectIfNeeded();
-            Effect.Parameters[parameter].SetValue(new MGVector4(value.X, value.Y, value.Z, value.W));
+            Effect.Parameters[parameter].SetValue(value);
         }
 
-        // TODO: Vector2[], Vector3[], Vector4[], Quaternion.
+        public void SetParameter(string parameter, Vector4[] value)
+        {
+            CloneEffectIfNeeded();
+            Effect.Parameters[parameter].SetValue(value);
+        }
+
+        public void SetParameter(string parameter, Quaternion value)
+        {
+            CloneEffectIfNeeded();
+            Effect.Parameters[parameter].SetValue(value);
+        }
+
+        // TODO: MonoGame vector types?
 
         public void RegenerateDrawCall()
         {
