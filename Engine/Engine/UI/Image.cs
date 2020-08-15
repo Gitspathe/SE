@@ -11,7 +11,6 @@ namespace SE.UI
         public UISprite Sprite { get; }
 
         public SpriteTexture SpriteTexure {
-            get => Sprite.SpriteTexture;
             set => Sprite.SpriteTexture = value;
         }
 

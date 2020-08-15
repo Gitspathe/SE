@@ -106,7 +106,7 @@ namespace SE.Rendering
             IRenderable[] spriteArray = renderedSprites.Array;
             for (int i = 0; i < renderedSprites.Count; i++) {
                 IRenderable renderObj = spriteArray[i];
-                RenderableInfo info = renderObj.Info;
+                Material info = renderObj.Material;
                 if (excludeUI && info.RenderableTypeInfo.UISprite != null)
                     continue;
 
@@ -122,7 +122,7 @@ namespace SE.Rendering
             QuickParallel.ForEach(renderedSprites, (objects, count) => {
                 for (int i = 0; i < count; i++) {
                     IRenderable renderObj = objects[i];
-                    RenderableInfo info = renderObj.Info;
+                    Material info = renderObj.Material;
                     if (excludeUI && info.RenderableTypeInfo.UISprite != null)
                         continue;
 

@@ -17,9 +17,9 @@ namespace SE.Components.UI
             }
 
             Core.Rendering.SpriteBatch.Draw(
-                spriteTexture.Texture, 
+                Material.Texture, 
                 bounds, 
-                spriteTexture.SourceRectangle, 
+                TextureSourceRectangle, 
                 color, 
                 0f,
                 origin, 

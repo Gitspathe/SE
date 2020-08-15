@@ -25,14 +25,14 @@ namespace SE.Components
                         Shadow.Bounds = new Rectangle(
                             0 - (int)Origin.X,
                             0 - (int)Origin.Y,
-                            SpriteTexture.SourceRectangle.Width,
-                            SpriteTexture.SourceRectangle.Height);
+                            TextureSourceRectangle.Width,
+                            TextureSourceRectangle.Height);
                     } else {
                         Shadow.Bounds = new Rectangle(
                             0 - (int)Origin.X,
                             0 - (int)Origin.Y,
-                            SpriteTexture.SourceRectangle.Width - (int)Origin.X,
-                            SpriteTexture.SourceRectangle.Height - (int)Origin.Y);
+                            TextureSourceRectangle.Width - (int)Origin.X,
+                            TextureSourceRectangle.Height - (int)Origin.Y);
                         Shadow.CalculateHull(true);
                     }
                     Shadow.Position = Owner.Transform.GlobalPositionInternal;
@@ -70,9 +70,9 @@ namespace SE.Components
             position = new Vector2((int) position.X, (int) position.Y);
 
             Core.Rendering.SpriteBatch.Draw(
-                spriteTexture.Texture,
+                Material.Texture,
                 position,
-                spriteTexture.SourceRectangle,
+                TextureSourceRectangle,
                 color,
                 ownerTransform.GlobalRotationInternal,
                 origin,

@@ -31,7 +31,7 @@ namespace SE.Components.UI
                         srcRects[(int)SliceIndexes.LowerLeft] = sliced.DownLeftCorner;
                         srcRects[(int)SliceIndexes.UpperLeft] = sliced.UpLeftCorner;
 
-                        Texture = sliced.Texture;
+                        Material.Texture = sliced.Texture;
                         break;
                     }
                     case SlicedImage5 sliced: {
@@ -46,20 +46,10 @@ namespace SE.Components.UI
                         srcRects[(int)SliceIndexes.Down] = sliced.Down;
                         srcRects[(int)SliceIndexes.Left] = sliced.Left;
 
-                        Texture = sliced.Texture;
+                        Material.Texture = sliced.Texture;
                         break;
                     }
                 }
-                RegenerateDrawCall();
-            }
-        }
-
-        private Texture2D texture;
-        public Texture2D Texture {
-            get => texture;
-            set {
-                texture = value;
-                RegenerateDrawCall();
             }
         }
 
@@ -161,7 +151,7 @@ namespace SE.Components.UI
                     destRects[i].Y -= (int)camera.Position.Y;
                 }
                 Core.Rendering.SpriteBatch.Draw(
-                    texture,
+                    Material.Texture,
                     destRects[i], 
                     srcRects[i], 
                     Color, 

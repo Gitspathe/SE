@@ -27,7 +27,7 @@ namespace SE.Rendering
             }
         }
 
-        public void Add(IRenderable renderObj, RenderableInfo info, bool threadSafe = false)
+        public void Add(IRenderable renderObj, Material info, bool threadSafe = false)
         {
             RenderableTypeInfo typeInfo = info.RenderableTypeInfo;
 

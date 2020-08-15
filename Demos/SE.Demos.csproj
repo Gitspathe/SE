@@ -31,6 +31,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Src\Particles\**" />
+    <EmbeddedResource Remove="Src\Particles\**" />
+    <MonoGameContentReference Remove="Src\Particles\**" />
+    <None Remove="Src\Particles\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <MonoGameContentReference Remove="Data\Content.mgcb" />
   </ItemGroup>
 
@@ -138,10 +145,6 @@
     <None Update="MonoGame.Penumbra.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Src\Particles\" />
   </ItemGroup>
 
 </Project>

@@ -27,8 +27,8 @@ namespace SE.Components
         public override int Queue => 100;
 
         public BlendMode BlendMode {
-            get => Info.BlendMode;
-            set => Info.BlendMode = value;
+            get => Material.BlendMode;
+            set => Material.BlendMode = value;
         }
 
         public virtual Point Offset {
@@ -118,40 +118,26 @@ namespace SE.Components
             set => layerDepth = value;
         }
 
-        private protected Effect shader;
-        public virtual Effect Shader {
-            get => shader;
-            set {
-                shader = value;
-                RegenerateDrawCall();
-            }
-        }
-
-        private protected SpriteTexture spriteTexture;
         public virtual SpriteTexture SpriteTexture {
-            get => spriteTexture;
             set {
                 if (!Screen.IsFullHeadless && value.Texture == null)
                     throw new NullReferenceException("The specified SpriteTexture has no Texture2D asset. Ensure that the asset exists, and that it's being set.");
 
-                spriteTexture = value;
-                RegenerateDrawCall();
+                Material.Texture = value.Texture;
+                TextureSourceRectangle = value.SourceRectangle;
             }
         }
 
-        public int DrawCallID { 
-            get => Info.DrawCallID;
-            private set => Info.DrawCallID = value;
-        }
+        protected Rectangle TextureSourceRectangle;
 
-        public RenderableInfo Info { get; }
+        public Material Material { get; }
 
         /// <summary>Cached owner transform. DO NOT MODIFY!</summary>
         protected Transform ownerTransform;
 
         public SpriteBase()
         {
-            Info = new RenderableInfo(this);
+            Material = new Material(this);
         }
 
         public abstract void RecalculateBounds();
@@ -163,7 +149,7 @@ namespace SE.Components
                 Owner.AddSprite(this);
 
             ownerTransform = Owner.Transform;
-            RegenerateDrawCall();
+            Material.RegenerateDrawCall();
         }
 
         protected override void OnDisable()
@@ -186,28 +172,22 @@ namespace SE.Components
             }
         }
 
-        public void RegenerateDrawCall()
-        {
-            if(spriteTexture.Texture != null)
-                DrawCallID = DrawCallDatabase.TryGetID(new DrawCall(spriteTexture.Texture, Shader));
-        }
-
         public abstract void Render(Camera2D camera, Space space);
         
         public void InsertIntoPartition()
         {
             // UISprites ignore partitioning.
-            if(Info.UISprite != null)
+            if(Material.UISprite != null)
                 return;
 
             SpatialPartitionManager.Insert(this);
-            Info.RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
+            Material.RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
         }
 
         public void RemoveFromPartition()
         {
             SpatialPartitionManager.Remove(this);
-            Info.RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
+            Material.RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
         }
     }
 
