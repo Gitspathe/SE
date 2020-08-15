@@ -106,11 +106,11 @@
       <HintPath>..\Demos\bin\netstandard2.1\SE.Demos.dll</HintPath>
       <Private>true</Private>
     </Reference>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="StbImageSharp">
       <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\StbImageSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame">
+      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>
 

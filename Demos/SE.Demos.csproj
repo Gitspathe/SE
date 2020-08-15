@@ -51,6 +51,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="SE">
+      <HintPath>..\Engine\bin\netstandard2.1\SE.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="LiteNetLib">
       <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\$(Configuration)\netstandard2.0\LiteNetLib.dll</HintPath>
     </Reference>
@@ -86,16 +96,6 @@
     </Reference>
     <Reference Include="Aether.Physics2D.NETSTANDARD.MG">
       <HintPath>..\_DEPENDENCIES\Aether.Physics2D\bin\$(Configuration)\netstandard2.1\Aether.Physics2D.NETSTANDARD.MG.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="SE">
-      <HintPath>..\Engine\bin\netstandard2.1\SE.dll</HintPath>
-      <Private>true</Private>
     </Reference>
   </ItemGroup>
 
