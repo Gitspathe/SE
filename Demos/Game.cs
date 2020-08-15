@@ -160,7 +160,7 @@ namespace SEDemos
 
             for (int i = 0; i < 5; i++) {
                 long before = GC.GetTotalMemory(true);
-                new GameObject(Vector2.Zero, 0f, Vector2.One);
+                GameObject go = new GameObject(Vector2.Zero, 0f, Vector2.One);
                 long after = GC.GetTotalMemory(true);
                 Console.WriteLine(after - before);
             }

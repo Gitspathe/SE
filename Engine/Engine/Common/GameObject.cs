@@ -67,8 +67,8 @@ namespace SE.Common
 
         public NetworkIdentity NetIdentity { get; internal set; }
 
-        internal PooledList<SpriteBase> Sprites = new PooledList<SpriteBase>(Config.Performance.UseArrayPoolCore);
-        internal PooledList<Component> Components = new PooledList<Component>(Config.Performance.UseArrayPoolCore);
+        internal PooledList<SpriteBase> Sprites = new PooledList<SpriteBase>(Config.Performance.UseArrayPoolCore, true, 1);
+        internal PooledList<Component> Components = new PooledList<Component>(Config.Performance.UseArrayPoolCore, true, 1);
         internal PhysicsObject PhysicsObject = null;
 
         /// <summary>

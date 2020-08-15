@@ -16,6 +16,7 @@ using SE.Particles;
 
 namespace SE.Core
 {
+    // TODO: Material support. Check Trello for more info. https://trello.com/c/wFMnQrPG/62-material-system
     public static class Rendering
     {
         public static QuickList<IRenderable> VisibleSprites = new QuickList<IRenderable>(512);
