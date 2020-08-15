@@ -90,7 +90,7 @@ namespace SE.Components
         }
 
         private protected Rectangle bounds;
-        [NoSerialize] public virtual Rectangle Bounds {
+        public virtual Rectangle Bounds {
             get => bounds; 
             set => bounds = value;
         }
@@ -100,9 +100,7 @@ namespace SE.Components
             get => origin;
             set {
                 origin = value;
-                if (Owner != null && !Owner.IsDynamic) {
-                    //Owner.RecalculateBounds();
-                }
+                Owner?.RecalculateBounds();
             }
         }
 
@@ -118,6 +116,7 @@ namespace SE.Components
             set => layerDepth = value;
         }
 
+        // TODO: Move this out of SpriteBase. Or at least don't include it in UISlicedSprite since it's useless there.
         public virtual SpriteTexture SpriteTexture {
             set {
                 if (!Screen.IsFullHeadless && value.Texture == null)
