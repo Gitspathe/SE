@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -22,6 +23,8 @@ using SE.Serialization;
 using SE.GameLoop;
 using SE.World.Partitioning;
 using SE.Particles.Shapes;
+using System.Numerics;
+using Vector2 = System.Numerics.Vector2;
 
 [assembly: InternalsVisibleTo("SEEditor")]
 namespace SE
@@ -57,6 +60,9 @@ namespace SE
         public static Camera2D EditorCamera { get; protected set; }
 
         private static bool isInitialized;
+
+        [DllImport("SE.Native")]
+        private static extern float hello(Vector2 vector);
 
         /// <summary>
         /// Creates a new instance of SE.
@@ -177,6 +183,10 @@ namespace SE
 
             OnInitialize();
             isInitialized = true;
+
+            Vector2 potato = new Vector2(10, 100);
+
+            Console.WriteLine("BLAH!:" + hello(potato));
         }
 
         private void LoadEngineContent()

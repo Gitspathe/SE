@@ -130,6 +130,9 @@
     <None Update="MonoGame.Framework.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="SE.Native.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="x64\libopenal.so.1">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

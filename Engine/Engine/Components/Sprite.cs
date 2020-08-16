@@ -70,7 +70,7 @@ namespace SE.Components
             position = new Vector2((int) position.X, (int) position.Y);
 
             Core.Rendering.SpriteBatch.Draw(
-                Material.Texture,
+                Data.Material.Texture,
                 position,
                 TextureSourceRectangle,
                 color,

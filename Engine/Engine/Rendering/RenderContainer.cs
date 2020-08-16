@@ -27,9 +27,10 @@ namespace SE.Rendering
             }
         }
 
-        public void Add(IRenderable renderObj, Material info, bool threadSafe = false)
+        public void Add(IRenderable renderObj, RenderableData info, bool threadSafe = false)
         {
-            RenderableTypeInfo typeInfo = info.RenderableTypeInfo;
+            RenderableTypeInfo typeInfo = info.TypeInfo;
+            Material material = info.Material;
 
             // Determine if the sprite ignores light or not.
             bool ignoreLight = true;
@@ -41,7 +42,7 @@ namespace SE.Rendering
             int renderIndex = (int) (ignoreLight ? RenderLoop.LoopEnum.AfterLighting : RenderLoop.LoopEnum.DuringLighting);
 
             // Determine if the sprite is transparent.
-            BlendMode blendMode = info.BlendMode;
+            BlendMode blendMode = material.BlendMode;
             switch (blendMode) {
                 case BlendMode.Opaque:
                     renderIndex += 100;
@@ -63,9 +64,9 @@ namespace SE.Rendering
             RenderList list = RenderLists.Array[renderIndex];
             if (list != null) {
                 if (threadSafe) {
-                    list.AddThreaded(info.DrawCallID, renderObj);
+                    list.AddThreaded(material.DrawCallID, renderObj);
                 } else {
-                    list.Add(info.DrawCallID, renderObj);
+                    list.Add(material.DrawCallID, renderObj);
                 }
             } else {
                 if (threadSafe) {
@@ -73,13 +74,13 @@ namespace SE.Rendering
                         //if (RenderLists.ContainsKey(renderIndex))
                         //    return;
 
-                        RenderList newList = new RenderList(renderIndex, info.BlendMode);
-                        newList.AddThreaded(info.DrawCallID, renderObj);
+                        RenderList newList = new RenderList(renderIndex, material.BlendMode);
+                        newList.AddThreaded(material.DrawCallID, renderObj);
                         RenderLists.Array[renderIndex] = newList;
                     }
                 } else {
-                    RenderList newList = new RenderList(renderIndex, info.BlendMode);
-                    newList.Add(info.DrawCallID, renderObj);
+                    RenderList newList = new RenderList(renderIndex, material.BlendMode);
+                    newList.Add(material.DrawCallID, renderObj);
                     RenderLists.Array[renderIndex] = newList;
                 }
                 isDirty = true;

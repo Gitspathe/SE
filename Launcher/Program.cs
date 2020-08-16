@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using SE.Core;
 using Console = System.Console;
@@ -32,6 +33,6 @@ namespace SELauncher
                 game.Run();
             }
         }
-
     }
+
 }

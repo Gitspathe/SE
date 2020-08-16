@@ -27,8 +27,8 @@ namespace SE.Components
         public override int Queue => 100;
 
         public BlendMode BlendMode {
-            get => Material.BlendMode;
-            set => Material.BlendMode = value;
+            get => Data.Material.BlendMode;
+            set => Data.Material.BlendMode = value;
         }
 
         public virtual Point Offset {
@@ -122,21 +122,21 @@ namespace SE.Components
                 if (!Screen.IsFullHeadless && value.Texture == null)
                     throw new NullReferenceException("The specified SpriteTexture has no Texture2D asset. Ensure that the asset exists, and that it's being set.");
 
-                Material.Texture = value.Texture;
+                Data.Material.Texture = value.Texture;
                 TextureSourceRectangle = value.SourceRectangle;
             }
         }
 
         protected Rectangle TextureSourceRectangle;
 
-        public Material Material { get; }
+        public RenderableData Data { get; }
 
         /// <summary>Cached owner transform. DO NOT MODIFY!</summary>
         protected Transform ownerTransform;
 
         public SpriteBase()
         {
-            Material = new Material(this);
+            Data = new RenderableData(this, new Material());
         }
 
         public abstract void RecalculateBounds();
@@ -148,7 +148,7 @@ namespace SE.Components
                 Owner.AddSprite(this);
 
             ownerTransform = Owner.Transform;
-            Material.RegenerateDrawCall();
+            Data.Material.RegenerateDrawCall();
         }
 
         protected override void OnDisable()
@@ -176,17 +176,17 @@ namespace SE.Components
         public void InsertIntoPartition()
         {
             // UISprites ignore partitioning.
-            if(Material.UISprite != null)
+            if(Data.UISprite != null)
                 return;
 
             SpatialPartitionManager.Insert(this);
-            Material.RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
+            Data.TypeInfo.Lit?.Shadow?.InsertIntoPartition();
         }
 
         public void RemoveFromPartition()
         {
             SpatialPartitionManager.Remove(this);
-            Material.RenderableTypeInfo.Lit?.Shadow?.InsertIntoPartition();
+            Data.TypeInfo.Lit?.Shadow?.InsertIntoPartition();
         }
     }
 

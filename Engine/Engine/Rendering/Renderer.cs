@@ -106,8 +106,8 @@ namespace SE.Rendering
             IRenderable[] spriteArray = renderedSprites.Array;
             for (int i = 0; i < renderedSprites.Count; i++) {
                 IRenderable renderObj = spriteArray[i];
-                Material info = renderObj.Material;
-                if (excludeUI && info.RenderableTypeInfo.UISprite != null)
+                RenderableData info = renderObj.Data;
+                if (excludeUI && info.TypeInfo.UISprite != null)
                     continue;
 
                 RenderContainer.Add(renderObj, info);
@@ -122,8 +122,8 @@ namespace SE.Rendering
             QuickParallel.ForEach(renderedSprites, (objects, count) => {
                 for (int i = 0; i < count; i++) {
                     IRenderable renderObj = objects[i];
-                    Material info = renderObj.Material;
-                    if (excludeUI && info.RenderableTypeInfo.UISprite != null)
+                    RenderableData info = renderObj.Data;
+                    if (excludeUI && info.TypeInfo.UISprite != null)
                         continue;
 
                     RenderContainer.Add(renderObj, info, true);
