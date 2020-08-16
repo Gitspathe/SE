@@ -77,6 +77,7 @@ namespace SE.Components
             Emitter.AddModule(HueModule.RandomLerp(0.0f, 30.0f));
             Emitter.AddModule(LightnessModule.Lerp(0.667f));
             Emitter.AddModule(AlphaModule.Curve(alphaCurve));
+            Emitter.AddModule(new NativeModule());
 
             //Emitter.RemoveModules(s, baseColorModule);
 
