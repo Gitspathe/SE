@@ -7,7 +7,7 @@
 
 using namespace Utility;
 
-namespace Particles 
+namespace Particles
 {
 	struct Particle {
 	public:

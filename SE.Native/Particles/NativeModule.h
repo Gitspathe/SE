@@ -9,11 +9,37 @@
 
 namespace Particles 
 {
+	struct AlphaModule {
+	private :
+		enum Transition { NONE, LERP, RANDOM_LERP };
+		Transition transition = NONE;
+		float end1, end2;
+		float* startAlphasArr;
+
+	public:
+		AlphaModule();
+
+		void initialize(int particleArrayLength);
+		void update(float deltaTime, Particle* particleArrPtr, int length);
+		void setNone();
+		void setLerp(float end);
+		void setRandomLerp(float min, float max);
+		bool isValid();
+
+		~AlphaModule();
+	};
+
+
 	struct NativeModule {
 	public:
-		float end;
+		AlphaModule* alphaModule;
 
-		void Update(float deltaTime, Particle* particleArrPtr, int length);
+		NativeModule();
+
+		void initialize(int particleArrayLength);
+		void update(float deltaTime, Particle* particleArrPtr, int length);
+
+		~NativeModule();
 	};
 }
 

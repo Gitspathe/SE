@@ -20,12 +20,3 @@ LIB_API(float) hello(const Vector2 vector)
 {
 	return vector.x + vector.y;
 }
-
-LIB_API(void) particleTest(Particle* particleArrPtr, int len)
-{
-	for(int i = 0; i < len; i++)
-	{
-		Particle* p = particleArrPtr + i;
-		p->InitialLife = 999999.0f;
-	}
-}
