@@ -1,4 +1,5 @@
 #include "NativeModule.h"
+#include "ParticleMath.h"
 
 namespace Particles 
 {
@@ -10,6 +11,13 @@ namespace Particles
 	void NativeModule::initialize(int particleArrayLength) 
 	{
 		alphaModule->initialize(particleArrayLength);
+	}
+
+	void NativeModule::onParticlesActivated(int* particleIndexArr, Particle* particlesArrPtr, int length)
+	{
+		if(alphaModule->isValid()) {
+			alphaModule->onParticlesActivated(particleIndexArr, particlesArrPtr, length);
+		}
 	}
 
 	void NativeModule::update(float deltaTime, Particle* particleArrPtr, int length)
@@ -33,6 +41,14 @@ namespace Particles
 		startAlphasArr = new float[particleArrayLength];
 	}
 
+	void AlphaModule::onParticlesActivated(int* particleIndexArr, Particle* particlesArrPtr, int length)
+	{
+		for(int i = 0; i < length; i++){
+			int pIndex = particleIndexArr[i];
+			startAlphasArr[pIndex] = particlesArrPtr[pIndex].Color.w;
+		}
+	}
+
 	void AlphaModule::setNone()
 	{
 		transition = NONE;
@@ -41,6 +57,7 @@ namespace Particles
 	void AlphaModule::setLerp(float end)
 	{
 		transition = LERP;
+		end1 = end;
 	}
 
 	void AlphaModule::setRandomLerp(float min, float max)
@@ -50,9 +67,18 @@ namespace Particles
 
 	void AlphaModule::update(float deltaTime, Particle* particleArrPtr, int length)
 	{
-		for(int i = 0; i < length; i++){
-			Particle* p = particleArrPtr + i;
-			p->InitialLife = 99999.0f;
+		Particle* tail = particleArrPtr + length;
+		int i = 0;
+
+		switch(transition) {
+			case LERP: {
+				for(Particle* particle = particleArrPtr; particle < tail; particle++, i++) {
+					particle->Color.w = ParticleMath::Lerp(startAlphasArr[i], end1, particle->TimeAlive / particle->InitialLife);
+				}
+			} break;
+			case RANDOM_LERP: {
+		
+			} break;
 		}
 	}
 
@@ -71,6 +97,11 @@ namespace Particles
 
 	#pragma region INTEROP METHODS.
 	
+	LIB_API(void) nativeModule_OnParticlesActivated(NativeModule* modulePtr, int* particleIndexArr, Particle* particleArrPtr, int length) 
+	{
+		modulePtr->onParticlesActivated(particleIndexArr, particleArrPtr, length);
+	}
+
 	LIB_API(void) nativeModule_Update(NativeModule* modulePtr, float deltaTime, Particle* particleArrPtr, int length) 
 	{
 		modulePtr->update(deltaTime, particleArrPtr, length);

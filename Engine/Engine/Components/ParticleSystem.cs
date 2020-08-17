@@ -74,10 +74,15 @@ namespace SE.Components
 
             Emitter.AddModule(s);
             Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
-            Emitter.AddModule(HueModule.RandomLerp(0.0f, 30.0f));
-            Emitter.AddModule(LightnessModule.Lerp(0.667f));
-            Emitter.AddModule(AlphaModule.Curve(alphaCurve));
-            Emitter.AddModule(new NativeModule());
+            //Emitter.AddModule(HueModule.RandomLerp(0.0f, 30.0f));
+            //Emitter.AddModule(LightnessModule.Lerp(0.667f));
+            //Emitter.AddModule(AlphaModule.Curve(alphaCurve));
+            Emitter.AddModule(AlphaModule.Lerp(0.0f));
+
+            // Native test.
+            NativeModule nativeMod = new NativeModule();
+            Emitter.AddModule(nativeMod);
+            nativeMod.AlphaModule.SetLerp(0.0f);
 
             //Emitter.RemoveModules(s, baseColorModule);
 
