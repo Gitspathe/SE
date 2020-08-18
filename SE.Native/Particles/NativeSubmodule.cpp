@@ -2,7 +2,7 @@
 #include "NativeModule.h"
 
 namespace Particles {
-	NativeSubmodule::NativeSubmodule(NativeModule* parent)
+	NativeSubmodule::NativeSubmodule(NativeModule* parent) : parent(parent)
 	{
 		parent->addSubmodule(this);
 	}

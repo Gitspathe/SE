@@ -13,8 +13,14 @@ namespace Particles {
 		enum Transition { NONE, LERP, RANDOM_LERP };
 		
 		Transition transition = NONE;
+		int particlesLength;
 		float end1, end2;
-		float* startAlphasArr;
+		float* startAlphasArr = NULL;
+		float* rand = NULL;
+        float* randEndAlphas = NULL;
+
+		void regenerateRandom();
+		bool isRandom();
 
 	public:
 		NativeAlphaModule(NativeModule* parent);
@@ -28,7 +34,7 @@ namespace Particles {
 		void setLerp(float end);
 		void setRandomLerp(float min, float max);
 
-		~NativeAlphaModule();
+		~NativeAlphaModule() override;
 	};
 }
 

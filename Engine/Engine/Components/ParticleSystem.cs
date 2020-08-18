@@ -80,6 +80,7 @@ namespace SE.Components
             //Emitter.AddModule(LightnessModule.Lerp(0.667f));
             //Emitter.AddModule(AlphaModule.Curve(alphaCurve));
             //Emitter.AddModule(AlphaModule.Lerp(0.0f));
+            Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
 
             // Native test.
             NativeModule nativeMod = new NativeModule();

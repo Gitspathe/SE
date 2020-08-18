@@ -8,6 +8,10 @@
 namespace Particles {
 	class NativeModule;
 	class NativeSubmodule {
+	protected:
+		NativeModule* parent;
+		bool isInitialized = false;
+
 	public:
 		NativeSubmodule(NativeModule* parent);
 
@@ -16,7 +20,7 @@ namespace Particles {
 		virtual void onUpdate(float deltaTime, Particle* particleArrPtr, int length);
 		virtual bool isValid();
 
-		~NativeSubmodule();
+		virtual ~NativeSubmodule();
 	};
 }
 

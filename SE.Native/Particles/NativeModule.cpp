@@ -93,7 +93,7 @@ namespace Particles
 		modulePtr->onUpdate(deltaTime, particleArrPtr, length);
 	}
 
-	LIB_API(NativeModule*) nativeModule_Create() 
+	LIB_API(NativeModule*) nativeModule_Create()
 	{
 		return new NativeModule();
 	}
