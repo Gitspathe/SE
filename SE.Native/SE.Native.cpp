@@ -4,8 +4,6 @@
 #include "SE.Native.h"
 #include <iostream>
 
-using namespace Particles;
-
 #if defined(_WIN32)
 #define OS "Windows"
 #elif defined(__linux__)
@@ -15,8 +13,3 @@ using namespace Particles;
 #else
 #define OS "Unknown OS"
 #endif
-
-LIB_API(float) hello(const Vector2 vector)
-{
-	return vector.x + vector.y;
-}

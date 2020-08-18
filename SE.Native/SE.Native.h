@@ -5,7 +5,6 @@
 
 #include <iostream>
 #include "Utility.h"
-#include "Particles.h"
 
 // TODO: Reference additional headers your program requires here.
 
@@ -25,7 +24,5 @@
         #define LIB_API(RetType) extern "C" RetType
     #endif
 #endif
-
-LIB_API(float) hello(const Vector2 vector);
 
 #endif //TESTLIB_LIBRARY_H

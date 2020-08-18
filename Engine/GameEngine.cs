@@ -185,8 +185,6 @@ namespace SE
             isInitialized = true;
 
             Vector2 potato = new Vector2(10, 100);
-
-            Console.WriteLine("BLAH!:" + hello(potato));
         }
 
         private void LoadEngineContent()

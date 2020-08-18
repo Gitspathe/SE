@@ -56,7 +56,6 @@ namespace SEDemos.GameObjects
 
             ParticleSystem system = GetComponent<ParticleSystem>();
             system.Texture = AssetManager.Get<Texture2D>(this, "Smoke");
-            system.SourceRect = tex.SourceRectangle;
 
             Sprite s = sprite;
             networkIdentity.OnSerializeNetworkState += () => {

@@ -1,46 +1,27 @@
 #pragma once
 
-#ifndef PARTICLES_H
-#define PARTICLES_H
+#ifndef NATIVEMODULE_H
+#define NATIVEMODULE_H
 
 #include "Utility.h"
-#include "Particle.h"
 #include "SE.Native.h"
+#include "Particle.h"
+#include <vector>
 
 namespace Particles 
 {
-	struct AlphaModule {
-	private :
-		enum Transition { NONE, LERP, RANDOM_LERP };
-		
-		Transition transition = NONE;
-		float end1, end2;
-		float* startAlphasArr;
-
-	public:
-		AlphaModule();
-
-		void initialize(int particleArrayLength);
-		void onParticlesActivated(int* particleIndexArr, Particle* particlesArrPtr, int length);
-		void update(float deltaTime, Particle* particleArrPtr, int length);
-		void setNone();
-		void setLerp(float end);
-		void setRandomLerp(float min, float max);
-		bool isValid();
-
-		~AlphaModule();
-	};
-
-
+	struct NativeSubmodule;
 	struct NativeModule {
 	public:
-		AlphaModule* alphaModule;
+		std::vector<NativeSubmodule*>* submodules;
 
 		NativeModule();
 
-		void initialize(int particleArrayLength);
+		void addSubmodule(NativeSubmodule* submodule);
+		void removeSubmodule(NativeSubmodule* submodule);
+		void onInitialize(int particleArrayLength);
 		void onParticlesActivated(int* particleIndexArr, Particle* particlesArrPtr, int length);
-		void update(float deltaTime, Particle* particleArrPtr, int length);
+		void onUpdate(float deltaTime, Particle* particleArrPtr, int length);
 
 		~NativeModule();
 	};

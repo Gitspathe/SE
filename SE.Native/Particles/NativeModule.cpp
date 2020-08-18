@@ -1,141 +1,111 @@
 #include "NativeModule.h"
+#include "NativeAlphaModule.h"
 #include "ParticleMath.h"
+#include <stdexcept>
 
 namespace Particles 
 {
 	NativeModule::NativeModule()
 	{ 
-		alphaModule = new AlphaModule();
+		submodules = new std::vector<NativeSubmodule*>();
 	}
 
-	void NativeModule::initialize(int particleArrayLength) 
+	void NativeModule::addSubmodule(NativeSubmodule* submodule)
 	{
-		alphaModule->initialize(particleArrayLength);
+		for(NativeSubmodule* ptr : *submodules){
+			if(ptr == submodule)
+				throw std::invalid_argument("Duplicate submodule!");
+		}
+
+		submodules->push_back(submodule);
+	}
+
+	void NativeModule::removeSubmodule(NativeSubmodule* submodule)
+	{
+		std::vector<NativeSubmodule*>* newSubmodules = new std::vector<NativeSubmodule*>();
+		std::vector<NativeSubmodule*> curSubmodules = *submodules;
+
+		// Create replacement vector.
+		for(NativeSubmodule* ptr : curSubmodules) {
+			if(ptr != submodule)
+				newSubmodules->push_back(ptr);
+			else
+				delete ptr;
+		}
+
+		// Delete current submodules.
+		(curSubmodules).clear();
+		delete submodules;
+
+		// Replace current submodules with the new vector.
+		submodules = newSubmodules;
+	}
+
+	void NativeModule::onInitialize(int particleArrayLength) 
+	{
+		for(NativeSubmodule* ptr : *submodules) {
+			ptr->onInitialize(particleArrayLength);
+		}
 	}
 
 	void NativeModule::onParticlesActivated(int* particleIndexArr, Particle* particlesArrPtr, int length)
 	{
-		if(alphaModule->isValid()) {
-			alphaModule->onParticlesActivated(particleIndexArr, particlesArrPtr, length);
+		for(NativeSubmodule* ptr : *submodules) {
+			ptr->onParticlesActivated(particleIndexArr, particlesArrPtr, length);
 		}
 	}
 
-	void NativeModule::update(float deltaTime, Particle* particleArrPtr, int length)
+	void NativeModule::onUpdate(float deltaTime, Particle* particleArrPtr, int length)
 	{
-		if(alphaModule->isValid()){
-			alphaModule->update(deltaTime, particleArrPtr, length);
+		for(NativeSubmodule* ptr : *submodules) {
+			ptr->onUpdate(deltaTime, particleArrPtr, length);
 		}
 	}
 
 	NativeModule::~NativeModule()
 	{
-		delete alphaModule;
-	}
-
-	#pragma region SUBMODULES - ALPHA
-
-	AlphaModule::AlphaModule() { }
-
-	void AlphaModule::initialize(int particleArrayLength) 
-	{
-		startAlphasArr = new float[particleArrayLength];
-	}
-
-	void AlphaModule::onParticlesActivated(int* particleIndexArr, Particle* particlesArrPtr, int length)
-	{
-		for(int i = 0; i < length; i++){
-			int pIndex = particleIndexArr[i];
-			startAlphasArr[pIndex] = particlesArrPtr[pIndex].Color.w;
+		for(NativeSubmodule* ptr : *submodules) {
+			delete ptr;
 		}
+		submodules->clear();
+		delete submodules;
 	}
-
-	void AlphaModule::setNone()
-	{
-		transition = NONE;
-	}
-
-	void AlphaModule::setLerp(float end)
-	{
-		transition = LERP;
-		end1 = end;
-	}
-
-	void AlphaModule::setRandomLerp(float min, float max)
-	{
-		transition = RANDOM_LERP;
-	}
-
-	void AlphaModule::update(float deltaTime, Particle* particleArrPtr, int length)
-	{
-		Particle* tail = particleArrPtr + length;
-		int i = 0;
-
-		switch(transition) {
-			case LERP: {
-				for(Particle* particle = particleArrPtr; particle < tail; particle++, i++) {
-					particle->Color.w = ParticleMath::Lerp(startAlphasArr[i], end1, particle->TimeAlive / particle->InitialLife);
-				}
-			} break;
-			case RANDOM_LERP: {
-		
-			} break;
-		}
-	}
-
-	bool AlphaModule::isValid()
-	{
-		return transition != NONE;
-	}
-
-	AlphaModule::~AlphaModule()
-	{
-		delete[] startAlphasArr;
-	}
-
-	#pragma endregion
-
 
 	#pragma region INTEROP METHODS.
 	
+	LIB_API(void) nativeModule_addSubmodule(NativeModule* modulePtr, NativeSubmodule* submodulePtr) 
+	{
+		modulePtr->addSubmodule(submodulePtr);
+	}
+
+	LIB_API(void) nativeModule_removeSubmodule(NativeModule* modulePtr, NativeSubmodule* submodulePtr) 
+	{
+		modulePtr->removeSubmodule(submodulePtr);
+	}
+
 	LIB_API(void) nativeModule_OnParticlesActivated(NativeModule* modulePtr, int* particleIndexArr, Particle* particleArrPtr, int length) 
 	{
 		modulePtr->onParticlesActivated(particleIndexArr, particleArrPtr, length);
 	}
 
-	LIB_API(void) nativeModule_Update(NativeModule* modulePtr, float deltaTime, Particle* particleArrPtr, int length) 
+	LIB_API(void) nativeModule_OnUpdate(NativeModule* modulePtr, float deltaTime, Particle* particleArrPtr, int length) 
 	{
-		modulePtr->update(deltaTime, particleArrPtr, length);
+		modulePtr->onUpdate(deltaTime, particleArrPtr, length);
 	}
 
 	LIB_API(NativeModule*) nativeModule_Create() 
 	{
-		NativeModule *mod = new NativeModule();
-		return mod;
+		return new NativeModule();
 	}
 
-	LIB_API(void) nativeModule_Initialize(NativeModule* modulePtr, int particleArrayLength) 
+	LIB_API(void) nativeModule_OnInitialize(NativeModule* modulePtr, int particleArrayLength) 
 	{
-		modulePtr->initialize(particleArrayLength);
+		modulePtr->onInitialize(particleArrayLength);
 	}
 
 	LIB_API(void) nativeModule_Delete(NativeModule* modulePtr) 
 	{
 		delete modulePtr;
-	}
-
-	LIB_API(void) nativeModule_AlphaModule_SetNone(NativeModule* modulePtr)
-	{
-		modulePtr->alphaModule->setNone();
-	}
-
-	LIB_API(void) nativeModule_AlphaModule_SetLerp(NativeModule* modulePtr, float end)
-	{
-		modulePtr->alphaModule->setLerp(end);
-	}
-
-	LIB_API(void) nativeModule_AlphaModule_SetRandomLerp(NativeModule* modulePtr, float min, float max)
-	{
-		modulePtr->alphaModule->setRandomLerp(min, max);
 	}
 
 	#pragma endregion
