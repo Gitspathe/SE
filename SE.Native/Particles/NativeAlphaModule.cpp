@@ -18,11 +18,8 @@ namespace Particles {
 		if(!isRandom() || !isInitialized)
 			return;
 
-		if(rand == NULL) {
-			delete[] rand;
-			delete[] randEndAlphas;
-		}
-
+		delete[] rand;
+		delete[] randEndAlphas;
 		rand = new float[particlesLength];
 		randEndAlphas = new float[particlesLength];
 	}
@@ -49,9 +46,8 @@ namespace Particles {
 		}
 	}
 
-	void NativeAlphaModule::onUpdate(float deltaTime, Particle* particleArrPtr, int length)
+	void NativeAlphaModule::onUpdate(float deltaTime, Particle* particleArrPtr, const Particle* tail)
 	{
-		const Particle* tail = particleArrPtr + length;
 		int i = 0;
 
 		switch(transition) {

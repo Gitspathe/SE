@@ -27,7 +27,7 @@ namespace Particles {
 
 		void onInitialize(int particleArrayLength) override;
 		void onParticlesActivated(int* particleIndexArr, Particle* particlesArrPtr, int length) override;
-		void onUpdate(float deltaTime, Particle* particleArrPtr, int length) override;
+		void onUpdate(float deltaTime, Particle* particleArrPtr, const Particle* tail) override;
 		bool isValid() override;
 
 		void setNone();

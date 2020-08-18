@@ -57,8 +57,9 @@ namespace Particles
 
 	void NativeModule::onUpdate(float deltaTime, Particle* particleArrPtr, int length)
 	{
-		for(NativeSubmodule* ptr : *submodules) {
-			ptr->onUpdate(deltaTime, particleArrPtr, length);
+		Particle* tail = particleArrPtr + length;
+		for(NativeSubmodule* ptr : *submodules){
+			ptr->onUpdate(deltaTime, particleArrPtr, tail);
 		}
 	}
 

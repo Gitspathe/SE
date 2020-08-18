@@ -22,7 +22,18 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": []
+      "variables": [
+        {
+          "name": "CMAKE_C_FLAGS_RELWITHDEBINFO",
+          "value": "/MD /Zi /Ot /O2 /Ob2 /Oi /DNDEBUG",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_C_FLAGS_RELEASE",
+          "value": "/MD /Ot /Oi /O2 /Ob2 /DNDEBUG",
+          "type": "STRING"
+        }
+      ]
     }
   ]
 }
