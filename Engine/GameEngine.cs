@@ -94,7 +94,8 @@ namespace SE
             if (!IsEditor) {
                 GraphicsDeviceManager = new GraphicsDeviceManager(this) {
                     SynchronizeWithVerticalRetrace = false,
-                    PreferredBackBufferFormat = SurfaceFormat.Color
+                    PreferredBackBufferFormat = SurfaceFormat.Color,
+                    GraphicsProfile = GraphicsProfile.HiDef
                 };
             } else {
                 GraphicsDeviceManager = editorEntry.EditorGraphicsDeviceManager;
@@ -132,16 +133,16 @@ namespace SE
                 ModLoader.Initialize();
                 UpdateLoop = new UpdateLoop();
 
+                ParticleEngine.UpdateMode = UpdateMode.ParallelAsynchronous;
                 ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolParticles
                     ? ParticleAllocationMode.ArrayPool
                     : ParticleAllocationMode.Array;
-                ParticleEngine.Initialize();
+                ParticleEngine.Initialize(this, GraphicsDeviceManager);
 
                 UIManager.Initialize();
                 if (!Screen.IsFullHeadless) 
                     Core.Lighting.Initialize();
 
-                //SpatialPartitionManager.Initialize(192);
                 Core.Physics.Initialize();
 
                 Network.OnLogInfo += (msg, important) => Console.LogInfo(msg, important, LogSource.Network);

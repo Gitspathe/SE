@@ -17,7 +17,7 @@ namespace Particles {
 
 		virtual void onInitialize(int particleArrayLength);
 		virtual void onParticlesActivated(int* particleIndexArr, Particle* particlesArrPtr, int length);
-		virtual void onUpdate(float deltaTime, Particle* particleArrPtr, const Particle* tail);
+		virtual void onUpdate(float deltaTime, Particle* particleArrPtr, const Particle* tail, const int length);
 		virtual bool isValid();
 
 		virtual ~NativeSubmodule();

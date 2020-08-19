@@ -52,6 +52,12 @@
 /processorParam:TextureFormat=Compressed
 /build:Content/fonts/editor_subheading.spritefont
 
+#begin Content/InstancingShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Content/InstancingShader.fx
+
 #begin Content/lightmask.png
 /importer:TextureImporter
 /processor:TextureProcessor

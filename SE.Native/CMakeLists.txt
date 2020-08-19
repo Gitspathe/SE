@@ -1,7 +1,7 @@
 ﻿# CMakeList.txt : CMake project for SE.Native, include source and define
 # project specific logic here.
 #
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.9)
 
 project ("SE.Native")
 
@@ -15,3 +15,7 @@ add_compile_definitions(DLL_EXPORTS)
 add_library(SE.Native SHARED "SE.Native.cpp" "SE.Native.h" "Utility/Vector2.h" "Utility/Vector2.cpp" "Particles/Particle.cpp" "Particles/Particle.h" "Utility/Vector4.cpp" "Utility/Vector4.h" "Utility/Int4.cpp" "Utility/Int4.h" "Utility.h"  "Particles/NativeModule.h" "Particles/NativeModule.cpp" "Particles/ParticleMath.cpp" "Particles/ParticleMath.h" "Particles/NativeSubmodule.h" "Particles/NativeSubmodule.cpp" "Particles/NativeAlphaModule.h" "Particles/NativeAlphaModule.cpp" "Utility/Random.h" "Utility/Random.cpp")
 
 # TODO: Add tests and install targets if needed.
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(SE.Native PUBLIC OpenMP::OpenMP_CXX)
+endif()

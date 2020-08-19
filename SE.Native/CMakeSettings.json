@@ -25,12 +25,12 @@
       "variables": [
         {
           "name": "CMAKE_C_FLAGS_RELWITHDEBINFO",
-          "value": "/MD /Zi /Ot /O2 /Ob2 /Oi /DNDEBUG",
+          "value": "/MD /Zi /Ot /O2 /Ob2 /Oi /DNDEBUG /openmp",
           "type": "STRING"
         },
         {
           "name": "CMAKE_C_FLAGS_RELEASE",
-          "value": "/MD /Ot /Oi /O2 /Ob2 /DNDEBUG",
+          "value": "/MD /Ot /Oi /O2 /Ob2 /DNDEBUG /openmp",
           "type": "STRING"
         }
       ]

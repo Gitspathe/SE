@@ -59,7 +59,7 @@ namespace Particles
 	{
 		Particle* tail = particleArrPtr + length;
 		for(NativeSubmodule* ptr : *submodules){
-			ptr->onUpdate(deltaTime, particleArrPtr, tail);
+			ptr->onUpdate(deltaTime, particleArrPtr, tail, length);
 		}
 	}
 

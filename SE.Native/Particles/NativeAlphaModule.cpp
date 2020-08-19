@@ -46,10 +46,9 @@ namespace Particles {
 		}
 	}
 
-	void NativeAlphaModule::onUpdate(float deltaTime, Particle* particleArrPtr, const Particle* tail)
+	void NativeAlphaModule::onUpdate(float deltaTime, Particle* particleArrPtr, const Particle* tail, const int length)
 	{
 		int i = 0;
-
 		switch(transition) {
 			case LERP: {
 				for(Particle* particle = particleArrPtr; particle < tail; particle++, i++) {

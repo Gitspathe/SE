@@ -16,6 +16,7 @@ using Vector4 = System.Numerics.Vector4;
 
 namespace SE.Rendering
 {
+    // TODO: World matrix instead of stupidly removing camera position from drawn position.
     public class Renderer : IRenderer
     {
         public RenderContainer RenderContainer = new RenderContainer();
@@ -315,11 +316,20 @@ namespace SE.Rendering
             }
 
             tmpEmitters.Clear();
+            //ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
+            //if (tmpEmitters != null) {
+            //    ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, ParticleShader);
+            //    foreach (Emitter pEmitter in tmpEmitters) {
+            //        DrawNewParticleEmitter(cam, pEmitter);
+            //    }
+            //}
+
             ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
                 ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, ParticleShader);
                 foreach (Emitter pEmitter in tmpEmitters) {
-                    DrawNewParticleEmitter(cam, pEmitter);
+                    pEmitter.Renderer.Draw(cam.Position);
+                    //DrawNewParticleEmitter(cam, pEmitter);
                 }
             }
         }
