@@ -162,7 +162,7 @@ namespace SE.Common
         /// </summary>
         protected virtual void OnEnable() { }
 
-        internal void Enable()
+        private void Enable()
         {
             InsertPartition();
             OnEnable();
@@ -173,7 +173,7 @@ namespace SE.Common
         /// </summary>
         protected virtual void OnDisable() { }
 
-        internal void Disable()
+        private void Disable()
         {
             RemovePartition();
             OnDisable();

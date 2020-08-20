@@ -382,7 +382,7 @@ namespace SE.Common
             for (int i = 0; i < Components.Count; i++) {
                 Component component = Components.Array[i];
                 if (ExecuteIsValid(component)) { 
-                    component.Enable();
+                    component.Enabled = true;
                 }
             }
 
@@ -416,7 +416,7 @@ namespace SE.Common
             for (int i = 0; i < Components.Count; i++) {
                 Component component = Components.Array[i];
                 if (ExecuteIsValid(component)) {
-                    component.Disable();
+                    component.Enabled = false;
                 }
             }
 

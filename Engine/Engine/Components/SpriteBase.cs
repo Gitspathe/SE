@@ -186,7 +186,7 @@ namespace SE.Components
         public void RemoveFromPartition()
         {
             SpatialPartitionManager.Remove(this);
-            Data.TypeInfo.Lit?.Shadow?.InsertIntoPartition();
+            Data.TypeInfo.Lit?.Shadow?.RemoveFromPartition();
         }
     }
 
