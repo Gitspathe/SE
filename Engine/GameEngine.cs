@@ -124,8 +124,8 @@ namespace SE
 
             // If the engine ISN'T initialized (i.e, not in editor mode)...
             if (!isInitialized) {
-                //ThreadPool.SetMaxThreads(Environment.ProcessorCount, 8);
-                //ThreadPool.SetMinThreads(Environment.ProcessorCount, 8);
+                //ThreadPool.SetMaxThreads(Environment.ProcessorCount, Environment.ProcessorCount);
+                //ThreadPool.SetMinThreads(Environment.ProcessorCount, Environment.ProcessorCount);
 
                 Config.Initialize();
                 InputManager.Initialize(this);

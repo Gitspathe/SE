@@ -64,6 +64,7 @@ struct VSInstanceInputSimple
 {
     float3 InstancePosition : POSITION1; // the number used must match the vertex declaration.
     float4 InstanceColor : COLOR1;
+	float2 TexCoordOffset : TEXCOORD1;
 };
 
 struct VSVertexInputSimple
@@ -101,7 +102,7 @@ VSOutputSimple VertexShader01(in VSVertexInputSimple vertexInput, VSInstanceInpu
     float4 posVert = mul(vertexInput.Position, wvp);
     float4 posInst = mul(instanceInput.InstancePosition.xyz, wvp);
     output.Position = posVert + posInst;
-    output.TexCoord = vertexInput.TexCoord;
+    output.TexCoord = vertexInput.TexCoord + instanceInput.TexCoordOffset;
     output.IdColor = instanceInput.InstanceColor;
     return output;
 }
@@ -115,8 +116,8 @@ VSOutputSimple VertexShader01(in VSVertexInputSimple vertexInput, VSInstanceInpu
 
 float4 PixelShader01(VSOutputSimple input) : COLOR0
 {
-      float4 col = tex2D(TexSampler, input.TexCoord) * hsl2rgb(input.IdColor);
-      return float4(col.rgb * input.IdColor.rgb, col.a);
+      return tex2D(TexSampler, input.TexCoord) * hsl2rgb(input.IdColor);
+      //return float4(col.rgb * input.IdColor.rgb, col.a);
 }
 
 

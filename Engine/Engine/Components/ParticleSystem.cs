@@ -62,7 +62,10 @@ namespace SE.Components
                 new Vector4(0.0f, 1.0f, 0.5f, 1.0f),
                 new Vector4(30.0f, 1.0f, 0.6f, 1.0f));
 
-            Emitter.Config.Scale.SetRandomBetween(0.0333f, 0.0667f);
+            //Emitter.Config.Scale.SetRandomBetween(0.0333f, 0.0667f);
+
+            Emitter.Config.Scale.SetRandomBetween(0.333f, 0.667f);
+
             Emitter.Config.Life.SetRandomBetween(0.2f, 1.0f);
             Emitter.Config.Speed.SetRandomBetween(32.0f, 128.0f);
 
@@ -79,8 +82,9 @@ namespace SE.Components
             Emitter.AddModule(HueModule.RandomLerp(0.0f, 30.0f));
             Emitter.AddModule(LightnessModule.Lerp(0.667f));
             Emitter.AddModule(AlphaModule.Curve(alphaCurve));
+            //Emitter.AddModule(SpriteRotationModule.Constant(1.0f));
             //Emitter.AddModule(AlphaModule.Lerp(0.0f));
-            
+
             //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
             //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
             //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));

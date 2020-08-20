@@ -315,19 +315,23 @@ namespace SE.Rendering
                 }
             }
 
-            tmpEmitters.Clear();
+            //tmpEmitters.Clear();
             //ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
-            //if (tmpEmitters != null) {
+            //if (tmpEmitters != null)
+            //{
             //    ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, ParticleShader);
-            //    foreach (Emitter pEmitter in tmpEmitters) {
+            //    foreach (Emitter pEmitter in tmpEmitters)
+            //    {
             //        DrawNewParticleEmitter(cam, pEmitter);
             //    }
             //}
 
             ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
-            if (tmpEmitters != null) {
-                ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, ParticleShader);
-                foreach (Emitter pEmitter in tmpEmitters) {
+            if (tmpEmitters != null)
+            {
+                //ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, ParticleShader);
+                foreach (Emitter pEmitter in tmpEmitters)
+                {
                     pEmitter.Renderer.Draw(cam.Position);
                     //DrawNewParticleEmitter(cam, pEmitter);
                 }
