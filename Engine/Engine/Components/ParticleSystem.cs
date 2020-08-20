@@ -36,7 +36,6 @@ namespace SE.Components
 
             Emitter = new Emitter(4096, shape: circleShape);
             Emitter.Texture = Texture;
-            Emitter.StartRect = new Int4(850, 850, 256, 256);
             //Emitter.Space = Space.Local;
 
             Curve angleCurve = new Curve();
@@ -62,9 +61,9 @@ namespace SE.Components
                 new Vector4(0.0f, 1.0f, 0.5f, 1.0f),
                 new Vector4(30.0f, 1.0f, 0.6f, 1.0f));
 
-            //Emitter.Config.Scale.SetRandomBetween(0.0333f, 0.0667f);
+            Emitter.Config.Scale.SetRandomBetween(0.0333f, 0.0667f);
 
-            Emitter.Config.Scale.SetRandomBetween(0.333f, 0.667f);
+            //Emitter.Config.Scale.SetRandomBetween(0.333f, 0.667f);
 
             Emitter.Config.Life.SetRandomBetween(0.2f, 1.0f);
             Emitter.Config.Speed.SetRandomBetween(32.0f, 128.0f);
