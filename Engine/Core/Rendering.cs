@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -52,7 +53,7 @@ namespace SE.Core
             get {
                 tmpCamBounds.Clear();
                 for (int i = 0; i < Cameras.Count; i++) {
-                    tmpCamBounds.Add(Cameras.Array[i].ViewBounds.ToVector4());
+                    tmpCamBounds.Add(Cameras.Array[i].VisibleArea.ToVector4());
                 }
                 return new Span<Vector4>(tmpCamBounds.Array, 0, tmpCamBounds.Count);
             }
@@ -191,7 +192,7 @@ namespace SE.Core
         {
             VisibleSprites.Clear();
             //Rectangle viewRect = camera.Zoom > 1.0f ? camera.UnscaledViewBounds : camera.Bounds;
-            Rectangle viewRect = camera.ViewBounds;
+            Rectangle viewRect = camera.VisibleArea;
             SpatialPartitionManager<IRenderable>.GetFromRegion(VisibleSprites, viewRect);
         }
 

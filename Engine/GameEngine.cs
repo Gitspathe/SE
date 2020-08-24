@@ -279,6 +279,22 @@ namespace SE
             EngineUtility.TransformHierarchyDirty = false;
         }
 
+        protected sealed override void Draw(GameTime gameTime)
+        {
+            base.Draw(gameTime);
+            if(Screen.IsFullHeadless)
+                return;
+
+            Core.Rendering.Update();
+        }
+
+        internal void GraphicsPresent()
+        {
+            DoDraw(GameTime);
+            //Draw(GameTime);
+            //EndDraw();
+        }
+
         private float time = 2.0f;
         private void DevelopmentTests()
         {
@@ -398,6 +414,5 @@ namespace SE
         // Disable some MonoGame methods.
         protected sealed override void UnloadContent() => base.UnloadContent();
         protected sealed override void LoadContent() => throw new NotImplementedException();
-        protected sealed override void Draw(GameTime gameTime) { }
     }
 }

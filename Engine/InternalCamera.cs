@@ -37,6 +37,7 @@ namespace SE
                 if (keyboardState.IsKeyDown(Keys.Right))
                     movement.X += (int)Math.Max(1600 * Time.DeltaTime, 1.0f);
             }
+            //Transform.Rotation += 0.5f * Time.DeltaTime;
 
             if (UIManager.AssumedScrollWheelControl == null) {
                 if (InputManager.MouseScrollValue == 1)

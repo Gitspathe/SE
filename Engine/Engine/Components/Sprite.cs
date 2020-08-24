@@ -64,8 +64,8 @@ namespace SE.Components
         public override void Render(Camera2D camera, Space space)
         {
             Vector2 position = ownerTransform.GlobalPositionInternal;
-            if (space == Space.World) {
-                position -= camera.Position;
+            if (space == Space.Screen) {
+                position += camera.Position;
             }
             position = new Vector2((int) position.X, (int) position.Y);
 

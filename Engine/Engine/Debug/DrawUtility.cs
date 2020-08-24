@@ -22,19 +22,18 @@ namespace SE.Debug
             SpriteBatch spriteBatch = Core.Rendering.SpriteBatch;
             Texture2D texture = debugSpriteTex.Texture;
             Rectangle r = srcRect;
-            Vector2 viewPos = camera.Position;
             int bw = borderWidth;
 
-            spriteBatch.Draw(texture, new Rectangle(r.Left - (int)viewPos.X, r.Top - (int)viewPos.Y, bw, r.Height),
+            spriteBatch.Draw(texture, new Rectangle(r.Left, r.Top, bw, r.Height),
                 debugSpriteTex.SourceRectangle, c, 0.0f, Vector2.Zero, SpriteEffects.None, 0f); // Left
 
-            spriteBatch.Draw(texture, new Rectangle(r.Right - (int)viewPos.X, r.Top - (int)viewPos.Y, bw, r.Height),
+            spriteBatch.Draw(texture, new Rectangle(r.Right, r.Top, bw, r.Height),
                 debugSpriteTex.SourceRectangle, c, 0.0f, Vector2.Zero, SpriteEffects.None, 0f); // Right
 
-            spriteBatch.Draw(texture, new Rectangle(r.Left - (int)viewPos.X, r.Top - (int)viewPos.Y, r.Width, bw),
+            spriteBatch.Draw(texture, new Rectangle(r.Left, r.Top, r.Width, bw),
                 debugSpriteTex.SourceRectangle, c, 0.0f, Vector2.Zero, SpriteEffects.None, 0f); // Top
 
-            spriteBatch.Draw(texture, new Rectangle(r.Left - (int)viewPos.X, r.Bottom - (int)viewPos.Y, r.Width, bw), 
+            spriteBatch.Draw(texture, new Rectangle(r.Left, r.Bottom, r.Width, bw), 
                 debugSpriteTex.SourceRectangle, c, 0.0f, Vector2.Zero, SpriteEffects.None, 0f); // Bottom
         }
     }

@@ -82,7 +82,6 @@ namespace SE.GameLoop
                 Add(DefaultEnum.InputManager, new LoopInputManager());
 ;               Add(DefaultEnum.UIManager, new LoopUIManager());
                 Add(DefaultEnum.Screen, new LoopScreen());
-                Add(DefaultEnum.RenderingSystem, new LoopRendering());
             }
         }
 

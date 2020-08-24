@@ -8,11 +8,13 @@ using Vector2 = System.Numerics.Vector2;
 using MonoGameVector3 = Microsoft.Xna.Framework.Vector3;
 using System.Collections.Generic;
 
+using MGVector2 = Microsoft.Xna.Framework.Vector2;
+
 namespace SE.Components
 {
     public class Camera2D : Component
     {
-        internal Matrix ScaleMatrix;
+        internal Matrix TransformMatrix;
         internal RenderTarget2D renderTarget;
 
         public uint Priority { get; set; }
@@ -42,6 +44,7 @@ namespace SE.Components
         }
         private RectangleF renderRegion = new RectangleF(0.0f, 0.0f, 1.0f, 1.0f);
 
+        public Rectangle VisibleArea { get; private set; }
         public Vector2 Position { get; private set; } = Vector2.Zero;
         public Rectangle ViewBounds { get; private set; }
 
@@ -89,7 +92,28 @@ namespace SE.Components
 
         private void CalculateScaleMatrix()
         {
-            ScaleMatrix = Matrix.CreateScale(new MonoGameVector3(Zoom, Zoom, 1));
+            Vector2 pos = Transform.GlobalPosition;
+
+            Matrix translation = Matrix.CreateTranslation(-pos.X, -pos.Y, 0.0f);
+            Matrix rotation = Matrix.CreateRotationZ(Transform.GlobalRotation);
+            Matrix scale = Matrix.CreateScale(Zoom, Zoom, 1);
+            Matrix origin = Matrix.CreateTranslation(ViewBounds.Width * 0.5f, ViewBounds.Height * 0.5f, 0);
+
+            TransformMatrix = Matrix.Identity * translation * rotation * origin * scale;
+
+            // Update visible area.
+            Matrix inverseViewMatrix = Matrix.Invert(TransformMatrix);
+            MGVector2 tl = MGVector2.Transform(MGVector2.Zero, inverseViewMatrix);
+            MGVector2 tr = MGVector2.Transform(new MGVector2(ViewBounds.Width, 0), inverseViewMatrix);
+            MGVector2 bl = MGVector2.Transform(new MGVector2(0, ViewBounds.Height), inverseViewMatrix);
+            MGVector2 br = MGVector2.Transform(new MGVector2(ViewBounds.Width, ViewBounds.Height), inverseViewMatrix);
+            Vector2 min = new Vector2(
+                MathHelper.Min(tl.X, MathHelper.Min(tr.X, MathHelper.Min(bl.X, br.X))),
+                MathHelper.Min(tl.Y, MathHelper.Min(tr.Y, MathHelper.Min(bl.Y, br.Y))));
+            Vector2 max = new Vector2(
+                MathHelper.Max(tl.X, MathHelper.Max(tr.X, MathHelper.Max(bl.X, br.X))),
+                MathHelper.Max(tl.Y, MathHelper.Max(tr.Y, MathHelper.Max(bl.Y, br.Y))));
+            VisibleArea = new Rectangle((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
         }
 
         public Vector2? MouseToWorldPoint() 

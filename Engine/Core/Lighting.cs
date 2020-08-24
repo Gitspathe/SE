@@ -80,7 +80,8 @@ namespace SE.Core
                 cleanUpTimer = 10.0f;
             }
 
-            Vector2 camPosition = camera.Position;
+            Penumbra.Transform = camera.TransformMatrix;
+
             Rectangle viewRect = new Rectangle(0, 0, camera.ViewBounds.Width, camera.ViewBounds.Height);
             shadowCasterList.Clear();
             Penumbra.Hulls.Clear();
@@ -88,9 +89,9 @@ namespace SE.Core
             for (int i = 0; i < pointLights.Count; i++) {
                 Light l = pointLights.Array[i];
                 Vector2 unscaledPos = l.Position + l.Offset;
-                MonoGameVector2 pos = new MonoGameVector2(unscaledPos.X - camPosition.X, unscaledPos.Y - camPosition.Y) * camera.Zoom;
-                l.PenumbraLight.Scale = l.Size.ToMonoGameVector2() * camera.Zoom;
-                l.PenumbraLight.Radius = 10 * camera.Zoom;
+                MonoGameVector2 pos = new MonoGameVector2(unscaledPos.X, unscaledPos.Y);
+                l.PenumbraLight.Scale = l.Size.ToMonoGameVector2();
+                l.PenumbraLight.Radius = 10;
                 l.PenumbraLight.Position = pos;
                 l.PenumbraLight.Rotation = l.Rotation;
             }
@@ -104,9 +105,9 @@ namespace SE.Core
                     continue;
 
                 Hull h = s.Hull;
-                h.Position = (s.Position - camera.Position).ToMonoGameVector2() * camera.Zoom;
+                h.Position = (s.Position).ToMonoGameVector2();
 
-                h.Scale = s.Scale.ToMonoGameVector2() * camera.Zoom;
+                h.Scale = s.Scale.ToMonoGameVector2();
                 h.Rotation = s.Rotation;
                 Penumbra.Hulls.Add(h);
             }
