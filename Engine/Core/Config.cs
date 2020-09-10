@@ -77,10 +77,20 @@ namespace SE.Core
             }
             private static bool useArrayPoolParticlesVal;
 
+            public static bool UseParticleInstancing {
+                get => useParticleInstancing;
+                set {
+                    configData.Performance.UseParticleInstancing = value;
+                    SettingChanged(Initialized);
+                }
+            }
+            private static bool useParticleInstancing;
+
             internal static void Setup()
             {
                 useArrayPoolCoreVal = configData.Performance.UseArrayPoolCore;
                 useArrayPoolParticlesVal = configData.Performance.UseArrayPoolParticles;
+                useParticleInstancing = configData.Performance.UseParticleInstancing;
             }
         }
     }
@@ -93,6 +103,7 @@ namespace SE.Core
         {
             public bool UseArrayPoolCore { get; set; } = true;
             public bool UseArrayPoolParticles { get; set; } = true;
+            public bool UseParticleInstancing { get; set; } = true;
         }
     }
 }

@@ -46,17 +46,19 @@ namespace Particles {
 		}
 	}
 
-	void NativeAlphaModule::onUpdate(float deltaTime, Particle* particleArrPtr, const Particle* tail, const int length)
+	void NativeAlphaModule::onUpdate(float deltaTime, Particle* __restrict particleArrPtr, const int length)
 	{
 		int i = 0;
 		switch(transition) {
 			case LERP: {
-				for(Particle* particle = particleArrPtr; particle < tail; particle++, i++) {
+				for (int i = 0; i < length; i++) {
+					Particle* particle = &particleArrPtr[i];
 					particle->Color.w = ParticleMath::lerp(startAlphasArr[i], end1, particle->TimeAlive / particle->InitialLife);
 				}
 			} break;
 			case RANDOM_LERP: {
-				for(Particle* particle = particleArrPtr; particle < tail; particle++, i++) {
+				for (int i = 0; i < length; i++) {
+					Particle* particle = &particleArrPtr[i];
 					particle->Color.w = ParticleMath::lerp(startAlphasArr[i], randEndAlphas[i], particle->TimeAlive / particle->InitialLife);
 				}
 			} break;

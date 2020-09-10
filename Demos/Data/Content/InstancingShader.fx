@@ -33,11 +33,7 @@
 // we set these up in game1.
 //______________________________________
 
-
-matrix World , View , Projection;
-float2 scaleCenter = float2(0.5f, 0.5f);
-
-
+matrix World;
 
 //______________________________________
 // the shader textures and samplers.
@@ -65,7 +61,7 @@ struct VSInstanceInputSimple
 {
     float3 InstancePosition : POSITION1; // the number used must match the vertex declaration.
     float4 InstanceColor : COLOR1;
-	float2 TexCoordOffset : TEXCOORD1;
+    float2 TexCoordOffset : TEXCOORD1;
     float2 InstanceScale : POSITION2;
     float InstanceRotation : POSITION3;
 };
@@ -90,14 +86,14 @@ struct VSOutputSimple
 // the vertex shaders.
 //______________________________________
 
-float4x4 m_scale(float4x4 m, float3 v)
+float4x4 m_scale(float4x4 m, float2 v)
 {
-    float x = v.x, y = v.y, z = v.z;
+    float x = v.x, y = v.y;
 
-    m[0][0] *= x; m[1][0] *= y; m[2][0] *= z;
-    m[0][1] *= x; m[1][1] *= y; m[2][1] *= z;
-    m[0][2] *= x; m[1][2] *= y; m[2][2] *= z;
-    m[0][3] *= x; m[1][3] *= y; m[2][3] *= z;
+    m[0][0] *= x; m[1][0] *= y;
+    m[0][1] *= x; m[1][1] *= y;
+    m[0][2] *= x; m[1][2] *= y;
+    m[0][3] *= x; m[1][3] *= y;
 
     return m;
 }
@@ -111,31 +107,27 @@ float4 hsl2rgb(float4 c)
 
 VSOutputSimple VertexShader01(in VSVertexInputSimple vertexInput, VSInstanceInputSimple instanceInput)
 {
-	// TODO: Scale and rotation.
     VSOutputSimple output;
 
-    //float4x4 scale = m_scale();
-
-    float4x4 rotationAroundY = {
-               cos(instanceInput.InstanceRotation), 0.0f, -sin(instanceInput.InstanceRotation), 0.0f,
-               0.0f, 1.0f, 0.0f, 0.0f,
-               sin(instanceInput.InstanceRotation), 0.0f, cos(instanceInput.InstanceRotation), 0.0f,
-               0.0f, 0.0f, 0.0f, 1.0f
+    float instanceRotation = instanceInput.InstanceRotation;
+    float4x4 rotationAroundZ = {
+        cos(instanceRotation), -sin(instanceRotation), 0.0f, 0.0f,
+        sin(instanceRotation), cos(instanceRotation), 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
     };
 
-    float4x4 vp = mul(View, Projection);
-    float4x4 wvp = mul(World, vp);
+    // Apply rotation.
+    float4x4 rotated = mul(rotationAroundZ, World);
 
     // Apply scale.
-    float4x4 scaledWvp = m_scale(wvp, float3(instanceInput.InstanceScale.xy, 0));
+    float4x4 scaledWvp = m_scale(rotated, instanceInput.InstanceScale);
 
-    // TODO: Apply rotation.
-
+    // Apply the transformation.
     float4 posVert = mul(vertexInput.Position, scaledWvp);
+    float4 posInst = mul(instanceInput.InstancePosition, World);
 
-
-    float4 posInst = mul(instanceInput.InstancePosition.xyz, wvp);
-    output.Position = (posVert + posInst);
+    output.Position = posVert + posInst;
     output.TexCoord = vertexInput.TexCoord + instanceInput.TexCoordOffset;
     output.IdColor = instanceInput.InstanceColor;
     return output;
@@ -151,7 +143,6 @@ VSOutputSimple VertexShader01(in VSVertexInputSimple vertexInput, VSInstanceInpu
 float4 PixelShader01(VSOutputSimple input) : COLOR0
 {
     return tex2D(TexSampler, input.TexCoord) * hsl2rgb(input.IdColor);
-    //return float4(col.rgb * input.IdColor.rgb, col.a);
 }
 
 

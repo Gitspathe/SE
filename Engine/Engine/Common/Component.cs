@@ -237,7 +237,7 @@ namespace SE.Common
             return data;
         }
 
-        internal void Deserialize(string jsonData) 
+        internal void Deserialize(string jsonData)
             => Deserialize(jsonData.Deserialize<ComponentData>());
 
         internal void Deserialize(ComponentData data)

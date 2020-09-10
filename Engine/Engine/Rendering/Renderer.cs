@@ -28,7 +28,7 @@ namespace SE.Rendering
         private QuickList<Emitter> tmpEmitters = new QuickList<Emitter>();
 
         private GraphicsDevice GraphicsDevice = Core.Rendering.GraphicsDevice;
-
+        
         public static bool Multithreaded { get; set; } = false;
         public static int CullingThreshold { get; set; } = 128;
 
@@ -304,32 +304,51 @@ namespace SE.Rendering
             }
         }
 
-        public void DrawNewParticles(Camera2D cam)
+        public void DrawParticles(Camera2D cam)
+        {
+            if (ParticleEngine.UseParticleRenderer) {
+                DrawParticlesInstanced(cam);
+            } else {
+                DrawParticlesSpriteBatch(cam);
+            }
+        }
+
+        private void DrawParticlesInstanced(Camera2D cam)
         {
             tmpEmitters.Clear();
             ParticleEngine.GetEmitters(Particles.BlendMode.Alpha, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
-                ChangeDrawCall(SpriteSortMode.Deferred, cam.TransformMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, DepthStencilGreater, null, ParticleShader);
+                foreach (Emitter pEmitter in tmpEmitters) {
+                    pEmitter.Renderer.Draw(cam.TransformMatrix);
+                }
+            }
+
+            tmpEmitters.Clear();
+            ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
+            if (tmpEmitters != null) {
+                foreach (Emitter pEmitter in tmpEmitters) {
+                    pEmitter.Renderer.Draw(cam.TransformMatrix);
+                }
+            }
+        }
+
+        private void DrawParticlesSpriteBatch(Camera2D cam)
+        {
+            tmpEmitters.Clear();
+            ParticleEngine.GetEmitters(Particles.BlendMode.Alpha, tmpEmitters, SearchFlags.Visible);
+            if (tmpEmitters != null) {
+                ChangeDrawCall(SpriteSortMode.Deferred, cam.TransformMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, ParticleShader);
                 foreach (Emitter pEmitter in tmpEmitters) {
                     DrawNewParticleEmitter(cam, pEmitter);
                 }
             }
 
             tmpEmitters.Clear();
-            //ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
-            //if (tmpEmitters != null) {
-            //    ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, ParticleShader);
-            //    foreach (Emitter pEmitter in tmpEmitters) {
-            //        DrawNewParticleEmitter(cam, pEmitter);
-            //    }
-            //}
-
             ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
-                //ChangeDrawCall(SpriteSortMode.Deferred, cam.ScaleMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, ParticleShader);
+                ChangeDrawCall(SpriteSortMode.Deferred, cam.TransformMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, ParticleShader);
                 foreach (Emitter pEmitter in tmpEmitters) {
-                    pEmitter.Renderer.Draw(cam.Position, cam.TransformMatrix);
-                    //DrawNewParticleEmitter(cam, pEmitter);
+                    DrawNewParticleEmitter(cam, pEmitter);
                 }
             }
         }
@@ -350,7 +369,7 @@ namespace SE.Rendering
                     Vector2 origin = new Vector2(sourceRect.Width / 2.0f, sourceRect.Width / 2.0f);
                     Color color = new Color(particleCol.X / 360, particleCol.Y, particleCol.Z, particleCol.W);
                     Core.Rendering.SpriteBatch.Draw(tex, 
-                        particle->Position - camPos,
+                        particle->Position,
                         sourceRect,
                         color,
                         particle->SpriteRotation,

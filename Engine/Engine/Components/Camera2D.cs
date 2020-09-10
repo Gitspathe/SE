@@ -86,8 +86,8 @@ namespace SE.Components
         private void CalculateBounds()
         {
             ViewBounds = new Rectangle((int)Position.X, (int)Position.Y,
-                Convert.ToInt32(Screen._BASE_RES_X / Zoom / renderRegion.Width),
-                Convert.ToInt32(Screen._BASE_RES_Y / Zoom / renderRegion.Height));
+                Convert.ToInt32(Screen._BASE_RES_X / renderRegion.Width),
+                Convert.ToInt32(Screen._BASE_RES_Y / renderRegion.Height));
         }
 
         private void CalculateScaleMatrix()
@@ -103,10 +103,12 @@ namespace SE.Components
 
             // Update visible area.
             Matrix inverseViewMatrix = Matrix.Invert(TransformMatrix);
+
             MGVector2 tl = MGVector2.Transform(MGVector2.Zero, inverseViewMatrix);
-            MGVector2 tr = MGVector2.Transform(new MGVector2(ViewBounds.Width, 0), inverseViewMatrix);
-            MGVector2 bl = MGVector2.Transform(new MGVector2(0, ViewBounds.Height), inverseViewMatrix);
+            MGVector2 tr = MGVector2.Transform(new MGVector2(ViewBounds.Width, 0.0f), inverseViewMatrix);
+            MGVector2 bl = MGVector2.Transform(new MGVector2(0.0f, ViewBounds.Height), inverseViewMatrix);
             MGVector2 br = MGVector2.Transform(new MGVector2(ViewBounds.Width, ViewBounds.Height), inverseViewMatrix);
+
             Vector2 min = new Vector2(
                 MathHelper.Min(tl.X, MathHelper.Min(tr.X, MathHelper.Min(bl.X, br.X))),
                 MathHelper.Min(tl.Y, MathHelper.Min(tr.Y, MathHelper.Min(bl.Y, br.Y))));

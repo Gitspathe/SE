@@ -82,7 +82,7 @@ namespace SEDemos.GameObjects
             light.Color = c;
             light.Intensity = 1.0f;
 
-            //light.Enabled = false;
+            light.Enabled = false;
             base.OnInitialize();
         }
 

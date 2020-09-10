@@ -10,6 +10,8 @@ namespace SE.World
         public TileMap TileMap => Spot.TileMap;
         public TileChunk Chunk => Spot.Chunk;
 
+        // TODO: Tile additional data, would be an ITileAdditionalData interface that can be saved and loaded.
+
         //public bool IsActive => Tile != null;
 
         public void Change(TileSpot tileSpot, uint tileID)

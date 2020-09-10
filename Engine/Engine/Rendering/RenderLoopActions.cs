@@ -87,7 +87,7 @@ namespace SE.Rendering
     public class LoopParticles : DefaultRendererAction
     {
         public override string Name => "Draw particles";
-        public override void Invoke(Camera2D camera) => Renderer.DrawNewParticles(camera);
+        public override void Invoke(Camera2D camera) => Renderer.DrawParticles(camera);
         public LoopParticles(Renderer renderer) : base(renderer) { }
     }
 

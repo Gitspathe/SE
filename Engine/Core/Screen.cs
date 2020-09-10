@@ -23,14 +23,7 @@ namespace SE.Core
 
         /// <value>Gets the mouse point in screen coordinates.
         ///        Returns null if the mouse isn't within the game window.</value>
-        public static Vector2? MousePoint {
-            get {
-                if (MouseInWindow) {
-                    return screenMousePoint;
-                }
-                return null;
-            }
-        }
+        public static Vector2? MousePoint => MouseInWindow ? (Vector2?) screenMousePoint : null;
 
         /// <summary>Where the viewport is located in the editor. Valid if running through the editor.</summary>
         public static Rectangle EditorViewBounds { get; set; }
@@ -91,6 +84,7 @@ namespace SE.Core
                 return;
 
             // Have to go into full screen, then exit, to fix weird .net core issue.
+            // TODO: Proper supports for switching between windowed, borderless fullscreen, and fullscreen.
             graphics = Rendering.GraphicsDeviceManager;
             graphics.IsFullScreen = true;
             graphics.PreferredBackBufferWidth = (int)(_BASE_RES_X * SizeRatio);
@@ -99,6 +93,11 @@ namespace SE.Core
             graphics.IsFullScreen = false;
             graphics.ApplyChanges();
             Rendering.ResetRenderTargets();
+
+            //graphics.HardwareModeSwitch = false;
+            //graphics.IsFullScreen = false;
+            //graphics.ApplyChanges();
+
             CalculateScreenScale();
         }
     }

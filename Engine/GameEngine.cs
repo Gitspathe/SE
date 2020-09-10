@@ -134,6 +134,7 @@ namespace SE
                 UpdateLoop = new UpdateLoop();
 
                 ParticleEngine.UpdateMode = UpdateMode.ParallelAsynchronous;
+                ParticleEngine.UseParticleRenderer = Config.Performance.UseParticleInstancing;
                 ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolParticles
                     ? ParticleAllocationMode.ArrayPool
                     : ParticleAllocationMode.Array;
@@ -185,8 +186,6 @@ namespace SE
 
             OnInitialize();
             isInitialized = true;
-
-            Vector2 potato = new Vector2(10, 100);
         }
 
         private void LoadEngineContent()
@@ -313,6 +312,11 @@ namespace SE
             if (InputManager.KeyCodePressed(Keys.F)) {
                 Renderer.Multithreaded = !Renderer.Multithreaded;
                 Console.WriteLine("Multithreaded: " + (Renderer.Multithreaded ? "on" : "off"));
+            }
+
+            if (InputManager.KeyCodePressed(Keys.I)) {
+                ParticleEngine.UseParticleRenderer = !ParticleEngine.UseParticleRenderer;
+                Console.WriteLine("Instanced: " + (ParticleEngine.UseParticleRenderer ? "on" : "off"));
             }
 
             if (InputManager.KeyCodePressed(Keys.L)) {

@@ -114,29 +114,32 @@ namespace SEDemos
                 WriteIndented = false
             };
 
-            string test = FileIO.ReadFileString("testIni.ini");
-            IniData testDat = IniSerializer.Parse(test);
+            //string test = FileIO.ReadFileString("testIni.ini");
+            //IniData testDat = IniSerializer.Parse(test);
 
             //int iterations = 50_000;
             //int innerIterations = 3;
 
-            //for (int z = 0; z < innerIterations; z++) {
+            //for (int z = 0; z < innerIterations; z++)
+            //{
 
             //    Stopwatch s = new Stopwatch();
             //    s.Start();
 
-            //    TestClass test = new TestClass(255) {
+            //    TestClass test = new TestClass(255)
+            //    {
             //        baseVal = 43546,
             //        pizza1 = 0,
             //        pizza4 = 69.420f,
             //        pizza5 = 0,
-            //        pizza3 = {[2] = 59.0f}
+            //        pizza3 = { [2] = 59.0f }
             //    };
             //    test.testClass1.test1.lol = 64;
 
             //    //New serializer.
             //    s.Start();
-            //    for (int i = 0; i < iterations; i++) {
+            //    for (int i = 0; i < iterations; i++)
+            //    {
             //        byte[] bytes = Serializer.Serialize(test);
             //        test = Serializer.Deserialize<TestClass>(bytes);
             //    }
@@ -146,7 +149,8 @@ namespace SEDemos
             //    // JSON serializer.
             //    s = new Stopwatch();
             //    s.Start();
-            //    for (int i = 0; i < iterations; i++) {
+            //    for (int i = 0; i < iterations; i++)
+            //    {
             //        string bytes = System.Text.Json.JsonSerializer.Serialize(test, textJsonOptions);
             //        test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes, textJsonOptions);
             //    }
@@ -227,8 +231,8 @@ namespace SEDemos
                 return;
 
             //NetHelper.Instantiate("bouncy", "SERVER", new Vector2(128, 128));
-            for (int x = 0; x < 10; x++) {
-                for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 3; x++) {
+                for (int y = 0; y < 3; y++) {
                     NetHelper.Instantiate("bouncy", "SERVER", new Vector2(128 + x * 64, 128 + y * 64));
                     //go.Destroy();
                 }
