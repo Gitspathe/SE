@@ -9,11 +9,8 @@ using Vector2 = System.Numerics.Vector2;
 namespace SE.World
 {
     [ExecuteInEditor]
-    public class TileMap : GameObject
+    public class TileMap : Component
     {
-        public override bool DestroyOnLoad => true;
-        public override bool IsDynamic => true;
-
         public int ChunkSize { get; private set; }
         public int TileSize { get; private set; }
 
@@ -37,14 +34,12 @@ namespace SE.World
             base.OnUpdate();
         }
 
-        protected override void OnEnable(bool isRoot = true)
+        protected override void OnEnable()
         {
-            base.OnEnable(isRoot);
         }
 
-        protected override void OnDisable(bool isRoot = true)
+        protected override void OnDisable()
         {
-            base.OnDisable(isRoot);
         }
 
         protected override void OnDestroy()
@@ -129,7 +124,5 @@ namespace SE.World
         private static Point Snap(Point position, int increment)
             => new Point((int)MathF.Floor((float)position.X / increment) * increment,
                 (int)MathF.Floor((float)position.Y / increment) * increment);
-
-        public TileMap(Vector2 pos, float rot, Vector2 scale) : base(pos, rot, scale) { }
     }
 }

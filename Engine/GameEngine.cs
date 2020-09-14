@@ -61,9 +61,6 @@ namespace SE
 
         private static bool isInitialized;
 
-        [DllImport("SE.Native")]
-        private static extern float hello(Vector2 vector);
-
         /// <summary>
         /// Creates a new instance of SE.
         /// </summary>
