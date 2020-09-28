@@ -48,14 +48,6 @@ namespace SE
 
         public void OnUpdate(GraphicsDevice gfxDevice, GameTime gameTime)
         {
-            gfxDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 0.0f, 1);
-
-            Core.Rendering.ChangeDrawCall(SpriteSortMode.Immediate, null, BlendState.AlphaBlend);
-
-            ImGuiRenderer.BeforeLayout(gameTime);
-            EditorGUI.Paint();
-            ImGuiRenderer.AfterLayout();
-
             // TEST: Create game instance.
             // TODO: Implement properly. Needs to dynamically open any type of SE Game.
             if (InputManager.KeyCodePressed(Microsoft.Xna.Framework.Input.Keys.F2)) {
@@ -81,6 +73,17 @@ namespace SE
                 Thread.Sleep(2000);
                 Environment.Exit(-1);
             }
+        }
+
+        public void OnDraw(GraphicsDevice gfxDevice, GameTime gameTime)
+        {
+            gfxDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 0.0f, 1);
+
+            Core.Rendering.ChangeDrawCall(SpriteSortMode.Immediate, null, BlendState.AlphaBlend);
+
+            ImGuiRenderer.BeforeLayout(gameTime);
+            EditorGUI.Paint();
+            ImGuiRenderer.AfterLayout();
         }
 
         public void ChangeInstance(Game game)

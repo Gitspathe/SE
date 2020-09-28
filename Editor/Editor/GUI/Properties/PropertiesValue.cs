@@ -22,8 +22,12 @@ namespace DeeZ.Editor.GUI.Properties
 
             GUI.AlignTextToFramePadding();
             GUI.SetNextItemWidth(width);
+
+            // TODO: Add these to GUI.
             ImGui.LabelText("##"+value.Name, value.Name);
-            GUI.OpenPopupOnItemClick(GetPopupID, 0);
+            if (GUI.IsItemClicked(ImGuiMouseButton.Left)) {
+                ImGui.OpenPopup(GetPopupID, 0);
+            }
 
             GUI.PushMargin(margin);
             GUI.Indent();

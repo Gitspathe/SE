@@ -126,10 +126,6 @@ namespace DeeZ.Editor.GUI
         public static void SameLine(float offsetX) => ImGui.SameLine(offsetX);
         public static void SameLine(float offsetX, float spacing) => ImGui.SameLine(offsetX, spacing);
 
-        public static void OpenPopupOnItemClick(string strID, ImGuiMouseButton mouseButton) => ImGui.OpenPopupOnItemClick(strID, mouseButton);
-        public static void OpenPopupOnItemClick(string strID) => ImGui.OpenPopupOnItemClick(strID);
-        public static void OpenPopupOnItemClick() => ImGui.OpenPopupOnItemClick();
-
         public static bool BeginPopup(string strID, GUIWindowFlags flags) => ImGui.BeginPopup(strID, (ImGuiWindowFlags) flags);
         public static bool BeginPopup(string strID) => ImGui.BeginPopup(strID);
         public static void EndPopup() => ImGui.EndPopup();

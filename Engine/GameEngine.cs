@@ -272,7 +272,6 @@ namespace SE
                 GC.Collect();
                 gcFrame = false;
             }
-            EngineUtility.TransformHierarchyDirty = false;
         }
 
         protected sealed override void Draw(GameTime gameTime)
@@ -282,6 +281,8 @@ namespace SE
                 return;
 
             Core.Rendering.Update();
+            Editor?.OnDraw(GraphicsDeviceManager.GraphicsDevice, gameTime);
+            EngineUtility.TransformHierarchyDirty = false;
         }
 
         internal void GraphicsPresent()

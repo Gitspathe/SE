@@ -6,7 +6,7 @@ using SE.Core;
 using SE.Rendering;
 using SE.World.Partitioning;
 using Vector2 = System.Numerics.Vector2;
-using MonoGameVector2 = Microsoft.Xna.Framework.Vector2;
+using MGVector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace SE.Lighting
 {
@@ -23,7 +23,7 @@ namespace SE.Lighting
 
         internal Hull Hull = new Hull();
 
-        private List<MonoGameVector2> pointList = new List<MonoGameVector2>();
+        private List<MGVector2> pointList = new List<MGVector2>();
 
         public Rectangle AABB => Bounds;
         public PartitionTile<ShadowCaster> CurrentPartitionTile { get; set; }
@@ -38,10 +38,10 @@ namespace SE.Lighting
         {
             if (newBounds) {
                 pointList.Clear();
-                pointList.Add(new MonoGameVector2(Bounds.X, Bounds.Y));
-                pointList.Add(new MonoGameVector2(Bounds.Width, Bounds.Y));
-                pointList.Add(new MonoGameVector2(Bounds.Width, Bounds.Height));
-                pointList.Add(new MonoGameVector2(Bounds.X, Bounds.Height));
+                pointList.Add(new MGVector2(Bounds.X, Bounds.Y));
+                pointList.Add(new MGVector2(Bounds.Width, Bounds.Y));
+                pointList.Add(new MGVector2(Bounds.Width, Bounds.Height));
+                pointList.Add(new MGVector2(Bounds.X, Bounds.Height));
             }
             Hull.Points.Clear();
             Hull.Points.AddRange(pointList);

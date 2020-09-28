@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Vector2 = System.Numerics.Vector2;
-using MonoGameVector3 = Microsoft.Xna.Framework.Vector3;
+using MGVector2 = Microsoft.Xna.Framework.Vector3;
 
 namespace SE.Core
 {
@@ -44,7 +44,7 @@ namespace SE.Core
 
         internal static void CalculateScreenScale()
         {
-            ScreenScaleMatrix = Matrix.CreateScale(new MonoGameVector3(SizeRatio, SizeRatio, 1));
+            ScreenScaleMatrix = Matrix.CreateScale(new MGVector2(SizeRatio, SizeRatio, 1));
         }
 
         internal static void Update()
