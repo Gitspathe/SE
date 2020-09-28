@@ -124,9 +124,14 @@ namespace SE.Components
         public Vector2? ScreenToWorldPoint(Vector2? screenPoint)
         {
             if (screenPoint.HasValue) {
-                return new Vector2(
-                    ((screenPoint.Value.X - (renderRegion.X * Screen._BASE_RES_X)) / zoom / renderRegion.Width) + ViewBounds.X,
-                    ((screenPoint.Value.Y - (renderRegion.Y * Screen._BASE_RES_Y)) / zoom / renderRegion.Height) + ViewBounds.Y);
+                Vector2 worldPoint = new Vector2(
+                    (screenPoint.Value.X - (renderRegion.X * Screen._BASE_RES_X)) / zoom / renderRegion.Width,
+                    (screenPoint.Value.Y - (renderRegion.Y * Screen._BASE_RES_Y)) / zoom / renderRegion.Height);
+
+                // Apply world offset.
+                worldPoint += new Vector2(ViewBounds.X, ViewBounds.Y);
+                worldPoint -= new Vector2(ViewBounds.Width * 0.5f, ViewBounds.Height * 0.5f);
+                return worldPoint;
             }
             return null;
         }
@@ -134,9 +139,14 @@ namespace SE.Components
         public Vector2? WorldToCameraPoint(Vector2? worldPoint)
         {
             if (worldPoint.HasValue) {
-                return new Vector2(
-                    ((worldPoint.Value.X + (renderRegion.X * Screen._BASE_RES_X)) / zoom / renderRegion.Width) - ViewBounds.X,
-                    ((worldPoint.Value.Y + (renderRegion.Y * Screen._BASE_RES_Y)) / zoom / renderRegion.Height) - ViewBounds.Y);
+                Vector2 screenPoint = new Vector2(
+                    (worldPoint.Value.X + (renderRegion.X * Screen._BASE_RES_X)) / zoom / renderRegion.Width,
+                    (worldPoint.Value.Y + (renderRegion.Y * Screen._BASE_RES_Y)) / zoom / renderRegion.Height);
+
+                // Translate to camera pos.
+                screenPoint -= new Vector2(ViewBounds.X, ViewBounds.Y);
+                screenPoint += new Vector2(ViewBounds.Width * 0.5f, ViewBounds.Height * 0.5f);
+                return screenPoint;
             }
             return null;
         }
