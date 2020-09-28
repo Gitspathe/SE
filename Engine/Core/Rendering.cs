@@ -191,7 +191,6 @@ namespace SE.Core
         public static void PerformCulling(Camera2D camera)
         {
             VisibleSprites.Clear();
-            //Rectangle viewRect = camera.Zoom > 1.0f ? camera.UnscaledViewBounds : camera.Bounds;
             Rectangle viewRect = camera.VisibleArea;
             SpatialPartitionManager<IRenderable>.GetFromRegion(VisibleSprites, viewRect);
         }

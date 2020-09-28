@@ -8,7 +8,7 @@ using SE.Lighting;
 using SE.Utility;
 using Light = SE.Lighting.Light;
 using Vector2 = System.Numerics.Vector2;
-using MonoGameVector2 = Microsoft.Xna.Framework.Vector2;
+using MGVector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace SE.Core
 {
@@ -89,7 +89,7 @@ namespace SE.Core
             for (int i = 0; i < pointLights.Count; i++) {
                 Light l = pointLights.Array[i];
                 Vector2 unscaledPos = l.Position + l.Offset;
-                MonoGameVector2 pos = new MonoGameVector2(unscaledPos.X, unscaledPos.Y);
+                MGVector2 pos = new MGVector2(unscaledPos.X, unscaledPos.Y);
                 l.PenumbraLight.Scale = l.Size.ToMonoGameVector2();
                 l.PenumbraLight.Radius = 10;
                 l.PenumbraLight.Position = pos;
@@ -105,9 +105,10 @@ namespace SE.Core
                     continue;
 
                 Hull h = s.Hull;
-                h.Position = (s.Position).ToMonoGameVector2();
 
-                h.Scale = s.Scale.ToMonoGameVector2();
+                // Clamp position and scale to int. Avoids graphics issues.
+                h.Position = new MGVector2((int)s.Position.X, (int)s.Position.Y);
+                h.Scale = new MGVector2((int)s.Scale.X, (int)s.Scale.Y);
                 h.Rotation = s.Rotation;
                 Penumbra.Hulls.Add(h);
             }

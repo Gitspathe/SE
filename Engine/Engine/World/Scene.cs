@@ -233,7 +233,7 @@ namespace SE.World
         public void GenerateShadowsIteration(int x, int y, int z, int s)
         {
             GameObject go = MapData[x][y].Gos[z];
-            SpriteBase sprite = go.Sprites[s];
+            SpriteBase sprite = go.Sprites.Array[s];
             if(!(sprite is Sprite))
                 return;
 
