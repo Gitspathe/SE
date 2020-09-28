@@ -78,11 +78,11 @@ namespace SEDemos.GameObjects
             sprite.Color = c;
             sprite.BlendMode = BlendMode.Transparent;
 
-            light.Size = new Vector2(400, 400);
+            light.Size = new Vector2(1200, 1200);
             light.Color = c;
             light.Intensity = 1.0f;
 
-            light.Enabled = false;
+            //light.Enabled = false;
             base.OnInitialize();
         }
 

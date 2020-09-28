@@ -135,7 +135,7 @@ namespace SE.Core
         {
             GraphicsDevice.SetRenderTarget(camera.renderTarget);
 
-            ChangeDrawCall(SpriteSortMode.Deferred, null, BlendState.AlphaBlend, SamplerState.LinearClamp, null, RasterizerState.CullNone);
+            ChangeDrawCall(SpriteSortMode.Deferred, null, BlendState.AlphaBlend, SamplerState.PointClamp, null, RasterizerState.CullNone);
             SpriteBatch.Draw(SceneRender, new Rectangle(0, 0, GraphicsDeviceManager.PreferredBackBufferWidth, GraphicsDeviceManager.PreferredBackBufferHeight), Color.White);
             SpriteBatch.Draw(UIRender, new Rectangle(0, 0, GraphicsDeviceManager.PreferredBackBufferWidth, GraphicsDeviceManager.PreferredBackBufferHeight), Color.White);
             EndDrawCall();
@@ -151,7 +151,7 @@ namespace SE.Core
             int screenHeight = GraphicsDeviceManager.PreferredBackBufferHeight;
 
             Cameras.Sort(new CameraQueueComparer());
-            ChangeDrawCall(SpriteSortMode.Deferred, null, BlendState.AlphaBlend, SamplerState.LinearClamp, null, RasterizerState.CullNone);
+            ChangeDrawCall(SpriteSortMode.Deferred, null, BlendState.AlphaBlend, SamplerState.PointClamp, null, RasterizerState.CullNone);
             foreach (Camera2D camera in Cameras) {
                 Rectangle renderRegion = new Rectangle((int)(camera.RenderRegion.X * screenWidth), 
                     (int)(camera.RenderRegion.Y * screenHeight), 

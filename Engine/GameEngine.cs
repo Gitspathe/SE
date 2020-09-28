@@ -302,7 +302,7 @@ namespace SE
             time -= Time.DeltaTime;
             if (time <= 0.0f) {
                 time = 2.0f;
-                Console.WriteLine("NEW: " + ParticleEngine.ParticleCount + ", OLD: " + ParticleEngine.ParticleCount);
+                Console.WriteLine("NEW: " + ParticleEngine.ParticleCount + ", EMITTERS #: " + ParticleEngine.EmitterCount);
             }
 
             // Multithreaded render test.
