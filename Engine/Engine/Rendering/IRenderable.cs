@@ -4,11 +4,19 @@ using SE.World.Partitioning;
 
 namespace SE.Rendering
 {
-    public interface IRenderable : IPartitionObject<IRenderable>
+    /// <summary>
+    /// Generic renderable interface.
+    /// </summary>
+    public interface IRenderable
     {
         void Render(Camera2D camera, Space space);
         RenderableData Data { get; }
     }
+
+    /// <summary>
+    /// Renderable which can be within a spatial partition.
+    /// </summary>
+    public interface IPartitionedRenderable : IRenderable, IPartitionObject<IPartitionedRenderable> { }
 
     public sealed class RenderableData
     {

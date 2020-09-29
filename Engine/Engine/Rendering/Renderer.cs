@@ -101,12 +101,12 @@ namespace SE.Rendering
 
         public void GenerateRenderListsSingleThread(bool excludeUI)
         {
-            QuickList<IRenderable> renderedSprites = VisibleSprites;
+            QuickList<IPartitionedRenderable> renderedSprites = VisibleSprites;
             RenderContainer.Reset();
 
-            IRenderable[] spriteArray = renderedSprites.Array;
+            IPartitionedRenderable[] spriteArray = renderedSprites.Array;
             for (int i = 0; i < renderedSprites.Count; i++) {
-                IRenderable renderObj = spriteArray[i];
+                IPartitionedRenderable renderObj = spriteArray[i];
                 RenderableData info = renderObj.Data;
                 if (excludeUI && info.TypeInfo.UISprite != null)
                     continue;
@@ -117,12 +117,12 @@ namespace SE.Rendering
 
         public void GenerateRenderListsMultiThreaded(bool excludeUI)
         {
-            QuickList<IRenderable> renderedSprites = VisibleSprites;
+            QuickList<IPartitionedRenderable> renderedSprites = VisibleSprites;
             RenderContainer.Reset();
 
             QuickParallel.ForEach(renderedSprites, (objects, count) => {
                 for (int i = 0; i < count; i++) {
-                    IRenderable renderObj = objects[i];
+                    IPartitionedRenderable renderObj = objects[i];
                     RenderableData info = renderObj.Data;
                     if (excludeUI && info.TypeInfo.UISprite != null)
                         continue;

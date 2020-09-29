@@ -16,13 +16,13 @@ namespace SE.Components
 {
 
     [ExecuteInEditor]
-    public abstract class SpriteBase : Component, IRenderable
+    public abstract class SpriteBase : Component, IPartitionedRenderable
     {
         // NOTE: Private protected fields are for increased performance. Access the properties instead
         // when not dealing with the core rendering system.
 
         public Rectangle AABB => bounds;
-        public PartitionTile<IRenderable> CurrentPartitionTile { get; set; }
+        public PartitionTile<IPartitionedRenderable> CurrentPartitionTile { get; set; }
 
         public override int Queue => 100;
 

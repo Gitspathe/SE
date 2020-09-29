@@ -20,7 +20,7 @@ namespace SE.Core
     // TODO: Material support. Check Trello for more info. https://trello.com/c/wFMnQrPG/62-material-system
     public static class Rendering
     {
-        public static QuickList<IRenderable> VisibleSprites = new QuickList<IRenderable>(512);
+        public static QuickList<IPartitionedRenderable> VisibleSprites = new QuickList<IPartitionedRenderable>(512);
         public static SpriteBatch SpriteBatch;
 
         public static DepthStencilState DepthStencilLess = new DepthStencilState {
@@ -72,11 +72,14 @@ namespace SE.Core
                 DrawNoCamerasMessage();
             } else {
                 foreach (Camera2D cam in Cameras) {
-                    foreach (IRenderLoopAction renderAction in RenderLoop.Loop.Values) {
-                        renderAction.Invoke(cam);
-                        if (RenderLoop.IsDirty) {
-                            break;
+                    foreach (QuickList<IRenderLoopAction> renderActions in RenderLoop.Loop.Values) {
+                        for (int i = 0; i < renderActions.Count; i++) {
+                            renderActions.Array[i].Invoke(cam);
+                            if (RenderLoop.IsDirty)
+                                break;
                         }
+                        if(RenderLoop.IsDirty)
+                            break;
                     }
                 }
                 RenderLoop.IsDirty = false;
@@ -192,7 +195,7 @@ namespace SE.Core
         {
             VisibleSprites.Clear();
             Rectangle viewRect = camera.VisibleArea;
-            SpatialPartitionManager<IRenderable>.GetFromRegion(VisibleSprites, viewRect);
+            SpatialPartitionManager<IPartitionedRenderable>.GetFromRegion(VisibleSprites, viewRect);
         }
 
         public static void Prepare()

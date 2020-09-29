@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SE.Components;
 using SE.Core;
+using SE.Utility;
 using Console = SE.Core.Console;
 
 namespace SE.Rendering
@@ -9,14 +10,21 @@ namespace SE.Rendering
     // TODO: Allow multiple render actions under a single enum position.
     public static class RenderLoop
     {
-        internal static SortedDictionary<uint, IRenderLoopAction> Loop { get; } = new SortedDictionary<uint, IRenderLoopAction>();
+        internal static SortedDictionary<uint, QuickList<IRenderLoopAction>> Loop { get; } = new SortedDictionary<uint, QuickList<IRenderLoopAction>>();
         internal static Renderer Render = new Renderer();
 
         internal static bool IsDirty;
 
         public static void Add(uint order, IRenderLoopAction action)
         {
-            Loop.Add(order, action);
+            if (Loop.TryGetValue(order, out QuickList<IRenderLoopAction> loopSpot)) {
+                if (!loopSpot.Contains(action)) {
+                    loopSpot.Add(action);
+                }
+            } else {
+                Loop.Add(order, new QuickList<IRenderLoopAction> { action });
+            }
+
             IsDirty = true;
         }
 
@@ -80,8 +88,14 @@ namespace SE.Rendering
         public new static string ToString()
         {
             string s = "";
-            foreach (KeyValuePair<uint, IRenderLoopAction> loop in Loop) {
-                s += "  " + loop.Key + ", " + loop.Value.Name + ".\n";
+            foreach ((uint key, QuickList<IRenderLoopAction> value) in Loop) {
+                s += "  " + key + ": ";
+                for (int i = 0; i < value.Count; i++) {
+                    s += value.Array[i].Name;
+                    if (i + 1 < value.Count) {
+                        s += ", ";
+                    }
+                }
             }
             return s;
         }
