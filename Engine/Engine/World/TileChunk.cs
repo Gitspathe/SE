@@ -3,6 +3,8 @@ using System.IO;
 using Microsoft.Xna.Framework;
 using SE.Core;
 using SE.Core.Extensions;
+using SE.Utility;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.World
 {
@@ -10,22 +12,72 @@ namespace SE.World
     public class TileChunk
     {
         public TileMap TileMap { get; private set; }
-        public TileSpot[][] TileTemplates { get; private set; }
+        public Dictionary<int, TileLayer> Layers { get; private set; } = new Dictionary<int, TileLayer>();
+        public TileChunkRenderer Renderer { get; private set; }
 
-        public Point Position { get; private set; }
-        public Vector2 WorldPosition => new Vector2(Position.X * TileMap.TileSize * TileMap.ChunkSize, Position.Y * TileMap.TileSize * TileMap.ChunkSize);
+        public Point Index { get; private set; }
+        public Vector2 WorldPosition { get; private set; }
 
         public Point ToLocalPoint(Point worldTilePoint) 
-            => new Point(worldTilePoint.X - Position.X, worldTilePoint.Y - Position.Y);
+            => new Point(worldTilePoint.X - (Index.X * TileMap.ChunkSize), worldTilePoint.Y - (Index.Y * TileMap.ChunkSize));
+
+        public TileChunk(TileMap tileMap, Point index)
+        {
+            Initialize(tileMap, index);
+            Renderer = new TileChunkRenderer(this);
+            WorldPosition = new Vector2(Index.X * TileMap.TileSize * TileMap.ChunkSize, Index.Y * TileMap.TileSize * TileMap.ChunkSize);
+        }
+
+        private TileLayer AddNewLayer(int layer)
+        {
+            if(Layers.ContainsKey(layer))
+                return null;
+
+            TileLayer tileLayer = new TileLayer();
+            tileLayer.Initialize(this);
+            Layers.Add(layer, tileLayer);
+            return tileLayer;
+        }
+
+        public void PlaceTile(int layer, Point tilePoint, int tileID)
+        {
+            if (Layers.TryGetValue(layer, out TileLayer tileLayer)) {
+                tileLayer.SetTile(tilePoint, tileID);
+            } else {
+                tileLayer = AddNewLayer(layer);
+                tileLayer.SetTile(tilePoint, tileID);
+            }
+        }
+
+        public void RemoveTile(int layer, Point tilePoint, int tileID)
+        {
+            if (Layers.TryGetValue(layer, out TileLayer tileLayer)) {
+                TileTemplate template = tileLayer.TileTemplates[tilePoint.X][tilePoint.Y];
+                if (template.TileID == tileID) {
+                    Layers[layer].DestroyTile(tilePoint);
+                }
+            }
+        }
+
+        public void ClearTiles(Point tilePoint)
+        {
+            foreach (TileLayer layer in Layers.Values) {
+                layer.DestroyTile(tilePoint);
+            }
+        }
 
         public void Deactivate()
         {
-
+            foreach (TileLayer layer in Layers.Values) {
+                layer.Deactivate();
+            }
         }
 
         public void Activate()
         {
-
+            foreach (TileLayer layer in Layers.Values) {
+                layer.Activate();
+            }
         }
 
         public bool LoadFromDisk(string path)
@@ -41,23 +93,10 @@ namespace SE.World
             FileIO.SaveFile(new ChunkData(this).Serialize(), path);
         }
 
-        public void Initialize(TileMap tileMap, Point position)
+        public void Initialize(TileMap tileMap, Point index)
         {
-            Position = position;
+            Index = index;
             TileMap = tileMap;
-
-            TileTemplates = new TileSpot[tileMap.ChunkSize][];
-            for (int x = 0; x < tileMap.ChunkSize; x++) {
-                TileTemplates[x] = new TileSpot[tileMap.ChunkSize];
-                for (int y = 0; y < tileMap.ChunkSize; y++) {
-                    TileTemplates[x][y] = new TileSpot(this, new Point(x + position.X, y + position.Y));
-                }
-            }
-        }
-
-        public TileChunk(TileMap tileMap, Point position)
-        {
-            Initialize(tileMap, position);
         }
 
         public class ChunkData
@@ -69,7 +108,8 @@ namespace SE.World
                 int chunkSize = chunk.TileMap.ChunkSize;
                 for (int x = 0; x < chunkSize; x++) {
                     for (int y = 0; y < chunkSize; y++) {
-                        chunk.TileTemplates[x][y].Set(TileData[x][y], chunk, new Point(x, y));
+                        //chunk.TileTemplates[x][y].Set(TileData[x][y], chunk, new Point(x, y));
+                        // TODO.
                     }
                 }
             }
@@ -82,10 +122,11 @@ namespace SE.World
                     TileData[x] = new List<uint>[chunkSize];
                     for (int y = 0; y < chunkSize; y++) {
                         TileData[x][y] = new List<uint>();
-                        for (int tile = 0; tile < chunk.TileTemplates[x][y].Tiles.Count; tile++) {
-                            uint tileID = chunk.TileTemplates[x][y].Tiles.Array[tile].TileID;
-                            TileData[x][y].Add(tileID);
-                        }
+                        //for (int tile = 0; tile < chunk.TileTemplates[x][y].Tiles.Count; tile++) {
+                        //    uint tileID = chunk.TileTemplates[x][y].Tiles.Array[tile].TileID;
+                        //    TileData[x][y].Add(tileID);
+                        //}
+                        // TODO.
                     }
                 }
             }

@@ -1,5 +1,6 @@
 ﻿using SE.Components;
 using SE.Core;
+using SE.World;
 
 namespace SE.Rendering
 {
@@ -96,5 +97,13 @@ namespace SE.Rendering
         public override string Name => "DrawUI";
         public override void Invoke(Camera2D camera) => Renderer.DrawUI(camera);
         public LoopUI(Renderer renderer) : base(renderer) { }
+    }
+
+    // TODO: This probably shouldn't be a single render action. (Material could handle render order)
+    public class LoopTileMaps : DefaultRendererAction
+    {
+        public override string Name => "Draw Tile Maps";
+        public override void Invoke(Camera2D camera) => TileMapRendererManager.Render(camera);
+        public LoopTileMaps(Renderer renderer) : base(renderer) { }
     }
 }

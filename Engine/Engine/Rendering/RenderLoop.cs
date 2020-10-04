@@ -7,7 +7,6 @@ using Console = SE.Core.Console;
 
 namespace SE.Rendering
 {
-    // TODO: Allow multiple render actions under a single enum position.
     public static class RenderLoop
     {
         internal static SortedDictionary<uint, QuickList<IRenderLoopAction>> Loop { get; } = new SortedDictionary<uint, QuickList<IRenderLoopAction>>();
@@ -42,10 +41,8 @@ namespace SE.Rendering
             LightingStart = 300,
             DuringLighting = 1000,
             FinalizeParticles = 5000,
-            RenderAlphaParticles = 5100,
             LightingEnd = 6000,
-            RenderAlphaParticlesUnlit = 6100,
-            RenderAdditiveParticles = 6200,
+            RenderUnlitParticles = 6100,
             AfterLighting = 10000,
             DrawUnderlay = 20000,
             DrawUI = 30000,
@@ -73,12 +70,13 @@ namespace SE.Rendering
             Add(LoopEnum.Culling, new LoopCulling());
             Add(LoopEnum.GenerateRenderLists, new LoopGenerateRenderLists(Render));
             Add(LoopEnum.LightingStart, new LoopStartLighting(Render));
+            Add(LoopEnum.LightingStart + 1, new LoopTileMaps(Render));
 
             Add(LoopEnum.FinalizeParticles, new LoopFinalizeParticles());
 
             Add(LoopEnum.LightingEnd, new LoopEndLighting(Render));
 
-            Add(LoopEnum.RenderAlphaParticlesUnlit, new LoopParticles(Render));
+            Add(LoopEnum.RenderUnlitParticles, new LoopParticles(Render));
 
             Add(LoopEnum.DrawUnderlay, new LoopConsoleUnderlay());
             Add(LoopEnum.DrawUI, new LoopUI(Render));

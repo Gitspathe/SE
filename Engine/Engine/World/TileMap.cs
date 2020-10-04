@@ -4,6 +4,7 @@ using System.IO;
 using Microsoft.Xna.Framework;
 using SE.Attributes;
 using SE.Common;
+using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.World
@@ -11,22 +12,26 @@ namespace SE.World
     [ExecuteInEditor]
     public class TileMap : Component
     {
-        public int ChunkSize { get; private set; }
-        public int TileSize { get; private set; }
+        public int ChunkSize { get; private set; } = 32;
+        public int TileSize { get; private set; } = 64;
 
-        public Scene Scene { get; internal set; }
-        public string FolderPath => Path.Combine(Scene.FolderPath, Scene.LevelName + ".tilemap");
+        public TileMapRenderer Renderer { get; private set; }
 
-        public Dictionary<uint, ITileProvider> TileSet { get; private set; }
+        //public Scene Scene { get; internal set; }
+        //public string FolderPath => Path.Combine(Scene.FolderPath, Scene.LevelName + ".tilemap");
 
-        public List<TileChunk> Chunks { get; } = new List<TileChunk>();
+        public QuickList<ITileProvider> TileSet { get; private set; } = new QuickList<ITileProvider>();
+
+        public Dictionary<Point, TileChunk> Chunks { get; } = new Dictionary<Point, TileChunk>();
 
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            if (!Directory.Exists(FolderPath)) {
-                Directory.CreateDirectory(FolderPath);
-            }
+            Renderer = new TileMapRenderer();
+            TileMapRendererManager.AddRenderer(Renderer);
+            //if (!Directory.Exists(FolderPath)) {
+            //    Directory.CreateDirectory(FolderPath);
+            //}
         }
 
         protected override void OnUpdate()
@@ -36,93 +41,86 @@ namespace SE.World
 
         protected override void OnEnable()
         {
+            TileMapRendererManager.AddRenderer(Renderer);
         }
 
         protected override void OnDisable()
         {
+            TileMapRendererManager.RemoveRenderer(Renderer);
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
+            TileMapRendererManager.RemoveRenderer(Renderer);
         }
 
-        public void NewChunk(Point chunkPoint)
+        public virtual void NewChunk(Point chunkPoint)
         {
+            if (Chunks.ContainsKey(chunkPoint))
+                throw new Exception("Chunk at point already exists.");
+
             TileChunk chunk = new TileChunk(this, chunkPoint);
-            Chunks.Add(chunk);
+            Chunks.Add(chunkPoint, chunk);
             TrySaveChunk(chunkPoint);
         }
 
-        public void PlaceTile(Point tilePoint, uint tileID)
+        public void PlaceTile(int layer, Point tilePoint, int tileID)
         {
-            Point chunkPos = Snap(tilePoint, ChunkSize);
-            for (int i = 0; i < Chunks.Count; i++) {
-                TileChunk chunk = Chunks[i];
-                if (chunk.Position == chunkPos) {
-                    Point chunkTilePos = chunk.ToLocalPoint(tilePoint);
-                    TileSpot t = chunk.TileTemplates[chunkTilePos.X][chunkTilePos.Y];
-                    t.AddTile(tileID);
-                } else {
-                    NewChunk(chunkPos);
-                    PlaceTile(tilePoint, tileID);
-                }
+            Point chunkIndex = Snap(tilePoint, ChunkSize);
+            if (Chunks.TryGetValue(chunkIndex, out TileChunk chunk)) {
+                Point chunkTilePos = chunk.ToLocalPoint(tilePoint);
+                chunk.PlaceTile(layer, chunkTilePos, tileID);
+            } else {
+                NewChunk(chunkIndex);
+                PlaceTile(layer, tilePoint, tileID);
             }
         }
 
-        public void RemoveTile(Point tilePoint, uint tileID)
+        public void RemoveTile(int layer, Point tilePoint, int tileID)
         {
-            Point chunkPos = Snap(tilePoint, ChunkSize);
-            for (int i = 0; i < Chunks.Count; i++) {
-                TileChunk chunk = Chunks[i];
-                if (chunk.Position == chunkPos) {
-                    Point chunkTilePos = chunk.ToLocalPoint(tilePoint);
-                    TileSpot t = chunk.TileTemplates[chunkTilePos.X][chunkTilePos.Y];
-                    t.RemoveTile(tileID);
-                }
+            Point chunkIndex = Snap(tilePoint, ChunkSize);
+            if (Chunks.TryGetValue(chunkIndex, out TileChunk chunk)) {
+                Point chunkTilePos = chunk.ToLocalPoint(tilePoint);
+                chunk.RemoveTile(layer, chunkTilePos, tileID);
             }
         }
 
-        public void ClearTiles(Point tilePoint, uint tileID)
+        public void ClearTiles(Point tilePoint)
         {
-            Point chunkPos = Snap(tilePoint, ChunkSize);
-            for (int i = 0; i < Chunks.Count; i++) {
-                TileChunk chunk = Chunks[i];
-                if (chunk.Position == chunkPos) {
-                    Point chunkTilePos = chunk.ToLocalPoint(tilePoint);
-                    TileSpot t = chunk.TileTemplates[chunkTilePos.X][chunkTilePos.Y];
-                    t.DestroyTiles();
-                }
+            Point chunkIndex = Snap(tilePoint, ChunkSize);
+            if (Chunks.TryGetValue(chunkIndex, out TileChunk chunk)) {
+                Point chunkTilePos = chunk.ToLocalPoint(tilePoint);
+                chunk.ClearTiles(chunkTilePos);
             }
         }
 
-        protected virtual bool TryLoadChunk(Point position)
+        protected virtual bool TryLoadChunk(Point chunkIndex)
         {
-            TileChunk chunk = new TileChunk(this, position);
-            bool loaded = chunk.LoadFromDisk(Path.Combine(FolderPath, position.X + "-" + position.Y));
-            Chunks.Add(chunk);
-            return loaded;
+            //TileChunk chunk = new TileChunk(this, chunkIndex);
+            //bool loaded = chunk.LoadFromDisk(Path.Combine(FolderPath, chunkIndex.X + "-" + chunkIndex.Y));
+            //Chunks.Add(chunkIndex, chunk);
+            //return loaded;
+            return true;
         }
 
-        protected virtual bool TrySaveChunk(Point position)
+        protected virtual bool TrySaveChunk(Point chunkIndex)
         {
-            string path = Path.Combine(FolderPath, position.X + "-" + position.Y);
-            for (int i = 0; i < Chunks.Count; i++) {
-                TileChunk chunk = Chunks[i];
-                if (chunk.Position == position) {
-                    chunk.SaveToDisk(path);
-                    return true;
-                }
-            }
-            return false;
+            //string path = Path.Combine(FolderPath, chunkIndex.X + "-" + chunkIndex.Y);
+            //if (Chunks.TryGetValue(chunkIndex, out TileChunk chunk)) {
+            //    chunk.SaveToDisk(path);
+            //    return true;
+            //}
+            //return false;
+            return true;
         }
 
         private static Point Snap(Vector2 position, int increment)
-            => new Point((int)MathF.Floor(position.X / increment) * increment,
-                (int)MathF.Floor(position.Y / increment) * increment);
+            => new Point((int)MathF.Floor(position.X / increment),
+                (int)MathF.Floor(position.Y / increment));
 
         private static Point Snap(Point position, int increment)
-            => new Point((int)MathF.Floor((float)position.X / increment) * increment,
-                (int)MathF.Floor((float)position.Y / increment) * increment);
+            => new Point((int)MathF.Floor((float)position.X / increment),
+                (int)MathF.Floor((float)position.Y / increment));
     }
 }

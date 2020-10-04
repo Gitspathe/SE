@@ -8,6 +8,7 @@ using SE.UI;
 using SE.Utility;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using static SE.Core.Rendering;
 using Color = Microsoft.Xna.Framework.Color;
 using Console = SE.Core.Console;
@@ -27,7 +28,7 @@ namespace SE.Rendering
         private Rectangle scissorRectBackup = new Rectangle(0, 0, 1920, 1080);
         private QuickList<Emitter> tmpEmitters = new QuickList<Emitter>();
 
-        private GraphicsDevice GraphicsDevice = Core.Rendering.GraphicsDevice;
+        private GraphicsDevice graphicsDevice = Core.Rendering.GraphicsDevice;
         
         public static bool Multithreaded { get; set; } = false;
         public static int CullingThreshold { get; set; } = 128;
@@ -51,10 +52,10 @@ namespace SE.Rendering
         public void NewFrame(Camera2D camera)
         {
             Prepare();
-            GraphicsDevice.SetRenderTarget(SceneRender);
-            GraphicsDevice.Clear(Color.Black);
+            graphicsDevice.SetRenderTarget(SceneRender);
+            graphicsDevice.Clear(Color.Black);
 
-            GraphicsDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 0f, 0);
+            graphicsDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 0f, 0);
             ChangeDrawCall(SpriteSortMode.Deferred, camera.TransformMatrix, BlendState.Opaque, SamplerState.PointClamp, DepthStencilGreater);
 
             // Caching.
@@ -79,8 +80,8 @@ namespace SE.Rendering
 
         public void DrawUI(Camera2D camera)
         {
-            GraphicsDevice.SetRenderTarget(UIRender);
-            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0.0f, 0);
+            graphicsDevice.SetRenderTarget(UIRender);
+            graphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0.0f, 0);
             RenderUI();
             RenderUIGizmos(camera);
 
@@ -190,11 +191,11 @@ namespace SE.Rendering
                 if (!topLevelMenu.Enabled)
                     continue;
 
-                GraphicsDevice.ScissorRectangle = scissorRectBackup;
+                graphicsDevice.ScissorRectangle = scissorRectBackup;
                 Rectangle curScissorRect = topLevelMenu.ScissorRect 
-                                           ?? GraphicsDevice.ScissorRectangle;
+                                           ?? graphicsDevice.ScissorRectangle;
 
-                GraphicsDevice.ScissorRectangle = ApplyScreenRectangleScaling(curScissorRect);
+                graphicsDevice.ScissorRectangle = ApplyScreenRectangleScaling(curScissorRect);
                 ChangeDrawCall(SpriteSortMode.FrontToBack, Screen.ScreenScaleMatrix, null, SamplerState.PointClamp, null, rasterizerScissor);
                 UIRenderIteration(topLevelMenu.Transform, curScissorRect);
             }
@@ -218,9 +219,9 @@ namespace SE.Rendering
                 if (nextUIObj?.ScissorRect != null) {
                     curScissorRect = nextUIObj.ScissorRect;
                 }
-                if (curScissorRect.HasValue && GraphicsDevice.ScissorRectangle != curScissorRect.Value) {
+                if (curScissorRect.HasValue && graphicsDevice.ScissorRectangle != curScissorRect.Value) {
                     EndDrawCall();
-                    GraphicsDevice.ScissorRectangle = ApplyScreenRectangleScaling(curScissorRect.Value);
+                    graphicsDevice.ScissorRectangle = ApplyScreenRectangleScaling(curScissorRect.Value);
                     ChangeDrawCall(SpriteSortMode.FrontToBack, Screen.ScreenScaleMatrix, null, SamplerState.PointClamp, null, rasterizerScissor);
                     UIRenderIteration(nextTransform, curScissorRect);
                 } else {
@@ -248,11 +249,11 @@ namespace SE.Rendering
                 if (!topLevelGizmo.Enabled)
                     continue;
 
-                GraphicsDevice.ScissorRectangle = scissorRectBackup;
+                graphicsDevice.ScissorRectangle = scissorRectBackup;
                 Rectangle curScissorRect = topLevelGizmo.ScissorRect 
-                                           ?? GraphicsDevice.ScissorRectangle;
+                                           ?? graphicsDevice.ScissorRectangle;
 
-                GraphicsDevice.ScissorRectangle = curScissorRect;
+                graphicsDevice.ScissorRectangle = curScissorRect;
                 ChangeDrawCall(SpriteSortMode.FrontToBack, Screen.ScreenScaleMatrix, null, SamplerState.PointClamp, null, rasterizerScissor);
                 UIGizmoRenderIteration(camera, topLevelGizmo.Transform, curScissorRect);
             }
@@ -276,12 +277,12 @@ namespace SE.Rendering
                 if (nextUIObj?.ScissorRect != null) {
                     curScissorRect = nextUIObj.ScissorRect;
                 }
-                if (curScissorRect.HasValue && GraphicsDevice.ScissorRectangle != curScissorRect.Value) {
+                if (curScissorRect.HasValue && graphicsDevice.ScissorRectangle != curScissorRect.Value) {
                     EndDrawCall();
                     Rectangle r = curScissorRect.Value;
                     r.X -= viewPortX;
                     r.Y -= viewPortY;
-                    GraphicsDevice.ScissorRectangle = r;
+                    graphicsDevice.ScissorRectangle = r;
                     ChangeDrawCall(SpriteSortMode.FrontToBack, Screen.ScreenScaleMatrix, null, SamplerState.PointClamp, null, rasterizerScissor);
                     UIGizmoRenderIteration(camera, nextTransform, curScissorRect);
                 } else {
@@ -380,9 +381,10 @@ namespace SE.Rendering
             }
         }
 
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
         public struct DepthComparer : IComparer<IRenderable>
         {
-            int IComparer<IRenderable>.Compare(IRenderable x, IRenderable y) 
+            int IComparer<IRenderable>.Compare(IRenderable x, IRenderable y)
                 => ((SpriteBase)x).LayerDepth.CompareTo(((SpriteBase)y).LayerDepth);
         }
     }
