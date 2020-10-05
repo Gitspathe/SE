@@ -34,8 +34,8 @@ namespace SEDemos.Levels
             TileMap map = (TileMap)tilemapGo.AddComponent(new TileMap());
             map.TileSet.Add(new GenericTileProvider(test, new Rectangle(0, 0, 64, 64)));
 
-            for (int x = 0; x < 50; x++) {
-                for (int y = 0; y < 50; y++) {
+            for (int x = 0; x < 55; x++) {
+                for (int y = 0; y < 45; y++) {
                     map.PlaceTile(0, new Point(x, y), 0);
                 }
             }
