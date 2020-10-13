@@ -17,21 +17,14 @@ namespace SE.World
             this.chunk = chunk;
         }
 
-        public void Add(Material material, Point tileIndex, ref TileTemplate tileTemplate)
+        public void Add(Material material, ref Tile tile)
         {
-            ITileProvider provider = chunk.TileMap.TileSet.Array[tileTemplate.TileID];
-            Vector2 localPos = new Vector2(tileIndex.X * chunk.TileMap.TileSize, tileIndex.Y * chunk.TileMap.TileSize);
-            Vector2 worldPos = localPos + chunk.WorldPosition;
-            chunk.TileMap.Renderer.Add(provider, material, worldPos);
-
+            chunk.TileMap.Renderer.Add(tile.Provider, material, ref tile);
         }
 
-        public void Remove(Material material, Point tileIndex, ref TileTemplate tileTemplate)
+        public void Remove(Material material, ref Tile tile)
         {
-            ITileProvider provider = chunk.TileMap.TileSet.Array[tileTemplate.TileID];
-            Vector2 localPos = new Vector2(tileIndex.X * chunk.TileMap.TileSize, tileIndex.Y * chunk.TileMap.TileSize);
-            Vector2 worldPos = localPos + chunk.WorldPosition;
-            chunk.TileMap.Renderer.Remove(provider, material, worldPos);
+            chunk.TileMap.Renderer.Remove(tile.Provider, material, ref tile);
         }
     }
 }

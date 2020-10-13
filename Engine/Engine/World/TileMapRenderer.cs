@@ -10,25 +10,25 @@ namespace SE.World
 {
     public class TileMapRenderer
     {
-        private static Dictionary<(ITileProvider, Material), HashSet<Vector2>> renderedTiles
-            = new Dictionary<(ITileProvider, Material), HashSet<Vector2>>();
+        private static Dictionary<(ITileProvider, Material), HashSet<Tile>> renderedTiles
+            = new Dictionary<(ITileProvider, Material), HashSet<Tile>>();
 
-        public void Add(ITileProvider provider, Material material, Vector2 worldPos)
+        public void Add(ITileProvider provider, Material material, ref Tile tile)
         {
             (ITileProvider provider, Material material) tuple = (provider, material);
-            if (renderedTiles.TryGetValue(tuple, out HashSet<Vector2> tiles)) {
-                tiles.Add(worldPos);
+            if (renderedTiles.TryGetValue(tuple, out HashSet<Tile> tiles)) {
+                tiles.Add(tile);
             } else {
-                tiles = new HashSet<Vector2> {worldPos};
+                tiles = new HashSet<Tile> {tile};
                 renderedTiles.Add(tuple, tiles);
             }
         }
 
-        public void Remove(ITileProvider provider, Material material, Vector2 worldPos)
+        public void Remove(ITileProvider provider, Material material, ref Tile tile)
         {
             (ITileProvider provider, Material material) tuple = (provider, material);
-            if (renderedTiles.TryGetValue(tuple, out HashSet<Vector2> tiles)) {
-                tiles.Remove(worldPos);
+            if (renderedTiles.TryGetValue(tuple, out HashSet<Tile> tiles)) {
+                tiles.Remove(tile);
             }
         }
 
@@ -45,9 +45,9 @@ namespace SE.World
 
         public void Render(Camera2D camera)
         {
-            foreach (((ITileProvider provider, Material material), HashSet<Vector2> value) in renderedTiles) {
+            foreach (((ITileProvider provider, Material material), HashSet<Tile> tiles) in renderedTiles) {
                 SwapMaterial(material, camera);
-                provider.Render(value);
+                provider.Render(tiles);
             }
         }
     }

@@ -5,7 +5,7 @@ namespace SE.World
     public class TileLayer
     {
         public TileChunk Chunk { get; private set; }
-        public TileTemplate[][] TileTemplates { get; private set; }
+        public Tile[][] TileTemplates { get; private set; }
         
         public bool IsActive { get; private set; } = false;
 
@@ -14,11 +14,11 @@ namespace SE.World
             Chunk = chunk;
             int chunkSize = chunk.TileMap.ChunkSize;
 
-            TileTemplates = new TileTemplate[chunk.TileMap.ChunkSize][];
+            TileTemplates = new Tile[chunk.TileMap.ChunkSize][];
             for (int x = 0; x < chunkSize; x++) {
-                TileTemplates[x] = new TileTemplate[chunkSize];
+                TileTemplates[x] = new Tile[chunkSize];
                 for (int y = 0; y < chunkSize; y++) {
-                    TileTemplates[x][y] = new TileTemplate(-1);
+                    TileTemplates[x][y] = new Tile(this, new Point(x, y));
                 }
             }
         }
@@ -27,9 +27,9 @@ namespace SE.World
         {
             for (int x = 0; x < TileTemplates.Length; x++) {
                 for (int y = 0; y < TileTemplates[x].Length; y++) {
-                    ref TileTemplate template = ref TileTemplates[x][y];
+                    ref Tile template = ref TileTemplates[x][y];
                     if (!template.IsNull) {
-                        Chunk.TileMap.TileSet.Array[template.TileID].Activate(this, new Point(x, y), ref template);
+                        template.Provider.Activate(ref template);
                     }
                 }
             }
@@ -40,9 +40,9 @@ namespace SE.World
         {
             for (int x = 0; x < TileTemplates.Length; x++) {
                 for (int y = 0; y < TileTemplates[x].Length; y++) {
-                    ref TileTemplate template = ref TileTemplates[x][y];
+                    ref Tile template = ref TileTemplates[x][y];
                     if (!template.IsNull) {
-                        Chunk.TileMap.TileSet.Array[template.TileID].Deactivate(this, new Point(x, y), ref template);
+                        template.Provider.Deactivate(ref template);
                     }
                 }
             }
@@ -51,22 +51,26 @@ namespace SE.World
 
         public void SetTile(Point index, int tileID)
         {
-            ref TileTemplate template = ref TileTemplates[index.X][index.Y];
-            if (!template.IsNull) {
-                Chunk.TileMap.TileSet.Array[template.TileID].Deactivate(this, index, ref template);
+            if (tileID == -1) {
+                DestroyTile(index);
+                return;
             }
 
-            TileTemplates[index.X][index.Y].TileID = tileID;
-            Chunk.TileMap.TileSet.Array[tileID].Activate(this, index, ref template);
+            ref Tile template = ref TileTemplates[index.X][index.Y];
+            if (!template.IsNull) {
+                template.Provider.Deactivate(ref template);
+            }
+            TileTemplates[index.X][index.Y].ChangeTileType(tileID);
+            template.Provider.Activate(ref template);
         }
 
         public void DestroyTile(Point index)
         {
-            ref TileTemplate template = ref TileTemplates[index.X][index.Y];
+            ref Tile template = ref TileTemplates[index.X][index.Y];
             if (!template.IsNull) {
-                Chunk.TileMap.TileSet.Array[template.TileID].Deactivate(this, index, ref template);
+                template.Provider.Deactivate(ref template);
             }
-            TileTemplates[index.X][index.Y].TileID = -1;
+            TileTemplates[index.X][index.Y].ChangeTileType(-1);
         }
     }
 }

@@ -96,8 +96,14 @@ namespace SE.Serialization.Converters
                 memberName = ResolveName(memberName);
                 index = ResolveIndex(indexes, index);
 
+                // Resolve true type.
+                Type memberType = member.Type;
+                if (Nullable.GetUnderlyingType(member.Type) != null) {
+                    memberType = Nullable.GetUnderlyingType(member.Type);
+                }
+
                 // Create the node, and add it to the generated converter.
-                Node node = new Node(converter, accessor, memberName, realMemberName, index, recursiveMember);
+                Node node = new Node(converter, accessor, memberType, memberName, realMemberName, index, recursiveMember);
                 nodesDictionary.Add(memberName, node);
                 tmpNodes.Add(node);
                 indexes.Add(index);
@@ -314,6 +320,7 @@ namespace SE.Serialization.Converters
             public string Name;
             public string RealName;
             public ushort Index;
+            public Type Type;
 
             private Converter converter;
             private TypeAccessor accessor;
@@ -323,7 +330,7 @@ namespace SE.Serialization.Converters
             private TypeAccessor.DelegateAccessor delegateAccessor;
             private int accessorIndex;
 
-            public Node(Converter converter, TypeAccessor accessor, string name, string realName, ushort index, bool recursive)
+            public Node(Converter converter, TypeAccessor accessor, Type type, string name, string realName, ushort index, bool recursive)
             {
                 this.converter = converter;
                 this.accessor = accessor;
@@ -331,6 +338,7 @@ namespace SE.Serialization.Converters
                 Index = index;
                 Name = name;
                 RealName = realName;
+                Type = type;
                 if (accessor is TypeAccessor.DelegateAccessor delAccessor) {
                     delegateAccessor = delAccessor;
                     accessorIndex = delAccessor.GetIndex(RealName) ?? throw new IndexOutOfRangeException();
@@ -347,7 +355,8 @@ namespace SE.Serialization.Converters
 
                 bool shouldSetValue = !shouldReadBool || reader.ReadBoolean();
                 if (shouldSetValue) {
-                    SetValue(target, Serializer.DeserializeReader(converter, reader, ref task));
+                    Converter typeConverter = Serializer.GetConverterForType(reader, task.Settings) ?? converter;
+                    SetValue(target, Serializer.DeserializeReader(typeConverter, reader, ref task));
                     return;
                 }
 
@@ -360,13 +369,30 @@ namespace SE.Serialization.Converters
                 if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
                     throw new ReferenceLoopException();
 
+                Type valType = null;
+                Converter typeConverter = converter;
+                SerializerSettings settings = task.Settings;
                 object val = GetValue(target);
-                bool isDefault = converter.IsDefault(val);
-                bool writeNull = task.Settings.NullValueHandling == NullValueHandling.DefaultValue;
-                bool writeDefault = task.Settings.DefaultValueHandling == DefaultValueHandling.Serialize;
+                bool serializeType = settings.TypeHandling != TypeHandling.Ignore;
+
+                // Resolve true type converter (in case of polymorphism).
+                if (serializeType) {
+                    if (val != null) {
+                        valType = val.GetType();
+                        if (valType != Type) {
+                            typeConverter = settings.Resolver.GetConverter(valType);
+                        }
+                    }
+                }
+
+                // Null and default value handling.
+                bool isDefault = typeConverter.IsDefault(val);
+                bool writeNull = settings.NullValueHandling == NullValueHandling.DefaultValue;
+                bool writeDefault = settings.DefaultValueHandling == DefaultValueHandling.Serialize;
                 if(!writeNull && val == null || !writeDefault && isDefault)
                     return;
 
+                // Name & index.
                 writer.Write(_DELIMITER);
                 writer.Write(Index);
                 if (writeName) {
@@ -374,14 +400,20 @@ namespace SE.Serialization.Converters
                     writer.Write(_NAME_DELIMITER);
                 }
 
-                if(writeNull || writeDefault) {
+                // Write Type if needed.
+                if (serializeType) {
+                    Serializer.WriteConverterType(valType, Type, writer, settings);
+                }
+
+                // Write bool for null or default values.
+                if (writeNull || writeDefault) {
                     bool shouldWrite = writeNull && val != null || writeDefault && !isDefault;
                     writer.Write(shouldWrite);
                     if (!shouldWrite)
                         return;
                 }
 
-                Serializer.SerializeWriter(val, converter, writer, ref task);
+                Serializer.SerializeWriter(val, typeConverter, writer, ref task);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

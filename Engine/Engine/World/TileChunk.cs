@@ -52,8 +52,8 @@ namespace SE.World
         public void RemoveTile(int layer, Point tilePoint, int tileID)
         {
             if (Layers.TryGetValue(layer, out TileLayer tileLayer)) {
-                TileTemplate template = tileLayer.TileTemplates[tilePoint.X][tilePoint.Y];
-                if (template.TileID == tileID) {
+                Tile template = tileLayer.TileTemplates[tilePoint.X][tilePoint.Y];
+                if (template.TileTypeID == tileID) {
                     Layers[layer].DestroyTile(tilePoint);
                 }
             }

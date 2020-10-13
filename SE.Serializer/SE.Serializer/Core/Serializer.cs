@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using FastStream;
 using SE.Serialization;
@@ -109,6 +110,51 @@ namespace SE.Core
         public static object DeserializeReader(Converter converter, FastReader reader, ref DeserializeTask task)
         {
             return converter.Deserialize(reader, ref task);
+        }
+
+        public static Converter GetConverterForType(FastReader reader, SerializerSettings settings)
+        {
+            if(settings.TypeHandling == TypeHandling.Ignore || !reader.ReadBoolean())
+                return null;
+
+            string typeString = reader.ReadString();
+            ConverterResolver resolver = settings.Resolver;
+            if (!resolver.TypeCache.TryGetValue(typeString, out Converter converter)) {
+                Type type = Type.GetType(typeString);
+                converter = settings.Resolver.GetConverter(type);
+                resolver.TypeCache.Add(typeString, converter);
+            }
+            return converter;
+        }
+
+        internal static Converter WriteAndGetConverterType(object obj, Type defaultType, FastMemoryWriter writer, SerializerSettings settings)
+        {
+            if (settings.TypeHandling == TypeHandling.Ignore)
+                return null;
+
+            Type objType = obj.GetType();
+            if (settings.TypeHandling == TypeHandling.Auto && objType == defaultType) {
+                writer.Write(false);
+                return null;
+            }
+
+            writer.Write(true);
+            writer.Write(objType.AssemblyQualifiedName);
+            return settings.Resolver.GetConverter(objType);
+        }
+
+        public static void WriteConverterType(Type objType, Type defaultType, FastMemoryWriter writer, SerializerSettings settings)
+        {
+            if (settings.TypeHandling == TypeHandling.Ignore)
+                return;
+            
+            if (settings.TypeHandling == TypeHandling.Auto && objType == defaultType) {
+                writer.Write(false);
+                return;
+            }
+
+            writer.Write(true);
+            writer.Write(objType.AssemblyQualifiedName);
         }
     }
 }

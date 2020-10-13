@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using FastStream;
 
 namespace SE.Serialization.Converters
@@ -14,6 +15,7 @@ namespace SE.Serialization.Converters
 
         private object defaultInstance;
         private bool defaultCreated;
+        private bool isObject;
 
         public abstract Type Type { get; }
         public abstract void Serialize(object obj, FastMemoryWriter writer, ref SerializeTask task);
@@ -24,13 +26,18 @@ namespace SE.Serialization.Converters
             if (!defaultCreated)
                 GenerateDefaultValue();
 
+            if (isObject) {
+                return obj == null;
+            }
             return obj.Equals(defaultInstance);
         }
 
         internal void GenerateDefaultValue()
         {
             try {
-                if (Type != null) {
+                if (Type == typeof(object)) {
+                    isObject = true;
+                } else if(Type != null) {
                     defaultInstance = Type.IsValueType ? Activator.CreateInstance(Type) : null;
                 }
             } catch (Exception) {
@@ -57,6 +64,18 @@ namespace SE.Serialization.Converters
     {
         /// <summary>Generic type arguments.</summary>
         protected internal Type[] TypeArguments;
+
+        protected Converter GetSerializer(int typeArgumentIndex, ref SerializeTask task)
+        {
+            // TODO: Handle TypeHandling settings.
+            return task.Settings.Resolver.GetConverter(TypeArguments[typeArgumentIndex]);
+        }
+
+        protected Converter GetSerializer(int typeArgumentIndex, ref DeserializeTask task)
+        {
+            // TODO: Handle TypeHandling settings.
+            return task.Settings.Resolver.GetConverter(TypeArguments[typeArgumentIndex]);
+        }
 
         public GenericConverter() { /* Empty constructor for reflection. */ }
     }

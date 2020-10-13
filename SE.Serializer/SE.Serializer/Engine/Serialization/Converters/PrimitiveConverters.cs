@@ -184,4 +184,19 @@ namespace SE.Serialization.Converters
         public override string DeserializeT(FastReader reader, ref DeserializeTask task)
             => reader.ReadString();
     }
+
+    public sealed class ObjectConverter : Converter
+    {
+        public override Type Type => typeof(object);
+
+        public override void Serialize(object obj, FastMemoryWriter writer, ref SerializeTask task)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public override object Deserialize(FastReader reader, ref DeserializeTask task)
+        {
+            return null;
+        }
+    }
 }

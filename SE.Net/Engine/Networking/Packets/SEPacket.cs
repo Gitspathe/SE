@@ -16,9 +16,6 @@ namespace SE.Engine.Networking.Packets
 
         public SEPacket(ushort packetType, uint networkID, byte[] buffer, int bufferLength = -1)
         {
-            if(bufferLength == -1)
-                bufferLength = buffer.Length;
-
             Reset(packetType, networkID, buffer, bufferLength);
         }
 

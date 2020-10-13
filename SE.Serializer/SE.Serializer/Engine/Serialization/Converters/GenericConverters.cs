@@ -15,7 +15,7 @@ namespace SE.Serialization.Converters
 
             int arrLength = reader.ReadInt32();
             Array val = Array.CreateInstance(TypeArguments[0], arrLength);
-            Converter serializer = task.Settings.Resolver.GetConverter(TypeArguments[0]);
+            Converter serializer = GetSerializer(0, ref task);
             for (int i = 0; i < arrLength; i++) {
                 val.SetValue(Serializer.DeserializeReader(serializer, reader, ref task), i);
             }
@@ -28,7 +28,7 @@ namespace SE.Serialization.Converters
             Array val = (Array) obj;
             writer.Write(val.Length);
 
-            Converter serializer = task.Settings.Resolver.GetConverter(TypeArguments[0]);
+            Converter serializer = GetSerializer(0, ref task);
             for (int i = 0; i < val.Length; i++) {
                 Serializer.SerializeWriter(val.GetValue(i), serializer, writer, ref task, false);
             }

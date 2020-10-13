@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Pooling;
@@ -12,45 +13,61 @@ namespace SE.World
     /// </summary>
     public interface ITileProvider
     {
-        void Restore(ref TileTemplate tileTemplate, byte[] data = null);
-        void Activate(TileLayer layer, Point tileIndex, ref TileTemplate tileTemplate);
-        void Deactivate(TileLayer layer, Point tileIndex, ref TileTemplate tileTemplate);
-        void Render(HashSet<Vector2> worldPosition);
+        void Restore(ref Tile tile, byte[] data = null);
+        void Initialize(ref Tile tile);
+        void Activate(ref Tile tile);
+        void Deactivate(ref Tile tile);
+        void Render(HashSet<Tile> tiles);
     }
-
-    /// <summary>
-    /// Specialized ITileProvider interface which allows tiles to have additional data embedded within.
-    /// </summary>
-    /// <typeparam name="T">ITileAdditionalData type.</typeparam>
-    public interface ITileProvider<T> : ITileProvider where T : ITileAdditionalData, new() { }
 
     public class GenericTileProvider : ITileProvider
     {
         private Material material;
         private Rectangle textureSourceRect;
+        private Type[] tileModuleTypes;
 
-        public GenericTileProvider(Material material, Rectangle textureSourceRect)
+        // TODO: Handle tile lifecycle. This includes chunk pooling + serialize/saving & loading.
+
+        public GenericTileProvider(Material material, Rectangle textureSourceRect, Type[] tileModuleTypes = null)
         {
+            if (tileModuleTypes != null) {
+                for (int i = 0; i < tileModuleTypes.Length; i++) {
+                    Type t = tileModuleTypes[i];
+                    if (t.GetConstructor(Type.EmptyTypes) == null) {
+                        throw new Exception($"No empty constructor found on {t.Name}.");
+                    }
+                }
+            }
+
             this.material = material;
             this.textureSourceRect = textureSourceRect;
+            this.tileModuleTypes = tileModuleTypes;
         }
 
-        public virtual void Restore(ref TileTemplate tileTemplate, byte[] data = null) { }
+        public virtual void Restore(ref Tile tile, byte[] data = null) { }
 
-        public void Activate(TileLayer layer, Point tileIndex, ref TileTemplate tileTemplate)
+        public virtual void Initialize(ref Tile tile)
         {
-            layer.Chunk.Renderer.Add(material, tileIndex, ref tileTemplate);
+
         }
 
-        public void Deactivate(TileLayer layer, Point tileIndex, ref TileTemplate tileTemplate)
+        public void Activate(ref Tile tile)
         {
-            layer.Chunk.Renderer.Remove(material, tileIndex, ref tileTemplate);
+            tile.Chunk.Renderer.Add(material, ref tile);
         }
 
-        public void Render(HashSet<Vector2> worldPositions)
+        public void Deactivate(ref Tile tile)
+        {
+            tile.Chunk.Renderer.Remove(material, ref tile);
+        }
+
+        public void Render(HashSet<Tile> tiles)
         {
             Texture2D tex = material.Texture;
-            foreach (Vector2 worldPosition in worldPositions) {
+            foreach (Tile tile in tiles) {
+                Vector2 worldPosition = new Vector2(tile.WorldIndex.X * tile.Chunk.TileMap.TileSize,
+                    tile.WorldIndex.Y * tile.Chunk.TileMap.TileSize);
+
                 Core.Rendering.SpriteBatch.Draw(
                     tex,
                     worldPosition,
@@ -64,20 +81,16 @@ namespace SE.World
         }
     }
 
-    public class GenericTileProvider<T> : GenericTileProvider, ITileProvider<T> where T : ITileAdditionalData, new()
+    public abstract class TileModule
     {
-        public GenericTileProvider(Material material, Rectangle textureSourceRect) : base(material, textureSourceRect) { }
+        public abstract byte[] Serialize();
+        public abstract void Restore(byte[] byteArr);
 
-        public override void Restore(ref TileTemplate tileTemplate, byte[] data = null)
-        {
-            base.Restore(ref tileTemplate, data);
-            tileTemplate.DeserializeAdditionalData<T>(data);
-        }
+        protected TileModule() { }
     }
 
-    public interface ITileAdditionalData
+    public interface ITileModuleProcessor<T> where T : TileModule, new()
     {
-        byte[] Serialize();
-        void Restore(byte[] byteArr);
+
     }
 }
