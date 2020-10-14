@@ -133,7 +133,7 @@ namespace SEDemos
                     pizza4 = 69.420f,
                     pizza5 = 0,
                     pizza3 = { [2] = 59.0f },
-                    ObjTest = "TESTING"
+                    ObjTest = new TestClass2()
                 };
                 test.testClass1.test1.lol = 64;
 
