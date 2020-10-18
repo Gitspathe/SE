@@ -85,6 +85,10 @@
       <HintPath>..\SE.Particles\bin\$(Configuration)\netstandard2.1\SE.Particles.MonoGame.dll</HintPath>
       <Private>true</Private>
     </Reference>
+    <Reference Include="SE.Particles.Native">
+      <HintPath>..\SE.Particles.Native\bin\$(Configuration)\netstandard2.1\SE.Particles.Native.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
     <Reference Include="MonoGame.Penumbra">
       <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\$(Configuration)\DesktopGL\MonoGame.Penumbra.dll</HintPath>
     </Reference>
