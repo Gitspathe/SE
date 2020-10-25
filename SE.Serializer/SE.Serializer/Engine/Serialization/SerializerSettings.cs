@@ -34,7 +34,7 @@ namespace SE.Serialization
         /// <summary>Null values are ignored.</summary>
         Ignore,
 
-        /// <summary>When a null is encountered, the value is set to default.</summary>
+        /// <summary>When a null value is encountered, the value is set to default.</summary>
         DefaultValue
     }
 
@@ -75,11 +75,11 @@ namespace SE.Serialization
 
         /// <summary>Types are serialized into strings when an object's type does not exactly match it's field.
         ///          Instantiated object types are inferred from the original field/property type OR
-        ///          serialized Type strings. Slower and uses more space, but usually faster than <see cref="Always"/></summary>
+        ///          serialized Type strings. Slower and uses more space, but almost always faster than <see cref="Always"/></summary>
         Auto,
 
         /// <summary>Types are always serialized into strings. Instantiated object types are restored from serialized
-        ///          Type strings. Slower and uses more space, but may be necessary in certain cases.</summary>
+        ///          Type strings. Slowest and uses the most space. <see cref="Auto"/> is preferred.</summary>
         Always
     }
 
@@ -88,7 +88,7 @@ namespace SE.Serialization
     /// </summary>
     public enum ReferenceLoopHandling
     {
-        /// <summary>Reference loops are not serializer nor deserialized.</summary>
+        /// <summary>Reference loops are not serialized nor deserialized.</summary>
         Ignore,
 
         /// <summary>Reference loops will throw an error when detected.</summary>

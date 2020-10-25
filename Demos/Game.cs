@@ -213,14 +213,14 @@ namespace SEDemos
             public class Inner
             {
                 public InnerInner innerInner { get; set; } = new InnerInner();
-                public int innerExample { get; set; } = 69;
+                public int innerExample { get; set; } = 60;
                 public int innerExample2 { get; set; } = 50;
 
                 [JsonObject(MemberSerialization.OptOut)]
                 [SerializeObject(ObjectSerialization.Fields)]
                 public class InnerInner
                 {
-                    public int innerExample { get; set; } = 69;
+                    public int innerExample { get; set; } = 60;
                     public int innerExample2 { get; set; } = 50;
                 }
             }

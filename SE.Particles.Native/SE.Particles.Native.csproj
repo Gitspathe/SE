@@ -26,15 +26,6 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Reference Include="SE.Utility">
-      <HintPath>..\SE.Utility\bin\$(Configuration)\$(TargetFramework)\SE.Utility.dll</HintPath>
-    </Reference>
-    <Reference Include="SE.Particles.MonoGame">
-      <HintPath>..\SE.Particles\bin\$(Configuration)\$(TargetFramework)\SE.Particles.MonoGame.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard2.1' ">
     <PackageReference Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
@@ -48,6 +39,11 @@
   <ItemGroup>
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SE.Particles\SE.Particles.MonoGame.csproj" />
+    <ProjectReference Include="..\SE.Utility\SE.Utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>
