@@ -6,12 +6,13 @@
     <Authors>Gitspathe</Authors>
     <Description>Fast 2D CPU particles with optional MonoGame support.</Description>
     <Copyright>Gitspathe © 2020</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageTags>MonoGame particles SEParticles</PackageTags>
     <RootNamespace>SE</RootNamespace>
     <PackageId>SE.Particles.Native</PackageId>
     <AssemblyName>SE.Particles.Native</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -47,6 +48,12 @@
   <ItemGroup>
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="LICENSE">
+      <Pack>True</Pack>
+    </None>
   </ItemGroup>
 
 </Project>

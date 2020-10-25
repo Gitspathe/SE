@@ -5,6 +5,8 @@
     <RootNamespace>SE</RootNamespace>
     <Platforms>AnyCPU</Platforms>
     <AssemblyName>SE.Net</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.0.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">

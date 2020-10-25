@@ -8,6 +8,8 @@ namespace SE.Serialization
     /// </summary>
     public sealed class SerializerSettings
     {
+        /// <summary>Which format to use.</summary>
+        public Formatting Formatting                       = Formatting.Text;
         /// <summary>How the serializer handles null values.</summary>
         public NullValueHandling NullValueHandling         = NullValueHandling.Ignore;
         /// <summary>How the serializer handles default values.</summary>
@@ -15,7 +17,7 @@ namespace SE.Serialization
         /// <summary>How the serializer converts data. Determines performance and parsing error resilience.</summary>
         public ConvertBehaviour ConvertBehaviour           = ConvertBehaviour.Order;
         /// <summary>How the serializer handles types.</summary>
-        public TypeHandling TypeHandling                   = TypeHandling.Auto;
+        public TypeHandling TypeHandling                   = TypeHandling.Ignore;
         /// <summary>How the serializer behaves when encountering a recursive loop of references.</summary>
         public ReferenceLoopHandling ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         /// <summary>How many levels deep the serializer will process.</summary>
@@ -91,5 +93,17 @@ namespace SE.Serialization
 
         /// <summary>Reference loops will throw an error when detected.</summary>
         Error
+    }
+
+    /// <summary>
+    /// Which format to use for serialization.
+    /// </summary>
+    public enum Formatting
+    {
+        /// <summary>Data is written in raw binary. Faster and saves space, but is not human-readable.</summary>
+        Binary,
+
+        /// <summary>Data is written in a YAML-like unicode format. Slower and requires more space, but is human-readable.</summary>
+        Text
     }
 }

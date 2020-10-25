@@ -18,8 +18,11 @@ namespace SE.Serialization.Converters
         private bool isObject;
 
         public abstract Type Type { get; }
-        public abstract void Serialize(object obj, FastMemoryWriter writer, ref SerializeTask task);
-        public abstract object Deserialize(FastReader reader, ref DeserializeTask task);
+        public abstract void SerializeBinary(object obj, FastMemoryWriter writer, ref SerializeTask task);
+        public abstract object DeserializeBinary(FastReader reader, ref DeserializeTask task);
+
+        public virtual void SerializeText(object obj, FastMemoryWriter writer, ref SerializeTask task) { throw new NotImplementedException(); }
+        public virtual object DeserializeText(FastReader reader, ref DeserializeTask task) { throw new NotImplementedException(); }
 
         public virtual bool IsDefault(object obj)
         {
@@ -52,8 +55,10 @@ namespace SE.Serialization.Converters
 
     public abstract class Converter<T> : Converter
     {
-        public abstract void Serialize(T obj, FastMemoryWriter writer, ref SerializeTask task);
-        public abstract T DeserializeT(FastReader reader, ref DeserializeTask task);
+        public abstract void SerializeBinary(T obj, FastMemoryWriter writer, ref SerializeTask task);
+        public abstract T DeserializeTBinary(FastReader reader, ref DeserializeTask task);
+        public virtual void SerializeText(T obj, FastMemoryWriter writer, ref SerializeTask task) { throw new NotImplementedException(); }
+        public virtual T DeserializeTText(FastReader reader, ref DeserializeTask task) { throw new NotImplementedException(); }
     }
 
     /// <summary>

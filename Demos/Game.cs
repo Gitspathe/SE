@@ -31,6 +31,7 @@ using SE.Serialization.Attributes;
 using SE.Serialization.Ini.Parser;
 using Console = SE.Core.Console;
 using DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling;
+using Formatting = Newtonsoft.Json.Formatting;
 using MemberSerialization = Newtonsoft.Json.MemberSerialization;
 
 namespace SEDemos
@@ -111,38 +112,71 @@ namespace SEDemos
             };
 
             System.Text.Json.JsonSerializerOptions textJsonOptions = new System.Text.Json.JsonSerializerOptions() {
-                WriteIndented = false
+                WriteIndented = true
             };
 
             //string test = FileIO.ReadFileString("testIni.ini");
             //IniData testDat = IniSerializer.Parse(test);
 
-            int iterations = 50_000;
-            int innerIterations = 3;
+            //int iterations = 50_000;
+            //int innerIterations = 3;
 
-            for (int z = 0; z < innerIterations; z++)
-            {
+            //for (int z = 0; z < innerIterations; z++)
+            //{
+
+            //    Stopwatch s = new Stopwatch();
+            //    s.Start();
+
+            //    TestClass test = new TestClass(255)
+            //    {
+            //        baseVal = 43546,
+            //        pizza1 = 0,
+            //        pizza4 = 69.420f,
+            //        pizza5 = 0,
+            //        pizza3 = { [2] = 59.0f },
+            //        ObjTest = new TestClass2()
+            //    };
+            //    test.testClass1.test1.lol = 64;
+
+            //    //New serializer.
+            //    s.Start();
+            //    for (int i = 0; i < iterations; i++)
+            //    {
+            //        byte[] bytes = Serializer.Serialize(test);
+            //        test = Serializer.Deserialize<TestClass>(bytes);
+            //    }
+            //    s.Stop();
+            //    long s1 = s.ElapsedMilliseconds;
+
+            //    // JSON serializer.
+            //    s = new Stopwatch();
+            //    s.Start();
+            //    for (int i = 0; i < iterations; i++)
+            //    {
+            //        string bytes = System.Text.Json.JsonSerializer.Serialize(test, textJsonOptions);
+            //        test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes, textJsonOptions);
+            //    }
+            //    s.Stop();
+            //    long s2 = s.ElapsedMilliseconds;
+
+            //    string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
+            //    Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
+            //    Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
+            //}
+
+            // Text serialization test.
+            int textIterations = 200_000;
+            int innerTextIterations = 3;
+
+            for (int i = 0; i < innerTextIterations; i++) {
+                TestTextClass textClass = new TestTextClass();
 
                 Stopwatch s = new Stopwatch();
-                s.Start();
-
-                TestClass test = new TestClass(255)
-                {
-                    baseVal = 43546,
-                    pizza1 = 0,
-                    pizza4 = 69.420f,
-                    pizza5 = 0,
-                    pizza3 = { [2] = 59.0f },
-                    ObjTest = new TestClass2()
-                };
-                test.testClass1.test1.lol = 64;
 
                 //New serializer.
                 s.Start();
-                for (int i = 0; i < iterations; i++)
-                {
-                    byte[] bytes = Serializer.Serialize(test);
-                    test = Serializer.Deserialize<TestClass>(bytes);
+                for (int z = 0; z < textIterations; z++) {
+                    byte[] bytes = Serializer.Serialize(textClass);
                 }
                 s.Stop();
                 long s1 = s.ElapsedMilliseconds;
@@ -150,24 +184,45 @@ namespace SEDemos
                 // JSON serializer.
                 s = new Stopwatch();
                 s.Start();
-                for (int i = 0; i < iterations; i++)
-                {
-                    string bytes = System.Text.Json.JsonSerializer.Serialize(test, textJsonOptions);
-                    test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes, textJsonOptions);
+                for (int z = 0; z < textIterations; z++) {
+                    string bytes = System.Text.Json.JsonSerializer.Serialize(textClass, textJsonOptions);
                 }
                 s.Stop();
                 long s2 = s.ElapsedMilliseconds;
 
                 string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
-                Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
+                Console.WriteLine($"Serializer benchmark ({textIterations} iterations, measured in ms):");
                 Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
             }
 
-            for (int i = 0; i < 5; i++) {
-                long before = GC.GetTotalMemory(true);
-                GameObject go = new GameObject(Vector2.Zero, 0f, Vector2.One);
-                long after = GC.GetTotalMemory(true);
-                Console.WriteLine(after - before);
+            TestTextClass lel = new TestTextClass();
+            byte[] lelBytes = Serializer.Serialize(lel);
+            FileIO.SaveFile(System.Text.Encoding.UTF8.GetString(lelBytes), "LOLZ.data");
+        }
+
+        [JsonObject(MemberSerialization.OptOut)]
+        [SerializeObject(ObjectSerialization.Fields)]
+        public class TestTextClass
+        {
+            public int exampleInteger { get; set; } = 5;
+
+            public Inner[] inner { get; set; } = { new Inner(), new Inner(), new Inner() };
+
+            [JsonObject(MemberSerialization.OptOut)]
+            [SerializeObject(ObjectSerialization.Fields)]
+            public class Inner
+            {
+                public InnerInner innerInner { get; set; } = new InnerInner();
+                public int innerExample { get; set; } = 69;
+                public int innerExample2 { get; set; } = 50;
+
+                [JsonObject(MemberSerialization.OptOut)]
+                [SerializeObject(ObjectSerialization.Fields)]
+                public class InnerInner
+                {
+                    public int innerExample { get; set; } = 69;
+                    public int innerExample2 { get; set; } = 50;
+                }
             }
         }
 

@@ -14,6 +14,7 @@ using SE.Serialization.Attributes;
 using SE.Serialization.Exceptions;
 using SE.Serialization.Resolvers;
 using SE.Utility;
+using System.Text;
 
 namespace SE.Serialization.Converters
 {
@@ -160,12 +161,12 @@ namespace SE.Serialization.Converters
         public override bool IsDefault(object obj) 
             => obj is null || obj.Equals(defaultInstance);
 
-        public override void Serialize(object obj, FastMemoryWriter writer, ref SerializeTask task)
+        public override void SerializeBinary(object obj, FastMemoryWriter writer, ref SerializeTask task)
         {
             if (task.CurrentDepth < task.Settings.MaxDepth) {
                 bool writeName = task.Settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
                 for (int i = 0; i < nodesArray.Length; i++) {
-                    nodesArray[i].Write(obj, writer, writeName, ref task);
+                    nodesArray[i].WriteBinary(obj, writer, writeName, ref task);
                 }
             }
 
@@ -173,7 +174,27 @@ namespace SE.Serialization.Converters
             writer.Write(_BREAK_DELIMITER);
         }
 
-        public override object Deserialize(FastReader reader, ref DeserializeTask task)
+        public override void SerializeText(object obj, FastMemoryWriter writer, ref SerializeTask task)
+        {
+            if (task.CurrentDepth >= task.Settings.MaxDepth) 
+                return;
+
+            bool writeClassDelimiters = task.CurrentDepth > 1;
+            if (writeClassDelimiters) {
+                writer.Write(Serializer._BEGIN_CLASS);
+                writer.Write(Serializer._NEW_LINE);
+            }
+            for (int i = 0; i < nodesArray.Length; i++) {
+                nodesArray[i].WriteText(obj, writer, ref task);
+                writer.Write(Serializer._NEW_LINE);
+            }
+            if (writeClassDelimiters) {
+                writer.WriteIndent(task.CurrentDepth-1);
+                writer.Write(Serializer._END_CLASS);
+            }
+        }
+
+        public override object DeserializeBinary(FastReader reader, ref DeserializeTask task)
         {
             // TODO: Error handling.
             // - Will need to throw an error when creating an instance fails.
@@ -198,7 +219,7 @@ namespace SE.Serialization.Converters
             while (stream.Position + 1 < stream.Length && reader.ReadByte() == _DELIMITER) {
                 long startIndex = (stream.Position + _NODE_HEADER_SIZE) - 1;
                 try {
-                    nodesArray[reader.ReadUInt16()].Read(obj, reader, ref task);
+                    nodesArray[reader.ReadUInt16()].ReadBinary(obj, reader, ref task);
                     continue;
                 } catch (EndOfStreamException) {
                     break;
@@ -230,7 +251,7 @@ namespace SE.Serialization.Converters
                         goto Step2;
 
                     SkipDelimiter(reader);
-                    node.Read(obj, reader, ref task);
+                    node.ReadBinary(obj, reader, ref task);
                     continue;
                 } catch(Exception) { /* ignored */ }
 
@@ -241,7 +262,7 @@ namespace SE.Serialization.Converters
                     if(!SkipToEndOfName(reader))
                         break;
 
-                    nodesArray[readIndex].Read(obj, reader, ref task);
+                    nodesArray[readIndex].ReadBinary(obj, reader, ref task);
                     continue;
                 } catch (EndOfStreamException) {
                     break;
@@ -259,7 +280,7 @@ namespace SE.Serialization.Converters
         }
 
         public T Deserialize<T>(FastReader reader, ref DeserializeTask task) 
-            => (T) Deserialize(reader, ref task);
+            => (T) DeserializeBinary(reader, ref task);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SkipDelimiter(FastReader reader) 
@@ -330,6 +351,9 @@ namespace SE.Serialization.Converters
             private TypeAccessor.DelegateAccessor delegateAccessor;
             private int accessorIndex;
 
+            // Cached stuff.
+            private byte[] precompiledName;
+
             public Node(Converter converter, TypeAccessor accessor, Type type, string name, string realName, ushort index, bool recursive)
             {
                 this.converter = converter;
@@ -339,13 +363,14 @@ namespace SE.Serialization.Converters
                 Name = name;
                 RealName = realName;
                 Type = type;
+                precompiledName = Encoding.Unicode.GetBytes(Name + (char)Serializer._BEGIN_VALUE + ' ');
                 if (accessor is TypeAccessor.DelegateAccessor delAccessor) {
                     delegateAccessor = delAccessor;
                     accessorIndex = delAccessor.GetIndex(RealName) ?? throw new IndexOutOfRangeException();
                 }
             }
 
-            public void Read(object target, FastReader reader, ref DeserializeTask task)
+            public void ReadBinary(object target, FastReader reader, ref DeserializeTask task)
             {
                 if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
                     throw new ReferenceLoopException();
@@ -356,7 +381,7 @@ namespace SE.Serialization.Converters
                 bool shouldSetValue = !shouldReadBool || reader.ReadBoolean();
                 if (shouldSetValue) {
                     Converter typeConverter = Serializer.GetConverterForType(reader, task.Settings) ?? converter;
-                    SetValue(target, Serializer.DeserializeReader(typeConverter, reader, ref task));
+                    SetValue(target, Serializer.DeserializeReader(reader, typeConverter, ref task));
                     return;
                 }
 
@@ -364,7 +389,7 @@ namespace SE.Serialization.Converters
                 SetValue(target, default);
             }
 
-            public void Write(object target, FastMemoryWriter writer, bool writeName, ref SerializeTask task)
+            public void WriteBinary(object target, FastMemoryWriter writer, bool writeName, ref SerializeTask task)
             {
                 if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
                     throw new ReferenceLoopException();
@@ -402,7 +427,7 @@ namespace SE.Serialization.Converters
 
                 // Write Type if needed.
                 if (serializeType) {
-                    Serializer.WriteConverterType(valType, Type, writer, settings);
+                    Serializer.WriteConverterType(writer, valType, Type, settings);
                 }
 
                 // Write bool for null or default values.
@@ -413,7 +438,48 @@ namespace SE.Serialization.Converters
                         return;
                 }
 
-                Serializer.SerializeWriter(val, typeConverter, writer, ref task);
+                Serializer.SerializeWriter(writer, val, typeConverter, ref task);
+            }
+
+            public void WriteText(object target, FastMemoryWriter writer, ref SerializeTask task)
+            {
+                if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
+                    throw new ReferenceLoopException();
+
+                Type valType = null;
+                Converter typeConverter = converter;
+                SerializerSettings settings = task.Settings;
+                object val = GetValue(target);
+                bool serializeType = settings.TypeHandling != TypeHandling.Ignore;
+
+                // Resolve true type converter (in case of polymorphism).
+                if (serializeType) {
+                    if (val != null) {
+                        valType = val.GetType();
+                        if (valType != Type) {
+                            typeConverter = settings.Resolver.GetConverter(valType);
+                        }
+                    }
+                }
+
+                // Null and default value handling.
+                bool isDefault = typeConverter.IsDefault(val);
+                bool writeNull = settings.NullValueHandling == NullValueHandling.DefaultValue;
+                bool writeDefault = settings.DefaultValueHandling == DefaultValueHandling.Serialize;
+                if (!writeNull && val == null || !writeDefault && isDefault)
+                    return;
+
+                // Write name.
+                writer.WriteIndent(task.CurrentDepth);
+                writer.Write(precompiledName);
+
+                // Write Type if needed.
+                if (serializeType) {
+                    Serializer.WriteConverterType(writer, valType, Type, settings);
+                }
+
+                // Serialize the actual value.
+                Serializer.SerializeWriter(writer, val, typeConverter, ref task);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

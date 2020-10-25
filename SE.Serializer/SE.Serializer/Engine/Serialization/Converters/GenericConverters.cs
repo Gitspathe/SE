@@ -8,7 +8,7 @@ namespace SE.Serialization.Converters
     {
         public override Type Type => typeof(Array);
 
-        public override object Deserialize(FastReader reader, ref DeserializeTask task)
+        public override object DeserializeBinary(FastReader reader, ref DeserializeTask task)
         {
             //if (!reader.ReadBoolean()) 
             //    return null;
@@ -17,21 +17,56 @@ namespace SE.Serialization.Converters
             Array val = Array.CreateInstance(TypeArguments[0], arrLength);
             Converter serializer = GetSerializer(0, ref task);
             for (int i = 0; i < arrLength; i++) {
-                val.SetValue(Serializer.DeserializeReader(serializer, reader, ref task), i);
+                val.SetValue(Serializer.DeserializeReader(reader, serializer, ref task), i);
             }
 
             return val;
         }
 
-        public override void Serialize(object obj, FastMemoryWriter writer, ref SerializeTask task)
+        public override void SerializeBinary(object obj, FastMemoryWriter writer, ref SerializeTask task)
         {
             Array val = (Array) obj;
             writer.Write(val.Length);
 
             Converter serializer = GetSerializer(0, ref task);
             for (int i = 0; i < val.Length; i++) {
-                Serializer.SerializeWriter(val.GetValue(i), serializer, writer, ref task, false);
+                Serializer.SerializeWriter(writer, val.GetValue(i), serializer, ref task, false);
             }
+        }
+
+        public override object DeserializeText(FastReader reader, ref DeserializeTask task)
+        {
+            ////if (!reader.ReadBoolean()) 
+            ////    return null;
+
+            //int arrLength = reader.ReadInt32();
+            //Array val = Array.CreateInstance(TypeArguments[0], arrLength);
+            //Converter serializer = GetSerializer(0, ref task);
+            //for (int i = 0; i < arrLength; i++)
+            //{
+            //    val.SetValue(Serializer.DeserializeReader(serializer, reader, ref task), i);
+            //}
+
+            //return val;
+
+            throw new NotImplementedException();
+        }
+
+        public override void SerializeText(object obj, FastMemoryWriter writer, ref SerializeTask task)
+        {
+            Array val = (Array)obj;
+
+            writer.Write(Serializer._BEGIN_ARRAY);
+
+            Converter serializer = GetSerializer(0, ref task);
+            for (int i = 0; i < val.Length; i++) {
+                Serializer.SerializeWriter(writer, val.GetValue(i), serializer, ref task, false);
+                if (i + 1 < val.Length) {
+                    writer.Write(Serializer._ARRAY_SEPARATOR);
+                }
+            }
+
+            writer.Write(Serializer._END_ARRAY);
         }
 
         public override bool IsDefault(object obj)
@@ -47,21 +82,21 @@ namespace SE.Serialization.Converters
     {
         public override Type Type => typeof(Nullable<>);
 
-        public override object Deserialize(FastReader reader, ref DeserializeTask task)
+        public override object DeserializeBinary(FastReader reader, ref DeserializeTask task)
         {
             if (!reader.ReadBoolean()) 
                 return null;
 
             Converter serializer = task.Settings.Resolver.GetConverter(TypeArguments[0]);
-            return serializer?.Deserialize(reader, ref task);
+            return serializer?.DeserializeBinary(reader, ref task);
         }
 
-        public override void Serialize(object obj, FastMemoryWriter writer, ref SerializeTask task)
+        public override void SerializeBinary(object obj, FastMemoryWriter writer, ref SerializeTask task)
         {
             bool hasValue = obj != null;
             writer.Write(hasValue);
             if (hasValue) {
-                task.Settings.Resolver.GetConverter(TypeArguments[0])?.Serialize(obj, writer, ref task);
+                task.Settings.Resolver.GetConverter(TypeArguments[0])?.SerializeBinary(obj, writer, ref task);
             }
         }
     }

@@ -63,6 +63,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Demos\SE.Demos.csproj" />
+    <ProjectReference Include="..\Engine\SE.csproj" />
+    <ProjectReference Include="..\SE.Particles\SE.Particles.MonoGame.csproj" />
+    <ProjectReference Include="..\SE.Utility\SE.Utility.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="LiteNetLib">
       <HintPath>..\_DEPENDENCIES\LiteNetLib\LiteNetLib\bin\$(Configuration)\netstandard2.0\LiteNetLib.dll</HintPath>
     </Reference>
@@ -75,10 +82,6 @@
     </Reference>
     <Reference Include="SE.Net">
       <HintPath>..\SE.Net\bin\$(Configuration)\netstandard2.1\SE.Net.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="SE.Utility">
-      <HintPath>..\SE.Utility\bin\$(Configuration)\netstandard2.1\SE.Utility.dll</HintPath>
       <Private>true</Private>
     </Reference>
     <Reference Include="SE.Serializer">
@@ -98,19 +101,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="SE">
-      <HintPath>..\Engine\bin\netstandard2.1\SE.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="SE.Demos">
-      <HintPath>..\Demos\bin\netstandard2.1\SE.Demos.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
     <Reference Include="StbImageSharp">
       <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\StbImageSharp.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame">
       <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
+      <SpecificVersion>false</SpecificVersion>
     </Reference>
   </ItemGroup>
 
