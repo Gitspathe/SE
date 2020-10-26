@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using FastStream;
 using static SE.Core.Serializer;
@@ -11,7 +12,7 @@ namespace SE.Serialization
 
         public static void WriteText(this FastMemoryWriter writer, string str)
         {
-            writer.Write(Encoding.Unicode.GetBytes(str));
+            writer.Write(Encoding.UTF8.GetBytes(str));
         }
 
         public static string ReadQuotedString(this FastReader reader)
@@ -19,11 +20,17 @@ namespace SE.Serialization
             strBuilder.Clear();
             while (true) {
                 try {
-                    char c = reader.ReadChar();
-                    if (c != _ARRAY_SEPARATOR && c != _NEW_LINE && c != _END_ARRAY) {
-                        strBuilder.Append(c);
-                    } else {
-                        break;
+                    byte c = reader.ReadByte();
+                    switch (c) {
+                        case _ARRAY_SEPARATOR:
+                        case _NEW_LINE: 
+                        case _END_ARRAY:
+                        case _STRING_IDENTIFIER:
+                            return strBuilder.ToString();
+                        
+                        default:
+                            strBuilder.Append(c);
+                            break;
                     }
                 } catch (Exception) {
                     break;
@@ -32,10 +39,11 @@ namespace SE.Serialization
             return strBuilder.ToString();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteIndent(this FastMemoryWriter writer, int depth)
         {
-            for (int i = 1; i < depth; i++) {
-                writer.Write(Tabs);
+            for (int i = 2; i < depth*2; i++) {
+                writer.Write(_TAB);
             }
         }
     }

@@ -10,9 +10,6 @@ namespace SE.Serialization.Converters
 
         public override object DeserializeBinary(FastReader reader, ref DeserializeTask task)
         {
-            //if (!reader.ReadBoolean()) 
-            //    return null;
-
             int arrLength = reader.ReadInt32();
             Array val = Array.CreateInstance(TypeArguments[0], arrLength);
             Converter serializer = GetSerializer(0, ref task);
@@ -57,7 +54,6 @@ namespace SE.Serialization.Converters
             Array val = (Array)obj;
 
             writer.Write(Serializer._BEGIN_ARRAY);
-
             Converter serializer = GetSerializer(0, ref task);
             for (int i = 0; i < val.Length; i++) {
                 Serializer.SerializeWriter(writer, val.GetValue(i), serializer, ref task, false);
@@ -65,7 +61,6 @@ namespace SE.Serialization.Converters
                     writer.Write(Serializer._ARRAY_SEPARATOR);
                 }
             }
-
             writer.Write(Serializer._END_ARRAY);
         }
 

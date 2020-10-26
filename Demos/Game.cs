@@ -197,7 +197,7 @@ namespace SEDemos
 
             TestTextClass lel = new TestTextClass();
             byte[] lelBytes = Serializer.Serialize(lel);
-            FileIO.SaveFile(System.Text.Encoding.UTF8.GetString(lelBytes), "LOLZ.data");
+            FileIO.SaveFile(lelBytes, "LOLZ.data");
         }
 
         [JsonObject(MemberSerialization.OptOut)]
@@ -216,12 +216,15 @@ namespace SEDemos
                 public int innerExample { get; set; } = 60;
                 public int innerExample2 { get; set; } = 50;
 
+
                 [JsonObject(MemberSerialization.OptOut)]
                 [SerializeObject(ObjectSerialization.Fields)]
                 public class InnerInner
                 {
-                    public int innerExample { get; set; } = 60;
-                    public int innerExample2 { get; set; } = 50;
+                    public int innerExample { get; set; } = 20;
+                    public int innerExample2 { get; set; } = 25;
+                    public string testString { get; set; } = "This is a string.";
+                    public bool testBool { get; set; } = true;
                 }
             }
         }

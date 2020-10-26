@@ -14,19 +14,19 @@ namespace SE.Core
         public static DefaultResolver DefaultResolver { get; } = new DefaultResolver();
         public static SerializerSettings DefaultSettings { get; } = new SerializerSettings();
 
-        public const char _BEGIN_VALUE = ':';
-        public const char _BEGIN_CLASS = '{';
-        public const char _END_CLASS = '}';
-        public const char _BEGIN_ARRAY = '[';
-        public const char _END_ARRAY = ']';
-        public const char _BEGIN_TYPE = '(';
-        public const char _END_TYPE = ')';
-        public const char _ARRAY_SEPARATOR = ',';
-        public const char _NEW_LINE = '\n';
-        public const char _TAB = ' ';
-        public const char _STRING_IDENTIFIER = '"';
+        public const byte _BEGIN_VALUE = (byte)':';
+        public const byte _BEGIN_CLASS = (byte)'{';
+        public const byte _END_CLASS = (byte)'}';
+        public const byte _BEGIN_ARRAY = (byte)'[';
+        public const byte _END_ARRAY = (byte)']';
+        public const byte _BEGIN_META = (byte)'(';
+        public const byte _END_META = (byte)')';
+        public const byte _ARRAY_SEPARATOR = (byte)',';
+        public const byte _NEW_LINE = (byte)'\n';
+        public const byte _TAB = (byte)' ';
+        public const byte _STRING_IDENTIFIER = (byte)'"';
 
-        public static readonly byte[] Tabs = Encoding.Unicode.GetBytes(new[] { _TAB, _TAB });
+        public static readonly byte[] Tabs = { _TAB, _TAB };
 
         public static byte[] Serialize(object obj) 
             => Serialize(obj, DefaultSettings);
@@ -247,9 +247,16 @@ namespace SE.Core
                     if (settings.TypeHandling == TypeHandling.Auto && objType == defaultType)
                         return;
 
-                    writer.Write(_BEGIN_TYPE);
+                    // TODO: Should support meta info. Example format:
+                    // class {
+                    //   number: ($type="System.Int32", $id=0) 5
+                    // }
+                    //
+                    // Elements within the parentheses are 'meta' tokens, describing stuff like type, id, etc.
+
+                    writer.Write(_BEGIN_META);
                     writer.WriteText(objType.AssemblyQualifiedName);
-                    writer.Write(_END_TYPE);
+                    writer.Write(_END_META);
                 } break;
                 default:
                     throw new ArgumentOutOfRangeException();

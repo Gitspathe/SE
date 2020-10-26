@@ -5,12 +5,14 @@ namespace SE.Serialization
     // TODO: Reference loop handling.
     public ref struct SerializeTask
     {
-        public int CurrentDepth;
+        internal int CurrentDepth;
+        internal int CurrentParameterIndex;
         public SerializerSettings Settings;
 
         public SerializeTask(SerializerSettings settings)
         {
             CurrentDepth = 0;
+            CurrentParameterIndex = 0;
             Settings = settings;
         }
 
