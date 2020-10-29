@@ -20,7 +20,7 @@ namespace SE.Serialization.Converters
             return val;
         }
 
-        public override void SerializeBinary(object obj, FastMemoryWriter writer, ref SerializeTask task)
+        public override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task)
         {
             Array val = (Array) obj;
             writer.Write(val.Length);
@@ -49,7 +49,7 @@ namespace SE.Serialization.Converters
             throw new NotImplementedException();
         }
 
-        public override void SerializeText(object obj, FastMemoryWriter writer, ref SerializeTask task)
+        public override void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task)
         {
             Array val = (Array)obj;
 
@@ -86,7 +86,7 @@ namespace SE.Serialization.Converters
             return serializer?.DeserializeBinary(reader, ref task);
         }
 
-        public override void SerializeBinary(object obj, FastMemoryWriter writer, ref SerializeTask task)
+        public override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task)
         {
             bool hasValue = obj != null;
             writer.Write(hasValue);

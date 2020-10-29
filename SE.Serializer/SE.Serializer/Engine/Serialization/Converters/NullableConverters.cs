@@ -15,7 +15,7 @@ namespace SE.Serialization.Converters
             return reader.ReadInt32();
         }
 
-        public override void SerializeBinary(int? obj, FastMemoryWriter writer, ref SerializeTask task)
+        public override void SerializeBinary(int? obj, Utf8Writer writer, ref SerializeTask task)
         {
             bool hasValue = obj.HasValue;
             writer.Write(hasValue);

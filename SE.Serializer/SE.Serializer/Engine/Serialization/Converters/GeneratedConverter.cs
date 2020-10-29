@@ -162,7 +162,7 @@ namespace SE.Serialization.Converters
         public override bool IsDefault(object obj) 
             => obj == null || obj.Equals(defaultInstance);
 
-        public override void SerializeBinary(object obj, FastMemoryWriter writer, ref SerializeTask task)
+        public override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task)
         {
             if (task.CurrentDepth < task.Settings.MaxDepth) {
                 bool writeName = task.Settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
@@ -175,7 +175,7 @@ namespace SE.Serialization.Converters
             writer.Write(_BREAK_DELIMITER);
         }
 
-        public override void SerializeText(object obj, FastMemoryWriter writer, ref SerializeTask task)
+        public override void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task)
         {
             task.CurrentParameterIndex = 0;
             if (task.CurrentDepth >= task.Settings.MaxDepth) 
@@ -399,7 +399,7 @@ namespace SE.Serialization.Converters
                 SetValue(target, default);
             }
 
-            public void WriteBinary(object target, FastMemoryWriter writer, bool writeName, ref SerializeTask task)
+            public void WriteBinary(object target, Utf8Writer writer, bool writeName, ref SerializeTask task)
             {
                 if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
                     throw new ReferenceLoopException();
@@ -449,7 +449,7 @@ namespace SE.Serialization.Converters
                 Serializer.SerializeWriter(writer, val, typeConverter, ref task);
             }
 
-            public bool WriteText(object target, FastMemoryWriter writer, ref SerializeTask task)
+            public bool WriteText(object target, Utf8Writer writer, ref SerializeTask task)
             {
                 if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
                     throw new ReferenceLoopException();

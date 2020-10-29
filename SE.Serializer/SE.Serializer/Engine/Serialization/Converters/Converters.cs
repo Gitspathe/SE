@@ -19,9 +19,9 @@ namespace SE.Serialization.Converters
 
         public abstract Type Type { get; }
 
-        public abstract void SerializeBinary(object obj, FastMemoryWriter writer, ref SerializeTask task);
+        public abstract void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task);
         public abstract object DeserializeBinary(FastReader reader, ref DeserializeTask task);
-        public virtual void SerializeText(object obj, FastMemoryWriter writer, ref SerializeTask task) { throw new NotImplementedException(); }
+        public virtual void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task) { throw new NotImplementedException(); }
         public virtual object DeserializeText(FastReader reader, ref DeserializeTask task) { throw new NotImplementedException(); }
 
         public virtual bool IsDefault(object obj)
@@ -55,18 +55,18 @@ namespace SE.Serialization.Converters
 
     public abstract class Converter<T> : Converter
     {
-        public sealed override void SerializeBinary(object obj, FastMemoryWriter writer, ref SerializeTask task) 
+        public sealed override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task) 
             => SerializeBinary((T)obj, writer, ref task);
-        public sealed override void SerializeText(object obj, FastMemoryWriter writer, ref SerializeTask task) 
+        public sealed override void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task) 
             => SerializeText((T)obj, writer, ref task);
         public sealed override object DeserializeBinary(FastReader reader, ref DeserializeTask task) 
             => DeserializeTBinary(reader, ref task);
         public sealed override object DeserializeText(FastReader reader, ref DeserializeTask task) 
             => DeserializeTText(reader, ref task);
 
-        public abstract void SerializeBinary(T obj, FastMemoryWriter writer, ref SerializeTask task);
+        public abstract void SerializeBinary(T obj, Utf8Writer writer, ref SerializeTask task);
         public abstract T DeserializeTBinary(FastReader reader, ref DeserializeTask task);
-        public virtual void SerializeText(T obj, FastMemoryWriter writer, ref SerializeTask task) { throw new NotImplementedException(); }
+        public virtual void SerializeText(T obj, Utf8Writer writer, ref SerializeTask task) { throw new NotImplementedException(); }
         public virtual T DeserializeTText(FastReader reader, ref DeserializeTask task) { throw new NotImplementedException(); }
     }
 

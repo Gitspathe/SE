@@ -43,7 +43,7 @@ namespace SE.Core
 
             SerializeTask task = new SerializeTask(settings);
             Converter converter = settings.Resolver.GetConverter(obj.GetType());
-            using(FastMemoryWriter writer = new FastMemoryWriter()) {
+            using(Utf8Writer writer = new Utf8Writer()) {
                 if (converter == null)
                     return null;
 
@@ -61,7 +61,7 @@ namespace SE.Core
 
             SerializeTask task = new SerializeTask(settings);
             Converter converter = settings.Resolver.GetConverter(obj.GetType());
-            using (FastMemoryWriter writer = new FastMemoryWriter()) {
+            using (Utf8Writer writer = new Utf8Writer()) {
                 if (converter == null)
                     return null;
 
@@ -70,7 +70,7 @@ namespace SE.Core
             }
         }
 
-        public static void SerializeWriter(FastMemoryWriter writer, object obj, Converter converter, ref SerializeTask task, bool increment = true)
+        public static void SerializeWriter(Utf8Writer writer, object obj, Converter converter, ref SerializeTask task, bool increment = true)
         {
             if(increment && task.CurrentDepth > task.Settings.MaxDepth)
                 return;
@@ -95,7 +95,7 @@ namespace SE.Core
 
             SerializeTask task = new SerializeTask(settings);
             Converter<T> converterT = settings.Resolver.GetConverter<T>();
-            using(FastMemoryWriter writer = new FastMemoryWriter()) {
+            using(Utf8Writer writer = new Utf8Writer()) {
                 if (converterT != null) {
                     SerializeWriter(writer, obj, converterT, ref task);
                     return writer.ToArray();
@@ -111,7 +111,7 @@ namespace SE.Core
             }
         }
 
-        public static void SerializeWriter<T>(FastMemoryWriter writer, T obj, Converter<T> serializer, ref SerializeTask task, bool increment = true)
+        public static void SerializeWriter<T>(Utf8Writer writer, T obj, Converter<T> serializer, ref SerializeTask task, bool increment = true)
         {
             if(increment && task.CurrentDepth > task.Settings.MaxDepth)
                 return;
@@ -204,7 +204,7 @@ namespace SE.Core
             }
         }
 
-        internal static Converter WriteAndGetConverterType(FastMemoryWriter writer, object obj, Type defaultType, SerializerSettings settings)
+        internal static Converter WriteAndGetConverterType(Utf8Writer writer, object obj, Type defaultType, SerializerSettings settings)
         {
             if (settings.TypeHandling == TypeHandling.Ignore)
                 return null;
@@ -229,7 +229,7 @@ namespace SE.Core
             }
         }
 
-        public static void WriteConverterType(FastMemoryWriter writer, Type objType, Type defaultType, SerializerSettings settings)
+        public static void WriteConverterType(Utf8Writer writer, Type objType, Type defaultType, SerializerSettings settings)
         {
             if (settings.TypeHandling == TypeHandling.Ignore)
                 return;

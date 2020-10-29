@@ -215,7 +215,7 @@ namespace SEDemos
                 public InnerInner innerInner { get; set; } = new InnerInner();
                 public int innerExample { get; set; } = 60;
                 public int innerExample2 { get; set; } = 50;
-
+                public float innerExample3 { get; set; } = 2.5628f;
 
                 [JsonObject(MemberSerialization.OptOut)]
                 [SerializeObject(ObjectSerialization.Fields)]

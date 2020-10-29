@@ -10,7 +10,7 @@ namespace SE.Serialization
     {
         private static StringBuilder strBuilder = new StringBuilder(255);
 
-        public static void WriteText(this FastMemoryWriter writer, string str)
+        public static void WriteText(this Utf8Writer writer, string str)
         {
             writer.Write(Encoding.UTF8.GetBytes(str));
         }
@@ -40,7 +40,7 @@ namespace SE.Serialization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WriteIndent(this FastMemoryWriter writer, int depth)
+        public static void WriteIndent(this Utf8Writer writer, int depth)
         {
             for (int i = 2; i < depth*2; i++) {
                 writer.Write(_TAB);
