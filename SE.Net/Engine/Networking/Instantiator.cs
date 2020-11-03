@@ -165,7 +165,7 @@ namespace SE.Engine.Networking
                     }
                 } catch (Exception e) {
                     NetworkPool.ReturnWriter(writer);
-                    LogError(null, new Exception("OOF!", e));
+                    LogError(null, new Exception("", e));
                     return;
                 }
             }

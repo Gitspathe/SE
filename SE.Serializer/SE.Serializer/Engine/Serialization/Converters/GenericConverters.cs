@@ -8,7 +8,7 @@ namespace SE.Serialization.Converters
     {
         public override Type Type => typeof(Array);
 
-        public override object DeserializeBinary(FastReader reader, ref DeserializeTask task)
+        public override object DeserializeBinary(Utf8Reader reader, ref DeserializeTask task)
         {
             int arrLength = reader.ReadInt32();
             Array val = Array.CreateInstance(TypeArguments[0], arrLength);
@@ -31,7 +31,7 @@ namespace SE.Serialization.Converters
             }
         }
 
-        public override object DeserializeText(FastReader reader, ref DeserializeTask task)
+        public override object DeserializeText(Utf8Reader reader, ref DeserializeTask task)
         {
             ////if (!reader.ReadBoolean()) 
             ////    return null;
@@ -77,7 +77,7 @@ namespace SE.Serialization.Converters
     {
         public override Type Type => typeof(Nullable<>);
 
-        public override object DeserializeBinary(FastReader reader, ref DeserializeTask task)
+        public override object DeserializeBinary(Utf8Reader reader, ref DeserializeTask task)
         {
             if (!reader.ReadBoolean()) 
                 return null;

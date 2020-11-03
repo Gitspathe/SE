@@ -2,6 +2,7 @@
 #endif
 using System;
 using System.Collections.Generic;
+using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -24,6 +25,7 @@ using SE.GameLoop;
 using SE.World.Partitioning;
 using SE.Particles.Shapes;
 using System.Numerics;
+using Random = SE.Utility.Random;
 using Vector2 = System.Numerics.Vector2;
 
 [assembly: InternalsVisibleTo("SEEditor")]

@@ -92,7 +92,7 @@ namespace SE.UI
         }
 
         public UITransform(Vector2 position, Point size, float rotation = 0, GameObject ownerGameObject = null)
-            : base(position, Vector2.One, rotation, ownerGameObject)
+            : base(new Vector3(position.X, position.Y, 0.0f), Vector2.One, rotation, ownerGameObject)
         {
             baseSize = size;
             this.size = size;

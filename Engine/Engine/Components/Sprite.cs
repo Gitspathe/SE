@@ -35,7 +35,7 @@ namespace SE.Components
                             TextureSourceRectangle.Height - (int)Origin.Y);
                         Shadow.CalculateHull(true);
                     }
-                    Shadow.Position = Owner.Transform.GlobalPositionInternal;
+                    Shadow.Position = Owner.Transform.GlobalPosition2D;
                     Shadow.Scale = Owner.Transform.GlobalScaleInternal;
                     Shadow.Rotation = Owner.Transform.GlobalRotationInternal;
                     Shadow.ShadowCastType = shadowType;
@@ -63,7 +63,7 @@ namespace SE.Components
 
         public override void Render(Camera2D camera, Space space)
         {
-            Vector2 position = ownerTransform.GlobalPositionInternal;
+            Vector2 position = ownerTransform.GlobalPosition2D;
             if (space == Space.Screen) {
                 position += camera.Position;
             }
@@ -118,7 +118,7 @@ namespace SE.Components
         public void UpdateShadow()
         {
             if (Shadow != null) {
-                Shadow.Position = Owner.Transform.GlobalPositionInternal;
+                Shadow.Position = Owner.Transform.GlobalPosition2D;
                 Shadow.Scale = Owner.Transform.GlobalScaleInternal;
                 Shadow.Rotation = Owner.Transform.GlobalRotationInternal;
             }

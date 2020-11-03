@@ -34,7 +34,7 @@ namespace SEDemos.GameObjects
             };
             AddComponent(sprite);
 
-            Vector2 startPos = Transform.Position;
+            Vector2 startPos = Transform.Position2D;
             AnimatedVector2 f = new AnimatedVector2();
             Curve c = new Curve();
             c.Keys.Add(new CurveKey(0, 0));
@@ -42,7 +42,7 @@ namespace SEDemos.GameObjects
             c.Keys.Add(new CurveKey(2, 100));
             c.Keys.Add(new CurveKey(2.5f, 300));
             f.SetCurve(c, c);
-            f.Attach(new Ref<Vector2>(i => Transform.Position = i + startPos));
+            f.Attach(new Ref<Vector2>(i => Transform.Position2D = i + startPos));
             Animation aC = new Animation(f) {
                 WrapMode = WrapMode.PingPong
             };
@@ -54,7 +54,7 @@ namespace SEDemos.GameObjects
             c2.Keys.Add(new CurveKey(2, 150));
             c2.Keys.Add(new CurveKey(2.5f, 250));
             f2.SetCurve(c2, c2);
-            f2.Attach(new Ref<Vector2>(i => Transform.Position = i + startPos));
+            f2.Attach(new Ref<Vector2>(i => Transform.Position2D = i + startPos));
 
             AnimatedColor col = new AnimatedColor();
             col.SetLerp(Color.White, new Color((byte)Random.Next(255), (byte)Random.Next(255), (byte)Random.Next(255), (byte)1.0f), 2.5f);

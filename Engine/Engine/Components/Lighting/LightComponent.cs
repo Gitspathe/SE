@@ -100,7 +100,7 @@ namespace SE.Components.Lighting
             if(Light == null)
                 return;
 
-            Light.Position = Owner.Transform.GlobalPositionInternal;
+            Light.Position = Owner.Transform.GlobalPosition2D;
             Light.Rotation = Owner.Transform.GlobalRotationInternal;
         }
 

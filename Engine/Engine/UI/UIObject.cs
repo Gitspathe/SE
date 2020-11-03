@@ -382,7 +382,7 @@ namespace SE.UI
             DragListen = true;
             dragOldMouseButton = mouseEventArgs.MouseButton;
             dragOldMousePoint = InputManager.MouseState.Position.ToNumericsVector2();
-            dragOldPos = Transform.Position;
+            dragOldPos = Transform.Position2D;
             Clicked?.Invoke(this, mouseEventArgs);
         }
 

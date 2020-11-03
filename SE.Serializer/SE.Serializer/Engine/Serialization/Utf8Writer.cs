@@ -8,11 +8,8 @@ using System.Text;
 
 namespace SE.Serialization
 {
-    // TODO.
-    public class Utf8Writer : Stream
+    public sealed class Utf8Writer : Stream
     {
-        // TODO: Remove dependence on FastMemoryWriter. Backing stream should be a Memory<Byte>.
-
         private Memory<byte> memory;
         private byte[] buffer;
         private int position;
@@ -44,6 +41,18 @@ namespace SE.Serialization
             return numArray;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void SetLengthInternal(int newSize)
+        {
+            int nextSize = newSize;
+            byte[] newBuffer = ArrayPool<byte>.Shared.Rent(nextSize);
+            Buffer.BlockCopy(buffer, 0, newBuffer, 0, currentMemoryLength);
+            ArrayPool<byte>.Shared.Return(buffer);
+            buffer = newBuffer;
+            memory = new Memory<byte>(buffer);
+            currentMemoryLength = buffer.Length;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void IncrementSize(int count)
         {
@@ -57,28 +66,6 @@ namespace SE.Serialization
                 return;
 
             IncrementSize(count);
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private void SetLengthInternal(int newSize)
-        {
-            int nextSize = newSize;
-            byte[] newBuffer = ArrayPool<byte>.Shared.Rent(nextSize);
-            Buffer.BlockCopy(buffer, 0, newBuffer, 0, currentMemoryLength);
-            ArrayPool<byte>.Shared.Return(buffer);
-            buffer = newBuffer;
-            memory = new Memory<byte>(buffer);
-            currentMemoryLength = buffer.Length;
-        }
-
-        public void Write(ReadOnlySpan<byte> buffer, int count)
-        {
-            byte[] sharedBuffer = ArrayPool<byte>.Shared.Rent(buffer.Length);
-            try {
-                buffer.CopyTo(sharedBuffer);
-                Write(sharedBuffer, 0, count);
-            }
-            finally { ArrayPool<byte>.Shared.Return(sharedBuffer); }
         }
 
         public void WriteUtf8(bool value)

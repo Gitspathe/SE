@@ -9,6 +9,7 @@ using SEDemos.GameObjects;
 using SEDemos.GameObjects.UI;
 using Microsoft.Xna.Framework;
 using Vector2 = System.Numerics.Vector2;
+using Vector3 = System.Numerics.Vector3;
 
 namespace SEDemos.Levels
 {
@@ -25,7 +26,7 @@ namespace SEDemos.Levels
         public override void AfterSceneLoad()
         {
             UnloadTestObj testObj = (UnloadTestObj)GameObject.Instantiate(typeof(UnloadTestObj), Vector2.Zero, 0f, Vector2.One);
-            testObj.Transform.Position = new Vector2(400, 400);
+            testObj.Transform.Position = new Vector3(400, 400, 0);
             NetworkTestMenu menu = new NetworkTestMenu();
 
             Material test = new Material(AssetManager.Get<Texture2D>(assetConsumer, "grasstex"));

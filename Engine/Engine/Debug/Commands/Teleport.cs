@@ -14,7 +14,7 @@ namespace SE.Debug.Commands
             try {
                 x = Convert.ToInt32(parameters[0]);
                 y = Convert.ToInt32(parameters[1]);
-                GameEngine.Engine.Player.Transform.Position = new Vector2(x,y);
+                GameEngine.Engine.Player.Transform.Position2D = new Vector2(x,y);
             } catch (Exception e) {
                 return GetError(e, parameters);
             }

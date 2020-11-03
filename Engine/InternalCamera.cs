@@ -45,7 +45,7 @@ namespace SE
                 else if (InputManager.MouseScrollValue == -1)
                     Camera.Zoom -= 0.05f;
             }
-            Transform.Position += movement;
+            Transform.Position2D += movement;
             Camera.Update();
         }
 

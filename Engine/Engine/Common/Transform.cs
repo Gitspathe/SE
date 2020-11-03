@@ -11,6 +11,7 @@ namespace SE.Common
     /// Contains information about an object's position, rotation and scale. 
     /// Transforms are hierarchical, their positions, rotations and scales are derived from their parent Transform.
     /// </summary>
+    // TODO: Make this 3D!
     public class Transform : IDisposable
     {
         /// <summary>The GameObject's transform.</summary>
@@ -33,7 +34,7 @@ namespace SE.Common
         /// Gets the Transform's global position.
         /// </summary>
         /// <returns>Global position in pixels.</returns>
-        public Vector2 GlobalPosition {
+        public Vector3 GlobalPosition {
             get => GlobalPositionInternal;
             set {
                 if(value == GlobalPositionInternal)
@@ -90,7 +91,7 @@ namespace SE.Common
         /// Gets the Transform's local position, or global position if it has no parent Transform.
         /// </summary>
         /// <returns>Local position if Parent isn't null, global position if Parent is null.</returns>
-        public Vector2 Position {
+        public Vector3 Position {
             get => Parent == null ? GlobalPositionInternal : localPosition;
             set {
                 if (value == localPosition)
@@ -115,6 +116,8 @@ namespace SE.Common
                 UpdateTransformation();
             }
         }
+
+        // TODO: X Y Z rotation.
 
         /// <summary>
         /// Gets the Transform's local scale, or global scale if it has no parent Transform.
@@ -145,7 +148,7 @@ namespace SE.Common
         public Matrix4x4 LocalTransformation =>
             Matrix4x4.CreateScale(localScale.X, localScale.Y, 1.0f) *
             Matrix4x4.CreateRotationZ(localRotation) *
-            Matrix4x4.CreateTranslation(localPosition.X, localPosition.Y, 0f);
+            Matrix4x4.CreateTranslation(localPosition.X, localPosition.Y, localPosition.Z);
 
         // Events
         /// <summary>Called when the Transform's parent is set. May be null in the case that the parent is removed or nonexistent.</summary>
@@ -158,13 +161,23 @@ namespace SE.Common
         public event Action<Transform> ChildRemoved;
 
         // INTERNAL FOR PERFORMANCE! DO NOT MODIFY DIRECTLY!!
-        internal Vector2 GlobalPositionInternal;
+        internal Vector3 GlobalPositionInternal;
         internal Vector2 GlobalScaleInternal;
         internal float GlobalRotationInternal;
 
-        private Vector2 localPosition;
+        private Vector3 localPosition;
         private Vector2 localScale;
         private float localRotation;
+
+        public Vector2 GlobalPosition2D => new Vector2(GlobalPositionInternal.X, GlobalPositionInternal.Y);
+
+        public Vector2 Position2D {
+            get {
+                Vector3 pos = Position;
+                return new Vector2(pos.X, pos.Y);
+            }
+            set => Position = new Vector3(value.X, value.Y, 0f);
+        }
 
         /// <summary>
         /// Creates a new Transform instance.
@@ -174,7 +187,7 @@ namespace SE.Common
         /// <param name="scale">Scale.</param>
         /// <param name="ownerGameObject">GameObject ownerGameObject of the Transform.</param>
         /// <param name="parent">Parent Transform.</param>
-        public Transform(Vector2 position, Vector2 scale, float rotation = 0.0f, GameObject ownerGameObject = null, Transform parent = null)
+        public Transform(Vector3 position, Vector2 scale, float rotation = 0.0f, GameObject ownerGameObject = null, Transform parent = null)
         {
             localPosition = position;
             localRotation = rotation;
@@ -186,6 +199,17 @@ namespace SE.Common
             UpdateTransformation();
             ChildStateTree = new StateTree(this);
         }
+
+        /// <summary>
+        /// Creates a new Transform instance.
+        /// </summary>
+        /// <param name="position">2D Position</param>
+        /// <param name="rotation">Rotation in degrees.</param>
+        /// <param name="scale">Scale.</param>
+        /// <param name="ownerGameObject">GameObject ownerGameObject of the Transform.</param>
+        /// <param name="parent">Parent Transform.</param>
+        public Transform(Vector2 position, Vector2 scale, float rotation = 0.0f, GameObject ownerGameObject = null, Transform parent = null) 
+            : this(new Vector3(position.X, position.Y, 0.0f), scale, rotation, ownerGameObject, parent) { }
 
         /// <summary>
         /// Sets the Transform's parent Transform. Position, rotation and scale will be scaled with this Transform.
@@ -289,7 +313,7 @@ namespace SE.Common
                     Children.Array[i].UpdateTransformation();
                 }
             }
-            GameObject.PhysicsObject?.OverridePosition(GlobalPositionInternal);
+            GameObject.PhysicsObject?.OverridePosition(new Vector2(GlobalPositionInternal.X, GlobalPositionInternal.Y));
             GameObject.RecalculateBoundsInternal();
         }
 
@@ -323,19 +347,19 @@ namespace SE.Common
         /// <param name="position">Position ref.</param>
         /// <param name="rotation">Rotation ref.</param>
         /// <param name="scale">Scale ref.</param>
-        public static void DecomposeMatrix(ref Matrix4x4 matrix, out Vector2 position, out float rotation, out Vector2 scale)
+        public static void DecomposeMatrix(ref Matrix4x4 matrix, out Vector3 position, out float rotation, out Vector2 scale)
         {
             Matrix4x4.Decompose(matrix, out Vector3 scale3, out Quaternion rotationQ, out Vector3 position3);
             Vector2 direction = Vector2.Transform(Vector2.UnitX, rotationQ);
             rotation = MathF.Atan2(direction.Y, direction.X);
-            position = new Vector2(position3.X, position3.Y);
+            position = position3;
             scale = new Vector2(scale3.X, scale3.Y);
         }
 
         /// <summary>
         /// Returns an empty transform instance.
         /// </summary>
-        public static Transform Empty => new Transform(Vector2.Zero, Vector2.One);
+        public static Transform Empty => new Transform(Vector3.Zero, Vector2.One);
     }
 
     /// <summary>

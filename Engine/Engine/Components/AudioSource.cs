@@ -47,7 +47,7 @@ namespace SE.Components
         public void Play(string sound)
         {
             if(audioClips.TryGetValue(sound, out AudioClip clip)) {
-                audioInstances.Add(clip.CreateInstance(Owner.Transform.GlobalPositionInternal));
+                audioInstances.Add(clip.CreateInstance(Owner.Transform.GlobalPosition2D));
             }
         }
 

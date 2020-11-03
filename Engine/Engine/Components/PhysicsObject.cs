@@ -5,6 +5,7 @@ using SE.Physics;
 using SE.Utility;
 using BodyType = SE.Physics.BodyType;
 using Vector2 = System.Numerics.Vector2;
+using Vector3 = System.Numerics.Vector3;
 
 namespace SE.Components
 {
@@ -26,7 +27,7 @@ namespace SE.Components
 
                 body.Provider = this;
                 if (Owner != null) {
-                    body.Position = Owner.Transform.GlobalPositionInternal;
+                    body.Position = Owner.Transform.GlobalPosition2D;
                 }
             }
         }
@@ -39,7 +40,7 @@ namespace SE.Components
                 throw new InvalidOperationException("Attempted to add an additional PhysicsObject. A GameObject may only contain a single PhysicsObject.");
 
             if (body != null) {
-                body.Position = Owner.Transform.GlobalPositionInternal;
+                body.Position = Owner.Transform.GlobalPosition2D;
             }
             Owner.PhysicsObject = this;
         }
@@ -50,7 +51,7 @@ namespace SE.Components
 
             // Update position.
             if(Body != null)
-                Owner.Transform.GlobalPosition = Body.Position;
+                Owner.Transform.GlobalPosition = new System.Numerics.Vector3(Body.Position.X, body.Position.Y, Owner.Transform.GlobalPositionInternal.Z);
         }
 
         internal void OverridePosition(Vector2 pos)

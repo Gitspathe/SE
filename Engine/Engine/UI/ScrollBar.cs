@@ -50,7 +50,7 @@ namespace SE.UI
 
         public void Scroll(float y)
         {
-            Scroll(y, Handle.Transform.Position);
+            Scroll(y, Handle.Transform.Position2D);
         }
 
         private void Scroll(float y, Vector2 start)
@@ -60,7 +60,7 @@ namespace SE.UI
             point.Y = MathHelper.Clamp(point.Y + y, 0, max);
 
             Value = point.Y / (Background.Bounds.Height - Handle.Bounds.Height);
-            Handle.Transform.Position = point;
+            Handle.Transform.Position2D = point;
         }
     }
 }

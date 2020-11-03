@@ -7,7 +7,7 @@ namespace SE.Serialization.Converters
     {
         public override Type Type => typeof(int?);
 
-        public override int? DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override int? DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
         {
             if (!reader.ReadBoolean()) 
                 return null;

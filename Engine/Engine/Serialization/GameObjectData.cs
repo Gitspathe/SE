@@ -12,7 +12,7 @@ namespace SE.Serialization
         public string EngineName { get; set; }
         [JsonIgnore] public Type Type { get; set; }
 
-        public Vector2 Position { get; set; }
+        public Vector3 Position { get; set; }
         public Vector2 Scale { get; set; }
         public float Rotation { get; set; }
 

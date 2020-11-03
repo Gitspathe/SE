@@ -29,7 +29,7 @@ namespace SE.Components
                 velocity *= 256;
             }
 
-            Vector2? vec = Transform.Position - Camera2D.Main.MouseToWorldPoint();
+            Vector2? vec = Transform.Position2D - Camera2D.Main.MouseToWorldPoint();
             Owner.Transform.Rotation = vec.HasValue 
                 ? (float) Math.Atan2(vec.Value.Y, vec.Value.X) 
                 : 0f;

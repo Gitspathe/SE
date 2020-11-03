@@ -123,7 +123,7 @@ namespace SE.Debug
             textLines.Add(t);
 
             for (int i = 0; i < textLines.Count; i++) {
-                textLines[i].Transform.Position = new Vector2(20, 20 + (24 * i));
+                textLines[i].Transform.Position2D = new Vector2(20, 20 + (24 * i));
             }
         }
 

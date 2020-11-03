@@ -135,7 +135,7 @@ namespace SE.Components
         private float time;
         protected override void OnUpdate()
         {
-            Emitter.Position = Owner.Transform.GlobalPositionInternal;
+            Emitter.Position = Owner.Transform.GlobalPosition2D;
             Emitter.Rotation += MathHelper.TwoPi * Time.DeltaTime;
 
             if(InputManager.KeyCodePressed(Microsoft.Xna.Framework.Input.Keys.O)) {

@@ -12,11 +12,11 @@ namespace SE.Serialization.Converters
 
         public override void SerializeBinary(bool obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override bool DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override bool DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadBoolean();
         public override void SerializeText(bool obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteUtf8(obj);
-        public override bool DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override bool DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => bool.Parse(reader.ReadQuotedString());
     }
 
@@ -26,11 +26,11 @@ namespace SE.Serialization.Converters
         
         public override void SerializeBinary(byte obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override byte DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override byte DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadByte();
         public override void SerializeText(byte obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteUtf8(obj);
-        public override byte DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override byte DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => byte.Parse(reader.ReadQuotedString());
     }
 
@@ -40,11 +40,11 @@ namespace SE.Serialization.Converters
         
         public override void SerializeBinary(sbyte obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override sbyte DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override sbyte DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadSByte();
         public override void SerializeText(sbyte obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteUtf8(obj);
-        public override sbyte DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override sbyte DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => sbyte.Parse(reader.ReadQuotedString());
     }
 
@@ -54,11 +54,11 @@ namespace SE.Serialization.Converters
         
         public override void SerializeBinary(short obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override short DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override short DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadInt16();
         public override void SerializeText(short obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteUtf8(obj);
-        public override short DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override short DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => short.Parse(reader.ReadQuotedString());
     }
 
@@ -68,11 +68,11 @@ namespace SE.Serialization.Converters
         
         public override void SerializeBinary(ushort obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override ushort DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override ushort DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadUInt16();
         public override void SerializeText(ushort obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteUtf8(obj);
-        public override ushort DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override ushort DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => ushort.Parse(reader.ReadQuotedString());
     }
 
@@ -82,12 +82,12 @@ namespace SE.Serialization.Converters
 
         public override void SerializeBinary(int obj, Utf8Writer writer, ref SerializeTask task) 
             => writer.Write(obj);
-        public override int DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override int DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadInt32();
         public override void SerializeText(int obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteUtf8(obj);
-        public override int DeserializeTText(FastReader reader, ref DeserializeTask task)
-            => int.Parse(reader.ReadQuotedString());
+        public override int DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
+            => reader.ReadIntUtf8();
     }
 
     public sealed class UIntConverter : Converter<uint>
@@ -96,11 +96,11 @@ namespace SE.Serialization.Converters
         
         public override void SerializeBinary(uint obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override uint DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override uint DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadUInt32();
         public override void SerializeText(uint obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteUtf8(obj);
-        public override uint DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override uint DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => uint.Parse(reader.ReadQuotedString());
     }
 
@@ -110,11 +110,11 @@ namespace SE.Serialization.Converters
         
         public override void SerializeBinary(long obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override long DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override long DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadInt64();
         public override void SerializeText(long obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteUtf8(obj);
-        public override long DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override long DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => long.Parse(reader.ReadQuotedString());
     }
 
@@ -124,11 +124,11 @@ namespace SE.Serialization.Converters
         
         public override void SerializeBinary(ulong obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override ulong DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override ulong DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadUInt64();
         public override void SerializeText(ulong obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteUtf8(obj);
-        public override ulong DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override ulong DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => ulong.Parse(reader.ReadQuotedString());
     }
 
@@ -138,11 +138,11 @@ namespace SE.Serialization.Converters
         
         public override void SerializeBinary(float obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override float DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override float DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadSingle();
         public override void SerializeText(float obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteUtf8(obj);
-        public override float DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override float DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => float.Parse(reader.ReadQuotedString());
     }
 
@@ -152,11 +152,11 @@ namespace SE.Serialization.Converters
         
         public override void SerializeBinary(double obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override double DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override double DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadDouble();
         public override void SerializeText(double obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteUtf8(obj);
-        public override double DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override double DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => double.Parse(reader.ReadQuotedString());
     }
 
@@ -166,11 +166,11 @@ namespace SE.Serialization.Converters
         
         public override void SerializeBinary(char obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override char DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override char DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadChar();
         public override void SerializeText(char obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteText(obj.ToString());
-        public override char DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override char DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => char.Parse(reader.ReadQuotedString());
     }
 
@@ -180,7 +180,7 @@ namespace SE.Serialization.Converters
         
         public override void SerializeBinary(string obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
-        public override string DeserializeTBinary(FastReader reader, ref DeserializeTask task)
+        public override string DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadString();
 
         public override void SerializeText(string obj, Utf8Writer writer, ref SerializeTask task)
@@ -190,7 +190,7 @@ namespace SE.Serialization.Converters
             writer.Write(Serializer._STRING_IDENTIFIER);
         }
 
-        public override string DeserializeTText(FastReader reader, ref DeserializeTask task)
+        public override string DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadQuotedString();
     }
 
@@ -203,7 +203,7 @@ namespace SE.Serialization.Converters
             //throw new NotImplementedException();
         }
 
-        public override object DeserializeBinary(FastReader reader, ref DeserializeTask task)
+        public override object DeserializeBinary(Utf8Reader reader, ref DeserializeTask task)
         {
             return null;
         }

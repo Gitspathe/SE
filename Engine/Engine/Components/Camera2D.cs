@@ -53,7 +53,7 @@ namespace SE.Components
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            Position = Owner.Transform.GlobalPosition;
+            Position = new Vector2(Owner.Transform.GlobalPosition.X, Owner.Transform.GlobalPosition.Y);
             Core.Rendering.AddCamera(this);
         }
 
@@ -78,7 +78,7 @@ namespace SE.Components
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            Position = Owner.Transform.GlobalPosition;
+            Position = new Vector2(Owner.Transform.GlobalPosition.X, Owner.Transform.GlobalPosition.Y);
             CalculateBounds();
             CalculateScaleMatrix();
         }
@@ -92,7 +92,7 @@ namespace SE.Components
 
         private void CalculateScaleMatrix()
         {
-            Vector2 pos = Transform.GlobalPosition;
+            Vector2 pos = new Vector2(Owner.Transform.GlobalPosition.X, Owner.Transform.GlobalPosition.Y);
 
             Matrix translation = Matrix.CreateTranslation(-pos.X, -pos.Y, 0.0f);
             Matrix rotation = Matrix.CreateRotationZ(Transform.GlobalRotation);

@@ -46,7 +46,7 @@ namespace SE.Editor.Debug.GameObjects
             base.OnUpdate();
             Vector2? vec = GameEngine.EditorCamera?.MouseToWorldPoint();
             p.Light.Offset = vec.HasValue
-                ? vec.Value - Transform.GlobalPositionInternal
+                ? vec.Value - Transform.GlobalPosition2D
                 : new Vector2(-999999.9f, -999999.9f);
         }
 

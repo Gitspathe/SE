@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Microsoft.Xna.Framework.Graphics;
+using SE;
 using SE.Core;
 using Console = System.Console;
 
@@ -20,6 +22,7 @@ namespace SELauncher
         [STAThread]
         static void Main(string[] args)
         {
+            CrashLogger.HookUnhandledExceptionEvents();
             using (Game game = new Game(args)) {
                 if (!Screen.IsFullHeadless) {
                     try {

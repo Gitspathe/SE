@@ -204,7 +204,7 @@ namespace SE.Serialization.Converters
             }
         }
 
-        public override object DeserializeBinary(FastReader reader, ref DeserializeTask task)
+        public override object DeserializeBinary(Utf8Reader reader, ref DeserializeTask task)
         {
             // TODO: Error handling.
             // - Will need to throw an error when creating an instance fails.
@@ -223,7 +223,7 @@ namespace SE.Serialization.Converters
             return obj;
         }
 
-        private void DeserializeBinaryOrder(ref object obj, FastReader reader, ref DeserializeTask task)
+        private void DeserializeBinaryOrder(ref object obj, Utf8Reader reader, ref DeserializeTask task)
         {
             Stream stream = reader.BaseStream;
             while (stream.Position + 1 < stream.Length && reader.ReadByte() == _DELIMITER) {
@@ -245,7 +245,7 @@ namespace SE.Serialization.Converters
             }
         }
 
-        private void DeserializeBinaryNameAndOrder(ref object obj, FastReader reader, ref DeserializeTask task)
+        private void DeserializeBinaryNameAndOrder(ref object obj, Utf8Reader reader, ref DeserializeTask task)
         {
             Stream stream = reader.BaseStream;
             while (stream.Position + 1 < stream.Length && reader.ReadByte() == _DELIMITER) {
@@ -289,14 +289,14 @@ namespace SE.Serialization.Converters
             }
         }
 
-        public T Deserialize<T>(FastReader reader, ref DeserializeTask task) 
+        public T Deserialize<T>(Utf8Reader reader, ref DeserializeTask task) 
             => (T) DeserializeBinary(reader, ref task);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void SkipDelimiter(FastReader reader) 
+        internal static void SkipDelimiter(Utf8Reader reader) 
             => reader.BaseStream.Position += sizeof(byte);
 
-        internal static bool SkipToNextDelimiter(FastReader reader)
+        internal static bool SkipToNextDelimiter(Utf8Reader reader)
         {
             Stream baseStream = reader.BaseStream;
             while (baseStream.Position + 1 < baseStream.Length) {
@@ -313,7 +313,7 @@ namespace SE.Serialization.Converters
             return false;
         }
 
-        internal static bool SkipToEndOfName(FastReader reader)
+        internal static bool SkipToEndOfName(Utf8Reader reader)
         {
             Stream baseStream = reader.BaseStream;
             while (baseStream.Position + 1 < baseStream.Length) {
@@ -330,7 +330,7 @@ namespace SE.Serialization.Converters
             return false;
         }
 
-        private static bool TryReadString(FastReader reader, out string str)
+        private static bool TryReadString(Utf8Reader reader, out string str)
         {
             str = null;
             Stream baseStream = reader.BaseStream;
@@ -380,7 +380,7 @@ namespace SE.Serialization.Converters
                 }
             }
 
-            public void ReadBinary(object target, FastReader reader, ref DeserializeTask task)
+            public void ReadBinary(object target, Utf8Reader reader, ref DeserializeTask task)
             {
                 if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
                     throw new ReferenceLoopException();
@@ -494,7 +494,7 @@ namespace SE.Serialization.Converters
                 return true;
             }
 
-            public void ReadText(object target, FastReader reader, ref DeserializeTask task)
+            public void ReadText(object target, Utf8Reader reader, ref DeserializeTask task)
             {
                 // TODO.
             }

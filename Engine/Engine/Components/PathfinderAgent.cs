@@ -27,21 +27,21 @@ namespace SE.Components
         {
             timer -= Time.DeltaTime;
             if (timer < 0) {
-                nodes = NavigationManager.NavGrids[0].FindPath(Owner.Transform.GlobalPositionInternal, Screen.MousePoint.HasValue ? Screen.MousePoint.Value : new Vector2(9999, 9999));
+                nodes = NavigationManager.NavGrids[0].FindPath(Owner.Transform.GlobalPosition2D, Screen.MousePoint.HasValue ? Screen.MousePoint.Value : new Vector2(9999, 9999));
                 timer = 0.333f;
             }
             if (nodes != null && nodes.Count > 0) {
-                if (node == null || ((NavigationManager.NavGrids[0].GetPosition(node) - Owner.Transform.GlobalPositionInternal).Length() < 0.5f)) {
+                if (node == null || ((NavigationManager.NavGrids[0].GetPosition(node) - Owner.Transform.GlobalPosition2D).Length() < 0.5f)) {
                     node = nodes.Pop();
                 }
                 if (node != null) {
-                    Vector2 diff = NavigationManager.NavGrids[0].GetPosition(node) - Owner.Transform.GlobalPositionInternal;
+                    Vector2 diff = NavigationManager.NavGrids[0].GetPosition(node) - Owner.Transform.GlobalPosition2D;
                     lookAt = NavigationManager.NavGrids[0].GetPosition(node);
                     diff = Vector2.Normalize(diff);
                     myPhysics.Body.LinearVelocity = diff * 192;
                 }
             }
-            Owner.Transform.Rotation = Owner.Transform.GlobalPositionInternal.GetRotationFacing(lookAt);
+            Owner.Transform.Rotation = Owner.Transform.GlobalPosition2D.GetRotationFacing(lookAt);
             base.OnUpdate();
         }
 

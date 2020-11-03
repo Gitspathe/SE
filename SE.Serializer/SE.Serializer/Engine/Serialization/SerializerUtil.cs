@@ -15,7 +15,7 @@ namespace SE.Serialization
             writer.Write(Encoding.UTF8.GetBytes(str));
         }
 
-        public static string ReadQuotedString(this FastReader reader)
+        public static string ReadQuotedString(this Utf8Reader reader)
         {
             strBuilder.Clear();
             while (true) {

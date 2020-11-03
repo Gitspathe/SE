@@ -168,14 +168,16 @@ namespace SEDemos
             int textIterations = 200_000;
             int innerTextIterations = 3;
 
-            for (int i = 0; i < innerTextIterations; i++) {
+            for (int i = 0; i < innerTextIterations; i++)
+            {
                 TestTextClass textClass = new TestTextClass();
 
                 Stopwatch s = new Stopwatch();
 
                 //New serializer.
                 s.Start();
-                for (int z = 0; z < textIterations; z++) {
+                for (int z = 0; z < textIterations; z++)
+                {
                     byte[] bytes = Serializer.Serialize(textClass);
                 }
                 s.Stop();
@@ -184,7 +186,8 @@ namespace SEDemos
                 // JSON serializer.
                 s = new Stopwatch();
                 s.Start();
-                for (int z = 0; z < textIterations; z++) {
+                for (int z = 0; z < textIterations; z++)
+                {
                     string bytes = System.Text.Json.JsonSerializer.Serialize(textClass, textJsonOptions);
                 }
                 s.Stop();
@@ -215,7 +218,7 @@ namespace SEDemos
                 public InnerInner innerInner { get; set; } = new InnerInner();
                 public int innerExample { get; set; } = 60;
                 public int innerExample2 { get; set; } = 50;
-                public float innerExample3 { get; set; } = 2.5628f;
+                public int innerExample3 { get; set; } = 25;
 
                 [JsonObject(MemberSerialization.OptOut)]
                 [SerializeObject(ObjectSerialization.Fields)]

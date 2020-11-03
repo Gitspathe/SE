@@ -58,7 +58,7 @@ namespace SE.Components.Network
             if(physObj == null)
                 physObj = Owner.GetComponent<PhysicsObject>();
 
-            curPosition = Owner.Transform.GlobalPositionInternal;
+            curPosition = Owner.Transform.GlobalPosition2D;
             curRotation = Owner.Transform.GlobalRotationInternal;
             curVelocity = physObj.Body.LinearVelocity;
 
@@ -77,8 +77,8 @@ namespace SE.Components.Network
         private void TransformUpdate()
         {
             if (snapPosition.HasValue) {
-                Vector2 smoothing = (snapPosition.Value - Owner.Transform.GlobalPositionInternal) * (snapTime / snapMaxTime);
-                Owner.Transform.Position = Owner.Transform.GlobalPositionInternal + curVelocity * Time.FixedTimestep + smoothing;
+                Vector2 smoothing = (snapPosition.Value - Owner.Transform.GlobalPosition2D) * (snapTime / snapMaxTime);
+                Owner.Transform.Position2D = Owner.Transform.GlobalPosition2D + curVelocity * Time.FixedTimestep + smoothing;
 
                 snapTime += Time.FixedTimestep;
                 if (snapTime > snapMaxTime) {
@@ -86,7 +86,7 @@ namespace SE.Components.Network
                     snapPosition = null;
                 }
             } else {
-                Owner.Transform.Position = Owner.Transform.GlobalPositionInternal + curVelocity * Time.FixedTimestep;
+                Owner.Transform.Position2D = Owner.Transform.GlobalPosition2D + curVelocity * Time.FixedTimestep;
             }
             Owner.Transform.GlobalRotationInternal = curRotation;
         }
@@ -110,7 +110,7 @@ namespace SE.Components.Network
 
         public void RestoreNetworkState(NetDataReader reader)
         {
-            Owner.Transform.Position = new Vector2(reader.GetFloat(), reader.GetFloat());
+            Owner.Transform.Position2D = new Vector2(reader.GetFloat(), reader.GetFloat());
             curVelocity = new Vector2(reader.GetFloat(), reader.GetFloat());
             Owner.Transform.Scale = new Vector2(reader.GetFloat(), reader.GetFloat());
             Owner.Transform.Rotation = reader.GetFloat();
@@ -119,21 +119,21 @@ namespace SE.Components.Network
         [ServerRPC]
         public void UpdateVelocitySnap(Vector2 position, Vector2 velocity)
         {
-            Owner.Transform.Position = position;
+            Owner.Transform.Position2D = position;
             curVelocity = velocity;
         }
 
         [ClientRPC]
         public void UpdateVelocitySnap_CLIENT(Vector2 position, Vector2 velocity)
         {
-            Owner.Transform.Position = position;
+            Owner.Transform.Position2D = position;
             curVelocity = velocity;
         }
 
         [ServerRPC]
         public void UpdateVelocity(Vector2 position, Vector2 velocity, float rotation)
         {
-            Owner.Transform.Position = position;
+            Owner.Transform.Position2D = position;
             Owner.Transform.GlobalRotationInternal = rotation;
             curVelocity = velocity;
             curRotation = rotation;
@@ -144,9 +144,9 @@ namespace SE.Components.Network
         {
             curVelocity = velocity;
             curRotation = rotation;
-            float distance = Vector2.Distance(position, Owner.Transform.GlobalPositionInternal);
+            float distance = Vector2.Distance(position, Owner.Transform.GlobalPosition2D);
             if (distance >= 32f) {
-                Owner.Transform.Position = position;
+                Owner.Transform.Position2D = position;
             } else if (distance >= 6f) {
                 snapPosition = position;
                 snapMaxTime = 0.05f;

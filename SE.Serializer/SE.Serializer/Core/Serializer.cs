@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using FastStream;
 using SE.Serialization;
 using SE.Serialization.Converters;
 using SE.Serialization.Resolvers;
@@ -142,7 +141,7 @@ namespace SE.Core
             DeserializeTask task = new DeserializeTask(settings);
             Converter<T> converterT = settings.Resolver.GetConverter<T>();
             MemoryStream stream = new MemoryStream(data);
-            using (FastReader reader = new FastReader(stream)) {
+            using (Utf8Reader reader = new Utf8Reader(stream)) {
                 if (converterT != null) {
                     return DeserializeReader(reader, converterT, ref task);
                 }
@@ -153,7 +152,7 @@ namespace SE.Core
             }
         }
 
-        public static T DeserializeReader<T>(FastReader reader, Converter<T> converter, ref DeserializeTask task)
+        public static T DeserializeReader<T>(Utf8Reader reader, Converter<T> converter, ref DeserializeTask task)
         {
             switch (task.Settings.Formatting) {
                 case Formatting.Binary:
@@ -165,7 +164,7 @@ namespace SE.Core
             }
         }
 
-        public static object DeserializeReader(FastReader reader, Converter converter, ref DeserializeTask task)
+        public static object DeserializeReader(Utf8Reader reader, Converter converter, ref DeserializeTask task)
         {
             switch (task.Settings.Formatting) {
                 case Formatting.Binary:
@@ -177,7 +176,7 @@ namespace SE.Core
             }
         }
 
-        public static Converter GetConverterForType(FastReader reader, SerializerSettings settings)
+        public static Converter GetConverterForType(Utf8Reader reader, SerializerSettings settings)
         {
             if(settings.TypeHandling == TypeHandling.Ignore)
                 return null;

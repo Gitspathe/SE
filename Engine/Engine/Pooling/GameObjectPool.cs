@@ -71,7 +71,7 @@ namespace SE.Pooling
         public T Take(Vector2 position, float rotation = 0f)
         {
             T go = Take();
-            go.Transform.Position = position;
+            go.Transform.Position2D = position;
             go.Transform.Rotation = rotation;
             return go;
         }
@@ -79,7 +79,7 @@ namespace SE.Pooling
         public T Take(Vector2 position, Vector2 scale, float rotation = 0f)
         {
             T go = Take();
-            go.Transform.Position = position;
+            go.Transform.Position2D = position;
             go.Transform.Rotation = rotation;
             go.Transform.Scale = scale;
             return go;
