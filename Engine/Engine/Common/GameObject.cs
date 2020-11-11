@@ -21,7 +21,7 @@ namespace SE.Common
     /// <summary>
     /// GameObjects are containers for logic and components.
     /// </summary>
-    public class GameObject : SEObject, INetLogicProxy, IAssetConsumer, IDisposable
+    public class GameObject : SEObject, INetLogicProxy, IDisposable
     {
         public string EngineName { get; set; }
 
@@ -41,8 +41,6 @@ namespace SE.Common
         public bool Destroyed { get; private set; }
         /// <summary>Internal reflection information based on GameObject type.</summary>
         internal Reflection.GameObjectInfo ReflectionInfo { get; }
-
-        public AssetConsumer AssetConsumer { get; } = new AssetConsumer();
 
         /// <summary>Dynamic state of a GameObject. Dynamic GameObjects have their Update methods called while static
         ///          GameObjects do not.</summary>
@@ -201,10 +199,12 @@ namespace SE.Common
                 OnUpdate();
         }
 
-        public void Destroy()
+        public override void Destroy()
         {
             if(Destroyed)
                 return;
+
+            base.Destroy();
 
             PendingDestroy = true;
             bool wasPooled = false;
@@ -340,7 +340,7 @@ namespace SE.Common
                 children[i].GameObject?.Destroy();
             }
 
-            AssetConsumer.DereferenceAssets();
+            AssetConsumerInternal?.DereferenceAssets();
             Dispose();
             Transform = null;
             Destroyed = true;
@@ -429,6 +429,17 @@ namespace SE.Common
             if(execute)
                 OnDisable(isRoot);
         }
+
+        internal void OnTransformChildrenChangedInternal()
+        {
+            Component[] components = Components.Array;
+            for (int i = 0; i < Components.Count; i++) {
+                components[i].OnTransformChildrenChanged();
+            }
+            OnTransformChildrenChanged();
+        }
+
+        protected virtual void OnTransformChildrenChanged() { }
 
         /// <summary>
         /// Checks if the GameObject contains a component of a specified type.
@@ -588,7 +599,6 @@ namespace SE.Common
         public void RemoveComponent(Component component)
         {
             EnsureValidAccess();
-            component.AssetConsumer.DereferenceAssets();
             Components.Remove(component);
             component.Destroy();
             SortComponents();
@@ -624,7 +634,7 @@ namespace SE.Common
                 EngineName = EngineName,
                 Type = GetType(),
                 Position = Transform.Position,
-                Rotation = Transform.Rotation,
+                Rotation = Transform.EulerAngles,
                 Scale = Transform.Scale,
                 componentData = new QuickList<ComponentData>()
             };
@@ -648,7 +658,7 @@ namespace SE.Common
             // Deserialize primary data...
             EngineName = data.EngineName;
             Transform.Position = data.Position;
-            Transform.Rotation = data.Rotation;
+            Transform.EulerAngles = data.Rotation;
             Transform.Scale = data.Scale;
 
             // Deserialize any valid components...
@@ -681,7 +691,6 @@ namespace SE.Common
                     Components.Dispose();
                     Sprites.Dispose();
                 }
-                Transform.Dispose();
             }
         }
 

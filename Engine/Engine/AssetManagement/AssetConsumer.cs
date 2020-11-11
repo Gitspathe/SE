@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SE.AssetManagement
 {
     public class AssetConsumer
     {
         internal HashSet<Asset> ReferencedAssets { get; set; }
+
+        internal AssetConsumer() { }
 
         internal void ReferenceAssets()
         {

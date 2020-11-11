@@ -19,7 +19,7 @@ namespace SEDemos.GameObjects
 
     [Components(
         typeof(NetworkIdentity),
-        typeof(NetTransform),
+        typeof(NetTransform2D),
         typeof(Sprite),
         typeof(PhysicsObject),
         typeof(ParticleSystem),
@@ -100,7 +100,7 @@ namespace SEDemos.GameObjects
         { 
             base.OnUpdate();
             if (Network.InstanceType == NetInstanceType.Server) {
-                Transform.Rotation = myPhysics.Body.LinearVelocity.ToRotation();
+                Transform.EulerAngles = new System.Numerics.Vector3(0,0, myPhysics.Body.LinearVelocity.ToRotation());
                 if (myPhysics.Body.LinearVelocity.Length() < 256.0f) {
                     myPhysics.Body.LinearVelocity *= 3.0f;
                 }

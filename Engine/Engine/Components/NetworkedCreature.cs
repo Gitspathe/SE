@@ -30,9 +30,12 @@ namespace SE.Components
             }
 
             Vector2? vec = Transform.Position2D - Camera2D.Main.MouseToWorldPoint();
-            Owner.Transform.Rotation = vec.HasValue 
+            float rot = vec.HasValue 
                 ? (float) Math.Atan2(vec.Value.Y, vec.Value.X) 
                 : 0f;
+
+            Owner.Transform.EulerAngles = new System.Numerics.Vector3(Owner.Transform.Rotation.X,
+                Owner.Transform.Rotation.Y, Owner.Transform.Rotation.Z);
 
             PhysicsObject.Body.LinearVelocity = velocity;
             base.OnUpdate();

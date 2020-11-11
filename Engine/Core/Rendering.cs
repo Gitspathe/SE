@@ -12,6 +12,7 @@ using SE.World.Partitioning;
 using SE.Core.Extensions;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 using Vector4 = System.Numerics.Vector4;
 using SE.Particles;
 
@@ -136,7 +137,7 @@ namespace SE.Core
 
         public static void DrawRenderTargets(Camera2D camera)
         {
-            GraphicsDevice.SetRenderTarget(camera.renderTarget);
+            GraphicsDevice.SetRenderTarget(camera.RenderTarget);
 
             ChangeDrawCall(SpriteSortMode.Deferred, null, BlendState.AlphaBlend, SamplerState.PointClamp, null, RasterizerState.CullNone);
             SpriteBatch.Draw(SceneRender, new Rectangle(0, 0, GraphicsDeviceManager.PreferredBackBufferWidth, GraphicsDeviceManager.PreferredBackBufferHeight), Color.White);
@@ -161,10 +162,44 @@ namespace SE.Core
                     (int)(camera.RenderRegion.Width * screenWidth), 
                     (int)(camera.RenderRegion.Height * screenHeight));
 
-                SpriteBatch.Draw(camera.renderTarget, renderRegion, Color.White);
+                SpriteBatch.Draw(camera.RenderTarget, renderRegion, Color.White);
             }
             EndDrawCall();
             GraphicsDevice.SetRenderTarget(null);
+
+            DrawModel(ModelDefinition.TESTMODEL, Cameras[0]);
+
+        }
+
+        public static void DrawModel(ModelDefinition model, Camera2D camera)
+        {
+            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            GraphicsDevice.DepthStencilState = DepthStencilGreater;
+
+            model.Transform.Rotation += System.Numerics.Quaternion.CreateFromYawPitchRoll(0.1f, 0.0f, 0.0f) * Time.DeltaTime;
+
+            //model.Transform.Position = new System.Numerics.Vector3(0.0f, 0.0f, 0.0f);
+            //model.Transform.Scale = new System.Numerics.Vector3(1.0f, 1.0f, 1.0f);
+            foreach (ModelMesh mesh in model.Model.Meshes)
+            {
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.EnableDefaultLighting();
+                    effect.World = model.Transform.WorldTransformation.ToMonoGameMatrix();
+                    
+                    // TODO: Replace with camera view.
+                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.Up);
+                    
+                    effect.Projection = camera.ProjectionMatrix;
+
+                    //effect.EnableDefaultLighting();
+                    //effect.World = Matrix.CreateTranslation(new Vector3(0, 0, 0));
+                    //effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.Up);
+                    //effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), 1.6f, 0.1f, 10000.0f);
+                }
+
+                mesh.Draw();
+            }
         }
 
         public static void ChangeDrawCall(SpriteSortMode sortMode, Matrix? transformMatrix, BlendState blendState = null, SamplerState samplerState = null, DepthStencilState depthStencilState = null, RasterizerState rasterizerState = null, Effect effect = null)

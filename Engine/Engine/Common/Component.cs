@@ -15,7 +15,7 @@ namespace SE.Common
     /// Containers for logic which are added to GameObjects.
     /// </summary>
     [ExecuteInEditor]
-    public class Component : SEObject, IAssetConsumer, IDisposable
+    public class Component : SEObject, IDisposable
     {
         public bool Serialized => !NeverSerialize && InstantiatedFromAttribute;
         
@@ -29,8 +29,6 @@ namespace SE.Common
 
         /// <summary>The component's order in which it is processed. Lower = earlier update loop and initialize.</summary>
         public virtual int Queue { get; } = 0;
-
-        public AssetConsumer AssetConsumer { get; } = new AssetConsumer();
 
         /// <summary>The component's enabled state.</summary>
         [NoSerialize] public bool Enabled {
@@ -184,13 +182,16 @@ namespace SE.Common
         /// </summary>
         protected virtual void OnDestroy() { }
 
-        public void Destroy()
+        public override void Destroy()
         {
+            base.Destroy();
             PendingDestroy = true;
             RemovePartition();
             OnDestroy();
             Dispose(true);
         }
+
+        protected internal virtual void OnTransformChildrenChanged() { }
 
         internal void OwnerBoundsUpdated()
         {

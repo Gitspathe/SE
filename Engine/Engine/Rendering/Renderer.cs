@@ -56,7 +56,7 @@ namespace SE.Rendering
             graphicsDevice.Clear(Color.Black);
 
             graphicsDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 0f, 0);
-            ChangeDrawCall(SpriteSortMode.Deferred, camera.TransformMatrix, BlendState.Opaque, SamplerState.PointClamp, DepthStencilGreater);
+            ChangeDrawCall(SpriteSortMode.Deferred, camera.ViewMatrix, BlendState.Opaque, SamplerState.PointClamp, DepthStencilGreater);
 
             // Caching.
             viewPortX = (int)camera.Position.X;
@@ -145,7 +145,7 @@ namespace SE.Rendering
                     case BlendMode.Opaque:
                         ChangeDrawCall(
                             SpriteSortMode.Deferred,
-                            camera.TransformMatrix,
+                            camera.ViewMatrix,
                             BlendState.Opaque,
                             SamplerState.PointClamp,
                             DepthStencilGreater, 
@@ -156,7 +156,7 @@ namespace SE.Rendering
                         data.Sort(new DepthComparer());
                         ChangeDrawCall(
                             SpriteSortMode.Deferred, 
-                            camera.TransformMatrix, 
+                            camera.ViewMatrix, 
                             BlendState.NonPremultiplied, // Fix: was BlendState.AlphaBlend.
                             SamplerState.PointClamp, 
                             DepthStencilGreater, 
@@ -167,7 +167,7 @@ namespace SE.Rendering
                         data.Sort(new DepthComparer());
                         ChangeDrawCall(
                             SpriteSortMode.Deferred,
-                            camera.TransformMatrix,
+                            camera.ViewMatrix,
                             BlendState.Additive,
                             SamplerState.PointClamp,
                             DepthStencilGreater,
@@ -320,7 +320,7 @@ namespace SE.Rendering
             ParticleEngine.GetEmitters(Particles.BlendMode.Alpha, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
                 foreach (Emitter pEmitter in tmpEmitters) {
-                    pEmitter.Renderer.Draw(cam.TransformMatrix);
+                    pEmitter.Renderer.Draw(cam.ViewMatrix);
                 }
             }
 
@@ -328,7 +328,7 @@ namespace SE.Rendering
             ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
                 foreach (Emitter pEmitter in tmpEmitters) {
-                    pEmitter.Renderer.Draw(cam.TransformMatrix);
+                    pEmitter.Renderer.Draw(cam.ViewMatrix);
                 }
             }
         }
@@ -338,7 +338,7 @@ namespace SE.Rendering
             tmpEmitters.Clear();
             ParticleEngine.GetEmitters(Particles.BlendMode.Alpha, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
-                ChangeDrawCall(SpriteSortMode.Deferred, cam.TransformMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, ParticleShader);
+                ChangeDrawCall(SpriteSortMode.Deferred, cam.ViewMatrix, BlendState.NonPremultiplied, SamplerState.PointClamp, null, null, ParticleShader);
                 foreach (Emitter pEmitter in tmpEmitters) {
                     DrawNewParticleEmitter(cam, pEmitter);
                 }
@@ -347,7 +347,7 @@ namespace SE.Rendering
             tmpEmitters.Clear();
             ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
-                ChangeDrawCall(SpriteSortMode.Deferred, cam.TransformMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, ParticleShader);
+                ChangeDrawCall(SpriteSortMode.Deferred, cam.ViewMatrix, BlendState.Additive, SamplerState.PointClamp, null, null, ParticleShader);
                 foreach (Emitter pEmitter in tmpEmitters) {
                     DrawNewParticleEmitter(cam, pEmitter);
                 }
@@ -356,7 +356,7 @@ namespace SE.Rendering
 
         private unsafe void DrawNewParticleEmitter(Camera2D cam, Emitter pEmitter)
         {
-            Vector2 camPos = cam.Position;
+            Vector2 camPos = new Vector2(cam.Position.X, cam.Position.Y);
             Span<Particle> particles = pEmitter.ActiveParticles;
             Texture2D tex = pEmitter.Texture;
             fixed (Particle* ptr = particles) {
@@ -379,6 +379,23 @@ namespace SE.Rendering
                         particle->layerDepth);
                 }
             }
+        }
+
+        public enum RenderModes
+        {
+            Deferred,
+            Albedo,
+            Normal,
+            Depth,
+            Diffuse,
+            Specular,
+            Volumetric,
+            //Hologram,
+            SSAO,
+            SSBlur,
+            //Emissive,
+            SSR,
+            HDR
         }
 
         [SuppressMessage("ReSharper", "PossibleNullReferenceException")]

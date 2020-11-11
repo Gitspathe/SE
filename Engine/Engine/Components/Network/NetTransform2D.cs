@@ -14,7 +14,7 @@ namespace SE.Components.Network
     /// <summary>
     /// Networked transform component. Syncs an objects position over the network via sending velocity and position data.
     /// </summary>
-    public class NetTransform : NetComponent, INetPersistable
+    public class NetTransform2D : NetComponent, INetPersistable
     {
         private PhysicsObject physObj;
 
@@ -59,7 +59,7 @@ namespace SE.Components.Network
                 physObj = Owner.GetComponent<PhysicsObject>();
 
             curPosition = Owner.Transform.GlobalPosition2D;
-            curRotation = Owner.Transform.GlobalRotationInternal;
+            curRotation = Owner.Transform.GlobalRotationInternal.Z;
             curVelocity = physObj.Body.LinearVelocity;
 
             RPCMethod velocityMethod = Quality == CompensationQuality.High
@@ -88,7 +88,7 @@ namespace SE.Components.Network
             } else {
                 Owner.Transform.Position2D = Owner.Transform.GlobalPosition2D + curVelocity * Time.FixedTimestep;
             }
-            Owner.Transform.GlobalRotationInternal = curRotation;
+            Owner.Transform.GlobalEulerAngles = new System.Numerics.Vector3(0,0, curRotation);
         }
 
         private void SendUpdateVelocityRPC(DeliveryMethod deliveryMethod)
@@ -104,7 +104,7 @@ namespace SE.Components.Network
             writer.Put(curVelocity.Y);
             writer.Put(Owner.Transform.Scale.X);
             writer.Put(Owner.Transform.Scale.Y);
-            writer.Put(Owner.Transform.Rotation);
+            writer.Put(Owner.Transform.Rotation.Z);
             return writer.CopyData();
         }
 
@@ -112,8 +112,8 @@ namespace SE.Components.Network
         {
             Owner.Transform.Position2D = new Vector2(reader.GetFloat(), reader.GetFloat());
             curVelocity = new Vector2(reader.GetFloat(), reader.GetFloat());
-            Owner.Transform.Scale = new Vector2(reader.GetFloat(), reader.GetFloat());
-            Owner.Transform.Rotation = reader.GetFloat();
+            Owner.Transform.Scale2D = new Vector2(reader.GetFloat(), reader.GetFloat());
+            Owner.Transform.EulerAngles = new System.Numerics.Vector3(0,0, reader.GetFloat());
         }
 
         [ServerRPC]
@@ -134,7 +134,7 @@ namespace SE.Components.Network
         public void UpdateVelocity(Vector2 position, Vector2 velocity, float rotation)
         {
             Owner.Transform.Position2D = position;
-            Owner.Transform.GlobalRotationInternal = rotation;
+            Owner.Transform.GlobalEulerAngles = new System.Numerics.Vector3(0,0, rotation);
             curVelocity = velocity;
             curRotation = rotation;
         }
@@ -154,12 +154,12 @@ namespace SE.Components.Network
             }
         }
 
-        public NetTransform(CompensationQuality quality = CompensationQuality.Low)
+        public NetTransform2D(CompensationQuality quality = CompensationQuality.Low)
         {
             Quality = quality;
         }
 
-        public NetTransform() { }
+        public NetTransform2D() { }
 
 
         public enum CompensationQuality

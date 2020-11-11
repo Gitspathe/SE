@@ -34,6 +34,8 @@ using DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling;
 using Formatting = Newtonsoft.Json.Formatting;
 using MemberSerialization = Newtonsoft.Json.MemberSerialization;
 
+using Vector3 = System.Numerics.Vector3;
+
 namespace SEDemos
 {
     /// <summary>
@@ -41,7 +43,7 @@ namespace SEDemos
     /// </summary>
     public class Game : GameEngine
     {
-        private AssetConsumerContext assetContext = new AssetConsumerContext();
+        private AssetConsumerContext assetConsumer = new AssetConsumerContext();
         internal static ContentLoader content;
 
         private BackButton backToMenu;
@@ -165,42 +167,47 @@ namespace SEDemos
             //}
 
             // Text serialization test.
-            int textIterations = 200_000;
-            int innerTextIterations = 3;
+            //int textIterations = 200_000;
+            //int innerTextIterations = 3;
 
-            for (int i = 0; i < innerTextIterations; i++)
-            {
-                TestTextClass textClass = new TestTextClass();
+            //for (int i = 0; i < innerTextIterations; i++)
+            //{
+            //    TestTextClass textClass = new TestTextClass();
 
-                Stopwatch s = new Stopwatch();
+            //    Stopwatch s = new Stopwatch();
 
-                //New serializer.
-                s.Start();
-                for (int z = 0; z < textIterations; z++)
-                {
-                    byte[] bytes = Serializer.Serialize(textClass);
-                }
-                s.Stop();
-                long s1 = s.ElapsedMilliseconds;
+            //    //New serializer.
+            //    s.Start();
+            //    for (int z = 0; z < textIterations; z++)
+            //    {
+            //        byte[] bytes = Serializer.Serialize(textClass);
+            //    }
+            //    s.Stop();
+            //    long s1 = s.ElapsedMilliseconds;
 
-                // JSON serializer.
-                s = new Stopwatch();
-                s.Start();
-                for (int z = 0; z < textIterations; z++)
-                {
-                    string bytes = System.Text.Json.JsonSerializer.Serialize(textClass, textJsonOptions);
-                }
-                s.Stop();
-                long s2 = s.ElapsedMilliseconds;
+            //    // JSON serializer.
+            //    s = new Stopwatch();
+            //    s.Start();
+            //    for (int z = 0; z < textIterations; z++)
+            //    {
+            //        string bytes = System.Text.Json.JsonSerializer.Serialize(textClass, textJsonOptions);
+            //    }
+            //    s.Stop();
+            //    long s2 = s.ElapsedMilliseconds;
 
-                string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
-                Console.WriteLine($"Serializer benchmark ({textIterations} iterations, measured in ms):");
-                Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
-            }
+            //    string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
+            //    Console.WriteLine($"Serializer benchmark ({textIterations} iterations, measured in ms):");
+            //    Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
+            //}
 
-            TestTextClass lel = new TestTextClass();
-            byte[] lelBytes = Serializer.Serialize(lel);
-            FileIO.SaveFile(lelBytes, "LOLZ.data");
+            long bytesBefore = GC.GetTotalMemory(true);
+            new GameObject();
+            long bytesAfter = GC.GetTotalMemory(true);
+            Console.WriteLine(bytesAfter - bytesBefore);
+
+            //TestTextClass lel = new TestTextClass();
+            //byte[] lelBytes = Serializer.Serialize(lel);
+            //FileIO.SaveFile(lelBytes, "LOLZ.data");
         }
 
         [JsonObject(MemberSerialization.OptOut)]
@@ -327,6 +334,9 @@ namespace SEDemos
                    .FromContent(content)
                 );
             }
+
+            Model m = content.Load<Model>("models/utah-teapot");
+            ModelDefinition def = new ModelDefinition(m, new Transform(Vector3.Zero, Vector3.One));
 
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("grass")

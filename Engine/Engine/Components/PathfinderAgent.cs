@@ -41,7 +41,7 @@ namespace SE.Components
                     myPhysics.Body.LinearVelocity = diff * 192;
                 }
             }
-            Owner.Transform.Rotation = Owner.Transform.GlobalPosition2D.GetRotationFacing(lookAt);
+            Owner.Transform.EulerAngles = new System.Numerics.Vector3(0,0, Owner.Transform.GlobalPosition2D.GetRotationFacing(lookAt));
             base.OnUpdate();
         }
 

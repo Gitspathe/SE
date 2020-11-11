@@ -10,7 +10,7 @@ namespace SE.UI
     {
         public UISprite Sprite { get; }
 
-        public SpriteTexture SpriteTexure {
+        public SpriteTexture SpriteTexture {
             set => Sprite.SpriteTexture = value;
         }
 

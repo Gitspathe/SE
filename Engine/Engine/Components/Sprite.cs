@@ -2,6 +2,7 @@
 using SE.Lighting;
 using SE.Rendering;
 using Vector2 = System.Numerics.Vector2;
+using Vector3 = System.Numerics.Vector3;
 // ReSharper disable UnusedMember.Global
 
 namespace SE.Components
@@ -36,8 +37,8 @@ namespace SE.Components
                         Shadow.CalculateHull(true);
                     }
                     Shadow.Position = Owner.Transform.GlobalPosition2D;
-                    Shadow.Scale = Owner.Transform.GlobalScaleInternal;
-                    Shadow.Rotation = Owner.Transform.GlobalRotationInternal;
+                    Shadow.Scale = Owner.Transform.GlobalScale2D;
+                    Shadow.Rotation = Owner.Transform.GlobalRotationInternal.Z;
                     Shadow.ShadowCastType = shadowType;
                     Shadow.Enable();
                     UpdateShadow();
@@ -63,18 +64,18 @@ namespace SE.Components
 
         public override void Render(Camera2D camera, Space space)
         {
-            Vector2 position = ownerTransform.GlobalPosition2D;
+            Vector3 position = ownerTransform.GlobalPositionInternal;
             if (space == Space.Screen) {
-                position += camera.Position;
+                position += new Vector3(camera.Position.X, camera.Position.Y, 0.0f);
             }
-            position = new Vector2((int) position.X, (int) position.Y);
 
+            // TODO: Make a SpriteBatch overload which takes in Vector3. (Doesn't need to actually use Z, but will be faster)
             Core.Rendering.SpriteBatch.Draw(
                 Data.Material.Texture,
                 position,
                 TextureSourceRectangle,
                 color,
-                ownerTransform.GlobalRotationInternal,
+                ownerTransform.GlobalRotationInternal.Z,
                 origin,
                 ownerTransform.GlobalScaleInternal,
                 layerDepth);
@@ -119,8 +120,8 @@ namespace SE.Components
         {
             if (Shadow != null) {
                 Shadow.Position = Owner.Transform.GlobalPosition2D;
-                Shadow.Scale = Owner.Transform.GlobalScaleInternal;
-                Shadow.Rotation = Owner.Transform.GlobalRotationInternal;
+                Shadow.Scale = Owner.Transform.GlobalScale2D;
+                Shadow.Rotation = Owner.Transform.GlobalRotationInternal.Z;
             }
         }
 

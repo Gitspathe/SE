@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using Microsoft.Xna.Framework;
 using SE.Utility;
 using Quaternion = System.Numerics.Quaternion;
 using Vector2 = System.Numerics.Vector2;
@@ -12,7 +13,8 @@ namespace SE.Common
     /// Transforms are hierarchical, their positions, rotations and scales are derived from their parent Transform.
     /// </summary>
     // TODO: Make this 3D!
-    public class Transform : IDisposable
+    // TODO: Allow transform's without being owned by a GameObject.
+    public class Transform
     {
         /// <summary>The GameObject's transform.</summary>
         public GameObject GameObject {
@@ -29,6 +31,8 @@ namespace SE.Common
 
         /// <summary>Holds child Transforms enable or disabled state.</summary>
         internal StateTree ChildStateTree;
+
+        internal bool HasChanged = true;
 
         /// <summary>
         /// Gets the Transform's global position.
@@ -53,7 +57,7 @@ namespace SE.Common
         /// Gets the Transform's global rotation.
         /// </summary>
         /// <returns>Global rotation in degrees.</returns>
-        public float GlobalRotation {
+        public Quaternion GlobalRotation {
             get => GlobalRotationInternal;
             set {
                 if (value == GlobalRotationInternal)
@@ -72,7 +76,7 @@ namespace SE.Common
         /// Gets the Transform's global scale.
         /// </summary>
         /// <returns>Global scale multiplier.</returns>
-        public Vector2 GlobalScale {
+        public Vector3 GlobalScale {
             get => GlobalScaleInternal;
             set {
                 if (value == GlobalScaleInternal)
@@ -106,7 +110,8 @@ namespace SE.Common
         /// Gets the Transform's local rotation, or global rotation if it has no parent Transform.
         /// </summary>
         /// <returns>Local rotation if Parent isn't null, global rotation if Parent is null.</returns>
-        public float Rotation {
+        // TODO: X Y Z rotation.
+        public Quaternion Rotation {
             get => Parent == null ? GlobalRotationInternal : localRotation;
             set {
                 if (value == localRotation)
@@ -117,13 +122,21 @@ namespace SE.Common
             }
         }
 
-        // TODO: X Y Z rotation.
+        public Vector3 EulerAngles {
+            get => CreateFromYawPitchRoll(Rotation);
+            set => Rotation = ToQ(value);
+        }
+
+        public Vector3 GlobalEulerAngles {
+            get => CreateFromYawPitchRoll(GlobalRotation);
+            set => GlobalRotation = ToQ(value);
+        }
 
         /// <summary>
         /// Gets the Transform's local scale, or global scale if it has no parent Transform.
         /// </summary>
         /// <returns>Local scale if Parent isn't null, global scale if Parent is null.</returns>
-        public Vector2 Scale {
+        public Vector3 Scale {
             get => Parent == null ? GlobalScaleInternal : localScale;
             set {
                 if (value == localScale)
@@ -131,7 +144,6 @@ namespace SE.Common
 
                 localScale = value;
                 UpdateTransformation();
-                GameObject.RecalculateBoundsInternal();
             }
         }
 
@@ -141,42 +153,51 @@ namespace SE.Common
         /// <returns>Root Transform.</returns>
         public Transform Root => Parent == null ? this : Parent.Root;
 
+        public Matrix4x4 RotationMatrix => Matrix4x4.CreateFromQuaternion(localRotation);
+
         /// <summary>
         /// Gets the Transform's local transformation matrix.
         /// </summary>
         /// <returns>Local transformation matrix.</returns>
         public Matrix4x4 LocalTransformation =>
-            Matrix4x4.CreateScale(localScale.X, localScale.Y, 1.0f) *
-            Matrix4x4.CreateRotationZ(localRotation) *
-            Matrix4x4.CreateTranslation(localPosition.X, localPosition.Y, localPosition.Z);
+            Matrix4x4.CreateScale(localScale) *
+            RotationMatrix *
+            Matrix4x4.CreateTranslation(localPosition);
 
-        // Events
-        /// <summary>Called when the Transform's parent is set. May be null in the case that the parent is removed or nonexistent.</summary>
-        public event Action<Transform> ParentSet;
+        public Matrix4x4 InverseLocalTransformation {
+            get {
+                Matrix4x4.Invert(LocalTransformation, out Matrix4x4 result);
+                return result;
+            }
+        }
 
-        /// <summary>Called when a child is added to the Transform.</summary>
-        public event Action<Transform> ChildAdded;
-
-        /// <summary>Called when a child is removed from the Transform.</summary>
-        public event Action<Transform> ChildRemoved;
+        public Matrix4x4 WorldTransformation { get; private set; }
 
         // INTERNAL FOR PERFORMANCE! DO NOT MODIFY DIRECTLY!!
         internal Vector3 GlobalPositionInternal;
-        internal Vector2 GlobalScaleInternal;
-        internal float GlobalRotationInternal;
+        internal Vector3 GlobalScaleInternal;
+        internal Quaternion GlobalRotationInternal;
 
         private Vector3 localPosition;
-        private Vector2 localScale;
-        private float localRotation;
+        private Vector3 localScale;
+        private Quaternion localRotation;
 
         public Vector2 GlobalPosition2D => new Vector2(GlobalPositionInternal.X, GlobalPositionInternal.Y);
-
         public Vector2 Position2D {
             get {
                 Vector3 pos = Position;
                 return new Vector2(pos.X, pos.Y);
             }
             set => Position = new Vector3(value.X, value.Y, 0f);
+        }
+
+        public Vector2 GlobalScale2D => new Vector2(GlobalScaleInternal.X, GlobalScaleInternal.Y);
+        public Vector2 Scale2D {
+            get {
+                Vector3 scale = Scale;
+                return new Vector2(scale.X, scale.Y);
+            }
+            set => Scale = new Vector3(value.X, value.Y, 1.0f);
         }
 
         /// <summary>
@@ -187,10 +208,10 @@ namespace SE.Common
         /// <param name="scale">Scale.</param>
         /// <param name="ownerGameObject">GameObject ownerGameObject of the Transform.</param>
         /// <param name="parent">Parent Transform.</param>
-        public Transform(Vector3 position, Vector2 scale, float rotation = 0.0f, GameObject ownerGameObject = null, Transform parent = null)
+        public Transform(Vector3 position, Vector3 scale, float rotation = 0.0f, GameObject ownerGameObject = null, Transform parent = null)
         {
             localPosition = position;
-            localRotation = rotation;
+            EulerAngles = new Vector3(0, 0, rotation);
             localScale = scale;
             GameObject = ownerGameObject;
             if (parent != null) {
@@ -209,7 +230,7 @@ namespace SE.Common
         /// <param name="ownerGameObject">GameObject ownerGameObject of the Transform.</param>
         /// <param name="parent">Parent Transform.</param>
         public Transform(Vector2 position, Vector2 scale, float rotation = 0.0f, GameObject ownerGameObject = null, Transform parent = null) 
-            : this(new Vector3(position.X, position.Y, 0.0f), scale, rotation, ownerGameObject, parent) { }
+            : this(new Vector3(position.X, position.Y, 0.0f), new Vector3(scale.X, scale.Y, 1.0f), rotation, ownerGameObject, parent) { }
 
         /// <summary>
         /// Sets the Transform's parent Transform. Position, rotation and scale will be scaled with this Transform.
@@ -232,8 +253,7 @@ namespace SE.Common
                 UpdateTransformation();
             }
 
-            GameObject.RecalculateBoundsInternal();
-            ParentSet?.Invoke(transform);
+            GameObject?.RecalculateBoundsInternal();
             EngineUtility.TransformHierarchyDirty = true;
         }
 
@@ -243,7 +263,6 @@ namespace SE.Common
                 return;
 
             Parent = null;
-            ParentSet?.Invoke(null);
             EngineUtility.TransformHierarchyDirty = true;
         }
 
@@ -253,10 +272,10 @@ namespace SE.Common
         /// <param name="child">Child Transform.</param>
         private void AddChild(Transform child)
         {
+            EngineUtility.TransformHierarchyDirty = true;
             Children.Add(child);
             UpdateTransformation();
-            ChildAdded?.Invoke(child);
-            EngineUtility.TransformHierarchyDirty = true;
+            GameObject?.OnTransformChildrenChangedInternal();
         }
 
         /// <summary>
@@ -268,11 +287,11 @@ namespace SE.Common
             if (child.Parent != this)
                 return;
 
+            EngineUtility.TransformHierarchyDirty = true;
             child.RemoveParent();
             Children.Remove(child);
             UpdateTransformation();
-            ChildRemoved?.Invoke(child);
-            EngineUtility.TransformHierarchyDirty = true;
+            GameObject?.OnTransformChildrenChangedInternal();
         }
 
         /// <summary>
@@ -313,8 +332,8 @@ namespace SE.Common
                     Children.Array[i].UpdateTransformation();
                 }
             }
-            GameObject.PhysicsObject?.OverridePosition(new Vector2(GlobalPositionInternal.X, GlobalPositionInternal.Y));
-            GameObject.RecalculateBoundsInternal();
+            GameObject?.PhysicsObject?.OverridePosition(new Vector2(GlobalPositionInternal.X, GlobalPositionInternal.Y));
+            GameObject?.RecalculateBoundsInternal();
         }
 
         protected virtual Matrix4x4 UpdateTransformationMatrix()
@@ -323,21 +342,10 @@ namespace SE.Common
             if (Parent != null) {
                 globalTransform *= Parent.UpdateTransformationMatrix();
             }
+            WorldTransformation = globalTransform;
 
             DecomposeMatrix(ref globalTransform, out GlobalPositionInternal, out GlobalRotationInternal, out GlobalScaleInternal);
             return globalTransform;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        protected virtual void Dispose(bool disposing = true)
-        {
-            ParentSet = null;
-            ChildAdded = null;
-            ChildRemoved = null;
         }
 
         /// <summary>
@@ -347,19 +355,37 @@ namespace SE.Common
         /// <param name="position">Position ref.</param>
         /// <param name="rotation">Rotation ref.</param>
         /// <param name="scale">Scale ref.</param>
-        public static void DecomposeMatrix(ref Matrix4x4 matrix, out Vector3 position, out float rotation, out Vector2 scale)
+        public static void DecomposeMatrix(ref Matrix4x4 matrix, out Vector3 position, out Quaternion rotation, out Vector3 scale)
         {
             Matrix4x4.Decompose(matrix, out Vector3 scale3, out Quaternion rotationQ, out Vector3 position3);
-            Vector2 direction = Vector2.Transform(Vector2.UnitX, rotationQ);
-            rotation = MathF.Atan2(direction.Y, direction.X);
+            rotation = rotationQ;
             position = position3;
-            scale = new Vector2(scale3.X, scale3.Y);
+            scale = scale3;
+        }
+
+        // TODO: Should move quaternion helpers to a separate static class.
+        public static Quaternion ToQ(Vector3 v)
+        {
+            return Quaternion.CreateFromYawPitchRoll(v.Y, v.X, v.Z);
+        }
+
+        public static Vector3 CreateFromYawPitchRoll(Quaternion r)
+        {
+            float yaw = MathF.Atan2(2.0f * (r.Y * r.W + r.X * r.Z), 1.0f - 2.0f * (r.X * r.X + r.Y * r.Y));
+            float pitch = MathF.Asin(2.0f * (r.X * r.W - r.Y * r.Z));
+            float roll = MathF.Atan2(2.0f * (r.X * r.Y + r.Z * r.W), 1.0f - 2.0f * (r.X * r.X + r.Z * r.Z));
+            return new Vector3(pitch, yaw, roll);
+        }
+
+        public Vector3 TransformMatrixSubModel(Vector3 translateSub)
+        {
+            return Vector3.Transform(translateSub, WorldTransformation);
         }
 
         /// <summary>
         /// Returns an empty transform instance.
         /// </summary>
-        public static Transform Empty => new Transform(Vector3.Zero, Vector2.One);
+        public static Transform Empty => new Transform(Vector3.Zero, Vector3.One);
     }
 
     /// <summary>
@@ -411,7 +437,7 @@ namespace SE.Common
             public TransformNode(Transform transform, bool root = false)
             {
                 Transform = transform;
-                State = transform.GameObject.Enabled;
+                State = transform.GameObject?.Enabled ?? true;
                 Children = new QuickList<TransformNode>(transform.Children.Count);
                 Transform[] transformChildren = transform.Children.Array;
                 for (int i = 0; i < transform.Children.Count; i++) {
@@ -427,7 +453,7 @@ namespace SE.Common
             {
                 bool isRoot = root == Transform;
 
-                if (State && !Transform.GameObject.Enabled) {
+                if (State && Transform.GameObject != null && !Transform.GameObject.Enabled) {
                     Transform.GameObject.Enable(isRoot);
                 }
                 for (int i = 0; i < Children.Count; i++) {

@@ -80,7 +80,7 @@ namespace SE.Core
                 cleanUpTimer = 10.0f;
             }
 
-            Penumbra.Transform = camera.TransformMatrix;
+            Penumbra.Transform = camera.ViewMatrix;
 
             Rectangle viewRect = new Rectangle(0, 0, camera.ViewBounds.Width, camera.ViewBounds.Height);
             shadowCasterList.Clear();

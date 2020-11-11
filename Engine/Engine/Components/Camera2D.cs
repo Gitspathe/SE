@@ -5,19 +5,28 @@ using SE.Common;
 using SE.Core;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
-using MonoGameVector3 = Microsoft.Xna.Framework.Vector3;
 using System.Collections.Generic;
-
+using SE.Core.Extensions;
 using MGVector2 = Microsoft.Xna.Framework.Vector2;
+using MGVector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace SE.Components
 {
     public class Camera2D : Component
     {
-        internal Matrix TransformMatrix;
-        internal RenderTarget2D renderTarget;
+        internal Matrix ViewMatrix;
+        internal Matrix ProjectionMatrix;
+        internal RenderTarget2D RenderTarget;
+
+        internal bool HasChanged = true;
+
+        public bool IsOrtheographic = false;
 
         public uint Priority { get; set; }
+
+        private Vector3 up = Vector3.UnitZ;
+        private Vector3 forward = Vector3.Up;
+        private float fieldOfView = (float)Math.PI / 4;
 
         public float Zoom {
             get => zoom;
@@ -32,6 +41,58 @@ namespace SE.Components
         }
         private float zoom = 1.0f;
 
+        public Vector3 Up
+        {
+            get
+            {
+                return up;
+            }
+            set
+            {
+                if (up != value)
+                {
+                    up = value;
+                    HasChanged = true;
+                }
+            }
+        }
+
+        public Vector3 Forward
+        {
+            get
+            {
+                return forward;
+            }
+            set
+            {
+                if (forward != value)
+                {
+                    forward = value;
+                    HasChanged = true;
+                }
+            }
+        }
+
+        public float FieldOfView
+        {
+            get { return fieldOfView; }
+            set
+            {
+                fieldOfView = value;
+                HasChanged = true;
+            }
+        }
+
+        public Vector3 Lookat
+        {
+            get { return Position + Forward; }
+            set
+            {
+                Forward = value - Position;
+                Forward.Normalize();
+            }
+        }
+
         public RectangleF RenderRegion {
             get => renderRegion;
             set {
@@ -45,7 +106,7 @@ namespace SE.Components
         private RectangleF renderRegion = new RectangleF(0.0f, 0.0f, 1.0f, 1.0f);
 
         public Rectangle VisibleArea { get; private set; }
-        public Vector2 Position { get; private set; } = Vector2.Zero;
+        public Vector3 Position { get; private set; } = Vector3.Zero;
         public Rectangle ViewBounds { get; private set; }
 
         public static Camera2D Main => Core.Rendering.Cameras.Array[0];
@@ -53,7 +114,7 @@ namespace SE.Components
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            Position = new Vector2(Owner.Transform.GlobalPosition.X, Owner.Transform.GlobalPosition.Y);
+            Position = new Vector3(Owner.Transform.GlobalPosition.X, Owner.Transform.GlobalPosition.Y, Owner.Transform.GlobalPosition.Z);
             Core.Rendering.AddCamera(this);
         }
 
@@ -78,7 +139,7 @@ namespace SE.Components
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            Position = new Vector2(Owner.Transform.GlobalPosition.X, Owner.Transform.GlobalPosition.Y);
+            Position = new Vector3(Owner.Transform.GlobalPosition.X, Owner.Transform.GlobalPosition.Y, Owner.Transform.GlobalPosition.Z);
             CalculateBounds();
             CalculateScaleMatrix();
         }
@@ -92,17 +153,24 @@ namespace SE.Components
 
         private void CalculateScaleMatrix()
         {
-            Vector2 pos = new Vector2(Owner.Transform.GlobalPosition.X, Owner.Transform.GlobalPosition.Y);
+            Vector3 pos = new Vector3(Position.X, Position.Y, Position.Z);
+            if (pos == Vector3.Zero)
+                pos = new MGVector3(0.001f, 0.001f, 0.001f);
 
-            Matrix translation = Matrix.CreateTranslation(-pos.X, -pos.Y, 0.0f);
-            Matrix rotation = Matrix.CreateRotationZ(Transform.GlobalRotation);
-            Matrix scale = Matrix.CreateScale(Zoom, Zoom, 1);
-            Matrix origin = Matrix.CreateTranslation(ViewBounds.Width * 0.5f, ViewBounds.Height * 0.5f, 0);
+            if (IsOrtheographic) {
+                Matrix translation = Matrix.CreateTranslation(-pos.X, -pos.Y, 0.0f);
+                Matrix rotation = Matrix.CreateRotationZ(Transform.GlobalRotation.Z);
+                Matrix scale = Matrix.CreateScale(Zoom, Zoom, 1);
+                Matrix origin = Matrix.CreateTranslation(ViewBounds.Width * 0.5f, ViewBounds.Height * 0.5f, 0);
 
-            TransformMatrix = Matrix.Identity * translation * rotation * origin * scale;
+                ViewMatrix = Matrix.Identity * translation * rotation * origin * scale;
+            } else {
+                ViewMatrix = Matrix.CreateLookAt(pos, Vector3.Zero, Vector3.Up);
+                ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), 1920.0f / 1080.0f, 0.1f, 10000.0f);
+            }
 
             // Update visible area.
-            Matrix inverseViewMatrix = Matrix.Invert(TransformMatrix);
+            Matrix inverseViewMatrix = Matrix.Invert(ViewMatrix);
 
             MGVector2 tl = MGVector2.Transform(MGVector2.Zero, inverseViewMatrix);
             MGVector2 tr = MGVector2.Transform(new MGVector2(ViewBounds.Width, 0.0f), inverseViewMatrix);
@@ -154,7 +222,7 @@ namespace SE.Components
         public Camera2D()
         {
             if (!Screen.IsFullHeadless) {
-                renderTarget = new RenderTarget2D(GameEngine.Engine.GraphicsDevice,
+                RenderTarget = new RenderTarget2D(GameEngine.Engine.GraphicsDevice,
                     GameEngine.Engine.GraphicsDeviceManager.PreferredBackBufferWidth,
                     GameEngine.Engine.GraphicsDeviceManager.PreferredBackBufferHeight,
                     false,

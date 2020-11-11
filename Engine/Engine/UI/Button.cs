@@ -77,7 +77,7 @@ namespace SE.UI
 
             // Recreate or reset Image.
             if (Image != null) {
-                Image.SpriteTexure = image;
+                Image.SpriteTexture = image;
                 Image.Color = color ?? Color.White;
                 Image.Size = tmpSize;
             } else {

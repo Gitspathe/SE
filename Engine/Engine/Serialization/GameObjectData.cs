@@ -13,8 +13,8 @@ namespace SE.Serialization
         [JsonIgnore] public Type Type { get; set; }
 
         public Vector3 Position { get; set; }
-        public Vector2 Scale { get; set; }
-        public float Rotation { get; set; }
+        public Vector3 Scale { get; set; }
+        public Vector3 Rotation { get; set; }
 
         public QuickList<ComponentData> componentData { get; set; }
 

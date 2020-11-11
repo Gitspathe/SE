@@ -72,7 +72,7 @@ namespace SE.Pooling
         {
             T go = Take();
             go.Transform.Position2D = position;
-            go.Transform.Rotation = rotation;
+            go.Transform.EulerAngles = new Vector3(0,0, rotation);
             return go;
         }
 
@@ -80,8 +80,8 @@ namespace SE.Pooling
         {
             T go = Take();
             go.Transform.Position2D = position;
-            go.Transform.Rotation = rotation;
-            go.Transform.Scale = scale;
+            go.Transform.EulerAngles = new Vector3(0,0, rotation);
+            go.Transform.Scale2D = scale;
             return go;
         }
 

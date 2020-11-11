@@ -357,7 +357,7 @@ namespace SE.Core
 
         public static void DrawUnderlay(Camera2D camera, SpriteBatch spriteBatch)
         {
-            Rendering.ChangeDrawCall(SpriteSortMode.Deferred, camera.TransformMatrix);
+            Rendering.ChangeDrawCall(SpriteSortMode.Deferred, camera.ViewMatrix);
 
             // Initialize the sprite texture if it's null.
             if (spriteTex.Texture == null)

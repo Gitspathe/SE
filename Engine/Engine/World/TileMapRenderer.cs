@@ -35,7 +35,7 @@ namespace SE.World
         private void SwapMaterial(Material material, Camera2D camera)
         {
             Core.Rendering.ChangeDrawCall(SpriteSortMode.Deferred,
-                camera.TransformMatrix,
+                camera.ViewMatrix,
                 BlendState.NonPremultiplied,
                 SamplerState.PointClamp,
                 Core.Rendering.DepthStencilGreater,

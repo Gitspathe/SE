@@ -17,7 +17,7 @@ namespace SE.Rendering
 {
     // TODO: Allow this to be an Asset somehow?
     // TODO: What about Materials without textures?? (i.e non SpriteBatch stuff.)
-    public sealed class Material
+    public class Material
     {
         public Texture2D Texture {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

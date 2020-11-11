@@ -41,7 +41,7 @@ namespace SEDemos.GameObjects
                 if (!identity.IsOwner)
                     Physics.Body.BodyType = BodyType.Kinematic;
 
-                AddComponent(new NetTransform(NetTransform.CompensationQuality.High));
+                AddComponent(new NetTransform2D(NetTransform2D.CompensationQuality.High));
                 if (isOwner) {
                     //AddComponent(new PathfinderAgent());
                     NetworkedEntity player = new NetworkedEntity();

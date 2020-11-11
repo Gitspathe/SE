@@ -24,7 +24,7 @@ namespace SE.UI
             get => size;
             set {
                 size = value;
-                Scale = new Vector2((float)size.X / baseSize.X, (float)size.Y / baseSize.Y);
+                Scale2D = new Vector2((float)size.X / baseSize.X, (float)size.Y / baseSize.Y);
                 GameObject.RecalculateBoundsInternal();
             }
         }
@@ -92,7 +92,7 @@ namespace SE.UI
         }
 
         public UITransform(Vector2 position, Point size, float rotation = 0, GameObject ownerGameObject = null)
-            : base(new Vector3(position.X, position.Y, 0.0f), Vector2.One, rotation, ownerGameObject)
+            : base(new Vector3(position.X, position.Y, 0.0f), Vector3.One, rotation, ownerGameObject)
         {
             baseSize = size;
             this.size = size;

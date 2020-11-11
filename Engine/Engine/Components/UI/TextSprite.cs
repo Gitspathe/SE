@@ -32,7 +32,7 @@ namespace SE.Components.UI
                 color, 
                 0, 
                 origin, 
-                Owner.Transform.GlobalScaleInternal, 
+                Owner.Transform.GlobalScale2D, 
                 SpriteEffects.None, 
                 LayerDepth + 0.000001f);
         }

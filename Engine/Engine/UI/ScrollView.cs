@@ -105,8 +105,11 @@ namespace SE.UI
         protected sealed override void OnInitialize()
         {
             base.OnInitialize();
-            Transform.ChildAdded += t => ProcessHidden();
-            Transform.ChildRemoved += t => ProcessHidden();
+        }
+
+        protected sealed override void OnTransformChildrenChanged()
+        {
+            ProcessHidden();
         }
 
         /// <inheritdoc />
