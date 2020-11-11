@@ -28,7 +28,7 @@ namespace SEDemos.GameObjects
         protected sealed override void OnInitialize()
         {
             identity = new NetworkIdentity();
-            Sprite sprite = new Sprite(AssetManager.Get<SpriteTexture>(this, "player"), Color.Blue, new Vector2(26, 26), 0.2f);
+            Sprite sprite = new Sprite(AssetManager.GetAsset<SpriteTexture>("player"), Color.Blue, new Vector2(26, 26), 0.2f);
             Physics = new PhysicsObject(new Rectangle(26, 26, 50, 50), 1.0f, BodyType.Dynamic);
             Physics.Body.FixedRotation = true;
             Physics.Body.SetFriction(0.0f);

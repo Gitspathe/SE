@@ -21,7 +21,7 @@ namespace SEDemos.GameObjects
         {
             base.OnInitialize();
             Sprite sprite = GetComponent<Sprite>();
-            sprite.SpriteTexture = AssetManager.Get<SpriteTexture>(this, "grass");
+            sprite.SpriteTextureAsset = AssetManager.GetAsset<SpriteTexture>("grass");
             //sprite.Enabled = false;
             //base.Initialize();
         }

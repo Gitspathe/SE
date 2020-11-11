@@ -49,7 +49,10 @@ namespace SE.Core
         public static RenderTarget2D UIRender { get; set; }
         public static RenderTarget2D FinalRender { get; set; }
         internal static QuickList<Camera2D> Cameras { get; } = new QuickList<Camera2D>();
-        
+
+        private static SpriteFont defaultFont;
+        private static AssetConsumerContext assetConsumer = new AssetConsumerContext();
+
         public static Span<Vector4> CameraBounds {
             get {
                 tmpCamBounds.Clear();
@@ -167,8 +170,7 @@ namespace SE.Core
             EndDrawCall();
             GraphicsDevice.SetRenderTarget(null);
 
-            DrawModel(ModelDefinition.TESTMODEL, Cameras[0]);
-
+            //DrawModel(ModelDefinition.TESTMODEL, Cameras[0]);
         }
 
         public static void DrawModel(ModelDefinition model, Camera2D camera)
@@ -252,13 +254,17 @@ namespace SE.Core
 
         private static void DrawNoCamerasMessage()
         {
+            if (defaultFont == null) {
+                defaultFont = UIManager.DefaultFont.Get(assetConsumer);
+            }
+
             const string str = "No cameras.";
-            Vector2 strSize = UIManager.DefaultFont.MeasureString(str).ToNumericsVector2();
+            Vector2 strSize = defaultFont.MeasureString(str).ToNumericsVector2();
 
             GraphicsDevice.SetRenderTarget(FinalRender);
             GraphicsDevice.Clear(Color.Black);
             ChangeDrawCall(SpriteSortMode.Deferred, Screen.ScreenScaleMatrix);
-            SpriteBatch.DrawString(UIManager.DefaultFont, str, Screen.ViewSize / 2.0f, Color.Red, 0f, strSize / 2.0f, Vector2.One, SpriteEffects.None, 0.0f);
+            SpriteBatch.DrawString(defaultFont, str, Screen.ViewSize / 2.0f, Color.Red, 0f, strSize / 2.0f, Vector2.One, SpriteEffects.None, 0.0f);
             EndDrawCall();
             
             GraphicsDevice.SetRenderTarget(null);

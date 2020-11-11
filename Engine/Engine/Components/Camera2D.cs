@@ -20,7 +20,7 @@ namespace SE.Components
 
         internal bool HasChanged = true;
 
-        public bool IsOrtheographic = false;
+        public bool IsOrtheographic = true;
 
         public uint Priority { get; set; }
 

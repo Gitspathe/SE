@@ -24,7 +24,7 @@ namespace SEDemos.GameObjects
             base.OnInitialize();
             Sprite sprite = GetComponent<Sprite>();
             PhysicsObject physicsObj = GetComponent<PhysicsObject>();
-            sprite.SpriteTexture = AssetManager.Get<SpriteTexture>(this, "wall_down");
+            sprite.SpriteTextureAsset = AssetManager.GetAsset<SpriteTexture>("wall_down");
             sprite.LayerDepth = 0.1f;
             sprite.Origin = new Vector2(0, -48);
             sprite.ShadowType = ShadowCasterType.Map;

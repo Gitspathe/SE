@@ -25,7 +25,7 @@ namespace SE.Editor.Debug.GameObjects
         {
             base.OnInitialize();
             Sprite sprite = GetComponent<Sprite>();
-            sprite.SpriteTexture = AssetManager.Get<SpriteTexture>(this, "leveleditorcursor");
+            sprite.SpriteTextureAsset = AssetManager.GetAsset<SpriteTexture>("leveleditorcursor");
             sprite.Color = Color.Red;
             sprite.LayerDepth = 0.2f;
             sprite.IgnoreLight = true;

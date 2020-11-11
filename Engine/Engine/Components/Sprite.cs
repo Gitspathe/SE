@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using SE.AssetManagement;
 using SE.Lighting;
 using SE.Rendering;
 using Vector2 = System.Numerics.Vector2;
@@ -131,21 +132,21 @@ namespace SE.Components
         /// <param name="originPoint">Origin point for the sprite in pixels.</param>
         /// <param name="layerDepth">Render order of this sprite.</param>
         /// <param name="shadowType"></param>
-        public Sprite(SpriteTexture spriteTexture, Color color, Vector2 originPoint, float layerDepth = 0.0f, ShadowCasterType shadowType = ShadowCasterType.None)
+        public Sprite(Asset<SpriteTexture> spriteTexture, Color color, Vector2 originPoint, float layerDepth = 0.0f, ShadowCasterType shadowType = ShadowCasterType.None)
         {
-            SpriteTexture = spriteTexture;
+            SpriteTextureAsset = spriteTexture;
             Color = color;
             Origin = originPoint;
             LayerDepth = layerDepth;
             this.shadowType = shadowType;
-            Size = new Point(spriteTexture.SourceRectangle.Width, spriteTexture.SourceRectangle.Height);
+            Size = new Point(SpriteTexture.SourceRectangle.Width, SpriteTexture.SourceRectangle.Height);
         }
 
         /// <summary>Creates a new basic RendererType sprite instance.</summary>
         /// <param name="spriteTexture">The SpriteTexture used to render this sprite.</param>
         /// <param name="color">Color used.</param>
         /// <param name="layerDepth">Render order of this sprite.</param>
-        public Sprite(SpriteTexture spriteTexture, Color color, float layerDepth = 0.0f, ShadowCasterType shadowType = ShadowCasterType.None) 
+        public Sprite(Asset<SpriteTexture> spriteTexture, Color color, float layerDepth = 0.0f, ShadowCasterType shadowType = ShadowCasterType.None) 
             : this(spriteTexture, color, Vector2.Zero, layerDepth, shadowType) { }
 
         public Sprite() { }
@@ -153,6 +154,6 @@ namespace SE.Components
         /// <summary>
         /// Returns an empty sprite.
         /// </summary>
-        public static Sprite Empty => new Sprite(new SpriteTexture(), Color.White);
+        public static Sprite Empty => new Sprite(null, Color.White);
     }
 }

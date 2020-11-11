@@ -16,7 +16,7 @@ namespace SE.Core
 {
     public static class UIManager
     {
-        public static SpriteFont DefaultFont;
+        public static Asset<SpriteFont> DefaultFont;
         public static SlicedImage DefaultSlicedImage;
 
         public static UIInputReceiver RootInputFocus { get; set; }
@@ -159,7 +159,7 @@ namespace SE.Core
 
         public static void Initialize()
         {
-            DefaultFont = AssetManager.Get<SpriteFont>(assetConsumerContext, "editor");
+            DefaultFont = AssetManager.GetAsset<SpriteFont>("editor");
             DefaultSlicedImage = EditorTheme.PanelFullTransparent;
 
             Controller controller = InputManager.GetController(Players.One);

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
+using SE.AssetManagement.Processors;
 using SE.Common;
 using SE.Components.UI;
 using SE.Core;
@@ -23,9 +24,13 @@ namespace SE.Editor.UI
         public static SlicedImage9 PanelTransparent;
         public static SlicedImage9 PanelFullTransparent;
 
-        private static SpriteFont editor;
-        private static SpriteFont editorSubheading;
-        private static SpriteFont editorHeading;
+        private static Asset<SpriteFont> editor;
+        private static Asset<SpriteFont> editorSubheading;
+        private static Asset<SpriteFont> editorHeading;
+
+        private static Asset<SpriteTexture> toggleSpriteTexture;
+
+        private static ContentLoader contentLoader;
 
         private static AssetConsumerContext assetConsumerContext = new AssetConsumerContext();
 
@@ -38,8 +43,7 @@ namespace SE.Editor.UI
 
         public static Toggle GetToggle(Vector2 pos, Color col, Color toggleColor, Transform parent = null)
         {
-            SpriteTexture st = new SpriteTexture(AssetManager.GetAsset<Texture2D>("EditorUI"), new Rectangle(16,0,16,16));
-            return new Toggle(pos, new Point(32, 32), st, st) {
+            return new Toggle(pos, new Point(32, 32), toggleSpriteTexture, toggleSpriteTexture) {
                 BackgroundColor = col,
                 ToggleColor = toggleColor,
                 Parent = parent
@@ -134,10 +138,10 @@ namespace SE.Editor.UI
             return bBuilder;
         }
 
-        public static Button CreateButton(Vector2 pos, Point size, string text = "", SpriteTexture? image = null, Point? imageSize = null, Transform parent = null, ColorSet theme = ColorSet.Light)
+        public static Button CreateButton(Vector2 pos, Point size, string text = "", Asset<SpriteTexture> image = null, Point? imageSize = null, Transform parent = null, ColorSet theme = ColorSet.Light)
         {
             ButtonBuilder bBuilder = new ButtonBuilder(pos, size, text)
-               .Image(image ?? new SpriteTexture(), imageSize, Color.White)
+               .Image(image, imageSize, Color.White)
                .Parent(parent);
             switch (theme) {
                 case ColorSet.Light:
@@ -168,6 +172,8 @@ namespace SE.Editor.UI
 
         static EditorTheme()
         {
+            contentLoader = new ContentLoader(GameEngine.Engine.Services, "EditorTheme", "Data/_MAIN/Content");
+
             // Create the default panel style.
             Texture2D texture = AssetManager.Get<Texture2D>(assetConsumerContext, "EditorUI");
 
@@ -204,9 +210,15 @@ namespace SE.Editor.UI
             middle = new Rectangle(4 + 64, 4, 24, 24);
             PanelFullTransparent = new SlicedImage9(texture, left, up, upLeft, upRight, right, down, downLeft, downRight, middle);
 
-            editor = AssetManager.Get<SpriteFont>(assetConsumerContext, "editor");
-            editorSubheading = AssetManager.Get<SpriteFont>(assetConsumerContext, "editor_subheading");
-            editorHeading = AssetManager.Get<SpriteFont>(assetConsumerContext, "editor_heading");
+            toggleSpriteTexture = AssetManager.Add<SpriteTexture>(new AssetBuilder<SpriteTexture>()
+               .ID("wall_left")
+               .Create(new SpriteTextureProcessor("tileset", new Rectangle(128, 0, 16, 64)))
+               .FromContent(contentLoader)
+            );
+
+            editor = AssetManager.GetAsset<SpriteFont>("editor");
+            editorSubheading = AssetManager.GetAsset<SpriteFont>("editor_subheading");
+            editorHeading = AssetManager.GetAsset<SpriteFont>("editor_heading");
         }
 
         public enum FontType

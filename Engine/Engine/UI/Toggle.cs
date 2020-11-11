@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using SE.AssetManagement;
 using SE.Components.UI;
 using SE.Core;
 using SE.Rendering;
@@ -78,7 +79,7 @@ namespace SE.UI
             }
         }
 
-        public Toggle(Vector2 pos, Point size, SpriteTexture untoggled, SpriteTexture toggled) : base(pos, size)
+        public Toggle(Vector2 pos, Point size, Asset<SpriteTexture> untoggled, Asset<SpriteTexture> toggled) : base(pos, size)
         {
             Background = new UISprite(new Point(size.X, size.Y), Color.White, untoggled);
             ToggleImage = new Image(Vector2.Zero, size, toggled) {

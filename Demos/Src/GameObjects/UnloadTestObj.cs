@@ -17,7 +17,7 @@ namespace SEDemos.GameObjects
         {
             base.OnInitialize();
             Sprite sprite = GetComponent<Sprite>();
-            sprite.SpriteTexture = AssetManager.Get<SpriteTexture>(this, "unload_test");
+            sprite.SpriteTextureAsset = AssetManager.GetAsset<SpriteTexture>("unload_test");
             sprite.Color = Color.Purple;
             sprite.LayerDepth = 1.0f;
         }

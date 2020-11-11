@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SE.AssetManagement;
 using SE.Common;
 using SE.Components.UI;
 using SE.Core;
@@ -13,7 +14,7 @@ namespace SE.UI.Builders
     {
         private Button button;
 
-        public ButtonBuilder Text(string text, SpriteFont font = null, Color? color = null)
+        public ButtonBuilder Text(string text, Asset<SpriteFont> font = null, Color? color = null)
         {
             if (button.Text == null)
                 return this;
@@ -28,7 +29,7 @@ namespace SE.UI.Builders
             return this;
         }
 
-        public ButtonBuilder Font(SpriteFont font, Color? color = null)
+        public ButtonBuilder Font(Asset<SpriteFont> font, Color? color = null)
         {
             button.SetFont(font, color ?? Color.White);
             return this;
@@ -40,7 +41,7 @@ namespace SE.UI.Builders
             return this;
         }
 
-        public ButtonBuilder Image(SpriteTexture image, Point? size = null, Color? color = null)
+        public ButtonBuilder Image(Asset<SpriteTexture> image, Point? size = null, Color? color = null)
         {
             button.SetImage(image, color, size);
             return this;

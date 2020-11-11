@@ -121,15 +121,21 @@ namespace SE.Components
         // TODO IMPORTANT!: This setter can cause bugs! The Texture may become null if the managing Asset<Texture> unloads it!!
         //                  THEREFORE this should be an Asset<SpriteTexture>! When the texture needs to change, I need to
         //                  call SpriteTexture.DereferenceAssets.
-        public virtual SpriteTexture SpriteTexture {
+        public virtual Asset<SpriteTexture> SpriteTextureAsset {
             set {
-                if (!Screen.IsFullHeadless && value.Texture == null)
+                spriteTextureAssetInternal?.RemoveReference(AssetConsumer);
+                spriteTextureAssetInternal = value;
+                SpriteTexture = spriteTextureAssetInternal.Get(this);
+                if (!Screen.IsFullHeadless && SpriteTexture.Texture == null)
                     throw new NullReferenceException("The specified SpriteTexture has no Texture2D asset. Ensure that the asset exists, and that it's being set.");
 
-                Data.Material.Texture = value.Texture;
-                TextureSourceRectangle = value.SourceRectangle;
+                Data.Material.Texture = SpriteTexture.Texture;
+                TextureSourceRectangle = SpriteTexture.SourceRectangle;
             }
         }
+        private Asset<SpriteTexture> spriteTextureAssetInternal;
+
+        public SpriteTexture SpriteTexture { get; private set; }
 
         protected Rectangle TextureSourceRectangle;
 

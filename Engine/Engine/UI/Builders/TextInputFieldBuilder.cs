@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SE.AssetManagement;
 using SE.Common;
 using SE.Components.UI;
 using Vector2 = System.Numerics.Vector2;
@@ -40,7 +41,7 @@ namespace SE.UI.Builders
             return this;
         }
 
-        public TextInputFieldBuilder Font(SpriteFont font, Color? color = null)
+        public TextInputFieldBuilder Font(Asset<SpriteFont> font, Color? color = null)
         {
             textInputField.SetFont(font, color);
             return this;

@@ -29,7 +29,7 @@ namespace SEDemos.GameObjects
         {
             base.OnInitialize();
             int m = Random.Next(5);
-            Sprite sprite = new Sprite(AssetManager.Get<SpriteTexture>(this, "floor"), Color.White) {
+            Sprite sprite = new Sprite(AssetManager.GetAsset<SpriteTexture>("floor"), Color.White) {
                 LayerDepth = 0.1f, 
             };
             AddComponent(sprite);

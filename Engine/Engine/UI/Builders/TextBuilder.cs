@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SE.AssetManagement;
 using SE.Common;
 using SE.Core;
 using Vector2 = System.Numerics.Vector2;
@@ -29,14 +30,14 @@ namespace SE.UI.Builders
             return this;
         }
 
-        public TextBuilder Font(SpriteFont font, Color color)
+        public TextBuilder Font(Asset<SpriteFont> font, Color color)
         {
             text.Font = font;
             text.SpriteColor = color;
             return this;
         }
 
-        public TextBuilder Font(SpriteFont font)
+        public TextBuilder Font(Asset<SpriteFont> font)
         {
             text.Font = font;
             return this;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SE.AssetManagement;
 using SE.Components.UI;
 using SE.Core;
 using SE.Input;
@@ -136,7 +137,7 @@ namespace SE.UI
             Input.Value = str;
         }
 
-        public void SetFont(SpriteFont font, Color? color = null, Alignment? alignment = null)
+        public void SetFont(Asset<SpriteFont> font, Color? color = null, Alignment? alignment = null)
         {
             if(font == null)
                 return;

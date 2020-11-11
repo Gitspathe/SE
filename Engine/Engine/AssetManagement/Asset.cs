@@ -54,7 +54,6 @@ namespace SE.AssetManagement
         /// </summary>
         /// <param name="processor">Function called whenever the asset is reloaded.</param>
         /// <param name="contentLoader">Content loader the asset will be added to.</param>
-        /// <param name="referencedAssets">Asset dependencies.</param>
         internal Asset(string id, AssetProcessor processor, ContentLoader contentLoader)
         {
             ID = id;

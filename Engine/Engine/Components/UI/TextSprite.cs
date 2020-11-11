@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SE.AssetManagement;
 using SE.Rendering;
+using System.Threading.Tasks;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components.UI
@@ -11,7 +13,17 @@ namespace SE.Components.UI
         public string Text;
 
         /// <summary>Font used to render this sprite.</summary>
-        public SpriteFont SpriteFont;
+        public Asset<SpriteFont> SpriteFontAsset {
+            get => spriteFontAsset;
+            set {
+                spriteFontAsset?.RemoveReference(AssetConsumer);
+                spriteFontAsset = value;
+                SpriteFont = spriteFontAsset?.Get(this);
+            }
+        }
+        private Asset<SpriteFont> spriteFontAsset;
+
+        public SpriteFont SpriteFont { get; private set; }
 
         public override void Render(Camera2D camera, Space space)
         {
@@ -26,7 +38,7 @@ namespace SE.Components.UI
             position = new Vector2((int) position.X, (int) position.Y);
 
             Core.Rendering.SpriteBatch.DrawString(
-                SpriteFont,
+                SpriteFontAsset.Value,
                 Text,
                 position, 
                 color, 
@@ -50,30 +62,30 @@ namespace SE.Components.UI
         }
 
         /// <summary>Creates a new Text RendererType sprite instance.</summary>
-        /// <param name="spriteFont">SpriteFont used.</param>
+        /// <param name="spriteFontAsset">SpriteFont used.</param>
         /// <param name="text">String to display.</param>
         /// <param name="color">Color of the text.</param>
-        public TextSprite(SpriteFont spriteFont, string text, Color color)
+        public TextSprite(Asset<SpriteFont> spriteFontAsset, string text, Color color)
         {
-            SpriteFont = spriteFont;
+            SpriteFontAsset = spriteFontAsset;
             Text = text;
             Color = color;
             Origin = Vector2.Zero;
-            Size = spriteFont.MeasureString(text).ToPoint();
+            Size = SpriteFont.MeasureString(text).ToPoint();
         }
 
         /// <summary>Creates a new Text RendererType sprite instance.</summary>
-        /// <param name="spriteFont">SpriteFont used.</param>
+        /// <param name="spriteFontAsset">SpriteFont used.</param>
         /// <param name="text">String to display.</param>
         /// <param name="color">Color of the text.</param>
         /// <param name="originPoint">Origin point.</param>
-        public TextSprite(SpriteFont spriteFont, string text, Color color, Vector2 originPoint)
+        public TextSprite(Asset<SpriteFont> spriteFontAsset, string text, Color color, Vector2 originPoint)
         {
-            SpriteFont = spriteFont;
+            SpriteFontAsset = spriteFontAsset;
             Text = text;
             Color = color;
             Origin = originPoint;
-            Size = spriteFont.MeasureString(text).ToPoint();
+            Size = SpriteFont.MeasureString(text).ToPoint();
         }
 
     }

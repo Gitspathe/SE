@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SE.AssetManagement;
 using SE.Rendering;
 using Vector2 = System.Numerics.Vector2;
 
@@ -44,12 +45,12 @@ namespace SE.Components.UI
         /// <param name="sizePixels">Sprite size for UIObject in pixels.</param>
         /// <param name="color">Color used.</param>
         /// <param name="spriteTexture">SpriteTexture used to draw the UI element.</param>
-        public UISprite(Point offsetPixels, Point sizePixels, Color color, SpriteTexture spriteTexture)
+        public UISprite(Point offsetPixels, Point sizePixels, Color color, Asset<SpriteTexture> spriteTexture)
         {
             unscaledOffset = offsetPixels;
             unscaledSize = sizePixels;
             Color = color;
-            SpriteTexture = spriteTexture;
+            SpriteTextureAsset = spriteTexture;
             Origin = Vector2.Zero;
         }
 
@@ -57,11 +58,11 @@ namespace SE.Components.UI
         /// <param name="sizePixels">Sprite size for UIObject in pixels.</param>
         /// <param name="color">Color used.</param>
         /// <param name="spriteTexture">SpriteTexture used to draw the UI element.</param>
-        public UISprite(Point sizePixels, Color color, SpriteTexture spriteTexture)
+        public UISprite(Point sizePixels, Color color, Asset<SpriteTexture> spriteTexture)
         {
             unscaledSize = sizePixels;
             Color = color;
-            SpriteTexture = spriteTexture;
+            SpriteTextureAsset = spriteTexture;
             Origin = Vector2.Zero;
         }
     }

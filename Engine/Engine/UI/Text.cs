@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SE.AssetManagement;
 using SE.Components.UI;
 using SE.Pooling;
 using SE.Utility;
@@ -43,12 +44,12 @@ namespace SE.UI
             }
         }
 
-        public SpriteFont Font {
-            get => sprite.SpriteFont;
-            set => sprite.SpriteFont = value;
+        public Asset<SpriteFont> Font {
+            get => sprite.SpriteFontAsset;
+            set => sprite.SpriteFontAsset = value;
         }
 
-        public Text(SpriteFont font, Vector2 pos, string str = "") : base(pos)
+        public Text(Asset<SpriteFont> font, Vector2 pos, string str = "") : base(pos)
         {
             sprite = new TextSprite(font, str, Color.White);
             AddComponent(sprite);

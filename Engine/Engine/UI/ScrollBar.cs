@@ -1,6 +1,7 @@
 ﻿#if EDITOR
 #endif
 using Microsoft.Xna.Framework;
+using SE.AssetManagement;
 using SE.Rendering;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
@@ -29,7 +30,7 @@ namespace SE.UI
             set => Handle.SpriteColor = value;
         }
 
-        public ScrollBar(Vector2 pos, Point bgSize, Point handleSize, SpriteTexture bgImage, SpriteTexture handleImage) : base(pos, bgSize)
+        public ScrollBar(Vector2 pos, Point bgSize, Point handleSize, Asset<SpriteTexture> bgImage, Asset<SpriteTexture> handleImage) : base(pos, bgSize)
         {
             Background = new Image(new Vector2(0, 0), bgSize, bgImage) {
                 Parent = Transform

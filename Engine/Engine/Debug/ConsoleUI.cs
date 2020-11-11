@@ -37,7 +37,7 @@ namespace SE.Debug
         {
             consoleColor = new Color(0, 0, 0, 200);
             if (Screen.DisplayMode != DisplayMode.Normal) {
-                background = new Image(new Vector2(0, 0), new Point(1920 - 30, 1040), AssetManager.Get<SpriteTexture>(this, "uiRect")) {
+                background = new Image(new Vector2(0, 0), new Point(1920 - 30, 1040), AssetManager.GetAsset<SpriteTexture>("uiRect")) {
                     SpriteColor = consoleColor,
                     Parent = Transform
                 };
@@ -51,13 +51,13 @@ namespace SE.Debug
                 TextInputField = EditorTheme.CreateTextField(new Vector2(0, 1040), new Point(1920, 40), ">", 
                     background.Transform);
 
-                ScrollBar = new ScrollBar(new Vector2(1920 - 30, 0), new Point(30, 1040), new Point(50, 50), AssetManager.Get<SpriteTexture>(this, "uiRect"), AssetManager.Get<SpriteTexture>(this, "uiRect")) {
+                ScrollBar = new ScrollBar(new Vector2(1920 - 30, 0), new Point(30, 1040), new Point(50, 50), AssetManager.GetAsset<SpriteTexture>("uiRect"), AssetManager.GetAsset<SpriteTexture>("uiRect")) {
                     BackgroundColor = Color.Black,
                     HandleColor = Color.White,
                     Parent = background.Transform
                 };
             } else {
-                background = new Image(new Vector2(0, 1080 - 300), new Point(1920 - 30, 300), AssetManager.Get<SpriteTexture>(this, "uiRect")) {
+                background = new Image(new Vector2(0, 1080 - 300), new Point(1920 - 30, 300), AssetManager.GetAsset<SpriteTexture>("uiRect")) {
                     SpriteColor = consoleColor,
                     Parent = Transform
                 };
@@ -71,7 +71,7 @@ namespace SE.Debug
                 TextInputField = EditorTheme.CreateTextField(new Vector2(0, 265), new Point(1920, 35), ">", 
                     background.Transform);
 
-                ScrollBar = new ScrollBar(new Vector2(1920 - 30, 0), new Point(30, 265), new Point(50, 50), AssetManager.Get<SpriteTexture>(this, "uiRect"), AssetManager.Get<SpriteTexture>(this, "uiRect")) {
+                ScrollBar = new ScrollBar(new Vector2(1920 - 30, 0), new Point(30, 265), new Point(50, 50), AssetManager.GetAsset<SpriteTexture>("uiRect"), AssetManager.GetAsset<SpriteTexture>("uiRect")) {
                     BackgroundColor = Color.Black,
                     HandleColor = Color.White,
                     Parent = background.Transform

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SE.AssetManagement;
 using SE.Components.UI;
 using SE.Rendering;
 using SE.Utility;
@@ -43,7 +44,7 @@ namespace SE.UI
             set => Text.Value = value;
         }
 
-        public SpriteFont Font {
+        public Asset<SpriteFont> Font {
             get => Text.Font;
             set => Text.Font = value;
         }
@@ -64,20 +65,19 @@ namespace SE.UI
             }
         }
 
-        public void SetImage(SpriteTexture image, Color? color, Point? imageSize = null)
+        public void SetImage(Asset<SpriteTexture> image, Color? color, Point? imageSize = null)
         {
-            if(image.Texture == null)
-                return;
+            Image.SpriteTextureAsset = image;
 
             // Calculate image size.
             if (imageSize.HasValue) {
                 imageSize = new Point(imageSize.Value.X - (BorderSize * 2), imageSize.Value.Y - (BorderSize * 2));
             }
-            Point tmpSize = imageSize ?? new Point(image.SourceRectangle.Width, image.SourceRectangle.Height);
+            Point tmpSize = imageSize ?? new Point(Image.SpriteTexture.SourceRectangle.Width, Image.SpriteTexture.SourceRectangle.Height);
 
             // Recreate or reset Image.
             if (Image != null) {
-                Image.SpriteTexture = image;
+                Image.SpriteTextureAsset = image;
                 Image.Color = color ?? Color.White;
                 Image.Size = tmpSize;
             } else {
@@ -104,7 +104,7 @@ namespace SE.UI
             }
         }
 
-        public void SetFont(SpriteFont font, Color color)
+        public void SetFont(Asset<SpriteFont> font, Color color)
         {
             if(font == null)
                 return;
@@ -123,7 +123,7 @@ namespace SE.UI
             }
         }
 
-        public Button(Vector2 pos, Point size, SpriteFont font, SlicedImage panelImage, int borderSize = 10) : base(pos, size)
+        public Button(Vector2 pos, Point size, Asset<SpriteFont> font, SlicedImage panelImage, int borderSize = 10) : base(pos, size)
         {
             this.size = size;
             SetBackground(panelImage, Color.White, borderSize);

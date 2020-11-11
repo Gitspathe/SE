@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using SE.AssetManagement;
 using SE.Components.UI;
 using SE.Rendering;
 using SE.Utility;
@@ -10,9 +11,11 @@ namespace SE.UI
     {
         public UISprite Sprite { get; }
 
-        public SpriteTexture SpriteTexture {
-            set => Sprite.SpriteTexture = value;
+        public Asset<SpriteTexture> SpriteTextureAsset {
+            set => Sprite.SpriteTextureAsset = value;
         }
+
+        public SpriteTexture SpriteTexture => Sprite.SpriteTexture;
 
         public Point OriginalSize { get; }
 
@@ -26,7 +29,7 @@ namespace SE.UI
             set => Sprite.Color = value;
         }
 
-        public Image(Vector2 pos, Point size, SpriteTexture spriteTex) : base(pos, size)
+        public Image(Vector2 pos, Point size, Asset<SpriteTexture> spriteTex) : base(pos, size)
         {
             OriginalSize = size;
             Sprite = new UISprite(size, Color.White, spriteTex);

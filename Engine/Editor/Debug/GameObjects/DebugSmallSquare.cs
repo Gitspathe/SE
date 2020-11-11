@@ -18,7 +18,7 @@ namespace SE.Editor.Debug.GameObjects
         protected sealed override void OnInitialize()
         {
             base.OnInitialize();
-            Sprite sprite = new Sprite(AssetManager.Get<SpriteTexture>(this, "debugsmallsquare"), Color.Orange, 0.1f);
+            Sprite sprite = new Sprite(AssetManager.GetAsset<SpriteTexture>("debugsmallsquare"), Color.Orange, 0.1f);
             AddComponent(sprite);
         }
 

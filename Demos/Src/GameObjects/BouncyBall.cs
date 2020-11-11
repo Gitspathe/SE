@@ -1,6 +1,7 @@
 ﻿using LiteNetLib.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SE.AssetManagement;
 using SE.Attributes;
 using SE.Common;
 using SE.Components;
@@ -52,7 +53,7 @@ namespace SEDemos.GameObjects
                 myPhysics.Enabled = false;
             }
 
-            SpriteTexture tex = AssetManager.Get<SpriteTexture>(this, "circle");
+            Asset<SpriteTexture> tex = AssetManager.GetAsset<SpriteTexture>("circle");
 
             ParticleSystem system = GetComponent<ParticleSystem>();
             system.Texture = AssetManager.Get<Texture2D>(this, "Smoke");
@@ -73,7 +74,7 @@ namespace SEDemos.GameObjects
                 light.Color = c;
             };
 
-            sprite.SpriteTexture = tex;
+            sprite.SpriteTextureAsset = tex;
             sprite.Origin = new Vector2(16, 16);
             sprite.Color = c;
             sprite.BlendMode = BlendMode.Transparent;
