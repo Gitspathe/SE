@@ -118,11 +118,11 @@ namespace SE.Components
         }
 
         // TODO: Move this out of SpriteBase. Or at least don't include it in UISlicedSprite since it's useless there.
-        // TODO IMPORTANT!: This setter can cause bugs! The Texture may become null if the managing Asset<Texture> unloads it!!
-        //                  THEREFORE this should be an Asset<SpriteTexture>! When the texture needs to change, I need to
-        //                  call SpriteTexture.DereferenceAssets.
         public virtual Asset<SpriteTexture> SpriteTextureAsset {
             set {
+                if(value == spriteTextureAssetInternal)
+                    return;
+
                 spriteTextureAssetInternal?.RemoveReference(AssetConsumer);
                 spriteTextureAssetInternal = value;
                 SpriteTexture = spriteTextureAssetInternal.Get(this);

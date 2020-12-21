@@ -26,7 +26,7 @@ namespace SE.Core
 
         public static void Update(float deltaTime)
         {
-            FileMarshal.Update(deltaTime);
+            FileMarshal.Update();
             foreach (var pair in contentManagers) {
                 pair.Value.Update(deltaTime);
             }
@@ -77,7 +77,6 @@ namespace SE.Core
         /// <summary>
         /// Attempts to return an unpacked asset instance.
         /// </summary>
-        /// <typeparam name="TKey">Key type.</typeparam>
         /// <typeparam name="TValue">Asset type.</typeparam>
         /// <param name="consumer">Consumer reference for the access request.</param>
         /// <param name="key">Key used for retrieval.</param>
@@ -100,7 +99,7 @@ namespace SE.Core
         /// <param name="consumer">Consumer reference for the access request.</param>
         /// <param name="key">Key used for retrieval.</param>
         /// <returns>An unpacked asset.</returns>
-        public static TValue Get<TValue>(IAssetConsumer consumer, dynamic key)
+        public static TValue Get<TValue>(IAssetConsumer consumer, string key)
         {
             if (Screen.IsFullHeadless && noHeadlessSupportTypes.Contains(typeof(TValue))) {
                 Console.LogWarning($"Asset with key '{key}' was not retrieved in headless mode.");
@@ -118,7 +117,7 @@ namespace SE.Core
         /// <typeparam name="TValue">Asset type.</typeparam>
         /// <param name="key">Key used for retrieval.</param>
         /// <returns>Packed Asset instance.</returns>
-        public static Asset<TValue> GetAsset<TValue>(dynamic key)
+        public static Asset<TValue> GetAsset<TValue>(string key)
         {
             if (Screen.IsFullHeadless && noHeadlessSupportTypes.Contains(typeof(TValue))) {
                 Console.LogWarning($"Asset with key '{key}' was not retrieved in headless mode.");

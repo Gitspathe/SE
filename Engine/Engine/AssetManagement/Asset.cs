@@ -16,8 +16,8 @@ namespace SE.AssetManagement
         internal HashSet<AssetConsumer> References { get; set; } = new HashSet<AssetConsumer>();
         public AssetConsumer AssetConsumer { get; }
 
-        internal abstract void RemoveReference(AssetConsumer reference);
-        internal abstract void AddReference(AssetConsumer reference);
+        public abstract void RemoveReference(AssetConsumer reference);
+        public abstract void AddReference(AssetConsumer reference);
         internal abstract void Load();
         internal abstract void Unload();
         internal abstract void Purge();
@@ -87,7 +87,7 @@ namespace SE.AssetManagement
             return Value;
         }
 
-        internal override void AddReference(AssetConsumer consumer)
+        public override void AddReference(AssetConsumer consumer)
         {
             if (consumer == null)
                 throw new NullReferenceException("The IAssetConsumer instance was null.");
@@ -101,7 +101,7 @@ namespace SE.AssetManagement
             }
         }
 
-        internal override void RemoveReference(AssetConsumer consumer)
+        public override void RemoveReference(AssetConsumer consumer)
         {
             if (consumer == AssetConsumer)
                 throw new NullReferenceException("The IAssetConsumer instance was null.");

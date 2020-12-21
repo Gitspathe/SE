@@ -64,7 +64,7 @@ namespace SE.AssetManagement
             }
         }
 
-        private string FixPath(string path)
+        private static string FixPath(string path)
         {
             path = path.Replace('\\', Path.DirectorySeparatorChar);
             path = path.Replace('/', Path.DirectorySeparatorChar);

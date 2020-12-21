@@ -94,7 +94,7 @@ namespace SE.AssetManagement
             }
         }
 
-        internal static void Update(float deltaTime)
+        internal static void Update()
         {
             // Process background loaded files.
             for (int i = bgLoadFiles.Count - 1; i > 0; --i) {
@@ -318,6 +318,7 @@ namespace SE.AssetManagement
                     WaitTask();
                 }
 
+                curTaskType = TaskType.Load;
                 currentTask = Task.Run(() => {
                     Stream stream = TitleContainer.OpenStream(AppRelativeDirectory);
                     BinaryReader reader = new BinaryReader(stream);
@@ -330,7 +331,6 @@ namespace SE.AssetManagement
                         curTaskType = TaskType.None;
                     }
                 });
-                curTaskType = TaskType.Load;
             }
 
             public void Unload()
