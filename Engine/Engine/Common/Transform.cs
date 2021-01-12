@@ -14,8 +14,7 @@ namespace SE.Common
     public class Transform : IDisposable
     {
         /// <summary>The GameObject's transform.</summary>
-        public GameObject GameObject
-        {
+        public GameObject GameObject {
             get => GameObjectProp;
             private protected set => GameObjectProp = value;
         }
@@ -34,11 +33,9 @@ namespace SE.Common
         /// Gets the Transform's global position.
         /// </summary>
         /// <returns>Global position in pixels.</returns>
-        public Vector2 GlobalPosition
-        {
+        public Vector2 GlobalPosition {
             get => GlobalPositionInternal;
-            set
-            {
+            set {
                 if (value == GlobalPositionInternal)
                     return;
 
@@ -55,11 +52,9 @@ namespace SE.Common
         /// Gets the Transform's global rotation.
         /// </summary>
         /// <returns>Global rotation in degrees.</returns>
-        public float GlobalRotation
-        {
+        public float GlobalRotation {
             get => GlobalRotationInternal;
-            set
-            {
+            set {
                 if (value == GlobalRotationInternal)
                     return;
 
@@ -76,11 +71,9 @@ namespace SE.Common
         /// Gets the Transform's global scale.
         /// </summary>
         /// <returns>Global scale multiplier.</returns>
-        public Vector2 GlobalScale
-        {
+        public Vector2 GlobalScale {
             get => GlobalScaleInternal;
-            set
-            {
+            set {
                 if (value == GlobalScaleInternal)
                     return;
 
@@ -97,11 +90,9 @@ namespace SE.Common
         /// Gets the Transform's local position, or global position if it has no parent Transform.
         /// </summary>
         /// <returns>Local position if Parent isn't null, global position if Parent is null.</returns>
-        public Vector2 Position
-        {
+        public Vector2 Position {
             get => Parent == null ? GlobalPositionInternal : localPosition;
-            set
-            {
+            set {
                 if (value == localPosition)
                     return;
 
@@ -114,11 +105,9 @@ namespace SE.Common
         /// Gets the Transform's local rotation, or global rotation if it has no parent Transform.
         /// </summary>
         /// <returns>Local rotation if Parent isn't null, global rotation if Parent is null.</returns>
-        public float Rotation
-        {
+        public float Rotation {
             get => Parent == null ? GlobalRotationInternal : localRotation;
-            set
-            {
+            set {
                 if (value == localRotation)
                     return;
 
@@ -131,11 +120,9 @@ namespace SE.Common
         /// Gets the Transform's local scale, or global scale if it has no parent Transform.
         /// </summary>
         /// <returns>Local scale if Parent isn't null, global scale if Parent is null.</returns>
-        public Vector2 Scale
-        {
+        public Vector2 Scale {
             get => Parent == null ? GlobalScaleInternal : localScale;
-            set
-            {
+            set {
                 if (value == localScale)
                     return;
 
@@ -160,16 +147,6 @@ namespace SE.Common
             Matrix4x4.CreateRotationZ(localRotation) *
             Matrix4x4.CreateTranslation(localPosition.X, localPosition.Y, 0f);
 
-        // Events
-        /// <summary>Called when the Transform's parent is set. May be null in the case that the parent is removed or nonexistent.</summary>
-        public event Action<Transform> ParentSet;
-
-        /// <summary>Called when a child is added to the Transform.</summary>
-        public event Action<Transform> ChildAdded;
-
-        /// <summary>Called when a child is removed from the Transform.</summary>
-        public event Action<Transform> ChildRemoved;
-
         // INTERNAL FOR PERFORMANCE! DO NOT MODIFY DIRECTLY!!
         internal Vector2 GlobalPositionInternal;
         internal Vector2 GlobalScaleInternal;
@@ -193,8 +170,7 @@ namespace SE.Common
             localRotation = rotation;
             localScale = scale;
             GameObject = ownerGameObject;
-            if (parent != null)
-            {
+            if (parent != null) {
                 SetParent(parent);
             }
             UpdateTransformation();
@@ -211,23 +187,18 @@ namespace SE.Common
             if (transform == this)
                 return;
 
-            if (transform == null && Parent != null)
-            {
+            if (transform == null && Parent != null) {
                 Parent.RemoveChild(this);
-            }
-            else
-            {
+            } else {
                 Parent?.RemoveChild(this);
                 Parent = transform;
                 Parent?.AddChild(this);
             }
-            if (resetPosition)
-            {
+            if (resetPosition) {
                 UpdateTransformation();
             }
 
             GameObject.RecalculateBoundsInternal();
-            ParentSet?.Invoke(transform);
             EngineUtility.TransformHierarchyDirty = true;
         }
 
@@ -237,7 +208,6 @@ namespace SE.Common
                 return;
 
             Parent = null;
-            ParentSet?.Invoke(null);
             EngineUtility.TransformHierarchyDirty = true;
         }
 
@@ -249,7 +219,7 @@ namespace SE.Common
         {
             Children.Add(child);
             UpdateTransformation();
-            ChildAdded?.Invoke(child);
+            GameObject?.OnTransformChildrenChangedInternal();
             EngineUtility.TransformHierarchyDirty = true;
         }
 
@@ -265,7 +235,7 @@ namespace SE.Common
             child.RemoveParent();
             Children.Remove(child);
             UpdateTransformation();
-            ChildRemoved?.Invoke(child);
+            GameObject?.OnTransformChildrenChangedInternal();
             EngineUtility.TransformHierarchyDirty = true;
         }
 
@@ -276,8 +246,7 @@ namespace SE.Common
         /// <returns></returns>
         public QuickList<Transform> GetAllChildren(QuickList<Transform> children)
         {
-            foreach (Transform child in Children)
-            {
+            foreach (Transform child in Children) {
                 children.Add(child);
                 child.GetAllChildren(children);
             }
@@ -290,8 +259,7 @@ namespace SE.Common
         /// <param name="children">List which the children will be added to.</param>
         public void GetAllChildrenNonAlloc(QuickList<Transform> children)
         {
-            foreach (Transform child in Children)
-            {
+            foreach (Transform child in Children) {
                 children.Add(child);
                 child.GetAllChildrenNonAlloc(children);
             }
@@ -302,14 +270,10 @@ namespace SE.Common
         /// </summary>
         public void UpdateTransformation()
         {
-            if (Children.Count == 0)
-            {
+            if (Children.Count == 0) {
                 UpdateTransformationMatrix();
-            }
-            else
-            {
-                for (int i = 0; i < Children.Count; i++)
-                {
+            } else {
+                for (int i = 0; i < Children.Count; i++) {
                     Children.Array[i].UpdateTransformation();
                 }
             }
@@ -320,8 +284,7 @@ namespace SE.Common
         protected virtual Matrix4x4 UpdateTransformationMatrix()
         {
             Matrix4x4 globalTransform = LocalTransformation;
-            if (Parent != null)
-            {
+            if (Parent != null) {
                 globalTransform *= Parent.UpdateTransformationMatrix();
             }
 
@@ -336,9 +299,6 @@ namespace SE.Common
 
         protected virtual void Dispose(bool disposing = true)
         {
-            ParentSet = null;
-            ChildAdded = null;
-            ChildRemoved = null;
         }
 
         /// <summary>
@@ -415,8 +375,7 @@ namespace SE.Common
                 State = transform.GameObject.Enabled;
                 Children = new QuickList<TransformNode>(transform.Children.Count);
                 Transform[] transformChildren = transform.Children.Array;
-                for (int i = 0; i < transform.Children.Count; i++)
-                {
+                for (int i = 0; i < transform.Children.Count; i++) {
                     Children.Add(new TransformNode(transformChildren[i]));
                 }
             }
@@ -429,12 +388,10 @@ namespace SE.Common
             {
                 bool isRoot = root == Transform;
 
-                if (State && !Transform.GameObject.Enabled)
-                {
+                if (State && !Transform.GameObject.Enabled) {
                     Transform.GameObject.Enable(isRoot);
                 }
-                for (int i = 0; i < Children.Count; i++)
-                {
+                for (int i = 0; i < Children.Count; i++) {
                     Children.Array[i].Restore(root);
                 }
             }
