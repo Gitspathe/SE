@@ -37,7 +37,7 @@ namespace SE.Components
                 if (Owner == null)
                     return unscaledOffset;
 
-                Vector2 scale = Owner.Transform.GlobalScale2D;
+                Vector2 scale = Owner.Transform.GlobalScaleInternal;
                 return new Point((int)(unscaledOffset.X * scale.X), (int)(unscaledOffset.Y * scale.Y));
             }
             set {
@@ -46,7 +46,7 @@ namespace SE.Components
                     return;
                 }
 
-                Vector2 scale = Owner.Transform.GlobalScale2D;
+                Vector2 scale = Owner.Transform.GlobalScaleInternal;
                 unscaledOffset = new Point((int)(value.X * scale.X), (int)(value.Y * scale.Y));
                 RecalculateBounds();
             }
@@ -66,7 +66,7 @@ namespace SE.Components
                 if (Owner == null)
                     return unscaledSize;
 
-                Vector2 scale = Owner.Transform.GlobalScale2D;
+                Vector2 scale = Owner.Transform.GlobalScaleInternal;
                 return new Point((int)(unscaledSize.X * scale.X), (int)(unscaledSize.Y * scale.Y));
             }
             set {
@@ -75,7 +75,7 @@ namespace SE.Components
                     return;
                 }
 
-                Vector2 scale = Owner.Transform.GlobalScale2D;
+                Vector2 scale = Owner.Transform.GlobalScaleInternal;
                 UnscaledSize = new Point((int)(value.X * scale.X), (int)(value.Y * scale.Y));
                 RecalculateBounds();
             }

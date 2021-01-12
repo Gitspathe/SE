@@ -25,7 +25,6 @@ using SE.GameLoop;
 using SE.World.Partitioning;
 using SE.Particles.Shapes;
 using System.Numerics;
-using DeferredEngine.Logic;
 using Random = SE.Utility.Random;
 using Vector2 = System.Numerics.Vector2;
 
@@ -63,8 +62,6 @@ namespace SE
         public static Camera2D EditorCamera { get; protected set; }
 
         private static bool isInitialized;
-
-        private readonly ScreenManager _screenManager;
 
         /// <summary>
         /// Creates a new instance of SE.

@@ -169,39 +169,6 @@ namespace SE.Core
             }
             EndDrawCall();
             GraphicsDevice.SetRenderTarget(null);
-
-            //DrawModel(ModelDefinition.TESTMODEL, Cameras[0]);
-        }
-
-        public static void DrawModel(ModelDefinition model, Camera2D camera)
-        {
-            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            GraphicsDevice.DepthStencilState = DepthStencilGreater;
-
-            model.Transform.Rotation += System.Numerics.Quaternion.CreateFromYawPitchRoll(0.1f, 0.0f, 0.0f) * Time.DeltaTime;
-
-            //model.Transform.Position = new System.Numerics.Vector3(0.0f, 0.0f, 0.0f);
-            //model.Transform.Scale = new System.Numerics.Vector3(1.0f, 1.0f, 1.0f);
-            foreach (ModelMesh mesh in model.Model.Meshes)
-            {
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.EnableDefaultLighting();
-                    effect.World = model.Transform.WorldTransformation.ToMonoGameMatrix();
-                    
-                    // TODO: Replace with camera view.
-                    effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.Up);
-                    
-                    effect.Projection = camera.ProjectionMatrix;
-
-                    //effect.EnableDefaultLighting();
-                    //effect.World = Matrix.CreateTranslation(new Vector3(0, 0, 0));
-                    //effect.View = Matrix.CreateLookAt(new Vector3(0, 0, 100), Vector3.Zero, Vector3.Up);
-                    //effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), 1.6f, 0.1f, 10000.0f);
-                }
-
-                mesh.Draw();
-            }
         }
 
         public static void ChangeDrawCall(SpriteSortMode sortMode, Matrix? transformMatrix, BlendState blendState = null, SamplerState samplerState = null, DepthStencilState depthStencilState = null, RasterizerState rasterizerState = null, Effect effect = null)

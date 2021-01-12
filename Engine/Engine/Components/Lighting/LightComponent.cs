@@ -100,8 +100,8 @@ namespace SE.Components.Lighting
             if(Light == null)
                 return;
 
-            Light.Position = Owner.Transform.GlobalPosition2D;
-            Light.Rotation = Owner.Transform.GlobalRotationInternal.Z;
+            Light.Position = Owner.Transform.GlobalPositionInternal;
+            Light.Rotation = Owner.Transform.GlobalRotationInternal;
         }
 
         public LightComponent(Vector2 size, Color color, float intensity = 1.0f, LightType lightType = LightType.Point)

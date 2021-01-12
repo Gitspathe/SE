@@ -136,7 +136,7 @@ namespace SE.Components.UI
 
         public override void Render(Camera2D camera, Space space)
         {
-            Vector2 position = Owner.Transform.GlobalPosition2D;
+            Vector2 position = Owner.Transform.GlobalPositionInternal;
             Rectangle bounds = Bounds;
             if (space == Space.World) {
                 position.X -= camera.Position.X;

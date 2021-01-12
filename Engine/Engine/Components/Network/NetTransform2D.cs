@@ -58,8 +58,8 @@ namespace SE.Components.Network
             if(physObj == null)
                 physObj = Owner.GetComponent<PhysicsObject>();
 
-            curPosition = Owner.Transform.GlobalPosition2D;
-            curRotation = Owner.Transform.GlobalRotationInternal.Z;
+            curPosition = Owner.Transform.GlobalPositionInternal;
+            curRotation = Owner.Transform.GlobalRotationInternal;
             curVelocity = physObj.Body.LinearVelocity;
 
             RPCMethod velocityMethod = Quality == CompensationQuality.High
@@ -77,8 +77,8 @@ namespace SE.Components.Network
         private void TransformUpdate()
         {
             if (snapPosition.HasValue) {
-                Vector2 smoothing = (snapPosition.Value - Owner.Transform.GlobalPosition2D) * (snapTime / snapMaxTime);
-                Owner.Transform.Position2D = Owner.Transform.GlobalPosition2D + curVelocity * Time.FixedTimestep + smoothing;
+                Vector2 smoothing = (snapPosition.Value - Owner.Transform.GlobalPositionInternal) * (snapTime / snapMaxTime);
+                Owner.Transform.Position = Owner.Transform.GlobalPositionInternal + curVelocity * Time.FixedTimestep + smoothing;
 
                 snapTime += Time.FixedTimestep;
                 if (snapTime > snapMaxTime) {
@@ -86,9 +86,9 @@ namespace SE.Components.Network
                     snapPosition = null;
                 }
             } else {
-                Owner.Transform.Position2D = Owner.Transform.GlobalPosition2D + curVelocity * Time.FixedTimestep;
+                Owner.Transform.Position = Owner.Transform.GlobalPositionInternal + curVelocity * Time.FixedTimestep;
             }
-            Owner.Transform.GlobalEulerAngles = new System.Numerics.Vector3(0,0, curRotation);
+            Owner.Transform.Rotation = curRotation;
         }
 
         private void SendUpdateVelocityRPC(DeliveryMethod deliveryMethod)
@@ -104,37 +104,37 @@ namespace SE.Components.Network
             writer.Put(curVelocity.Y);
             writer.Put(Owner.Transform.Scale.X);
             writer.Put(Owner.Transform.Scale.Y);
-            writer.Put(Owner.Transform.Rotation.Z);
+            writer.Put(Owner.Transform.Rotation);
             return writer.CopyData();
         }
 
         public void RestoreNetworkState(NetDataReader reader)
         {
-            Owner.Transform.Position2D = new Vector2(reader.GetFloat(), reader.GetFloat());
+            Owner.Transform.Position = new Vector2(reader.GetFloat(), reader.GetFloat());
             curVelocity = new Vector2(reader.GetFloat(), reader.GetFloat());
-            Owner.Transform.Scale2D = new Vector2(reader.GetFloat(), reader.GetFloat());
-            Owner.Transform.EulerAngles = new System.Numerics.Vector3(0,0, reader.GetFloat());
+            Owner.Transform.Scale = new Vector2(reader.GetFloat(), reader.GetFloat());
+            Owner.Transform.Rotation = reader.GetFloat();
         }
 
         [ServerRPC]
         public void UpdateVelocitySnap(Vector2 position, Vector2 velocity)
         {
-            Owner.Transform.Position2D = position;
+            Owner.Transform.Position = position;
             curVelocity = velocity;
         }
 
         [ClientRPC]
         public void UpdateVelocitySnap_CLIENT(Vector2 position, Vector2 velocity)
         {
-            Owner.Transform.Position2D = position;
+            Owner.Transform.Position = position;
             curVelocity = velocity;
         }
 
         [ServerRPC]
         public void UpdateVelocity(Vector2 position, Vector2 velocity, float rotation)
         {
-            Owner.Transform.Position2D = position;
-            Owner.Transform.GlobalEulerAngles = new System.Numerics.Vector3(0,0, rotation);
+            Owner.Transform.Position = position;
+            Owner.Transform.Rotation = rotation;
             curVelocity = velocity;
             curRotation = rotation;
         }
@@ -144,9 +144,9 @@ namespace SE.Components.Network
         {
             curVelocity = velocity;
             curRotation = rotation;
-            float distance = Vector2.Distance(position, Owner.Transform.GlobalPosition2D);
+            float distance = Vector2.Distance(position, Owner.Transform.GlobalPositionInternal);
             if (distance >= 32f) {
-                Owner.Transform.Position2D = position;
+                Owner.Transform.Position = position;
             } else if (distance >= 6f) {
                 snapPosition = position;
                 snapMaxTime = 0.05f;

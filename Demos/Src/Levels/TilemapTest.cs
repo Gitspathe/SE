@@ -26,7 +26,7 @@ namespace SEDemos.Levels
         public override void AfterSceneLoad()
         {
             UnloadTestObj testObj = (UnloadTestObj)GameObject.Instantiate(typeof(UnloadTestObj), Vector2.Zero, 0f, Vector2.One);
-            testObj.Transform.Position = new Vector3(400, 400, 0);
+            testObj.Transform.Position = new Vector2(400, 400);
             NetworkTestMenu menu = new NetworkTestMenu();
 
             Material test = new Material(AssetManager.Get<Texture2D>(assetConsumer, "grasstex"));

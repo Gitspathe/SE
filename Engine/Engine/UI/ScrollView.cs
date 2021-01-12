@@ -71,7 +71,7 @@ namespace SE.UI
                 }
             }
             if (!oldScrollValue.Equals(ScrollBar.Value)) {
-                Transform.Position2D = new Vector2(Transform.Position.X, ScrollPortSize.Y * -ScrollBar.Value);
+                Transform.Position = new Vector2(Transform.Position.X, ScrollPortSize.Y * -ScrollBar.Value);
                 ProcessHidden();
             }
             oldScrollValue = ScrollBar.Value;

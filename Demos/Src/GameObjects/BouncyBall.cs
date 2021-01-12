@@ -101,7 +101,7 @@ namespace SEDemos.GameObjects
         { 
             base.OnUpdate();
             if (Network.InstanceType == NetInstanceType.Server) {
-                Transform.EulerAngles = new System.Numerics.Vector3(0,0, myPhysics.Body.LinearVelocity.ToRotation());
+                Transform.Rotation = myPhysics.Body.LinearVelocity.ToRotation();
                 if (myPhysics.Body.LinearVelocity.Length() < 256.0f) {
                     myPhysics.Body.LinearVelocity *= 3.0f;
                 }

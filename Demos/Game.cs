@@ -335,9 +335,6 @@ namespace SEDemos
                 );
             }
 
-            Model m = content.Load<Model>("models/utah-teapot");
-            ModelDefinition def = new ModelDefinition(m, new Transform(Vector3.Zero, Vector3.One));
-
             AssetManager.Add(new AssetBuilder<SpriteTexture>()
                .ID("grass")
                .Create(new SpriteTextureProcessor("grasstex", new Rectangle(0, 0, 64, 64)))

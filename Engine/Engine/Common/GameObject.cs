@@ -634,7 +634,7 @@ namespace SE.Common
                 EngineName = EngineName,
                 Type = GetType(),
                 Position = Transform.Position,
-                Rotation = Transform.EulerAngles,
+                Rotation = Transform.Rotation,
                 Scale = Transform.Scale,
                 componentData = new QuickList<ComponentData>()
             };
@@ -658,7 +658,7 @@ namespace SE.Common
             // Deserialize primary data...
             EngineName = data.EngineName;
             Transform.Position = data.Position;
-            Transform.EulerAngles = data.Rotation;
+            Transform.Rotation = data.Rotation;
             Transform.Scale = data.Scale;
 
             // Deserialize any valid components...
