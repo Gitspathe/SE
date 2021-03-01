@@ -19,7 +19,6 @@ namespace SE
             "Whoops. Sorry dude.",
             "What else did you expect from a program called \"Spaghetti Engine\"?",
             "That wasn't supposed to happen.",
-            "Illegal user input detected: \"0w0\". Terminating.",
             "At least the crash logging works, right?"
         };
 
@@ -31,11 +30,10 @@ namespace SE
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         }
 
-        // TODO: Write crash logs instead of just writing to LOG.txt.
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             try {
-                WriteCrashLog((e.ExceptionObject as Exception));
+                WriteCrashLog(e.ExceptionObject as Exception);
             } catch (Exception) { /* ignored */ }
         }
 
