@@ -183,13 +183,8 @@ namespace SE.Serialization.Converters
         public override string DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadString();
 
-        public override void SerializeText(string obj, Utf8Writer writer, ref SerializeTask task)
-        {
-            writer.Write(Serializer._STRING_IDENTIFIER);
-            writer.Write(Encoding.UTF8.GetBytes(obj));
-            writer.Write(Serializer._STRING_IDENTIFIER);
-        }
-
+        public override void SerializeText(string obj, Utf8Writer writer, ref SerializeTask task) 
+            => writer.WriteQuotedText(obj);
         public override string DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadQuotedString();
     }

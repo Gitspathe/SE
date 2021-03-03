@@ -9,7 +9,7 @@ namespace SE.Serialization
     public sealed class SerializerSettings
     {
         /// <summary>Which format to use.</summary>
-        public Formatting Formatting                       = Formatting.Text;
+        public Formatting Formatting                       = Formatting.Binary;
         /// <summary>How the serializer handles null values.</summary>
         public NullValueHandling NullValueHandling         = NullValueHandling.Ignore;
         /// <summary>How the serializer handles default values.</summary>
@@ -17,11 +17,16 @@ namespace SE.Serialization
         /// <summary>How the serializer converts data. Determines performance and parsing error resilience.</summary>
         public ConvertBehaviour ConvertBehaviour           = ConvertBehaviour.Order;
         /// <summary>How the serializer handles types.</summary>
-        public TypeHandling TypeHandling                   = TypeHandling.Ignore;
+        public TypeHandling TypeHandling                   = TypeHandling.Always;
         /// <summary>How the serializer behaves when encountering a recursive loop of references.</summary>
         public ReferenceLoopHandling ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         /// <summary>How many levels deep the serializer will process.</summary>
-        public int MaxDepth = 10;
+        public int MaxDepth                                = 10;
+
+        // TODO: HEADER!!
+        /// <summary>Whether or not to handle the header. Allows for seamless conversion between binary and text formatting.</summary>
+        public bool UseHeader                              = true;
+
         /// <summary>Which resolver is used to determine the Converters used for given types.</summary>
         public ConverterResolver Resolver                  = Serializer.DefaultResolver;
     }

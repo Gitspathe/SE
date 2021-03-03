@@ -120,51 +120,50 @@ namespace SEDemos
             //string test = FileIO.ReadFileString("testIni.ini");
             //IniData testDat = IniSerializer.Parse(test);
 
-            //int iterations = 50_000;
-            //int innerIterations = 3;
+            int iterations = 50_000;
+            int innerIterations = 3;
 
-            //for (int z = 0; z < innerIterations; z++)
-            //{
+            for (int z = 0; z < innerIterations; z++)
+            {
 
-            //    Stopwatch s = new Stopwatch();
-            //    s.Start();
+                Stopwatch s = new Stopwatch();
+                s.Start();
 
-            //    TestClass test = new TestClass(255)
-            //    {
-            //        baseVal = 43546,
-            //        pizza1 = 0,
-            //        pizza4 = 69.420f,
-            //        pizza5 = 0,
-            //        pizza3 = { [2] = 59.0f },
-            //        ObjTest = new TestClass2()
-            //    };
-            //    test.testClass1.test1.lol = 64;
+                TestClass test = new TestClass(255)
+                {
+                    baseVal = 43546,
+                    pizza1 = 0,
+                    pizza4 = 69.420f,
+                    pizza5 = 0,
+                    pizza3 = { [2] = 59.0f },
+                    ObjTest = new TestClass2()
+                };
+                test.testClass1.test1.lol = 64;
 
-            //    //New serializer.
-            //    s.Start();
-            //    for (int i = 0; i < iterations; i++)
-            //    {
-            //        byte[] bytes = Serializer.Serialize(test);
-            //        test = Serializer.Deserialize<TestClass>(bytes);
-            //    }
-            //    s.Stop();
-            //    long s1 = s.ElapsedMilliseconds;
+                //New serializer.
+                s.Start();
+                for (int i = 0; i < iterations; i++) {
+                    byte[] bytes = Serializer.Serialize(test);
+                    test = Serializer.Deserialize<TestClass>(bytes);
+                }
+                s.Stop();
+                long s1 = s.ElapsedMilliseconds;
 
-            //    // JSON serializer.
-            //    s = new Stopwatch();
-            //    s.Start();
-            //    for (int i = 0; i < iterations; i++)
-            //    {
-            //        string bytes = System.Text.Json.JsonSerializer.Serialize(test, textJsonOptions);
-            //        test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes, textJsonOptions);
-            //    }
-            //    s.Stop();
-            //    long s2 = s.ElapsedMilliseconds;
+                // JSON serializer.
+                s = new Stopwatch();
+                s.Start();
+                for (int i = 0; i < iterations; i++)
+                {
+                    string bytes = System.Text.Json.JsonSerializer.Serialize(test, textJsonOptions);
+                    test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes, textJsonOptions);
+                }
+                s.Stop();
+                long s2 = s.ElapsedMilliseconds;
 
-            //    string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
-            //    Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
-            //    Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
-            //}
+                string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
+                Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
+                Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
+            }
 
             // Text serialization test.
             //int textIterations = 200_000;
@@ -205,9 +204,9 @@ namespace SEDemos
             long bytesAfter = GC.GetTotalMemory(true);
             Console.WriteLine(bytesAfter - bytesBefore);
 
-            //TestTextClass lel = new TestTextClass();
-            //byte[] lelBytes = Serializer.Serialize(lel);
-            //FileIO.SaveFile(lelBytes, "LOLZ.data");
+            TestTextClass lel = new TestTextClass();
+            byte[] lelBytes = Serializer.Serialize(lel);
+            FileIO.SaveFile(lelBytes, "LOLZ.data");
         }
 
         [JsonObject(MemberSerialization.OptOut)]
@@ -276,7 +275,7 @@ namespace SEDemos
         [SerializeObject(ObjectSerialization.Fields)]
         public class TestClass2
         {
-            public int? lol { get; set; } = 2;
+            public int? lol { get; set; } = 2; // TODO: This is currently bugged with deserialization (when types are written)
             public TestClass3 test1 { get; set; } = new TestClass3();
             public TestClass3 test2 { get; set; } = new TestClass3();
             public TestClass3 test3 { get; set; } = new TestClass3();

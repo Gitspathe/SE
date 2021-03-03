@@ -15,6 +15,13 @@ namespace SE.Serialization
             writer.Write(Encoding.UTF8.GetBytes(str));
         }
 
+        public static void WriteQuotedText(this Utf8Writer writer, string str)
+        {
+            writer.Write(_STRING_IDENTIFIER);
+            writer.Write(Encoding.UTF8.GetBytes(str));
+            writer.Write(_STRING_IDENTIFIER);
+        }
+
         public static string ReadQuotedString(this Utf8Reader reader)
         {
             strBuilder.Clear();

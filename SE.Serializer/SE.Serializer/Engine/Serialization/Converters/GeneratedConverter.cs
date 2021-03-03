@@ -357,6 +357,8 @@ namespace SE.Serialization.Converters
             private TypeAccessor accessor;
             private bool recursive;
 
+            public bool allowPolymorphism;
+
             // Faster access for delegate accessors.
             private TypeAccessor.DelegateAccessor delegateAccessor;
             private int accessorIndex;
@@ -378,6 +380,11 @@ namespace SE.Serialization.Converters
                     delegateAccessor = delAccessor;
                     accessorIndex = delAccessor.GetIndex(RealName) ?? throw new IndexOutOfRangeException();
                 }
+
+                allowPolymorphism = true;
+                if (Type.IsValueType || Nullable.GetUnderlyingType(Type) != null) {
+                    allowPolymorphism = false;
+                }
             }
 
             public void ReadBinary(object target, Utf8Reader reader, ref DeserializeTask task)
@@ -389,14 +396,22 @@ namespace SE.Serialization.Converters
                                       || task.Settings.DefaultValueHandling == DefaultValueHandling.Serialize;
 
                 bool shouldSetValue = !shouldReadBool || reader.ReadBoolean();
-                if (shouldSetValue) {
-                    Converter typeConverter = Serializer.GetConverterForType(reader, task.Settings) ?? converter;
-                    SetValue(target, Serializer.DeserializeReader(reader, typeConverter, ref task));
+
+                // If value shouldn't be set, set it to default.
+                if (!shouldSetValue) {
+                    SetValue(target, default);
                     return;
                 }
 
-                // Set to default.
-                SetValue(target, default);
+                // Otherwise, set the value.
+                Converter typeConverter = converter;
+                if (allowPolymorphism) {
+                    Serializer.TryReadMeta(reader, task.Settings, out string valueType, out int? id);
+                    if (valueType != null) {
+                        typeConverter = Serializer.GetConverterForTypeString(valueType, task.Settings);
+                    }
+                }
+                SetValue(target, Serializer.DeserializeReader(reader, typeConverter, ref task));
             }
 
             public void WriteBinary(object target, Utf8Writer writer, bool writeName, ref SerializeTask task)
@@ -404,11 +419,12 @@ namespace SE.Serialization.Converters
                 if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
                     throw new ReferenceLoopException();
 
+                // Locals initialization.
                 object val = GetValue(target);
                 Type valType = null;
                 Converter typeConverter = converter;
                 SerializerSettings settings = task.Settings;
-                bool serializeType = settings.TypeHandling != TypeHandling.Ignore;
+                bool serializeType = settings.TypeHandling != TypeHandling.Ignore && allowPolymorphism;
 
                 // Resolve true type converter (in case of polymorphism).
                 if (serializeType && val != null) {
@@ -433,11 +449,6 @@ namespace SE.Serialization.Converters
                     writer.Write(_NAME_DELIMITER);
                 }
 
-                // Write Type if needed.
-                if (serializeType) {
-                    Serializer.WriteConverterType(writer, valType, Type, settings);
-                }
-
                 // Write bool for null or default values.
                 if (writeNull || writeDefault) {
                     bool shouldWrite = writeNull && val != null || writeDefault && !isDefault;
@@ -446,6 +457,15 @@ namespace SE.Serialization.Converters
                         return;
                 }
 
+                // Write meta-info.
+                bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Type, settings);
+                string metaType = null;
+                if (shouldWriteType) {
+                    metaType = valType.AssemblyQualifiedName;
+                }
+                Serializer.WriteMeta(writer, settings, metaType, null);
+
+                // Serialize value.
                 Serializer.SerializeWriter(writer, val, typeConverter, ref task);
             }
 
@@ -483,6 +503,8 @@ namespace SE.Serialization.Converters
                 writer.WriteIndent(task.CurrentDepth);
                 writer.Write(precompiledName);
 
+                // TODO: Meta
+
                 // Write Type if needed.
                 if (serializeType) {
                     Serializer.WriteConverterType(writer, valType, Type, settings);
@@ -496,6 +518,9 @@ namespace SE.Serialization.Converters
 
             public void ReadText(object target, Utf8Reader reader, ref DeserializeTask task)
             {
+                if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
+                    throw new ReferenceLoopException();
+
                 // TODO.
             }
 

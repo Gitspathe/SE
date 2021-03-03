@@ -44,7 +44,7 @@ namespace SE.Serialization.Converters
                     defaultInstance = Type.IsValueType ? Activator.CreateInstance(Type) : null;
                 }
             } catch (Exception) {
-                defaultInstance = null;
+                defaultInstance = null; // Catch nullable error here. Bit of a hack!
             } finally {
                 defaultCreated = true;
             }
