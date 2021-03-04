@@ -189,6 +189,39 @@ namespace SE.Serialization
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public byte ReadByteUtf8()
+        {
+            ReadOnlySpan<byte> numberBytes = ReadNumber();
+            Utf8Parser.TryParse(numberBytes, out byte val, out int bytesConsumed);
+            return val;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public sbyte ReadSByteUtf8()
+        {
+            ReadOnlySpan<byte> numberBytes = ReadNumber();
+            Utf8Parser.TryParse(numberBytes, out sbyte val, out int bytesConsumed);
+            return val;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public short ReadShortUtf8()
+        {
+            ReadOnlySpan<byte> numberBytes = ReadNumber();
+            Utf8Parser.TryParse(numberBytes, out short val, out int bytesConsumed);
+            return val;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ushort ReadUShortUtf8()
+        {
+            ReadOnlySpan<byte> numberBytes = ReadNumber();
+            Utf8Parser.TryParse(numberBytes, out ushort val, out int bytesConsumed);
+            return val;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int ReadIntUtf8()
         {
             ReadOnlySpan<byte> numberBytes = ReadNumber();
@@ -196,6 +229,44 @@ namespace SE.Serialization
             return val;
         }
 
-        // TODO: Utf8 read methods. (Use Memory<byte> buffer).
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public uint ReadUIntUtf8()
+        {
+            ReadOnlySpan<byte> numberBytes = ReadNumber();
+            Utf8Parser.TryParse(numberBytes, out uint val, out int bytesConsumed);
+            return val;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public long ReadLongUtf8()
+        {
+            ReadOnlySpan<byte> numberBytes = ReadNumber();
+            Utf8Parser.TryParse(numberBytes, out long val, out int bytesConsumed);
+            return val;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ulong ReadULongUtf8()
+        {
+            ReadOnlySpan<byte> numberBytes = ReadNumber();
+            Utf8Parser.TryParse(numberBytes, out ulong val, out int bytesConsumed);
+            return val;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public float ReadFloatUtf8()
+        {
+            ReadOnlySpan<byte> numberBytes = ReadNumber();
+            Utf8Parser.TryParse(numberBytes, out float val, out int bytesConsumed);
+            return val;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public double ReadDoubleUtf8()
+        {
+            ReadOnlySpan<byte> numberBytes = ReadNumber();
+            Utf8Parser.TryParse(numberBytes, out double val, out int bytesConsumed);
+            return val;
+        }
     }
 }

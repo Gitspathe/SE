@@ -9,15 +9,15 @@ namespace SE.Serialization
     public sealed class SerializerSettings
     {
         /// <summary>Which format to use.</summary>
-        public Formatting Formatting                       = Formatting.Binary;
+        public Formatting Formatting                       = Formatting.Text;
         /// <summary>How the serializer handles null values.</summary>
         public NullValueHandling NullValueHandling         = NullValueHandling.Ignore;
         /// <summary>How the serializer handles default values.</summary>
-        public DefaultValueHandling DefaultValueHandling   = DefaultValueHandling.Ignore;
+        public DefaultValueHandling DefaultValueHandling   = DefaultValueHandling.Serialize;
         /// <summary>How the serializer converts data. Determines performance and parsing error resilience.</summary>
         public ConvertBehaviour ConvertBehaviour           = ConvertBehaviour.Order;
         /// <summary>How the serializer handles types.</summary>
-        public TypeHandling TypeHandling                   = TypeHandling.Always;
+        public TypeHandling TypeHandling                   = TypeHandling.Auto;
         /// <summary>How the serializer behaves when encountering a recursive loop of references.</summary>
         public ReferenceLoopHandling ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         /// <summary>How many levels deep the serializer will process.</summary>

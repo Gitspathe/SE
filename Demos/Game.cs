@@ -106,11 +106,11 @@ namespace SEDemos
             JsonSerializerSettings options = new JsonSerializerSettings {
                 ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
                 PreserveReferencesHandling = PreserveReferencesHandling.None,
-                Formatting = Formatting.None,
+                Formatting = Formatting.Indented,
                 TypeNameHandling = TypeNameHandling.None,
                 TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
-                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore
+                NullValueHandling = Newtonsoft.Json.NullValueHandling.Include,
+                DefaultValueHandling = DefaultValueHandling.Populate
             };
 
             System.Text.Json.JsonSerializerOptions textJsonOptions = new System.Text.Json.JsonSerializerOptions() {
@@ -133,16 +133,17 @@ namespace SEDemos
                 {
                     baseVal = 43546,
                     pizza1 = 0,
-                    pizza4 = 69.420f,
+                    //pizza4 = 69.420f,
                     pizza5 = 0,
-                    pizza3 = { [2] = 59.0f },
+                    //pizza3 = { [2] = 59.0f },
                     ObjTest = new TestClass2()
                 };
                 test.testClass1.test1.lol = 64;
 
                 //New serializer.
                 s.Start();
-                for (int i = 0; i < iterations; i++) {
+                for (int i = 0; i < iterations; i++)
+                {
                     byte[] bytes = Serializer.Serialize(test);
                     test = Serializer.Deserialize<TestClass>(bytes);
                 }
@@ -204,7 +205,16 @@ namespace SEDemos
             long bytesAfter = GC.GetTotalMemory(true);
             Console.WriteLine(bytesAfter - bytesBefore);
 
-            TestTextClass lel = new TestTextClass();
+            TestClass lel = new TestClass(255) {
+                baseVal = 43546,
+                pizza1 = 0,
+                //pizza4 = 69.420f,
+                pizza5 = 0,
+                //pizza3 = { [2] = 59.0f },
+                ObjTest = new TestClass2()
+            };
+            lel.testClass1.test1.lol = 64;
+
             byte[] lelBytes = Serializer.Serialize(lel);
             FileIO.SaveFile(lelBytes, "LOLZ.data");
         }
@@ -249,8 +259,8 @@ namespace SEDemos
         {
             public int pizza1 { get; set; } = 12;
             private int pizza2 { get; set; } = 2;
-            public float?[] pizza3 { get; set; } = { 1.0f, 2.05f, null };
-            public float? pizza4 { get; set; } = 5.5f;
+            //public float?[] pizza3 { get; set; } = { 1.0f, 2.05f, null };
+            //public float? pizza4 { get; set; } = 5.5f;
             public int pizza5 { get; set; } = 2;
             public int pizza6 { get; set; } = 5;
             public int pizza7 { get; set; } = 8;
@@ -275,7 +285,7 @@ namespace SEDemos
         [SerializeObject(ObjectSerialization.Fields)]
         public class TestClass2
         {
-            public int? lol { get; set; } = 2; // TODO: This is currently bugged with deserialization (when types are written)
+            //public int? lol { get; set; } = 2;
             public TestClass3 test1 { get; set; } = new TestClass3();
             public TestClass3 test2 { get; set; } = new TestClass3();
             public TestClass3 test3 { get; set; } = new TestClass3();

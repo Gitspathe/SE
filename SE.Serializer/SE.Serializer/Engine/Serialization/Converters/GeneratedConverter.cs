@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace SE.Serialization.Converters
     {
         public override Type Type { get; }
 
-        private object defaultInstance;
+        private object defaultTypeInstance;
         private Func<object> objCtor;
         private bool isValueType;
 
@@ -41,12 +42,16 @@ namespace SE.Serialization.Converters
             isValueType = type.IsValueType;
             TypeAccessor accessor = TypeAccessor.Create(type, true);
 
-            // Try and create a default instance.
+            // Try and create a default instance for the type.
+            // Objects/RefTypes default to null. Structs/ValueTypes default to their default instance.
             try {
-                defaultInstance = isValueType ? Activator.CreateInstance(Type) : null;
+                defaultTypeInstance = isValueType ? Activator.CreateInstance(Type) : null;
             } catch (Exception) {
                 throw new Exception($"Could not create an instance of type {Type}. Ensure a parameterless constructor is present.");
             }
+
+            // Create the 'actual' default instance. Used for Object serialization.
+            object defaultInstance = ConstructInstance();
 
             // Get the default serialization mode.
             ObjectSerialization defaultSerialization = ObjectSerialization.OptOut;
@@ -104,8 +109,11 @@ namespace SE.Serialization.Converters
                     memberType = Nullable.GetUnderlyingType(member.Type);
                 }
 
+                // Resolve default node value.
+                object defaultVal = accessor[defaultInstance, realMemberName];
+
                 // Create the node, and add it to the generated converter.
-                Node node = new Node(converter, accessor, memberType, memberName, realMemberName, index, recursiveMember);
+                Node node = new Node(converter, accessor, memberType, defaultVal, memberName, realMemberName, index, recursiveMember);
                 nodesDictionary.Add(memberName, node);
                 tmpNodes.Add(node);
                 indexes.Add(index);
@@ -125,6 +133,12 @@ namespace SE.Serialization.Converters
             // Generate compiled constructors for reference types.
             if(!isValueType)
                 GenerateCtor();
+        }
+
+        private object ConstructInstance()
+        {
+            // TODO: Support non-default constructors.
+            return Activator.CreateInstance(Type);
         }
 
         private string ResolveName(string memberName)
@@ -160,7 +174,7 @@ namespace SE.Serialization.Converters
             => objCtor = Expression.Lambda<Func<object>>(Expression.New(Type)).Compile();
 
         public override bool IsDefault(object obj) 
-            => obj == null || obj.Equals(defaultInstance);
+            => obj == null || obj.Equals(defaultTypeInstance);
 
         public override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task)
         {
@@ -292,9 +306,101 @@ namespace SE.Serialization.Converters
         public T Deserialize<T>(Utf8Reader reader, ref DeserializeTask task) 
             => (T) DeserializeBinary(reader, ref task);
 
+        public override object DeserializeText(Utf8Reader reader, ref DeserializeTask task)
+        {
+            object obj = isValueType ? Activator.CreateInstance(Type) : objCtor.Invoke();
+
+            switch (task.Settings.ConvertBehaviour) {
+                case ConvertBehaviour.Order: {
+                    DeserializeTextOrder(ref obj, reader, ref task);
+                } break;
+                case ConvertBehaviour.NameAndOrder: {
+                    DeserializeTextNameAndOrder(ref obj, reader, ref task);
+                } break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            return obj;
+        }
+
+        private void DeserializeTextOrder(ref object obj, Utf8Reader reader, ref DeserializeTask task)
+        {
+            Stream stream = reader.BaseStream;
+
+            while (stream.Position + 1 < stream.Length) {
+                
+                // Look for next variable.
+                try {
+                    byte b = reader.ReadByte();
+
+                    // Skip _TAB, _NEW_LINE and _BEGIN_CLASS.
+                    // Break if _END_CLASS is encountered.
+                    switch (b) {
+                        case Serializer._TAB:
+                        case Serializer._NEW_LINE:
+                        case Serializer._BEGIN_CLASS:
+                            continue;
+                        case Serializer._END_CLASS:
+                            return;
+                    }
+
+                    reader.BaseStream.Position -= 1;
+
+                    // Index meta parsing.
+                    SkipToNextSymbol(reader, Serializer._BEGIN_META);
+                    uint index = uint.Parse(reader.ReadUntil(Serializer._END_META));
+
+                    // Read node value.
+                    SkipToNextSymbol(reader, Serializer._BEGIN_VALUE);
+                    SkipWhitespace(reader);
+                    nodesArray[index].ReadText(obj, reader, ref task);
+
+                } catch (EndOfStreamException) {
+                    break;
+                } catch (Exception) { /* ignored */ }
+
+                // TODO: Error handling.
+            }
+        }
+
+        private void DeserializeTextNameAndOrder(ref object obj, Utf8Reader reader, ref DeserializeTask task)
+        {
+            throw new NotImplementedException();
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void SkipDelimiter(Utf8Reader reader) 
             => reader.BaseStream.Position += sizeof(byte);
+
+        internal static bool SkipToNextSymbol(Utf8Reader reader, byte symbol, bool skipPast = true)
+        {
+            Stream baseStream = reader.BaseStream;
+            while (baseStream.Position + 1 < baseStream.Length) {
+                byte b = reader.ReadByte();
+                if (b != symbol) 
+                    continue;
+
+                if (!skipPast) {
+                    reader.BaseStream.Position -= 1;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        internal static bool SkipWhitespace(Utf8Reader reader)
+        {
+            Stream baseStream = reader.BaseStream;
+            while (baseStream.Position + 1 < baseStream.Length) {
+                byte b = reader.ReadByte();
+                if (b == Serializer._TAB)
+                    continue;
+
+                reader.BaseStream.Position -= 1;
+                return true;
+            }
+            return false;
+        }
 
         internal static bool SkipToNextDelimiter(Utf8Reader reader)
         {
@@ -352,12 +458,13 @@ namespace SE.Serialization.Converters
             public string RealName;
             public ushort Index;
             public Type Type;
+            public object Default;
 
             private Converter converter;
             private TypeAccessor accessor;
             private bool recursive;
 
-            public bool allowPolymorphism;
+            private bool allowPolymorphism;
 
             // Faster access for delegate accessors.
             private TypeAccessor.DelegateAccessor delegateAccessor;
@@ -365,8 +472,9 @@ namespace SE.Serialization.Converters
 
             // Cached stuff.
             private byte[] precompiledName;
+            private byte[] precompiledNameWithIndex;
 
-            public Node(Converter converter, TypeAccessor accessor, Type type, string name, string realName, ushort index, bool recursive)
+            public Node(Converter converter, TypeAccessor accessor, Type type, object defaultVal, string name, string realName, ushort index, bool recursive)
             {
                 this.converter = converter;
                 this.accessor = accessor;
@@ -375,7 +483,22 @@ namespace SE.Serialization.Converters
                 Name = name;
                 RealName = realName;
                 Type = type;
+                Default = defaultVal;
                 precompiledName = Encoding.UTF8.GetBytes(Name + (char)Serializer._BEGIN_VALUE + ' ');
+
+                // Precompiled name with meta index.
+                byte[] tmpByteArr = ArrayPool<byte>.Shared.Rent(5);
+                Span<byte> indexSpan = new Span<byte>(tmpByteArr);
+                Utf8Formatter.TryFormat(Index, indexSpan, out int bytesWritten);
+                string indexStr = Encoding.UTF8.GetString(indexSpan.Slice(0, bytesWritten));
+                precompiledNameWithIndex = Encoding.UTF8.GetBytes(
+                    (char) Serializer._BEGIN_META 
+                    + indexStr 
+                    + (char) Serializer._END_META 
+                    + Name 
+                    + (char) Serializer._BEGIN_VALUE + ' ');
+                ArrayPool<byte>.Shared.Return(tmpByteArr);
+
                 if (accessor is TypeAccessor.DelegateAccessor delAccessor) {
                     delegateAccessor = delAccessor;
                     accessorIndex = delAccessor.GetIndex(RealName) ?? throw new IndexOutOfRangeException();
@@ -435,7 +558,7 @@ namespace SE.Serialization.Converters
                 }
 
                 // Null and default value handling.
-                bool isDefault = typeConverter.IsDefault(val);
+                bool isDefault = IsDefault(val);
                 bool writeNull = settings.NullValueHandling == NullValueHandling.DefaultValue;
                 bool writeDefault = settings.DefaultValueHandling == DefaultValueHandling.Serialize;
                 if(!writeNull && val == null || !writeDefault && isDefault)
@@ -460,7 +583,7 @@ namespace SE.Serialization.Converters
                 // Write meta-info.
                 bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Type, settings);
                 string metaType = null;
-                if (shouldWriteType) {
+                if (shouldWriteType && valType != null) {
                     metaType = valType.AssemblyQualifiedName;
                 }
                 Serializer.WriteMeta(writer, settings, metaType, null);
@@ -478,7 +601,7 @@ namespace SE.Serialization.Converters
                 Type valType = null;
                 Converter typeConverter = converter;
                 SerializerSettings settings = task.Settings;
-                bool serializeType = settings.TypeHandling != TypeHandling.Ignore;
+                bool serializeType = settings.TypeHandling != TypeHandling.Ignore && allowPolymorphism;
 
                 // Resolve true type converter (in case of polymorphism).
                 if (serializeType && val != null) {
@@ -491,7 +614,7 @@ namespace SE.Serialization.Converters
                 // Null and default value handling.
                 bool writeNull = settings.NullValueHandling == NullValueHandling.DefaultValue;
                 bool writeDefault = settings.DefaultValueHandling == DefaultValueHandling.Serialize;
-                if (!writeNull && val == null || !writeDefault && typeConverter.IsDefault(val))
+                if (!writeNull && val == null || !writeDefault && IsDefault(val))
                     return false;
 
                 // If this is the first parameter, go to new line.
@@ -501,14 +624,15 @@ namespace SE.Serialization.Converters
 
                 // Write name.
                 writer.WriteIndent(task.CurrentDepth);
-                writer.Write(precompiledName);
+                writer.Write(precompiledNameWithIndex);
 
-                // TODO: Meta
-
-                // Write Type if needed.
-                if (serializeType) {
-                    Serializer.WriteConverterType(writer, valType, Type, settings);
+                // Write meta-info.
+                bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Type, settings);
+                string metaType = null;
+                if (shouldWriteType && valType != null) {
+                    metaType = valType.AssemblyQualifiedName;
                 }
+                Serializer.WriteMeta(writer, settings, metaType, null);
 
                 // Serialize the actual value.
                 Serializer.SerializeWriter(writer, val, typeConverter, ref task);
@@ -521,7 +645,14 @@ namespace SE.Serialization.Converters
                 if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
                     throw new ReferenceLoopException();
 
-                // TODO.
+                Converter typeConverter = converter;
+                if (allowPolymorphism) {
+                    Serializer.TryReadMeta(reader, task.Settings, out string valueType, out int? id);
+                    if (valueType != null) {
+                        typeConverter = Serializer.GetConverterForTypeString(valueType, task.Settings);
+                    }
+                }
+                SetValue(target, Serializer.DeserializeReader(reader, typeConverter, ref task));
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -539,6 +670,14 @@ namespace SE.Serialization.Converters
                 => delegateAccessor != null 
                     ? delegateAccessor.Get(target, accessorIndex) 
                     : accessor[target, RealName];
+
+            private bool IsDefault(object value)
+            {
+                if (Default == null && value == null)
+                    return true;
+
+                return value.Equals(Default);
+            }
         }
 
         private struct NodeIndexComparer : IComparer<Node>

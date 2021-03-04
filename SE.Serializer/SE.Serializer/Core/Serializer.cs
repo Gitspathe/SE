@@ -188,32 +188,6 @@ namespace SE.Core
             return converter;
         }
 
-        public static Converter GetConverterForType(Utf8Reader reader, SerializerSettings settings)
-        {
-            if(settings.TypeHandling == TypeHandling.Ignore)
-                return null;
-
-            switch (settings.Formatting) {
-                case Formatting.Binary: {
-                    if (!reader.ReadBoolean())
-                        return null;
-
-                    string typeString = reader.ReadString();
-                    ConverterResolver resolver = settings.Resolver;
-                    if (!resolver.TypeCache.TryGetValue(typeString, out Converter converter)) {
-                        Type type = Type.GetType(typeString);
-                        converter = settings.Resolver.GetConverter(type);
-                        resolver.TypeCache.Add(typeString, converter);
-                    }
-                    return converter;
-                }
-                case Formatting.Text: {
-                    throw new NotImplementedException(); // TODO.
-                } break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
 
         internal static Converter WriteAndGetConverterType(Utf8Writer writer, object obj, Type defaultType, SerializerSettings settings)
         {
@@ -242,47 +216,13 @@ namespace SE.Core
 
         public static bool ShouldWriteConverterType(Type objType, Type defaultType, SerializerSettings settings) 
         {
-            if(settings.TypeHandling == TypeHandling.Ignore || objType == null || defaultType == null)
+            if(settings.TypeHandling == TypeHandling.Ignore)
                 return false;
 
             return settings.TypeHandling != TypeHandling.Auto || objType != defaultType;
         }
 
-        public static void WriteConverterType(Utf8Writer writer, Type objType, Type defaultType, SerializerSettings settings)
-        {
-            if (settings.TypeHandling == TypeHandling.Ignore)
-                return;
-
-            switch (settings.Formatting) {
-                case Formatting.Binary: {
-                    if (settings.TypeHandling == TypeHandling.Auto && objType == defaultType) {
-                        writer.Write(false);
-                        return;
-                    }
-                    writer.Write(true);
-                    writer.Write(objType.AssemblyQualifiedName);
-                } break;
-                case Formatting.Text: {
-                    if (settings.TypeHandling == TypeHandling.Auto && objType == defaultType)
-                        return;
-
-                    // TODO: Should support meta info. Example format:
-                    // class {
-                    //   number: ($type="System.Int32", $id=0) 5
-                    // }
-                    //
-                    // Elements within the parentheses are 'meta' tokens, describing stuff like type, id, etc.
-
-                    writer.Write(_BEGIN_META);
-                    writer.WriteText(objType.AssemblyQualifiedName);
-                    writer.Write(_END_META);
-                } break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public static void WriteMeta(Utf8Writer writer, SerializerSettings settings, string objTypeName, int? id)
+        internal static void WriteMeta(Utf8Writer writer, SerializerSettings settings, string objTypeName, int? id)
         {
             if(objTypeName == null && id == null)
                 return;
@@ -323,21 +263,25 @@ namespace SE.Core
             writer.Write(_END_META);
         }
 
-        public static bool TryReadMeta(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id)
+        internal static bool TryReadMeta(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id)
         {
             valueType = null;
             id = null;
 
             while (true) {
                 byte b = reader.ReadByte();
-                if (b == _BEGIN_META)
-                    break;
-                if (b == _TAB)
-                    continue;
-
-                reader.BaseStream.Position -= 1;
-                return false;
+                switch (b) {
+                    case _BEGIN_META:
+                        goto FoundMetaTag;
+                    case _TAB:
+                        continue;
+                    default: 
+                        reader.BaseStream.Position -= 1;
+                        return false;
+                }
             }
+            
+            FoundMetaTag:
 
             bool endOfMeta = false;
             switch (settings.Formatting) {
@@ -368,10 +312,12 @@ namespace SE.Core
                         switch (str) {
                             case "$type": {
                                 reader.BaseStream.Position += 1;
+                                reader.SkipWhiteSpace();
                                 valueType = reader.ReadQuotedString();
                             } break;
                             case "$id": {
                                 reader.BaseStream.Position += 1;
+                                reader.SkipWhiteSpace();
                                 id = reader.ReadIntUtf8();
                             } break;
                             default:
