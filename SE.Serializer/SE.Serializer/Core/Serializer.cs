@@ -5,6 +5,7 @@ using System.Text;
 using SE.Serialization;
 using SE.Serialization.Converters;
 using SE.Serialization.Resolvers;
+using static SE.Serialization.Constants;
 
 namespace SE.Core
 {
@@ -12,20 +13,6 @@ namespace SE.Core
     {
         public static DefaultResolver DefaultResolver { get; } = new DefaultResolver();
         public static SerializerSettings DefaultSettings { get; } = new SerializerSettings();
-
-        public const byte _BEGIN_VALUE = (byte)':';
-        public const byte _BEGIN_CLASS = (byte)'{';
-        public const byte _END_CLASS = (byte)'}';
-        public const byte _BEGIN_ARRAY = (byte)'[';
-        public const byte _END_ARRAY = (byte)']';
-        public const byte _BEGIN_META = (byte)'(';
-        public const byte _END_META = (byte)')';
-        public const byte _ARRAY_SEPARATOR = (byte)',';
-        public const byte _NEW_LINE = (byte)'\n';
-        public const byte _TAB = (byte)' ';
-        public const byte _STRING_IDENTIFIER = (byte)'"';
-
-        public static readonly byte[] Tabs = { _TAB, _TAB };
 
         public static byte[] Serialize(object obj) 
             => Serialize(obj, DefaultSettings);

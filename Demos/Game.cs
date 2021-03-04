@@ -110,7 +110,7 @@ namespace SEDemos
                 TypeNameHandling = TypeNameHandling.None,
                 TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
                 NullValueHandling = Newtonsoft.Json.NullValueHandling.Include,
-                DefaultValueHandling = DefaultValueHandling.Populate
+                DefaultValueHandling = DefaultValueHandling.Include
             };
 
             System.Text.Json.JsonSerializerOptions textJsonOptions = new System.Text.Json.JsonSerializerOptions() {
@@ -136,7 +136,7 @@ namespace SEDemos
                     //pizza4 = 69.420f,
                     pizza5 = 0,
                     //pizza3 = { [2] = 59.0f },
-                    ObjTest = new TestClass2()
+                    //ObjTest = new TestClass2()
                 };
                 test.testClass1.test1.lol = 64;
 

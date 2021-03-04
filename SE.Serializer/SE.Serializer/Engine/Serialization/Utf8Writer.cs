@@ -5,6 +5,7 @@ using System.Buffers.Text;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using static SE.Serialization.Constants;
 
 namespace SE.Serialization
 {
@@ -60,7 +61,7 @@ namespace SE.Serialization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureCapacity(int count = 1)
+        public void EnsureCapacity(int count = 1)
         {
             if(position + count < currentMemoryLength)
                 return;
@@ -70,76 +71,76 @@ namespace SE.Serialization
 
         public void WriteUtf8(bool value)
         {
-            EnsureCapacity(Constants._MAX_BOOL_UTF8_SIZE);
-            Write(value ? Constants.Utf8True : Constants.Utf8False);
+            EnsureCapacity(WriterConstants._MAX_BOOL_UTF8_SIZE);
+            Write(value ? TrueValue : FalseValue);
         }
 
         public void WriteUtf8(byte value)
         {
-            EnsureCapacity(Constants._MAX_BYTE_UTF8_SIZE);
+            EnsureCapacity(WriterConstants._MAX_BYTE_UTF8_SIZE);
             Utf8Formatter.TryFormat(value, memory.Span.Slice(position), out int bytesWritten);
             position += bytesWritten;
         }
 
         public void WriteUtf8(sbyte value)
         {
-            EnsureCapacity(Constants._MAX_BYTE_UTF8_SIZE);
+            EnsureCapacity(WriterConstants._MAX_BYTE_UTF8_SIZE);
             Utf8Formatter.TryFormat(value, memory.Span.Slice(position), out int bytesWritten);
             position += bytesWritten;
         }
 
         public void WriteUtf8(short value)
         {
-            EnsureCapacity(Constants._MAX_SHORT_UTF8_SIZE);
+            EnsureCapacity(WriterConstants._MAX_SHORT_UTF8_SIZE);
             Utf8Formatter.TryFormat(value, memory.Span.Slice(position), out int bytesWritten);
             position += bytesWritten;
         }
 
         public void WriteUtf8(ushort value)
         {
-            EnsureCapacity(Constants._MAX_SHORT_UTF8_SIZE);
+            EnsureCapacity(WriterConstants._MAX_SHORT_UTF8_SIZE);
             Utf8Formatter.TryFormat(value, memory.Span.Slice(position), out int bytesWritten);
             position += bytesWritten;
         }
 
         public void WriteUtf8(int value)
         {
-            EnsureCapacity(Constants._MAX_INT_UTF8_SIZE);
+            EnsureCapacity(WriterConstants._MAX_INT_UTF8_SIZE);
             Utf8Formatter.TryFormat(value, memory.Span.Slice(position), out int bytesWritten);
             position += bytesWritten;
         }
 
         public void WriteUtf8(uint value)
         {
-            EnsureCapacity(Constants._MAX_INT_UTF8_SIZE);
+            EnsureCapacity(WriterConstants._MAX_INT_UTF8_SIZE);
             Utf8Formatter.TryFormat(value, memory.Span.Slice(position), out int bytesWritten);
             position += bytesWritten;
         }
 
         public void WriteUtf8(long value)
         {
-            EnsureCapacity(Constants._MAX_LONG_UTF8_SIZE);
+            EnsureCapacity(WriterConstants._MAX_LONG_UTF8_SIZE);
             Utf8Formatter.TryFormat(value, memory.Span.Slice(position), out int bytesWritten);
             position += bytesWritten;
         }
 
         public void WriteUtf8(ulong value)
         {
-            EnsureCapacity(Constants._MAX_LONG_UTF8_SIZE);
+            EnsureCapacity(WriterConstants._MAX_LONG_UTF8_SIZE);
             Utf8Formatter.TryFormat(value, memory.Span.Slice(position), out int bytesWritten);
             position += bytesWritten;
         }
 
         public void WriteUtf8(float value)
         {
-            EnsureCapacity(Constants._MAX_FLOAT_UTF8_SIZE);
+            EnsureCapacity(WriterConstants._MAX_FLOAT_UTF8_SIZE);
             Utf8Formatter.TryFormat(value, memory.Span.Slice(position), out int bytesWritten);
             position += bytesWritten;
         }
 
         public void WriteUtf8(double value)
         {
-            EnsureCapacity(Constants._MAX_DOUBLE_UTF8_SIZE);
+            EnsureCapacity(WriterConstants._MAX_DOUBLE_UTF8_SIZE);
             Utf8Formatter.TryFormat(value, memory.Span.Slice(position), out int bytesWritten);
             position += bytesWritten;
         }
@@ -253,6 +254,16 @@ namespace SE.Serialization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void WriteIndent(int depth)
+        {
+            int toWrite = (depth-1) * 2;
+            EnsureCapacity(toWrite);
+            for (int i = 0; i < toWrite; i++) {
+                buffer[position++] = _TAB;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private unsafe void Write4BytesFromPointer(byte* p)
         {
             EnsureCapacity(4);
@@ -329,7 +340,7 @@ namespace SE.Serialization
             disposedValue = true;
         }
 
-        internal static class Constants
+        internal static class WriterConstants
         {
             public const int _MAX_BOOL_UTF8_SIZE = 5;
             public const int _MAX_BYTE_UTF8_SIZE = 4;
@@ -338,9 +349,6 @@ namespace SE.Serialization
             public const int _MAX_LONG_UTF8_SIZE = 21;
             public const int _MAX_FLOAT_UTF8_SIZE = 15;
             public const int _MAX_DOUBLE_UTF8_SIZE = 150;
-
-            public static readonly byte[] Utf8False = { (byte)'f', (byte)'a', (byte)'l', (byte)'s', (byte)'e' };
-            public static readonly byte[] Utf8True = { (byte)'t', (byte)'r', (byte)'u', (byte)'e' };
         }
     }
 }

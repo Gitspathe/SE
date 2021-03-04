@@ -1,6 +1,7 @@
 ﻿using System;
 using FastStream;
 using SE.Core;
+using static SE.Serialization.Constants;
 
 namespace SE.Serialization.Converters
 {
@@ -53,15 +54,15 @@ namespace SE.Serialization.Converters
         {
             Array val = (Array)obj;
 
-            writer.Write(Serializer._BEGIN_ARRAY);
+            writer.Write(_BEGIN_ARRAY);
             Converter serializer = GetSerializer(0, ref task);
             for (int i = 0; i < val.Length; i++) {
                 Serializer.SerializeWriter(writer, val.GetValue(i), serializer, ref task, false);
                 if (i + 1 < val.Length) {
-                    writer.Write(Serializer._ARRAY_SEPARATOR);
+                    writer.Write(_ARRAY_SEPARATOR);
                 }
             }
-            writer.Write(Serializer._END_ARRAY);
+            writer.Write(_END_ARRAY);
         }
 
         public override bool IsDefault(object obj)

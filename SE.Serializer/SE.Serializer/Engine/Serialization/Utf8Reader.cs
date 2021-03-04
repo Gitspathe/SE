@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using FastStream;
 using SE.Core;
+using static SE.Serialization.Constants;
 
 namespace SE.Serialization
 {
@@ -29,6 +30,36 @@ namespace SE.Serialization
             memoryPosition = 0;
             currentMemoryLength = memory.Length;
             stream = input;
+        }
+
+        public string ReadQuotedString()
+        {
+            bool firstStrIdentifier = true;
+
+            while (true) {
+                try {
+                    byte b = ReadByte();
+                    switch (b) {
+                        case _NEW_LINE:
+                        case _END_ARRAY:
+                            break;
+
+                        case _STRING_IDENTIFIER: {
+                            if (!firstStrIdentifier) {
+                                return MemoryCache.RetrieveAndReset();
+                            }
+                            firstStrIdentifier = false;
+                        } continue;
+
+                        default:
+                            MemoryCache.Append(b);
+                            break;
+                    }
+                } catch (Exception) {
+                    break;
+                }
+            }
+            return MemoryCache.RetrieveAndReset();
         }
 
         private ReadOnlySpan<byte> ReadNumber()
@@ -66,10 +97,10 @@ namespace SE.Serialization
         private ReadOnlySpan<byte> ReadQuotedUtf8StringInternal()
         {
             memoryPosition = 0;
-            if (ReadByte() != Serializer._STRING_IDENTIFIER)
+            if (ReadByte() != _STRING_IDENTIFIER)
                 throw new Exception("Not a quoted string!");
 
-            return ReadUntil(Serializer._STRING_IDENTIFIER);
+            return ReadUntil(_STRING_IDENTIFIER);
         }
 
         private ReadOnlySpan<byte> ReadUntil(byte identifier)
@@ -138,8 +169,8 @@ namespace SE.Serialization
             while (true) {
                 byte b = ReadByte();
                 switch (b) {
-                    case Serializer._TAB:
-                    case Serializer._NEW_LINE:
+                    case _TAB:
+                    case _NEW_LINE:
                         continue;
                     default:
                         stream.Position -= 1;
@@ -153,40 +184,20 @@ namespace SE.Serialization
             while (true) {
                 byte b = ReadByte();
                 switch (b) {
-                    case Serializer._ARRAY_SEPARATOR:
-                    case Serializer._BEGIN_ARRAY:
-                    case Serializer._BEGIN_META:
-                    case Serializer._BEGIN_VALUE:
-                    case Serializer._END_ARRAY:
-                    case Serializer._END_CLASS:
-                    case Serializer._END_META:
-                    case Serializer._TAB:
-                    case Serializer._STRING_IDENTIFIER:
+                    case _ARRAY_SEPARATOR:
+                    case _BEGIN_ARRAY:
+                    case _BEGIN_META:
+                    case _BEGIN_VALUE:
+                    case _END_ARRAY:
+                    case _END_CLASS:
+                    case _END_META:
+                    case _TAB:
+                    case _STRING_IDENTIFIER:
                         break;
                     default:
                         stream.Position -= 1;
                         return;
                 }
-            }
-        }
-
-        public void SkipTo(byte utf8Char)
-        {
-            while (true) {
-                if (ReadByte() != utf8Char)
-                    continue;
-
-                stream.Position -= 1;
-                break;
-            }
-        }
-
-        public void SkipToAfter(byte utf8Char)
-        {
-            while (true) {
-                if (ReadByte() != utf8Char)
-                    continue;
-                break;
             }
         }
 
@@ -268,6 +279,53 @@ namespace SE.Serialization
             ReadOnlySpan<byte> numberBytes = ReadNumber();
             Utf8Parser.TryParse(numberBytes, out double val, out int bytesConsumed);
             return val;
+        }
+
+        private static class MemoryCache
+        {
+            private static string buffer;
+            private static int currentBufferLength;
+            private static int position;
+
+            static MemoryCache()
+            {
+                SetLengthInternal(256);
+            }
+
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            private static unsafe void SetLengthInternal(int newSize)
+            {
+                string newBuffer = new string(' ', newSize);
+                fixed (char* target = newBuffer) {
+                    Unsafe.Copy(target, ref buffer);
+                }
+                currentBufferLength = buffer.Length;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private static void EnsureCapacity(int toRead = 1)
+            {
+                if (position + toRead < currentBufferLength)
+                    return;
+
+                SetLengthInternal((currentBufferLength + toRead) * 2);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static unsafe void Append(byte b)
+            {
+                EnsureCapacity();
+                fixed (char* target = buffer) {
+                    target[position++] = (char)b;
+                }
+            }
+
+            public static string RetrieveAndReset()
+            {
+                string str = buffer.Substring(0, position);
+                position = 0;
+                return str;
+            }
         }
     }
 }

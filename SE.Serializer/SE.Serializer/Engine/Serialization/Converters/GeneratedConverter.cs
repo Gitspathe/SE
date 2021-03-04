@@ -16,6 +16,7 @@ using SE.Serialization.Exceptions;
 using SE.Serialization.Resolvers;
 using SE.Utility;
 using System.Text;
+using static SE.Serialization.Constants;
 
 namespace SE.Serialization.Converters
 {
@@ -198,14 +199,14 @@ namespace SE.Serialization.Converters
             // Starting delimiters.
             bool writeClassDelimiters = task.CurrentDepth > 1;
             if (writeClassDelimiters) {
-                writer.Write(Serializer._BEGIN_CLASS);
+                writer.Write(_BEGIN_CLASS);
             }
 
             // Write value.
             for (int i = 0; i < nodesArray.Length; i++) {
                 if (nodesArray[i].WriteText(obj, writer, ref task)) {
                     task.CurrentParameterIndex += 1;
-                    writer.Write(Serializer._NEW_LINE);
+                    writer.Write(_NEW_LINE);
                 }
             }
 
@@ -214,7 +215,7 @@ namespace SE.Serialization.Converters
                 if (task.CurrentParameterIndex > 0) {
                     writer.WriteIndent(task.CurrentDepth - 1);
                 }
-                writer.Write(Serializer._END_CLASS);
+                writer.Write(_END_CLASS);
             }
         }
 
@@ -335,22 +336,22 @@ namespace SE.Serialization.Converters
                     // Skip _TAB, _NEW_LINE and _BEGIN_CLASS.
                     // Break if _END_CLASS is encountered.
                     switch (b) {
-                        case Serializer._TAB:
-                        case Serializer._NEW_LINE:
-                        case Serializer._BEGIN_CLASS:
+                        case _TAB:
+                        case _NEW_LINE:
+                        case _BEGIN_CLASS:
                             continue;
-                        case Serializer._END_CLASS:
+                        case _END_CLASS:
                             return;
                     }
 
                     reader.BaseStream.Position -= 1;
 
                     // Index meta parsing.
-                    SkipToNextSymbol(reader, Serializer._BEGIN_META);
-                    uint index = uint.Parse(reader.ReadUntil(Serializer._END_META));
+                    SkipToNextSymbol(reader, _BEGIN_META);
+                    uint index = uint.Parse(reader.ReadUntil(_END_META));
 
                     // Read node value.
-                    SkipToNextSymbol(reader, Serializer._BEGIN_VALUE);
+                    SkipToNextSymbol(reader, _BEGIN_VALUE);
                     reader.SkipWhiteSpace();
                     nodesArray[index].ReadText(obj, reader, ref task);
 
@@ -469,7 +470,7 @@ namespace SE.Serialization.Converters
                 RealName = realName;
                 Type = type;
                 Default = defaultVal;
-                precompiledName = Encoding.UTF8.GetBytes(Name + (char)Serializer._BEGIN_VALUE + ' ');
+                precompiledName = Encoding.UTF8.GetBytes(Name + (char)_BEGIN_VALUE + ' ');
 
                 // Precompiled name with meta index.
                 byte[] tmpByteArr = ArrayPool<byte>.Shared.Rent(5);
@@ -477,11 +478,11 @@ namespace SE.Serialization.Converters
                 Utf8Formatter.TryFormat(Index, indexSpan, out int bytesWritten);
                 string indexStr = Encoding.UTF8.GetString(indexSpan.Slice(0, bytesWritten));
                 precompiledNameWithIndex = Encoding.UTF8.GetBytes(
-                    (char) Serializer._BEGIN_META 
+                    (char) _BEGIN_META 
                     + indexStr 
-                    + (char) Serializer._END_META 
+                    + (char) _END_META 
                     + Name 
-                    + (char) Serializer._BEGIN_VALUE + ' ');
+                    + (char) _BEGIN_VALUE + ' ');
                 ArrayPool<byte>.Shared.Return(tmpByteArr);
 
                 if (accessor is TypeAccessor.DelegateAccessor delAccessor) {
@@ -604,7 +605,7 @@ namespace SE.Serialization.Converters
 
                 // If this is the first parameter, go to new line.
                 if (task.CurrentParameterIndex == 0) {
-                    writer.Write(Serializer._NEW_LINE);
+                    writer.Write(_NEW_LINE);
                 }
 
                 // Write name.
