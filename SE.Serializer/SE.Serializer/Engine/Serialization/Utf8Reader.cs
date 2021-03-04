@@ -136,18 +136,21 @@ namespace SE.Serialization
         public void SkipWhiteSpace()
         {
             while (true) {
-                if (ReadByte() == Serializer._TAB) 
-                    continue;
-
-                stream.Position -= 1;
-                break;
+                byte b = ReadByte();
+                switch (b) {
+                    case Serializer._TAB:
+                    case Serializer._NEW_LINE:
+                        continue;
+                    default:
+                        stream.Position -= 1;
+                        return;
+                }
             }
         }
 
         public void SkipDelimitersAndWhitespace()
         {
-            bool shouldBreak = false;
-            while (!shouldBreak) {
+            while (true) {
                 byte b = ReadByte();
                 switch (b) {
                     case Serializer._ARRAY_SEPARATOR:
@@ -160,11 +163,9 @@ namespace SE.Serialization
                     case Serializer._TAB:
                     case Serializer._STRING_IDENTIFIER:
                         break;
-
                     default:
-                        shouldBreak = true;
                         stream.Position -= 1;
-                        break;
+                        return;
                 }
             }
         }

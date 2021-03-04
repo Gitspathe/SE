@@ -326,7 +326,6 @@ namespace SE.Serialization.Converters
         private void DeserializeTextOrder(ref object obj, Utf8Reader reader, ref DeserializeTask task)
         {
             Stream stream = reader.BaseStream;
-
             while (stream.Position + 1 < stream.Length) {
                 
                 // Look for next variable.
@@ -352,7 +351,7 @@ namespace SE.Serialization.Converters
 
                     // Read node value.
                     SkipToNextSymbol(reader, Serializer._BEGIN_VALUE);
-                    SkipWhitespace(reader);
+                    reader.SkipWhiteSpace();
                     nodesArray[index].ReadText(obj, reader, ref task);
 
                 } catch (EndOfStreamException) {
@@ -383,20 +382,6 @@ namespace SE.Serialization.Converters
                 if (!skipPast) {
                     reader.BaseStream.Position -= 1;
                 }
-                return true;
-            }
-            return false;
-        }
-
-        internal static bool SkipWhitespace(Utf8Reader reader)
-        {
-            Stream baseStream = reader.BaseStream;
-            while (baseStream.Position + 1 < baseStream.Length) {
-                byte b = reader.ReadByte();
-                if (b == Serializer._TAB)
-                    continue;
-
-                reader.BaseStream.Position -= 1;
                 return true;
             }
             return false;
@@ -529,7 +514,7 @@ namespace SE.Serialization.Converters
                 // Otherwise, set the value.
                 Converter typeConverter = converter;
                 if (allowPolymorphism) {
-                    Serializer.TryReadMeta(reader, task.Settings, out string valueType, out int? id);
+                    Serializer.TryReadMetaBinary(reader, task.Settings, out string valueType, out int? id);
                     if (valueType != null) {
                         typeConverter = Serializer.GetConverterForTypeString(valueType, task.Settings);
                     }
@@ -586,7 +571,7 @@ namespace SE.Serialization.Converters
                 if (shouldWriteType && valType != null) {
                     metaType = valType.AssemblyQualifiedName;
                 }
-                Serializer.WriteMeta(writer, settings, metaType, null);
+                Serializer.WriteMetaBinary(writer, settings, metaType, null);
 
                 // Serialize value.
                 Serializer.SerializeWriter(writer, val, typeConverter, ref task);
@@ -632,7 +617,7 @@ namespace SE.Serialization.Converters
                 if (shouldWriteType && valType != null) {
                     metaType = valType.AssemblyQualifiedName;
                 }
-                Serializer.WriteMeta(writer, settings, metaType, null);
+                Serializer.WriteMetaText(writer, settings, metaType, null);
 
                 // Serialize the actual value.
                 Serializer.SerializeWriter(writer, val, typeConverter, ref task);
@@ -647,7 +632,7 @@ namespace SE.Serialization.Converters
 
                 Converter typeConverter = converter;
                 if (allowPolymorphism) {
-                    Serializer.TryReadMeta(reader, task.Settings, out string valueType, out int? id);
+                    Serializer.TryReadMetaText(reader, task.Settings, out string valueType, out int? id);
                     if (valueType != null) {
                         typeConverter = Serializer.GetConverterForTypeString(valueType, task.Settings);
                     }

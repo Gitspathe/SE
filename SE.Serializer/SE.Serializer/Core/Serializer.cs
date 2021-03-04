@@ -222,48 +222,48 @@ namespace SE.Core
             return settings.TypeHandling != TypeHandling.Auto || objType != defaultType;
         }
 
-        internal static void WriteMeta(Utf8Writer writer, SerializerSettings settings, string objTypeName, int? id)
+        internal static void WriteMetaText(Utf8Writer writer, SerializerSettings settings, string objTypeName, int? id)
         {
-            if(objTypeName == null && id == null)
+            if (objTypeName == null && id == null)
                 return;
 
             writer.Write(_BEGIN_META);
-            switch (settings.Formatting) {
-                case Formatting.Binary: {
-                    if (objTypeName != null) {
-                        writer.Write((byte)MetaBinaryIDs.ValueType);
-                        writer.Write(objTypeName);
-                    }
-                    if (id != null) {
-                        writer.Write((byte)MetaBinaryIDs.ID);
-                        writer.Write(id.Value);
-                    }
-                } break;
-                case Formatting.Text: {
-                    bool writeComma = false;
-                    if (objTypeName != null) {
-                        writer.WriteQuotedText("$type");
-                        writer.Write(_BEGIN_VALUE);
-                        writer.WriteQuotedText(objTypeName);
-                        writeComma = true;
-                    }
-                    if (id != null) {
-                        if (writeComma) {
-                            writer.Write((byte)',');
-                        }
-                        writer.WriteQuotedText("$id");
-                        writer.Write(_BEGIN_VALUE);
-                        writer.WriteUtf8(id.Value);
-                    }
-                } break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+            bool writeComma = false;
+            if (objTypeName != null) {
+                writer.WriteQuotedText("$type");
+                writer.Write(_BEGIN_VALUE);
+                writer.WriteQuotedText(objTypeName);
+                writeComma = true;
             }
-
+            if (id != null) {
+                if (writeComma) {
+                    writer.Write((byte)',');
+                }
+                writer.WriteQuotedText("$id");
+                writer.Write(_BEGIN_VALUE);
+                writer.WriteUtf8(id.Value);
+            }
             writer.Write(_END_META);
         }
 
-        internal static bool TryReadMeta(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id)
+        internal static void WriteMetaBinary(Utf8Writer writer, SerializerSettings settings, string objTypeName, int? id)
+        {
+            if (objTypeName == null && id == null)
+                return;
+
+            writer.Write(_BEGIN_META);
+            if (objTypeName != null) {
+                writer.Write((byte)MetaBinaryIDs.ValueType);
+                writer.Write(objTypeName);
+            }
+            if (id != null) {
+                writer.Write((byte)MetaBinaryIDs.ID);
+                writer.Write(id.Value);
+            }
+            writer.Write(_END_META);
+        }
+
+        internal static bool TryReadMetaText(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id)
         {
             valueType = null;
             id = null;
@@ -275,64 +275,71 @@ namespace SE.Core
                         goto FoundMetaTag;
                     case _TAB:
                         continue;
-                    default: 
+                    default:
                         reader.BaseStream.Position -= 1;
                         return false;
                 }
             }
-            
+
             FoundMetaTag:
-
-            bool endOfMeta = false;
-            switch (settings.Formatting) {
-                case Formatting.Binary: {
-                    while (!endOfMeta) {
-                        byte b = reader.ReadByte();
-                        switch (b) {
-                            case (byte)MetaBinaryIDs.ValueType: {
-                                valueType = reader.ReadString();
-                            } break;
-                            case (byte)MetaBinaryIDs.ID: {
-                                id = reader.ReadInt32();
-                            } break;
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
-                        
-                        if (reader.ReadByte() == _END_META) {
-                            endOfMeta = true;
-                        } else {
-                            reader.BaseStream.Position -= 1;
-                        }
-                    }
-                } break;
-                case Formatting.Text: {
-                    while (!endOfMeta) {
-                        string str = reader.ReadQuotedString();
-                        switch (str) {
-                            case "$type": {
-                                reader.BaseStream.Position += 1;
-                                reader.SkipWhiteSpace();
-                                valueType = reader.ReadQuotedString();
-                            } break;
-                            case "$id": {
-                                reader.BaseStream.Position += 1;
-                                reader.SkipWhiteSpace();
-                                id = reader.ReadIntUtf8();
-                            } break;
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
-
-                        if (reader.ReadByte() == _END_META) {
-                            endOfMeta = true;
-                        }
-                    }
-                } break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+            while (true) {
+                byte b = reader.ReadByte();
+                switch (b) {
+                    case (byte)MetaBinaryIDs.ValueType: {
+                        valueType = reader.ReadString();
+                    } break;
+                    case (byte)MetaBinaryIDs.ID: {
+                        id = reader.ReadInt32();
+                    } break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                if (reader.ReadByte() == _END_META) {
+                    return true;
+                }
+                reader.BaseStream.Position -= 1;
             }
-            return true;
+        }
+
+        internal static bool TryReadMetaBinary(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id)
+        {
+            valueType = null;
+            id = null;
+
+            while (true) {
+                byte b = reader.ReadByte();
+                switch (b) {
+                    case _BEGIN_META:
+                        goto FoundMetaTag;
+                    case _TAB:
+                        continue;
+                    default:
+                        reader.BaseStream.Position -= 1;
+                        return false;
+                }
+            }
+
+            FoundMetaTag:
+            while (true) {
+                string str = reader.ReadQuotedString();
+                switch (str) {
+                    case "$type": {
+                        reader.BaseStream.Position += 1;
+                        reader.SkipWhiteSpace();
+                        valueType = reader.ReadQuotedString();
+                    } break;
+                    case "$id": {
+                        reader.BaseStream.Position += 1;
+                        reader.SkipWhiteSpace();
+                        id = reader.ReadIntUtf8();
+                    } break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                if (reader.ReadByte() == _END_META) {
+                    return true;
+                }
+            }
         }
 
     }
