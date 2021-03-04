@@ -263,7 +263,7 @@ namespace SE.Core
             writer.Write(_END_META);
         }
 
-        internal static bool TryReadMetaText(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id)
+        internal static bool TryReadMetaBinary(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id)
         {
             valueType = null;
             id = null;
@@ -301,7 +301,7 @@ namespace SE.Core
             }
         }
 
-        internal static bool TryReadMetaBinary(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id)
+        internal static bool TryReadMetaText(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id)
         {
             valueType = null;
             id = null;
