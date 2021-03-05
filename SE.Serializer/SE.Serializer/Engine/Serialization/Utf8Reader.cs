@@ -295,6 +295,12 @@ namespace SE.Serialization
             [MethodImpl(MethodImplOptions.NoInlining)]
             private static unsafe void SetLengthInternal(int newSize)
             {
+                if (buffer == null) {
+                    buffer = new string(' ', newSize);
+                    currentBufferLength = buffer.Length;
+                    return;
+                }
+
                 string newBuffer = new string(' ', newSize);
                 fixed (char* target = newBuffer) {
                     Unsafe.Copy(target, ref buffer);

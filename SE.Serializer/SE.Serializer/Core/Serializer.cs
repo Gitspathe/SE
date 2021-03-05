@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using SE.Serialization;
+using SE.Serialization.Attributes;
 using SE.Serialization.Converters;
 using SE.Serialization.Resolvers;
 using static SE.Serialization.Constants;
@@ -163,7 +165,7 @@ namespace SE.Core
             }
         }
 
-        public static Converter GetConverterForTypeString(string typeString, SerializerSettings settings)
+        internal static Converter GetConverterForTypeString(string typeString, SerializerSettings settings)
         {
             ConverterResolver resolver = settings.Resolver;
             if (resolver.TypeCache.TryGetValue(typeString, out Converter converter)) 
@@ -175,33 +177,7 @@ namespace SE.Core
             return converter;
         }
 
-
-        internal static Converter WriteAndGetConverterType(Utf8Writer writer, object obj, Type defaultType, SerializerSettings settings)
-        {
-            if (settings.TypeHandling == TypeHandling.Ignore)
-                return null;
-
-            switch (settings.Formatting) {
-                case Formatting.Binary: {
-                    Type objType = obj.GetType();
-                    if (settings.TypeHandling == TypeHandling.Auto && objType == defaultType) {
-                        writer.Write(false);
-                        return null;
-                    }
-
-                    writer.Write(true);
-                    writer.Write(objType.AssemblyQualifiedName);
-                    return settings.Resolver.GetConverter(objType);
-                }
-                case Formatting.Text: {
-                    throw new NotImplementedException(); // TODO.
-                } break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        public static bool ShouldWriteConverterType(Type objType, Type defaultType, SerializerSettings settings) 
+        internal static bool ShouldWriteConverterType(Type objType, Type defaultType, SerializerSettings settings) 
         {
             if(settings.TypeHandling == TypeHandling.Ignore)
                 return false;
@@ -329,6 +305,19 @@ namespace SE.Core
             }
         }
 
+        public static class Whitelist
+        {
+            internal static HashSet<Type> PolymorphicWhitelist = new HashSet<Type>();
+
+            static Whitelist()
+            {
+                // Add user-defined types (GeneratedConverters).
+                List<Type> customTypes = ReflectionUtil.GetTypes((z => z.GetCustomAttributes(typeof(SerializeObjectAttribute), true).Length > 0)).ToList();
+                foreach (Type t in customTypes) {
+                    PolymorphicWhitelist.Add(t);
+                }
+            }
+        }
     }
 
     public enum MetaBinaryIDs : byte

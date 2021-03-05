@@ -39,6 +39,10 @@ namespace SE.Serialization.Converters
 
         private GeneratedConverter(Type type, ConverterResolver resolver)
         {
+            // Throw error if this generated converter is for a type which isn't whitelisted.
+            if (!Serializer.Whitelist.PolymorphicWhitelist.Contains(type))
+                throw new SerializerWhitelistException(Type);
+
             Type = type;
             isValueType = type.IsValueType;
             TypeAccessor accessor = TypeAccessor.Create(type, true);
@@ -631,6 +635,7 @@ namespace SE.Serialization.Converters
                 if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
                     throw new ReferenceLoopException();
 
+                // TODO: Fix nullable.
                 Converter typeConverter = converter;
                 if (allowPolymorphism) {
                     Serializer.TryReadMetaText(reader, task.Settings, out string valueType, out int? id);

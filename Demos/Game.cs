@@ -135,7 +135,7 @@ namespace SEDemos
                     pizza1 = 0,
                     //pizza4 = 69.420f,
                     pizza5 = 0,
-                    //pizza3 = { [2] = 59.0f },
+                    //pizza3 = { [1] = 59.0f },
                     //ObjTest = new TestClass2()
                 };
                 test.testClass1.test1.lol = 64;
@@ -210,7 +210,7 @@ namespace SEDemos
                 pizza1 = 0,
                 //pizza4 = 69.420f,
                 pizza5 = 0,
-                //pizza3 = { [2] = 59.0f },
+                //pizza3 = { [1] = 59.0f },
                 ObjTest = new TestClass2()
             };
             lel.testClass1.test1.lol = 64;
@@ -259,7 +259,7 @@ namespace SEDemos
         {
             public int pizza1 { get; set; } = 12;
             private int pizza2 { get; set; } = 2;
-            //public float?[] pizza3 { get; set; } = { 1.0f, 2.05f, null };
+            //public float[] pizza3 { get; set; } = { 1.0f, 2.05f };
             //public float? pizza4 { get; set; } = 5.5f;
             public int pizza5 { get; set; } = 2;
             public int pizza6 { get; set; } = 5;

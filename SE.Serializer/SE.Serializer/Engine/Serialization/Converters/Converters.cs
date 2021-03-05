@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
-using FastStream;
+using SE.Core;
 
 namespace SE.Serialization.Converters
 {
@@ -23,6 +22,14 @@ namespace SE.Serialization.Converters
         public abstract object DeserializeBinary(Utf8Reader reader, ref DeserializeTask task);
         public virtual void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task) { throw new NotImplementedException(); }
         public virtual object DeserializeText(Utf8Reader reader, ref DeserializeTask task) { throw new NotImplementedException(); }
+
+        internal void WhiteList()
+        {
+            if(this is GeneratedConverter || Type == null)
+                return;
+
+            Serializer.Whitelist.PolymorphicWhitelist.Add(Type);
+        }
 
         public virtual bool IsDefault(object obj)
         {
@@ -50,7 +57,10 @@ namespace SE.Serialization.Converters
             }
         }
 
-        public Converter() { /* Empty constructor for reflection. */ }
+        protected Converter()
+        {
+            WhiteList();
+        }
     }
 
     public abstract class Converter<T> : Converter
