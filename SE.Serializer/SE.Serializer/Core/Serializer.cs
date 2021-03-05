@@ -16,6 +16,8 @@ namespace SE.Core
         public static DefaultResolver DefaultResolver { get; } = new DefaultResolver();
         public static SerializerSettings DefaultSettings { get; } = new SerializerSettings();
 
+        public static UTF8Encoding UTF8 = new UTF8Encoding(false, false);
+
         public static byte[] Serialize(object obj) 
             => Serialize(obj, DefaultSettings);
 

@@ -148,9 +148,11 @@ namespace SE.Serialization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(string value)
         {
-            byte[] bytes = Encoding.UTF8.GetBytes(value);
-            Write(bytes.Length);
+            byte[] arr = ArrayPool<byte>.Shared.Rent(Encoding.UTF8.GetByteCount(value));
+            byte[] bytes = SerializerUtil.GetUtf8Bytes(arr, value, out int arrLength);
+            Write(arrLength);
             Write(bytes);
+            ArrayPool<byte>.Shared.Return(arr);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -236,6 +238,12 @@ namespace SE.Serialization
         public void Write(byte[] value)
         {
             Write(value, 0, value.Length);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Write(byte[] value, int len)
+        {
+            Write(value, 0, len);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

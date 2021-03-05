@@ -32,36 +32,6 @@ namespace SE.Serialization
             stream = input;
         }
 
-        public string ReadQuotedString()
-        {
-            bool firstStrIdentifier = true;
-
-            while (true) {
-                try {
-                    byte b = ReadByte();
-                    switch (b) {
-                        case _NEW_LINE:
-                        case _END_ARRAY:
-                            break;
-
-                        case _STRING_IDENTIFIER: {
-                            if (!firstStrIdentifier) {
-                                return MemoryCache.RetrieveAndReset();
-                            }
-                            firstStrIdentifier = false;
-                        } continue;
-
-                        default:
-                            MemoryCache.Append(b);
-                            break;
-                    }
-                } catch (Exception) {
-                    break;
-                }
-            }
-            return MemoryCache.RetrieveAndReset();
-        }
-
         private ReadOnlySpan<byte> ReadNumber()
         {
             memoryPosition = 0;
@@ -117,6 +87,26 @@ namespace SE.Serialization
             return memory.Span.Slice(0, memoryPosition);
         }
 
+        public string ReadUntil(byte symbol, bool skipPast = true)
+        {
+            while (true) {
+                try {
+                    byte c = ReadByte();
+                    if (c != symbol) {
+                        MemoryCache.Append(c);
+                        continue;
+                    }
+                    if (!skipPast) {
+                        BaseStream.Position -= 1;
+                    }
+                    break;
+                } catch (Exception) {
+                    break;
+                }
+            }
+            return MemoryCache.RetrieveAndReset();
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void EnsureCapacity(int capacity = 1)
         {
@@ -155,13 +145,13 @@ namespace SE.Serialization
         {
             byte[] numArray = new byte[ReadInt32()];
             Read(numArray, 0, numArray.Length);
-            return Encoding.UTF8.GetString(numArray);
+            return Serializer.UTF8.GetString(numArray);
         }
 
-        public string ReadQuotedStringUtf8()
+        public string ReadQuotedString()
         {
             ReadOnlySpan<byte> stringBytes = ReadQuotedUtf8StringInternal();
-            return Encoding.UTF8.GetString(stringBytes);
+            return Serializer.UTF8.GetString(stringBytes);
         }
 
         public void SkipWhiteSpace()
@@ -283,6 +273,8 @@ namespace SE.Serialization
 
         private static class MemoryCache
         {
+            // TODO: Replace string buffer with byte buffer. Then use Encoding.GetString().
+
             private static string buffer;
             private static int currentBufferLength;
             private static int position;

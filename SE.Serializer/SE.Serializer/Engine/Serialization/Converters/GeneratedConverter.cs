@@ -474,14 +474,14 @@ namespace SE.Serialization.Converters
                 RealName = realName;
                 Type = type;
                 Default = defaultVal;
-                precompiledName = Encoding.UTF8.GetBytes(Name + (char)_BEGIN_VALUE + ' ');
+                precompiledName = Serializer.UTF8.GetBytes(Name + (char)_BEGIN_VALUE + ' ');
 
                 // Precompiled name with meta index.
                 byte[] tmpByteArr = ArrayPool<byte>.Shared.Rent(5);
                 Span<byte> indexSpan = new Span<byte>(tmpByteArr);
                 Utf8Formatter.TryFormat(Index, indexSpan, out int bytesWritten);
-                string indexStr = Encoding.UTF8.GetString(indexSpan.Slice(0, bytesWritten));
-                precompiledNameWithIndex = Encoding.UTF8.GetBytes(
+                string indexStr = Serializer.UTF8.GetString(indexSpan.Slice(0, bytesWritten));
+                precompiledNameWithIndex = Serializer.UTF8.GetBytes(
                     (char) _BEGIN_META 
                     + indexStr 
                     + (char) _END_META 
