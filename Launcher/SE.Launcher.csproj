@@ -123,6 +123,12 @@
     <None Update="libSDL2-2.0.0.dylib">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="libSE.Native.dylib">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="libSE.Native.so">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="MonoGame.Framework.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

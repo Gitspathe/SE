@@ -149,9 +149,9 @@ namespace SE.Serialization
         public void Write(string value)
         {
             byte[] arr = ArrayPool<byte>.Shared.Rent(Encoding.UTF8.GetByteCount(value));
-            byte[] bytes = SerializerUtil.GetUtf8Bytes(arr, value, out int arrLength);
-            Write(arrLength);
-            Write(bytes);
+            int bufferLength = SerializerUtil.GetUtf8Bytes(arr, value);
+            Write(bufferLength);
+            Write(arr);
             ArrayPool<byte>.Shared.Return(arr);
         }
 
