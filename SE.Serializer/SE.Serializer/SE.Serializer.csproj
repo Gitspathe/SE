@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net5</TargetFrameworks>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>SE</RootNamespace>
     <AssemblyName>SE.Serializer</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>0.0.1.0</Version>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

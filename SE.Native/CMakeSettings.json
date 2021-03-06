@@ -1,7 +1,7 @@
 ﻿{
   "configurations": [
     {
-      "name": "Debug_x64",
+      "name": "WindowsDebug",
       "generator": "Ninja",
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x64_x64" ],
@@ -13,7 +13,7 @@
       "variables": []
     },
     {
-      "name": "Release_x64",
+      "name": "WindowsRelease",
       "generator": "Ninja",
       "configurationType": "RelWithDebInfo",
       "buildRoot": "${projectDir}\\bin\\${name}",
@@ -34,6 +34,36 @@
           "type": "STRING"
         }
       ]
+    },
+    {
+      "name": "LinuxDebug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\bin\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeExecutable": "cmake",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "wslPath": "${defaultWSLPath}",
+      "addressSanitizerRuntimeFlags": "detect_leaks=0",
+      "variables": []
+    },
+    {
+      "name": "LinuxRelease",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "buildRoot": "${projectDir}\\bin\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeExecutable": "cmake",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "wslPath": "${defaultWSLPath}",
+      "addressSanitizerRuntimeFlags": "detect_leaks=0",
+      "variables": []
     }
   ]
 }

@@ -511,8 +511,12 @@ namespace SE.Serialization.Converters
                 bool shouldSetValue = !shouldReadBool || reader.ReadBoolean();
 
                 // If value shouldn't be set, set it to default.
+                // TODO: ^^^ How do I handle NULL vs default??
                 if (!shouldSetValue) {
-                    SetValue(target, default);
+                    if(Default == null)
+                        return; // Fix dumb FastMember bug where setting null causes exception.
+
+                    SetValue(target, Default);
                     return;
                 }
 

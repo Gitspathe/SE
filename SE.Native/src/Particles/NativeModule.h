@@ -3,8 +3,8 @@
 #ifndef NATIVEMODULE_H
 #define NATIVEMODULE_H
 
-#include "Utility.h"
-#include "SE.Native.h"
+#include "src/Utility.h"
+#include "src/SE.Native.h"
 #include "Particle.h"
 #include <vector>
 

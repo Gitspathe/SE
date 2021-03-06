@@ -3,7 +3,7 @@
 #ifndef NATIVEALPHASUBMODULE_H
 #define NATIVEALPHASUBMODULE_H
 
-#include "SE.Native.h"
+#include "src/SE.Native.h"
 #include "Particle.h"
 #include "NativeSubmodule.h"
 

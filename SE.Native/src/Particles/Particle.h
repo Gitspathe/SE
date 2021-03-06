@@ -3,7 +3,7 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
-#include "Utility.h"
+#include "src/Utility.h"
 
 using namespace Utility;
 

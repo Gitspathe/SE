@@ -9,7 +9,7 @@ namespace SE.Serialization
     public sealed class SerializerSettings
     {
         /// <summary>Which format to use.</summary>
-        public Formatting Formatting                       = Formatting.Text;
+        public Formatting Formatting                       = Formatting.Binary;
         /// <summary>How the serializer handles null values.</summary>
         public NullValueHandling NullValueHandling         = NullValueHandling.Ignore;
         /// <summary>How the serializer handles default values.</summary>
