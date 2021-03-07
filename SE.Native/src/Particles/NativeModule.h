@@ -10,8 +10,8 @@
 
 namespace Particles 
 {
-	struct NativeSubmodule;
-	struct NativeModule {
+	class NativeSubmodule;
+	class NativeModule {
 	public:
 		std::vector<NativeSubmodule*>* submodules;
 
