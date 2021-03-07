@@ -17,7 +17,7 @@ namespace SE.Serialization
             return Serializer.UTF8.GetBytes(str, 0, str.Length, arr, 0);
         }
 
-        public static void WriteText(this Utf8Writer writer, string str)
+        public static void WriteTextUtf8(this Utf8Writer writer, string str)
         {
             byte[] arr = ArrayPool<byte>.Shared.Rent(Encoding.UTF8.GetByteCount(str));
             int bufferSize = GetUtf8Bytes(arr, str);
@@ -25,7 +25,7 @@ namespace SE.Serialization
             ArrayPool<byte>.Shared.Return(arr);
         }
 
-        public static void WriteQuotedText(this Utf8Writer writer, string str)
+        public static void WriteQuotedTextUtf8(this Utf8Writer writer, string str)
         {
             byte[] arr = ArrayPool<byte>.Shared.Rent(Encoding.UTF8.GetByteCount(str));
             int bufferLength = GetUtf8Bytes(arr, str);
@@ -34,7 +34,6 @@ namespace SE.Serialization
             writer.Write(arr, bufferLength);
             writer.Write(_STRING_IDENTIFIER);
             ArrayPool<byte>.Shared.Return(arr);
-
         }
 
         // TODO: ReadArray<T>, to read array entries separated with ','.

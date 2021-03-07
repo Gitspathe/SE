@@ -19,6 +19,5 @@
         public static readonly byte[] NaN = { (byte)'N', (byte)'a', (byte)'N' };
         public static readonly byte[] TrueValue = { (byte)'t', (byte)'r', (byte)'u', (byte)'e' };
         public static readonly byte[] FalseValue = { (byte)'f', (byte)'a', (byte)'l', (byte)'s', (byte)'e' };
-
     }
 }

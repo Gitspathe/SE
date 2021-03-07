@@ -3,14 +3,15 @@
 #ifndef INT4_H
 #define INT4_H
 
+#include <stdint.h>
+
 namespace Utility 
 {
-
 	struct Int4 {
 	public:
-		int x, y, z, w;
+		int32_t x, y, z, w;
 
-		Int4(const int x = 0.0f, const int y = 0.0f, const int z = 0.0f, const int w = 0.0f) : x(x), y(y), z(z), w(w) { }
+		Int4(const int32_t x = 0, const int32_t y = 0, const int32_t z = 0, const int32_t w = 0) : x(x), y(y), z(z), w(w) { }
 
 		Int4 operator+(const Int4& other);
 		Int4 operator-(const Int4& other);

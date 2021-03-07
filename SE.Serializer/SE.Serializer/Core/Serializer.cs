@@ -195,16 +195,16 @@ namespace SE.Core
             writer.Write(_BEGIN_META);
             bool writeComma = false;
             if (objTypeName != null) {
-                writer.WriteQuotedText("$type");
+                writer.WriteQuotedTextUtf8("$type");
                 writer.Write(_BEGIN_VALUE);
-                writer.WriteQuotedText(objTypeName);
+                writer.WriteQuotedTextUtf8(objTypeName);
                 writeComma = true;
             }
             if (id != null) {
                 if (writeComma) {
                     writer.Write((byte)',');
                 }
-                writer.WriteQuotedText("$id");
+                writer.WriteQuotedTextUtf8("$id");
                 writer.Write(_BEGIN_VALUE);
                 writer.WriteUtf8(id.Value);
             }

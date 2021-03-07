@@ -1,16 +1,15 @@
 #include "NativeSubmodule.h"
 #include "NativeModule.h"
 
-// TODO: Move all of this code to SE.Particles.Native (from SE.Native.Particles), and include in SE.Particles repo.
 namespace Particles {
 	NativeSubmodule::NativeSubmodule(NativeModule* parent) : parent(parent)
 	{
 		parent->addSubmodule(this);
 	}
 
-	void NativeSubmodule::onInitialize(int particleArrayLength)	{ }
-	void NativeSubmodule::onParticlesActivated(int* particleIndexArr, Particle* particlesArrPtr, int length) { }
-	void NativeSubmodule::onUpdate(float deltaTime, Particle* __restrict particleArrPtr, const int length) { }
+	void NativeSubmodule::onInitialize(int32_t particleArrayLength)	{ }
+	void NativeSubmodule::onParticlesActivated(int32_t* particleIndexArr, Particle* particlesArrPtr, const int32_t length) { }
+	void NativeSubmodule::onUpdate(float deltaTime, Particle* __restrict particleArrPtr, const int32_t length) { }
 	bool NativeSubmodule::isValid() { return false; }
 	
 	NativeSubmodule::~NativeSubmodule()

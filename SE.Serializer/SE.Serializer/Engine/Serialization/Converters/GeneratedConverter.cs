@@ -247,12 +247,12 @@ namespace SE.Serialization.Converters
             Stream stream = reader.BaseStream;
             while (stream.Position + 1 < stream.Length && reader.ReadByte() == _DELIMITER) {
                 long startIndex = (stream.Position + _NODE_HEADER_SIZE) - 1;
-                try {
+                //try {
                     nodesArray[reader.ReadUInt16()].ReadBinary(obj, reader, ref task);
                     continue;
-                } catch (EndOfStreamException) {
-                    break;
-                } catch (Exception) { /* ignored */ }
+                //} catch (EndOfStreamException) {
+                //    break;
+                //} catch (Exception) { /* ignored */ }
 
                 // Failed. Skip to next node.
                 try {
@@ -454,6 +454,7 @@ namespace SE.Serialization.Converters
             private TypeAccessor accessor;
             private bool recursive;
 
+            private bool isNullable;
             private bool allowPolymorphism;
 
             // Faster access for delegate accessors.
@@ -494,10 +495,8 @@ namespace SE.Serialization.Converters
                     accessorIndex = delAccessor.GetIndex(RealName) ?? throw new IndexOutOfRangeException();
                 }
 
-                allowPolymorphism = true;
-                if (Type.IsValueType || Nullable.GetUnderlyingType(Type) != null) {
-                    allowPolymorphism = false;
-                }
+                isNullable = Nullable.GetUnderlyingType(Type) != null;
+                allowPolymorphism = !Type.IsValueType && !isNullable;
             }
 
             public void ReadBinary(object target, Utf8Reader reader, ref DeserializeTask task)
@@ -639,7 +638,6 @@ namespace SE.Serialization.Converters
                 if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
                     throw new ReferenceLoopException();
 
-                // TODO: Fix nullable.
                 Converter typeConverter = converter;
                 if (allowPolymorphism) {
                     Serializer.TryReadMetaText(reader, task.Settings, out string valueType, out int? id);

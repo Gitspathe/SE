@@ -169,7 +169,7 @@ namespace SE.Serialization.Converters
         public override char DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadChar();
         public override void SerializeText(char obj, Utf8Writer writer, ref SerializeTask task)
-            => writer.WriteQuotedText(obj.ToString());
+            => writer.WriteQuotedTextUtf8(obj.ToString());
         public override char DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => char.Parse(reader.ReadQuotedString());
     }
@@ -184,7 +184,7 @@ namespace SE.Serialization.Converters
             => reader.ReadString();
 
         public override void SerializeText(string obj, Utf8Writer writer, ref SerializeTask task) 
-            => writer.WriteQuotedText(obj);
+            => writer.WriteQuotedTextUtf8(obj);
         public override string DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadQuotedString();
     }

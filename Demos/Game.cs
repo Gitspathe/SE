@@ -136,7 +136,7 @@ namespace SEDemos
                     //pizza4 = 69.420f,
                     pizza5 = 0,
                     //pizza3 = { [1] = 59.0f },
-                    ObjTest = new TestClass2()
+                    //ObjTest = new TestClass2()
                 };
                 test.testClass1.test1.lol = 64;
 
@@ -217,6 +217,9 @@ namespace SEDemos
 
             byte[] lelBytes = Serializer.Serialize(lel);
             FileIO.SaveFile(lelBytes, "LOLZ.data");
+
+            string bb = System.Text.Json.JsonSerializer.Serialize(lel, textJsonOptions);
+            FileIO.SaveFile(bb, "LOLZJSON.data");
         }
 
         [JsonObject(MemberSerialization.OptOut)]
@@ -259,7 +262,7 @@ namespace SEDemos
         {
             public int pizza1 { get; set; } = 12;
             private int pizza2 { get; set; } = 2;
-            //public float[] pizza3 { get; set; } = { 1.0f, 2.05f };
+            //public float?[] pizza3 { get; set; } = { 1.0f, 2.05f, null };
             //public float? pizza4 { get; set; } = 5.5f;
             public int pizza5 { get; set; } = 2;
             public int pizza6 { get; set; } = 5;

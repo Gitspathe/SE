@@ -41,21 +41,21 @@ namespace Particles
 		submodules = newSubmodules;
 	}
 
-	void NativeModule::onInitialize(int particleArrayLength) 
+	void NativeModule::onInitialize(int32_t particleArrayLength)
 	{
 		for(NativeSubmodule* ptr : *submodules) {
 			ptr->onInitialize(particleArrayLength);
 		}
 	}
 
-	void NativeModule::onParticlesActivated(int* particleIndexArr, Particle* particlesArrPtr, int length)
+	void NativeModule::onParticlesActivated(int32_t* particleIndexArr, Particle* particlesArrPtr, const int32_t length)
 	{
 		for(NativeSubmodule* ptr : *submodules) {
 			ptr->onParticlesActivated(particleIndexArr, particlesArrPtr, length);
 		}
 	}
 
-	void NativeModule::onUpdate(float deltaTime, Particle* particleArrPtr, int length)
+	void NativeModule::onUpdate(float deltaTime, Particle* particleArrPtr, const int32_t length)
 	{
 		for(NativeSubmodule* ptr : *submodules){
 			ptr->onUpdate(deltaTime, particleArrPtr, length);
@@ -83,12 +83,12 @@ namespace Particles
 		modulePtr->removeSubmodule(submodulePtr);
 	}
 
-	LIB_API(void) nativeModule_OnParticlesActivated(NativeModule* modulePtr, int* particleIndexArr, Particle* particleArrPtr, int length) 
+	LIB_API(void) nativeModule_OnParticlesActivated(NativeModule* modulePtr, int32_t* particleIndexArr, Particle* particleArrPtr, int32_t length)
 	{
 		modulePtr->onParticlesActivated(particleIndexArr, particleArrPtr, length);
 	}
 
-	LIB_API(void) nativeModule_OnUpdate(NativeModule* modulePtr, float deltaTime, Particle* particleArrPtr, int length) 
+	LIB_API(void) nativeModule_OnUpdate(NativeModule* modulePtr, float deltaTime, Particle* particleArrPtr, int32_t length)
 	{
 		modulePtr->onUpdate(deltaTime, particleArrPtr, length);
 	}
@@ -98,7 +98,7 @@ namespace Particles
 		return new NativeModule();
 	}
 
-	LIB_API(void) nativeModule_OnInitialize(NativeModule* modulePtr, int particleArrayLength) 
+	LIB_API(void) nativeModule_OnInitialize(NativeModule* modulePtr, int32_t particleArrayLength)
 	{
 		modulePtr->onInitialize(particleArrayLength);
 	}

@@ -14,7 +14,8 @@ namespace SE.Serialization
         private Memory<byte> memory;
         private byte[] buffer;
         private int position;
-        private int currentMemoryLength;
+        private int bufferLength;
+        private int bufferLengthMinusOne;
         private bool disposedValue;
 
         public override bool CanRead => true;
@@ -31,7 +32,8 @@ namespace SE.Serialization
         {
             buffer = ArrayPool<byte>.Shared.Rent(capacity);
             memory = new Memory<byte>(buffer);
-            currentMemoryLength = capacity;
+            bufferLength = capacity;
+            bufferLengthMinusOne = bufferLength - 1;
             position = 0;
         }
 
@@ -47,23 +49,33 @@ namespace SE.Serialization
         {
             int nextSize = newSize;
             byte[] newBuffer = ArrayPool<byte>.Shared.Rent(nextSize);
-            Buffer.BlockCopy(buffer, 0, newBuffer, 0, currentMemoryLength);
+            Buffer.BlockCopy(buffer, 0, newBuffer, 0, bufferLength);
             ArrayPool<byte>.Shared.Return(buffer);
             buffer = newBuffer;
             memory = new Memory<byte>(buffer);
-            currentMemoryLength = buffer.Length;
+            bufferLength = buffer.Length;
+            bufferLengthMinusOne = bufferLength - 1;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void IncrementSize(int count)
         {
-            SetLengthInternal((currentMemoryLength + count) * 2);
+            SetLengthInternal((bufferLength + count) * 2);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void EnsureCapacity(int count = 1)
+        public void EnsureCapacity()
         {
-            if(position + count < currentMemoryLength)
+            if (position < bufferLengthMinusOne)
+                return;
+
+            IncrementSize(1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void EnsureCapacity(int count)
+        {
+            if(position + count < bufferLength)
                 return;
 
             IncrementSize(count);
@@ -151,7 +163,7 @@ namespace SE.Serialization
             byte[] arr = ArrayPool<byte>.Shared.Rent(Encoding.UTF8.GetByteCount(value));
             int bufferLength = SerializerUtil.GetUtf8Bytes(arr, value);
             Write(bufferLength);
-            Write(arr);
+            Write(arr, bufferLength);
             ArrayPool<byte>.Shared.Return(arr);
         }
 
@@ -256,9 +268,8 @@ namespace SE.Serialization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(byte value)
         {
-            EnsureCapacity(1);
-            buffer[position] = value;
-            ++position;
+            EnsureCapacity();
+            buffer[position++] = value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

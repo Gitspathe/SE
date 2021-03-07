@@ -15,9 +15,10 @@ namespace SE.Serialization
     public sealed class Utf8Reader : BinaryReader
     {
         private Memory<byte> memory;
-        private byte[] memoryBuffer;
-        private int memoryPosition;
-        private int currentMemoryLength;
+        private byte[] buffer;
+        private int position;
+        private int bufferLength;
+        private int bufferLengthMinusOne;
         private Stream stream;
 
         public Utf8Reader(Stream input) : this(input, new UTF8Encoding(), false) { }
@@ -25,18 +26,18 @@ namespace SE.Serialization
 
         public Utf8Reader(Stream input, Encoding encoding, bool leaveOpen) : base(input, encoding, leaveOpen)
         {
-            memoryBuffer = ArrayPool<byte>.Shared.Rent(256);
-            memory = new Memory<byte>(memoryBuffer);
-            memoryPosition = 0;
-            currentMemoryLength = memory.Length;
+            buffer = ArrayPool<byte>.Shared.Rent(256);
+            memory = new Memory<byte>(buffer);
+            position = 0;
+            bufferLength = memory.Length;
+            bufferLengthMinusOne = bufferLength - 1;
             stream = input;
         }
 
         private ReadOnlySpan<byte> ReadNumber()
         {
-            memoryPosition = 0;
-            bool shouldBreak = false;
-            while (!shouldBreak) {
+            position = 0;
+            while (true) {
                 byte b = ReadByte();
                 switch (b) {
                     case (byte)'0':
@@ -53,20 +54,21 @@ namespace SE.Serialization
                     case (byte)'+':
                     case (byte)'.':
                         EnsureCapacity();
-                        memoryBuffer[memoryPosition++] = b;
+                        buffer[position++] = b;
                         break;
 
                     default:
-                        shouldBreak = true;
-                        break;
+                        goto end;
                 }
             }
-            return memory.Span.Slice(0, memoryPosition);
+
+            end:
+            return memory.Span.Slice(0, position);
         }
 
         private ReadOnlySpan<byte> ReadQuotedUtf8StringInternal()
         {
-            memoryPosition = 0;
+            position = 0;
             if (ReadByte() != _STRING_IDENTIFIER)
                 throw new Exception("Not a quoted string!");
 
@@ -75,16 +77,16 @@ namespace SE.Serialization
 
         private ReadOnlySpan<byte> ReadUntil(byte identifier)
         {
-            memoryPosition = 0;
+            position = 0;
             while (true) {
                 byte b = ReadByte();
                 if (b == identifier)
                     break;
 
                 EnsureCapacity();
-                memoryBuffer[memoryPosition++] = b;
+                buffer[position++] = b;
             }
-            return memory.Span.Slice(0, memoryPosition);
+            return memory.Span.Slice(0, position);
         }
 
         public string ReadUntil(byte symbol, bool skipPast = true)
@@ -108,9 +110,18 @@ namespace SE.Serialization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureCapacity(int capacity = 1)
+        private void EnsureCapacity()
         {
-            if(memoryPosition + capacity < memory.Length)
+            if (position < bufferLengthMinusOne)
+                return;
+
+            Grow(1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureCapacity(int capacity)
+        {
+            if(position + capacity < bufferLength)
                 return;
 
             Grow(capacity);
@@ -119,26 +130,27 @@ namespace SE.Serialization
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void Grow(int capacity)
         {
-            byte[] newMemoryBuffer = ArrayPool<byte>.Shared.Rent((memory.Length + capacity) * 2);
-            Buffer.BlockCopy(memoryBuffer, 0, newMemoryBuffer, 0, currentMemoryLength);
-            ArrayPool<byte>.Shared.Return(memoryBuffer);
-            memoryBuffer = newMemoryBuffer;
-            memory = new Memory<byte>(memoryBuffer);
-            currentMemoryLength = memory.Length;
+            byte[] newMemoryBuffer = ArrayPool<byte>.Shared.Rent((bufferLength + capacity) * 2);
+            Buffer.BlockCopy(buffer, 0, newMemoryBuffer, 0, bufferLength);
+            ArrayPool<byte>.Shared.Return(buffer);
+            buffer = newMemoryBuffer;
+            memory = new Memory<byte>(buffer);
+            bufferLength = memory.Length;
+            bufferLengthMinusOne = bufferLength - 1;
         }
 
         public byte[] ReadByteArray()
         {
             int length = ReadInt32();
-            byte[] buffer = new byte[length];
+            byte[] tmpBuffer = new byte[length];
             int index = 0;
             do {
-                int num = Read(buffer, index, length - index);
+                int num = Read(tmpBuffer, index, length - index);
                 if (num == 0)
                     throw new EndOfStreamException();
                 index += num;
             } while (index != length);
-            return buffer;
+            return tmpBuffer;
         }
 
         public override string ReadString()
@@ -273,10 +285,9 @@ namespace SE.Serialization
 
         private static class MemoryCache
         {
-            // TODO: Replace string buffer with byte buffer. Then use Encoding.GetString().
-
-            private static string buffer;
-            private static int currentBufferLength;
+            private static byte[] buffer;
+            private static int bufferLength;
+            private static int bufferLengthMinusOne;
             private static int position;
 
             static MemoryCache()
@@ -285,42 +296,41 @@ namespace SE.Serialization
             }
 
             [MethodImpl(MethodImplOptions.NoInlining)]
-            private static unsafe void SetLengthInternal(int newSize)
+            private static void SetLengthInternal(int newSize)
             {
                 if (buffer == null) {
-                    buffer = new string(' ', newSize);
-                    currentBufferLength = buffer.Length;
+                    buffer = new byte[newSize];
+                    bufferLength = buffer.Length;
+                    bufferLengthMinusOne = bufferLength - 1;
                     return;
                 }
 
-                string newBuffer = new string(' ', newSize);
-                fixed (char* target = newBuffer) {
-                    Unsafe.Copy(target, ref buffer);
-                }
-                currentBufferLength = buffer.Length;
+                byte[] newBuffer = new byte[newSize];
+                Array.Copy(buffer, newBuffer, buffer.Length);
+                buffer = newBuffer;
+                bufferLength = buffer.Length;
+                bufferLengthMinusOne = bufferLength - 1;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private static void EnsureCapacity(int toRead = 1)
+            private static void EnsureCapacity()
             {
-                if (position + toRead < currentBufferLength)
+                if (position < bufferLengthMinusOne)
                     return;
 
-                SetLengthInternal((currentBufferLength + toRead) * 2);
+                SetLengthInternal((bufferLength + 1) * 2);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static unsafe void Append(byte b)
+            public static void Append(byte b)
             {
                 EnsureCapacity();
-                fixed (char* target = buffer) {
-                    target[position++] = (char)b;
-                }
+                buffer[position++] = b;
             }
 
             public static string RetrieveAndReset()
             {
-                string str = buffer.Substring(0, position);
+                string str = Serializer.UTF8.GetString(buffer, 0, position);
                 position = 0;
                 return str;
             }

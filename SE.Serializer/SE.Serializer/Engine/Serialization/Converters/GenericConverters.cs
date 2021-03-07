@@ -53,9 +53,9 @@ namespace SE.Serialization.Converters
         public override void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task)
         {
             Array val = (Array)obj;
+            Converter serializer = GetSerializer(0, ref task);
 
             writer.Write(_BEGIN_ARRAY);
-            Converter serializer = GetSerializer(0, ref task);
             for (int i = 0; i < val.Length; i++) {
                 Serializer.SerializeWriter(writer, val.GetValue(i), serializer, ref task, false);
                 if (i + 1 < val.Length) {

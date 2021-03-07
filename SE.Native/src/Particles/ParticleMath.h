@@ -6,8 +6,8 @@
 namespace Particles {
 	class ParticleMath {
 	public:
-		static float lerp(float value1, float value2, float amount);
-		static float between(float min, float max, float ratio);
+		static const float lerp(const float value1, const float value2, const float amount);
+		static const float between(const float min, const float max, const float ratio);
 		static void swap(float* x, float* y);
 	};
 }

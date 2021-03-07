@@ -15,9 +15,9 @@ namespace Particles {
 	public:
 		NativeSubmodule(NativeModule* parent);
 
-		virtual void onInitialize(int particleArrayLength);
-		virtual void onParticlesActivated(int* particleIndexArr, Particle* particlesArrPtr, int length);
-		virtual void onUpdate(float deltaTime, Particle* __restrict particleArrPtr, const int length);
+		virtual void onInitialize(int32_t particleArrayLength);
+		virtual void onParticlesActivated(int32_t* particleIndexArr, Particle* particlesArrPtr, const int32_t length);
+		virtual void onUpdate(float deltaTime, Particle* __restrict particleArrPtr, const int32_t length);
 		virtual bool isValid();
 
 		virtual ~NativeSubmodule();
