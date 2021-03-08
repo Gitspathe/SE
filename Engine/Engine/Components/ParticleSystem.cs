@@ -80,7 +80,7 @@ namespace SE.Components
             Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
             Emitter.AddModule(HueModule.RandomLerp(0.0f, 30.0f));
             Emitter.AddModule(LightnessModule.Lerp(0.667f));
-            //Emitter.AddModule(AlphaModule.Curve(alphaCurve));
+            Emitter.AddModule(AlphaModule.Curve(alphaCurve));
             Emitter.AddModule(SpriteRotationModule.Constant(1.0f));
             //Emitter.AddModule(AlphaModule.Lerp(0.0f));
 
@@ -108,7 +108,7 @@ namespace SE.Components
             // Native test.
             // TODO: Reenable and test!
             NativeModule nativeMod = new NativeModule();
-            Emitter.AddModule(nativeMod);
+            //Emitter.AddModule(nativeMod);
 
             //Emitter.RemoveModules(s, baseColorModule);
 
