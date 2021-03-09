@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SE.Particles.Modules.Native
 {
     // TODO.
     // TODO: Native module builder.
+    [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "C++ interop")]
     public unsafe class NativeModule : ParticleModule, IDisposable
     {
         internal Module* NativeModulePtr;

@@ -577,7 +577,7 @@ namespace SE.Serialization.Converters
                 bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Type, settings);
                 string metaType = null;
                 if (shouldWriteType && valType != null) {
-                    metaType = valType.AssemblyQualifiedName;
+                    metaType = SerializerUtil.GetQualifiedTypeName(valType, settings);
                 }
                 Serializer.WriteMetaBinary(writer, settings, metaType, null);
 
@@ -623,7 +623,7 @@ namespace SE.Serialization.Converters
                 bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Type, settings);
                 string metaType = null;
                 if (shouldWriteType && valType != null) {
-                    metaType = valType.AssemblyQualifiedName;
+                    metaType = SerializerUtil.GetQualifiedTypeName(valType, settings);
                 }
                 Serializer.WriteMetaText(writer, settings, metaType, null);
 
@@ -631,6 +631,12 @@ namespace SE.Serialization.Converters
                 Serializer.SerializeWriter(writer, val, typeConverter, ref task);
 
                 return true;
+            }
+
+            private static Assembly AssemblyResolver(AssemblyName assemblyName)
+            {
+                assemblyName.Version = null;
+                return Assembly.Load(assemblyName);
             }
 
             public void ReadText(object target, Utf8Reader reader, ref DeserializeTask task)

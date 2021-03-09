@@ -136,7 +136,7 @@ namespace SEDemos
                     //pizza4 = 69.420f,
                     pizza5 = 0,
                     //pizza3 = { [1] = 59.0f },
-                    //ObjTest = new TestClass2()
+                    ObjTest = new TestClass2()
                 };
                 test.testClass1.test1.lol = 64;
 
@@ -470,13 +470,15 @@ namespace SEDemos
         private float timer = 1.0f;
         protected override void OnUpdate(GameTime gameTime)
         {
-            //timer -= Time.DeltaTime;
-            //if (timer <= 0.0f && Network.IsServer) {
-            //    for (int i = 0; i < 5; i++) {
-            //        NetHelper.Instantiate("bouncy", "SERVER", new Vector2(128 + SE.Utility.Random.Next(0.0f, 1024.0f), 128 + SE.Utility.Random.Next(0.0f, 1024.0f)));
-            //    }
-            //    timer = 0.1f;
-            //}
+            timer -= Time.DeltaTime;
+            if (timer <= 0.0f && Network.IsServer)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    NetHelper.Instantiate("bouncy", "SERVER", new Vector2(128 + SE.Utility.Random.Next(0.0f, 1024.0f), 128 + SE.Utility.Random.Next(0.0f, 1024.0f)));
+                }
+                timer = 0.1f;
+            }
 
             if (IsEditor) {
                 if (InputManager.KeyCodePressed(Keys.F3)) {

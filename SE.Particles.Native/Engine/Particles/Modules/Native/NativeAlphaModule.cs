@@ -1,7 +1,9 @@
 ﻿using System.Runtime.InteropServices;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SE.Particles.Modules.Native
 {
+    [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "C++ interop")]
     public sealed unsafe class NativeAlphaModule : NativeSubmodule
     {
         internal NativeAlphaModule(NativeModule module) : base(module)

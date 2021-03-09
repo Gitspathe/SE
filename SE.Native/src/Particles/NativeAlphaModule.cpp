@@ -24,7 +24,7 @@ namespace Particles {
 		randEndAlphas = new float[particlesLength];
 	}
 
-	void NativeAlphaModule::onInitialize(int32_t particleArrayLength)
+	void NativeAlphaModule::onInitialize(const int32_t particleArrayLength)
 	{
 		particlesLength = particleArrayLength;
 		startAlphasArr = new float[particleArrayLength];
@@ -33,7 +33,7 @@ namespace Particles {
 		regenerateRandom();
 	}
 
-	void NativeAlphaModule::onParticlesActivated(int32_t* particleIndexArr, Particle* particlesArrPtr, const int32_t length)
+	void NativeAlphaModule::onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length)
 	{
 		for(int i = 0; i < length; i++) {
 			int pIndex = particleIndexArr[i];
@@ -46,7 +46,7 @@ namespace Particles {
 		}
 	}
 
-	void NativeAlphaModule::onUpdate(float deltaTime, Particle* __restrict particleArrPtr, const int32_t length)
+	void NativeAlphaModule::onUpdate(const float deltaTime, Particle* const __restrict particleArrPtr, const int32_t length)
 	{
 		int i = 0;
 		switch(transition) {
@@ -65,9 +65,9 @@ namespace Particles {
 		}
 	}
 
-	bool NativeAlphaModule::isValid()
+	const bool NativeAlphaModule::isValid()
 	{
-		return false;
+		return false; // ???
 	}
 
 	void NativeAlphaModule::setNone()

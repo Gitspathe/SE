@@ -25,10 +25,10 @@ namespace Particles {
 	public:
 		NativeAlphaModule(NativeModule* parent);
 
-		void onInitialize(int32_t particleArrayLength) override;
-		void onParticlesActivated(int32_t* particleIndexArr, Particle* particlesArrPtr, const int32_t length) override;
-		void onUpdate(float deltaTime, Particle* __restrict particleArrPtr, const int32_t length) override;
-		bool isValid() override;
+		void onInitialize(const int32_t particleArrayLength) override;
+		void onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length) override;
+		void onUpdate(float deltaTime, Particle* const __restrict particleArrPtr, const int32_t length) override;
+		const bool isValid() override;
 
 		void setNone();
 		void setLerp(float end);

@@ -13,10 +13,10 @@ namespace Utility
 
 		Int4(const int32_t x = 0, const int32_t y = 0, const int32_t z = 0, const int32_t w = 0) : x(x), y(y), z(z), w(w) { }
 
-		Int4 operator+(const Int4& other);
-		Int4 operator-(const Int4& other);
-		Int4 operator*(const Int4& other);
-		Int4 operator/(const Int4& other);
+		const Int4 operator+(const Int4& other);
+		const Int4 operator-(const Int4& other);
+		const Int4 operator*(const Int4& other);
+		const Int4 operator/(const Int4& other);
 	};
 }
 

@@ -12,10 +12,10 @@ namespace Utility
 
 		Vector4(const float x = 0.0f, const float y = 0.0f, const float z = 0.0f, const float w = 0.0f) : x(x), y(y), z(z), w(w) { }
 
-		Vector4 operator+(const Vector4& other);
-		Vector4 operator-(const Vector4& other);
-		Vector4 operator*(const Vector4& other);
-		Vector4 operator/(const Vector4& other);
+		const Vector4 operator+(const Vector4& other);
+		const Vector4 operator-(const Vector4& other);
+		const Vector4 operator*(const Vector4& other);
+		const Vector4 operator/(const Vector4& other);
 	};
 
 }

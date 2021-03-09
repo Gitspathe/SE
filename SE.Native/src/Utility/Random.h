@@ -8,7 +8,7 @@
 namespace Utility {
 	class Random {
 	public:
-		static float range(const float& min = 0.0f, const float& max = 0.0f);
+		static const float range(const float& min = 0.0f, const float& max = 0.0f);
 	};
 }
 

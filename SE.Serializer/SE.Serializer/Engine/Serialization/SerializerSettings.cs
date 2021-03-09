@@ -9,7 +9,7 @@ namespace SE.Serialization
     public sealed class SerializerSettings
     {
         /// <summary>Which format to use.</summary>
-        public Formatting Formatting                       = Formatting.Binary;
+        public Formatting Formatting                       = Formatting.Text;
         /// <summary>How the serializer handles null values.</summary>
         public NullValueHandling NullValueHandling         = NullValueHandling.Ignore;
         /// <summary>How the serializer handles default values.</summary>
@@ -17,7 +17,9 @@ namespace SE.Serialization
         /// <summary>How the serializer converts data. Determines performance and parsing error resilience.</summary>
         public ConvertBehaviour ConvertBehaviour           = ConvertBehaviour.Order;
         /// <summary>How the serializer handles types.</summary>
-        public TypeHandling TypeHandling                   = TypeHandling.Auto;
+        public TypeHandling TypeHandling                   = TypeHandling.Always;
+        /// <summary>How verbose the serialized Type information is.</summary>
+        public TypeNaming TypeNaming                       = TypeNaming.Minimal;
         /// <summary>How the serializer behaves when encountering a recursive loop of references.</summary>
         public ReferenceLoopHandling ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         /// <summary>How many levels deep the serializer will process.</summary>
@@ -110,5 +112,11 @@ namespace SE.Serialization
 
         /// <summary>Data is written in a YAML-like unicode format. Slower and requires more space, but is human-readable.</summary>
         Text
+    }
+
+    public enum TypeNaming
+    {
+        Minimal,
+        Full
     }
 }

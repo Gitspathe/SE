@@ -48,14 +48,14 @@ namespace Particles
 		}
 	}
 
-	void NativeModule::onParticlesActivated(int32_t* particleIndexArr, Particle* particlesArrPtr, const int32_t length)
+	void NativeModule::onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length)
 	{
 		for(NativeSubmodule* ptr : *submodules) {
 			ptr->onParticlesActivated(particleIndexArr, particlesArrPtr, length);
 		}
 	}
 
-	void NativeModule::onUpdate(float deltaTime, Particle* particleArrPtr, const int32_t length)
+	void NativeModule::onUpdate(const float deltaTime, Particle* const particleArrPtr, const int32_t length)
 	{
 		for(NativeSubmodule* ptr : *submodules){
 			ptr->onUpdate(deltaTime, particleArrPtr, length);
