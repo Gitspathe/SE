@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Diagnostics.CodeAnalysis;
+using SE.Utility;
 
 namespace SE.Particles.Modules.Native
 {
@@ -18,7 +19,12 @@ namespace SE.Particles.Modules.Native
             NativeModulePtr = (Module*)nativeModule_Create();
             
             NativeAlphaModule alpha = new NativeAlphaModule(this);
-            alpha.SetLerp(0.0f);
+            Curve curve = new Curve();
+            curve.Keys.Add(0.0f, 0.0f);
+            curve.Keys.Add(0.1f, 1.0f);
+            curve.Keys.Add(0.667f, 1.0f);
+            curve.Keys.Add(1.0f, 0.0f);
+            alpha.SetCurve(curve);
         }
 
         public override void OnParticlesActivated(Span<int> particlesIndex)
@@ -79,9 +85,6 @@ namespace SE.Particles.Modules.Native
         [DllImport("SE.Native", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void nativeModule_Delete(Module* modulePtr);
     }
-
-    internal struct Module { /* Used for naming only! */ }
-    internal struct Submodule { /* Used for naming only! */ }
 
     public unsafe class NativeSubmodule
     {

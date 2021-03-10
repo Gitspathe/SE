@@ -14,12 +14,16 @@ namespace SE
     {
         private static bool unhandledExceptionEventSetup;
 
-        private static string[] crashMessages = {
+        private static List<string> crashMessages = new List<string> {
             "You just got pranked.",
             "Whoops. Sorry dude.",
             "What else did you expect from a program called \"Spaghetti Engine\"?",
             "That wasn't supposed to happen.",
-            "At least the crash logging works, right?"
+            "At least the crash logging works, right?",
+            "He can't keep getting away with it!",
+            "BRUH.",
+            "Who wrote this piece of crap?",
+            "Have you tried turning it off and on again?"
         };
 
         public static void HookUnhandledExceptionEvents()
@@ -67,7 +71,9 @@ namespace SE
                 sw.WriteLine("\nUnhandled exception:");
                 sw.WriteLine(exception.ToString());
                 sw.WriteLine("---------------------------------------");
-                sw.WriteLine(crashMessages[Random.Next(0, crashMessages.Length)]);
+                if (crashMessages != null && crashMessages.Count > 0) {
+                    sw.WriteLine(crashMessages[Random.Next(0, crashMessages.Count-1)]);
+                }
                 sw.Close();
             }
         }

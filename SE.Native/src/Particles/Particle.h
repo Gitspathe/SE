@@ -11,17 +11,17 @@ namespace Particles
 {
 	struct Particle {
 	public:
-		Vector2 Position;
-		Vector2 Scale;
-		Vector2 Direction;
-		Vector4 Color;
-		float Mass;
-		float Speed;
-		float SpriteRotation;
-		float InitialLife;
-		float TimeAlive;
-		float LayerDepth;
-		Int4 SourceRectangle;
+		Vector2 position;
+		Vector2 scale;
+		Vector2 direction;
+		Vector4 color;
+		float mass;
+		float speed;
+		float spriteRotation;
+		float initialLife;
+		float timeAlive;
+		float layerDepth;
+		Int4 sourceRectangle;
 	};
 }
 

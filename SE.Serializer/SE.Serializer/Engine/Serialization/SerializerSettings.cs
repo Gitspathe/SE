@@ -110,7 +110,7 @@ namespace SE.Serialization
         /// <summary>Data is written in raw binary. Faster and saves space, but is not human-readable.</summary>
         Binary,
 
-        /// <summary>Data is written in a YAML-like unicode format. Slower and requires more space, but is human-readable.</summary>
+        /// <summary>Data is written in a YAML-like UTF-8 format. Slower and requires more space, but is human-readable.</summary>
         Text
     }
 

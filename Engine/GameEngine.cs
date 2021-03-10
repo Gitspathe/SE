@@ -304,6 +304,7 @@ namespace SE
             //EndDraw();
         }
 
+        // TODO: Test code area. Don't include this in actual builds.
         private float time = 2.0f;
         private void DevelopmentTests()
         {

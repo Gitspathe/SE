@@ -32,15 +32,15 @@ namespace SE.Core
         internal static void Update(GameTime gTime)
         {
             GameTime = gTime;
-            float timeSec = (float) gTime.ElapsedGameTime.TotalSeconds;
-            UnscaledDeltaTime = timeSec;
-            DeltaTime = timeSec * TimeScale;
+            double timeSec = gTime.ElapsedGameTime.TotalSeconds;
+            UnscaledDeltaTime = (float)timeSec;
+            DeltaTime = (float)(timeSec * TimeScale);
 
-            fixedTimer += UnscaledDeltaTime;
+            fixedTimer += DeltaTime;
             if(fixedTimer > MaxFixedTimestep)
                 fixedTimer = MaxFixedTimestep;
 
-            while (fixedTimer > FixedTimestep) {
+            while (fixedTimer >= FixedTimestep) {
                 FixedTimeStepIterations++;
                 fixedTimer -= FixedTimestep;
             }

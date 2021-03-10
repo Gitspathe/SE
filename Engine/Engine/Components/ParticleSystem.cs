@@ -84,27 +84,6 @@ namespace SE.Components
             Emitter.AddModule(SpriteRotationModule.Constant(1.0f));
             //Emitter.AddModule(AlphaModule.Lerp(0.0f));
 
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-            //Emitter.AddModule(AlphaModule.RandomLerp(0.0f, 1.0f));
-
             // Native test.
             // TODO: Reenable and test!
             NativeModule nativeMod = new NativeModule();

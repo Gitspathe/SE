@@ -4,13 +4,12 @@
       "name": "WindowsDebug",
       "generator": "Ninja",
       "configurationType": "Debug",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "inheritEnvironments": [ "clang_cl_x64_x64" ],
       "buildRoot": "${projectDir}\\bin\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
-      "ctestCommandArgs": "",
-      "variables": []
+      "ctestCommandArgs": ""
     },
     {
       "name": "WindowsRelease",
@@ -21,19 +20,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": [
-        {
-          "name": "CMAKE_C_FLAGS_RELWITHDEBINFO",
-          "value": "/MD /Zi /Ot /O2 /Ob2 /Oi /DNDEBUG /openmp",
-          "type": "STRING"
-        },
-        {
-          "name": "CMAKE_C_FLAGS_RELEASE",
-          "value": "/MD /Ot /Oi /O2 /Ob2 /DNDEBUG /openmp",
-          "type": "STRING"
-        }
-      ]
+      "inheritEnvironments": [ "clang_cl_x64_x64" ]
     },
     {
       "name": "LinuxDebug",
@@ -47,8 +34,7 @@
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "linux_x64" ],
       "wslPath": "${defaultWSLPath}",
-      "addressSanitizerRuntimeFlags": "detect_leaks=0",
-      "variables": []
+      "addressSanitizerRuntimeFlags": "detect_leaks=0"
     },
     {
       "name": "LinuxRelease",
@@ -62,9 +48,7 @@
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "linux_x64" ],
       "wslPath": "${defaultWSLPath}",
-      "addressSanitizerRuntimeFlags": "detect_leaks=0",
-      "variables": []
+      "addressSanitizerRuntimeFlags": "detect_leaks=0"
     }
-
   ]
 }

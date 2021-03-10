@@ -98,6 +98,9 @@
     <None Update="LICENSE">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="LICENSES_LIBS">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Lidgren.Network.MultiTarget.deps.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

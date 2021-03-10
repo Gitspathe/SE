@@ -6,18 +6,23 @@
 #include "src/SE.Native.h"
 #include "Particle.h"
 #include "NativeSubmodule.h"
+#include "src/Utility/Curve.h"
 
 namespace Particles {
+
+	namespace AlphaTransition {
+		enum Transition { None, Lerp, RandomLerp, Curve };
+	}
+
 	class NativeAlphaModule final : NativeSubmodule {
-	private:
-		enum Transition { NONE, LERP, RANDOM_LERP };
-		
-		Transition transition = NONE;
+	private:		
+		AlphaTransition::Transition transition = AlphaTransition::None;
 		int particlesLength;
 		float end1, end2;
-		float* startAlphasArr = NULL;
-		float* rand = NULL;
-        float* randEndAlphas = NULL;
+		float* startAlphasArr = nullptr;
+		float* rand = nullptr;
+        float* randEndAlphas = nullptr;
+		Curve* curve = nullptr;
 
 		void regenerateRandom();
 		bool isRandom();
@@ -33,6 +38,7 @@ namespace Particles {
 		void setNone();
 		void setLerp(float end);
 		void setRandomLerp(float min, float max);
+		void setCurve(Curve* const curve);
 
 		~NativeAlphaModule() override;
 	};
