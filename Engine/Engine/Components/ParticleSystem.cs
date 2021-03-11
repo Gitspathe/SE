@@ -38,59 +38,15 @@ namespace SE.Components
             Emitter.Texture = Texture;
             //Emitter.Space = Space.Local;
 
-            Curve angleCurve = new Curve();
-            angleCurve.Keys.Add(0.0f, 0.0f);
-            angleCurve.Keys.Add(0.25f, 0.1f);
-            angleCurve.Keys.Add(0.5f, 1.0f);
-            angleCurve.Keys.Add(1.0f, 10.0f);
-
-            Curve forwardVelocityCurve = new Curve();
-            forwardVelocityCurve.Keys.Add(0.0f, 0.0f);
-            forwardVelocityCurve.Keys.Add(0.20f, 128.0f);
-            forwardVelocityCurve.Keys.Add(0.5f, 512.0f);
-            forwardVelocityCurve.Keys.Add(1.0f, 3000.0f);
-
-            Curve4 colorCurve = new Curve4();
-            colorCurve.Add(0.0f, new Vector4(0.0f, 1.0f, 0.5f, 1.0f));
-            colorCurve.Add(0.25f, new Vector4(30.0f, 1.0f, 0.5f, 1.0f));
-            colorCurve.Add(0.5f, new Vector4(120.0f, 1.0f, 0.5f, 1.0f));
-            colorCurve.Add(0.8f, new Vector4(30.0f, 1.0f, 0.5f, 1.0f));
-            colorCurve.Add(1.0f, new Vector4(240.0f, 1.0f, 0.5f, 0.0f));
-
             Emitter.Config.Color.SetRandomBetween(
                 new Vector4(0.0f, 1.0f, 0.5f, 1.0f),
                 new Vector4(30.0f, 1.0f, 0.6f, 1.0f));
 
             Emitter.Config.Scale.SetRandomBetween(0.0333f, 0.0667f);
-
-            //Emitter.Config.Scale.SetRandomBetween(0.333f, 0.667f);
-
             Emitter.Config.Life.SetRandomBetween(0.2f, 1.0f);
             Emitter.Config.Speed.SetRandomBetween(32.0f, 128.0f);
 
-            ScaleModule s = ScaleModule.Lerp(0.5f, 2.0f);
-
-            Curve alphaCurve = new Curve();
-            alphaCurve.Keys.Add(0.0f, 0.0f);
-            alphaCurve.Keys.Add(0.1f, 1.0f);
-            alphaCurve.Keys.Add(0.667f, 1.0f);
-            alphaCurve.Keys.Add(1.0f, 0.0f);
-
-            Emitter.AddModule(s);
             Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
-
-            Curve4 colorCurve2 = new Curve4();
-            colorCurve2.Add(0.0f, new Vector4(0.0f, 1.0f, 0.5f, 1.0f));
-            colorCurve2.Add(1.0f, new Vector4(360.0f, 1.0f, 0.5f, 1.0f));
-
-            for (int i = 0; i < 50; i++) {
-                Emitter.AddModule(ColorModule.Curve(colorCurve2));
-            }
-            //Emitter.AddModule(HueModule.RandomLerp(0.0f, 30.0f));
-            //Emitter.AddModule(LightnessModule.Lerp(0.667f));
-            //Emitter.AddModule(AlphaModule.Curve(alphaCurve));
-            //Emitter.AddModule(SpriteRotationModule.Constant(1.0f));
-            //Emitter.AddModule(AlphaModule.Lerp(0.0f));
 
             // Native test.
             // TODO: Reenable and test!

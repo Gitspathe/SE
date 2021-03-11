@@ -27,13 +27,14 @@ namespace SE.Particles.Modules.Native
             alphaCurve.Keys.Add(1.0f, 0.0f);
             //new NativeAlphaModule(this).SetCurve(alphaCurve);
 
-            Curve4 colorCurve = new Curve4();
-            colorCurve.Add(0.0f, new Vector4(0.0f, 1.0f, 0.5f, 1.0f));
-            colorCurve.Add(1.0f, new Vector4(360.0f, 1.0f, 0.5f, 1.0f));
-
-            for (int i = 0; i < 50; i++) {
-                new NativeColorModule(this).SetCurve(colorCurve);
-            }
+            //new NativeHueModule(this).SetRandomLerp(0.0f, 30.0f);
+            //new NativeLightnessModule(this).SetLerp(0.667f);
+            new NativeScaleModule(this).SetLerp(0.5f, 2.0f);
+            new NativeAlphaModule(this).SetCurve(alphaCurve);
+            new NativeSpriteRotationModule(this).SetRandomConstant(1.0f, 99.0f);
+            NativeSpeedModule speedMod = new NativeSpeedModule(this);
+            speedMod.SetLerp(0.0f, 200.0f);
+            speedMod.AbsoluteValue = false;
         }
 
         public override void OnParticlesActivated(Span<int> particlesIndex)
