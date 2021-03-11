@@ -18,11 +18,7 @@ namespace SE.Particles.Modules.Native
 
         public void SetCurve(Curve curve)
         {
-            NativeCurve* nativeCurve = NativeUtil.util_Curve_Ctor();
-            foreach (CurveKey key in curve.Keys) {
-                NativeUtil.util_Curve_Add(nativeCurve, key.Position, key.Value);
-            }
-            nativeModule_AlphaModule_SetCurve(SubmodulePtr, nativeCurve);
+            nativeModule_AlphaModule_SetCurve(SubmodulePtr, NativeUtil.CopyCurveToNativeCurve(curve));
         }
 
         [DllImport("SE.Native", CallingConvention = CallingConvention.Cdecl)]

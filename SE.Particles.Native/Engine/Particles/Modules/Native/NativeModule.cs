@@ -2,6 +2,8 @@
 using System.Runtime.InteropServices;
 using System.Diagnostics.CodeAnalysis;
 using SE.Utility;
+using System.Numerics;
+using SE.Engine.Utility;
 
 namespace SE.Particles.Modules.Native
 {
@@ -17,14 +19,21 @@ namespace SE.Particles.Modules.Native
         public NativeModule()
         {
             NativeModulePtr = (Module*)nativeModule_Create();
-            
-            NativeAlphaModule alpha = new NativeAlphaModule(this);
-            Curve curve = new Curve();
-            curve.Keys.Add(0.0f, 0.0f);
-            curve.Keys.Add(0.1f, 1.0f);
-            curve.Keys.Add(0.667f, 1.0f);
-            curve.Keys.Add(1.0f, 0.0f);
-            alpha.SetCurve(curve);
+
+            Curve alphaCurve = new Curve();
+            alphaCurve.Keys.Add(0.0f, 0.0f);
+            alphaCurve.Keys.Add(0.1f, 1.0f);
+            alphaCurve.Keys.Add(0.667f, 1.0f);
+            alphaCurve.Keys.Add(1.0f, 0.0f);
+            //new NativeAlphaModule(this).SetCurve(alphaCurve);
+
+            Curve4 colorCurve = new Curve4();
+            colorCurve.Add(0.0f, new Vector4(0.0f, 1.0f, 0.5f, 1.0f));
+            colorCurve.Add(1.0f, new Vector4(360.0f, 1.0f, 0.5f, 1.0f));
+
+            for (int i = 0; i < 50; i++) {
+                new NativeColorModule(this).SetCurve(colorCurve);
+            }
         }
 
         public override void OnParticlesActivated(Span<int> particlesIndex)

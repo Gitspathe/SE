@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef NATIVEALPHASUBMODULE_H
-#define NATIVEALPHASUBMODULE_H
+#ifndef NATIVELIGHTNESSSUBMODULE_H
+#define NATIVELIGHTNESSSUBMODULE_H
 
 #include "src/SE.Native.h"
 #include "Particle.h"
@@ -10,25 +10,25 @@
 
 namespace Particles {
 
-	namespace AlphaTransition {
+	namespace LightnessTransition {
 		enum Transition { None, Lerp, RandomLerp, Curve };
 	}
 
-	class NativeAlphaModule final : NativeSubmodule {
-	private:		
-		AlphaTransition::Transition transition = AlphaTransition::None;
+	class NativeLightnessModule final : NativeSubmodule {
+	private:
+		LightnessTransition::Transition transition = LightnessTransition::None;
 		int particlesLength;
 		float end1, end2;
-		float* startAlphasArr = nullptr;
+		float* startLightnessArr = nullptr;
 		float* rand = nullptr;
-        float* randEndAlphas = nullptr;
+		float* randEndLightness = nullptr;
 		Curve* curve = nullptr;
 
 		void regenerateRandom();
 		bool isRandom();
 
 	public:
-		NativeAlphaModule(NativeModule* const parent);
+		NativeLightnessModule(NativeModule* const parent);
 
 		void onInitialize(const int32_t particleArrayLength) override;
 		void onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length) override;
@@ -40,8 +40,10 @@ namespace Particles {
 		void setRandomLerp(float min, float max);
 		void setCurve(Curve* const curve);
 
-		~NativeAlphaModule() override;
+		~NativeLightnessModule() override;
 	};
+
+
 }
 
 #endif

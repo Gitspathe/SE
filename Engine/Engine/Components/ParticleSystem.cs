@@ -78,10 +78,18 @@ namespace SE.Components
 
             Emitter.AddModule(s);
             Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
-            Emitter.AddModule(HueModule.RandomLerp(0.0f, 30.0f));
-            Emitter.AddModule(LightnessModule.Lerp(0.667f));
+
+            Curve4 colorCurve2 = new Curve4();
+            colorCurve2.Add(0.0f, new Vector4(0.0f, 1.0f, 0.5f, 1.0f));
+            colorCurve2.Add(1.0f, new Vector4(360.0f, 1.0f, 0.5f, 1.0f));
+
+            for (int i = 0; i < 50; i++) {
+                Emitter.AddModule(ColorModule.Curve(colorCurve2));
+            }
+            //Emitter.AddModule(HueModule.RandomLerp(0.0f, 30.0f));
+            //Emitter.AddModule(LightnessModule.Lerp(0.667f));
             //Emitter.AddModule(AlphaModule.Curve(alphaCurve));
-            Emitter.AddModule(SpriteRotationModule.Constant(1.0f));
+            //Emitter.AddModule(SpriteRotationModule.Constant(1.0f));
             //Emitter.AddModule(AlphaModule.Lerp(0.0f));
 
             // Native test.

@@ -11,7 +11,7 @@ namespace Particles {
 		return transition == AlphaTransition::RandomLerp;
 	}
 
-	NativeAlphaModule::NativeAlphaModule(NativeModule* parent) : NativeSubmodule(parent) { }
+	NativeAlphaModule::NativeAlphaModule(NativeModule* const parent) : NativeSubmodule(parent) { }
 
 	void NativeAlphaModule::regenerateRandom()
 	{
@@ -35,8 +35,8 @@ namespace Particles {
 
 	void NativeAlphaModule::onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length)
 	{
-		for(int i = 0; i < length; i++) {
-			int pIndex = particleIndexArr[i];
+		for(int32_t i = 0; i < length; i++) {
+			int32_t pIndex = particleIndexArr[i];
 			startAlphasArr[pIndex] = particlesArrPtr[pIndex].color.w;
 			if (!isRandom()) 
 				continue;
@@ -46,23 +46,25 @@ namespace Particles {
 		}
 	}
 
-	void NativeAlphaModule::onUpdate(const float deltaTime, Particle* const __restrict particleArrPtr, const int32_t length)
+	void NativeAlphaModule::onUpdate(const float deltaTime, Particle* const particleArrPtr, const int32_t length)
 	{
 		switch(transition) {
 			case AlphaTransition::Lerp: {
-				for (int i = 0; i < length; i++) {
+				#pragma omp simd
+				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
 					particle->color.w = ParticleMath::lerp(startAlphasArr[i], end1, particle->timeAlive / particle->initialLife);
 				}
 			} break;
 			case AlphaTransition::RandomLerp: {
-				for (int i = 0; i < length; i++) {
+				#pragma omp simd
+				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
 					particle->color.w = ParticleMath::lerp(startAlphasArr[i], randEndAlphas[i], particle->timeAlive / particle->initialLife);
 				}
 			} break;
 			case AlphaTransition::Curve: {
-				for (int i = 0; i < length; i++) {
+				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
 					particle->color.w = curve->Evaluate(particle->timeAlive / particle->initialLife);
 				}
@@ -116,27 +118,27 @@ namespace Particles {
 		delete curve;
 	}
 
-	LIB_API(NativeAlphaModule*) nativeModule_AlphaModule_Ctor(NativeModule* modulePtr)
+	LIB_API(NativeAlphaModule*) nativeModule_AlphaModule_Ctor(NativeModule* const modulePtr)
 	{
 		return new NativeAlphaModule(modulePtr);
 	}
 
-	LIB_API(void) nativeModule_AlphaModule_SetNone(NativeAlphaModule* modulePtr)
+	LIB_API(void) nativeModule_AlphaModule_SetNone(NativeAlphaModule* const modulePtr)
 	{
 		modulePtr->setNone();
 	}
 
-	LIB_API(void) nativeModule_AlphaModule_SetLerp(NativeAlphaModule* modulePtr, float end)
+	LIB_API(void) nativeModule_AlphaModule_SetLerp(NativeAlphaModule* const modulePtr, float end)
 	{
 		modulePtr->setLerp(end);
 	}
 
-	LIB_API(void) nativeModule_AlphaModule_SetRandomLerp(NativeAlphaModule* modulePtr, float min, float max)
+	LIB_API(void) nativeModule_AlphaModule_SetRandomLerp(NativeAlphaModule* const modulePtr, float min, float max)
 	{
 		modulePtr->setRandomLerp(min, max);
 	}
 
-	LIB_API(void) nativeModule_AlphaModule_SetCurve(NativeAlphaModule* modulePtr, Curve* const curvePtr)
+	LIB_API(void) nativeModule_AlphaModule_SetCurve(NativeAlphaModule* const modulePtr, Curve* const curvePtr)
 	{
 		modulePtr->setCurve(curvePtr);
 	}

@@ -1,34 +1,34 @@
 #pragma once
 
-#ifndef NATIVEALPHASUBMODULE_H
-#define NATIVEALPHASUBMODULE_H
+#ifndef NATIVECOLORSUBMODULE_H
+#define NATIVECOLORSUBMODULE_H
 
 #include "src/SE.Native.h"
 #include "Particle.h"
 #include "NativeSubmodule.h"
-#include "src/Utility/Curve.h"
+#include "src/Utility.h"
 
 namespace Particles {
 
-	namespace AlphaTransition {
+	namespace ColorTransition {
 		enum Transition { None, Lerp, RandomLerp, Curve };
 	}
 
-	class NativeAlphaModule final : NativeSubmodule {
-	private:		
-		AlphaTransition::Transition transition = AlphaTransition::None;
+	class NativeColorModule final : NativeSubmodule {
+	private:
+		ColorTransition::Transition transition = ColorTransition::None;
 		int particlesLength;
-		float end1, end2;
-		float* startAlphasArr = nullptr;
-		float* rand = nullptr;
-        float* randEndAlphas = nullptr;
-		Curve* curve = nullptr;
+		Vector4 end1, end2;
+		Vector4* startColorsArr = nullptr;
+		Vector4* rand = nullptr;
+		Vector4* randEndColors = nullptr;
+		Curve4* curve = nullptr;
 
 		void regenerateRandom();
 		bool isRandom();
 
 	public:
-		NativeAlphaModule(NativeModule* const parent);
+		NativeColorModule(NativeModule* const parent);
 
 		void onInitialize(const int32_t particleArrayLength) override;
 		void onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length) override;
@@ -36,11 +36,11 @@ namespace Particles {
 		const bool isValid() override;
 
 		void setNone();
-		void setLerp(float end);
-		void setRandomLerp(float min, float max);
-		void setCurve(Curve* const curve);
+		void setLerp(Vector4 end);
+		void setRandomLerp(Vector4 min, Vector4 max);
+		void setCurve(Curve4* const curve);
 
-		~NativeAlphaModule() override;
+		~NativeColorModule() override;
 	};
 }
 

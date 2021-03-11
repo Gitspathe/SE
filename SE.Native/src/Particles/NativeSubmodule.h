@@ -13,7 +13,7 @@ namespace Particles {
 		bool isInitialized = false;
 
 	public:
-		NativeSubmodule(NativeModule* parent);
+		NativeSubmodule(NativeModule* const parent);
 
 		virtual void onInitialize(const int32_t particleArrayLength);
 		virtual void onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length);

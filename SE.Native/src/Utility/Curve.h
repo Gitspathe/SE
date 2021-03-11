@@ -4,6 +4,7 @@
 #define CURVE_H
 
 #include <vector>
+#include <src/Utility.h>
 
 namespace Utility {
 	namespace CurveLoopType 
@@ -47,10 +48,10 @@ namespace Utility {
 	struct CurveKeyCollection {
 	public:
 		std::vector<CurveKey> keys = std::vector<CurveKey>();
-		size_t getCount();
+		size_t count = 0;
 		void add(const float position, const float value);
 		void add(const CurveKey item);
-		CurveKey& operator [] (size_t j);
+		CurveKey& operator [] (const size_t j);
 	};
 
 
@@ -67,6 +68,26 @@ namespace Utility {
 		void ComputeTangents(const CurveTangent::CurveTangent tangentInType, const CurveTangent::CurveTangent tangentOutType);
 		void ComputeTangent(const size_t keyIndex, const CurveTangent::CurveTangent tangentType);
 		void ComputeTangent(const size_t keyIndex, const CurveTangent::CurveTangent tangentInType, const CurveTangent::CurveTangent tangentOutType);
+	};
+
+	struct Curve2 {
+	public:
+		Curve x, y;
+		const Vector2 Evaluate(const float position);
+		Curve2(Curve x, Curve y) : x(x), y(y) { }
+	};
+
+	struct Curve3 {
+	public:
+		Curve x, y, z;
+		Curve3(Curve x, Curve y, Curve z) : x(x), y(y), z(z) { }
+	};
+
+	struct Curve4 {
+	public:
+		Curve x, y, z, w;
+		const Vector4 Evaluate(const float position);
+		Curve4(Curve x, Curve y, Curve z, Curve w) : x(x), y(y), z(z), w(w) { }
 	};
 }
 

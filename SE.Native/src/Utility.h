@@ -5,8 +5,9 @@
 
 namespace Utility { }
 
-#include "Utility/Vector2.h"
-#include "Utility/Vector4.h"
+#include "Utility/Vectors.h"
+#include "Utility/Curve.h"
 #include "Utility/Int4.h"
+#include "Utility/Random.h"
 
 #endif

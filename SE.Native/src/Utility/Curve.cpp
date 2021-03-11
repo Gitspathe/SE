@@ -5,6 +5,7 @@
 using namespace Utility;
 
 namespace Utility {
+
 	const bool CurveKey::operator==(const CurveKey& other) 
 	{
 		return (position == other.position)
@@ -24,11 +25,6 @@ namespace Utility {
 		return MathUtil::CompareTo(position, other.position);
 	}
 
-	size_t CurveKeyCollection::getCount()
-	{
-		return keys.size();
-	}
-
 	void CurveKeyCollection::add(const float position, const float value)
 	{
 		add(CurveKey(position, value));
@@ -36,20 +32,22 @@ namespace Utility {
 
 	void CurveKeyCollection::add(const CurveKey item)
 	{
-		if (getCount() <= 0) {
+		if (count <= 0) {
 			keys.push_back(item);
+			count = keys.size();
 			return;
 		}
 
-		size_t count = getCount();
 		for (size_t i = 0; i < count; i++) {
 			CurveKey* key = &(keys)[i];
 			if (item.position < key->position) {
 				keys.insert(keys.begin()+i, item);
+				count = keys.size();
 				return;
 			}
 		}
 		keys.push_back(item);
+		count = keys.size();
 	}
 
 	CurveKey& CurveKeyCollection::operator[](const size_t i)
@@ -59,7 +57,7 @@ namespace Utility {
 
 	float Curve::Evaluate(const float position)
 	{
-		size_t keysCount = keys.getCount();
+		const size_t keysCount = keys.count;
 		CurveKey& first = keys[0];
 		CurveKey& last = keys[keysCount - 1];
 
@@ -94,10 +92,11 @@ namespace Utility {
 					// start-> end / end -> start
 					size_t cycle = GetNumberOfCycle(position);
 					float virtualPos;
-					if (0 == std::fmod(cycle, 2.0f))//if pair
+					if (0 == std::fmod(cycle, 2.0f)) { //if pair
 						virtualPos = position - (cycle * (last.position - first.position));
-					else
+					} else {
 						virtualPos = last.position - position + first.position + (cycle * (last.position - first.position));
+					}
 					return GetCurvePosition(virtualPos);
 				} break;
 			}
@@ -126,15 +125,17 @@ namespace Utility {
 					float virtualPos = position - (cycle * (last.position - first.position));
 					return (GetCurvePosition(virtualPos) + cycle * (last.value - first.value));
 				} break;
+
 				case CurveLoopType::Oscillate: {
 					//go back on curve from end and target start 
 					// start-> end / end -> start
 					size_t cycle = GetNumberOfCycle(position);
 					float virtualPos = position - (cycle * (last.position - first.position));
-					if (0 == std::fmod(cycle, 2.0f))//if pair
+					if (0 == std::fmod(cycle, 2.0f)) { //if pair
 						virtualPos = position - (cycle * (last.position - first.position));
-					else
+					} else {
 						virtualPos = last.position - position + first.position + (cycle * (last.position - first.position));
+					}
 					return GetCurvePosition(virtualPos);
 				} break;
 			}
@@ -146,7 +147,7 @@ namespace Utility {
 
 	const size_t Curve::GetNumberOfCycle(const float position)
 	{
-		float cycle = (position - (keys[0]).position) / ((keys[keys.getCount() - 1]).position - (keys[0]).position);
+		float cycle = (position - (keys[0]).position) / ((keys[keys.count - 1]).position - (keys[0]).position);
 		if (cycle < 0.0f)
 			cycle--;
 		return (size_t)cycle;
@@ -154,7 +155,7 @@ namespace Utility {
 
 	const float Curve::GetCurvePosition(const float position)
 	{
-		size_t keysCount = keys.getCount();
+		const size_t keysCount = keys.count;
 		CurveKey& prev = keys[0];
 		for (size_t i = 1; i < keysCount; ++i) {
 			CurveKey& next = keys[i];
@@ -186,7 +187,7 @@ namespace Utility {
 
 	void Curve::ComputeTangents(const CurveTangent::CurveTangent tangentInType, const CurveTangent::CurveTangent tangentOutType)
 	{
-		size_t keysCount = keys.getCount();
+		const size_t keysCount = keys.count;
 		for (size_t i = 0; i < keysCount; ++i) {
 			ComputeTangent(i, tangentInType, tangentOutType);
 		}
@@ -199,7 +200,7 @@ namespace Utility {
 
 	void Curve::ComputeTangent(const size_t keyIndex, const CurveTangent::CurveTangent tangentInType, const CurveTangent::CurveTangent tangentOutType)
 	{
-		size_t keysCount = keys.getCount();
+		const size_t keysCount = keys.count;
 
 		CurveKey& key = keys[keyIndex];
 		float p0, p, p1;
@@ -221,37 +222,47 @@ namespace Utility {
 		}
 
 		switch (tangentInType) {
-			case CurveTangent::Flat:
+			case CurveTangent::Flat: {
 				key.tangentIn = 0;
-				break;
-			case CurveTangent::Linear:
+			} break;
+			case CurveTangent::Linear: {
 				key.tangentIn = v - v0;
-				break;
-			case CurveTangent::Smooth:
+			} break;
+			case CurveTangent::Smooth: {
 				float pn = p1 - p0;
 				if (abs(pn) < MathUtil::EPSILON) {
 					key.tangentIn = 0;
 				} else {
 					key.tangentIn = (v1 - v0) * ((p - p0) / pn);
 				}
-				break;
+			} break;
 		}
 
 		switch (tangentOutType) {
-			case CurveTangent::Flat:
+			case CurveTangent::Flat: {
 				key.tangentOut = 0;
-				break;
-			case CurveTangent::Linear:
+			} break;
+			case CurveTangent::Linear: {
 				key.tangentOut = v1 - v;
-				break;
-			case CurveTangent::Smooth:
+			} break;
+			case CurveTangent::Smooth: {
 				float pn = p1 - p0;
 				if (abs(pn) < MathUtil::EPSILON) {
 					key.tangentOut = 0;
 				} else {
 					key.tangentOut = (v1 - v0) * ((p1 - p) / pn);
-				} break;
+				}
+			} break;
 		}
+	}
+
+	const Vector4 Curve4::Evaluate(const float position)
+	{
+		return Vector4(x.Evaluate(position), y.Evaluate(position), z.Evaluate(position), w.Evaluate(position));
+	}
+	const Vector2 Curve2::Evaluate(const float position)
+	{
+		return Vector2(x.Evaluate(position), y.Evaluate(position));
 	}
 
 	LIB_API(Curve*) util_Curve_Ctor()
@@ -262,5 +273,20 @@ namespace Utility {
 	LIB_API(void) util_Curve_Add(Curve* curvePtr, float position, float value)
 	{
 		curvePtr->keys.add(position, value);
+	}
+
+	LIB_API(Curve2*) util_Curve2_Ctor(Curve x, Curve y)
+	{
+		return new Curve2(x, y);
+	}
+
+	LIB_API(Curve3*) util_Curve3_Ctor(Curve x, Curve y, Curve z)
+	{
+		return new Curve3(x, y, z);
+	}
+
+	LIB_API(Curve4*) util_Curve4_Ctor(Curve x, Curve y, Curve z, Curve w)
+	{
+		return new Curve4(x, y, z, w);
 	}
 }

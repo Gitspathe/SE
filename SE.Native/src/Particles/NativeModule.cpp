@@ -10,7 +10,7 @@ namespace Particles
 		submodules = new std::vector<NativeSubmodule*>();
 	}
 
-	void NativeModule::addSubmodule(NativeSubmodule* submodule)
+	void NativeModule::addSubmodule(NativeSubmodule* const submodule)
 	{
 		for(NativeSubmodule* ptr : *submodules){
 			if(ptr == submodule)
@@ -20,7 +20,7 @@ namespace Particles
 		submodules->push_back(submodule);
 	}
 
-	void NativeModule::removeSubmodule(NativeSubmodule* submodule)
+	void NativeModule::removeSubmodule(NativeSubmodule* const submodule)
 	{
 		std::vector<NativeSubmodule*>* newSubmodules = new std::vector<NativeSubmodule*>();
 		std::vector<NativeSubmodule*> curSubmodules = *submodules;
@@ -73,22 +73,22 @@ namespace Particles
 
 	#pragma region INTEROP METHODS.
 	
-	LIB_API(void) nativeModule_addSubmodule(NativeModule* modulePtr, NativeSubmodule* submodulePtr) 
+	LIB_API(void) nativeModule_addSubmodule(NativeModule* const modulePtr, NativeSubmodule* const submodulePtr)
 	{
 		modulePtr->addSubmodule(submodulePtr);
 	}
 
-	LIB_API(void) nativeModule_removeSubmodule(NativeModule* modulePtr, NativeSubmodule* submodulePtr) 
+	LIB_API(void) nativeModule_removeSubmodule(NativeModule* const modulePtr, NativeSubmodule* const submodulePtr)
 	{
 		modulePtr->removeSubmodule(submodulePtr);
 	}
 
-	LIB_API(void) nativeModule_OnParticlesActivated(NativeModule* modulePtr, int32_t* particleIndexArr, Particle* particleArrPtr, int32_t length)
+	LIB_API(void) nativeModule_OnParticlesActivated(NativeModule* const modulePtr, const int32_t* const particleIndexArr, Particle* const particleArrPtr, const int32_t length)
 	{
 		modulePtr->onParticlesActivated(particleIndexArr, particleArrPtr, length);
 	}
 
-	LIB_API(void) nativeModule_OnUpdate(NativeModule* modulePtr, float deltaTime, Particle* particleArrPtr, int32_t length)
+	LIB_API(void) nativeModule_OnUpdate(NativeModule* const modulePtr, const float deltaTime, Particle* const particleArrPtr, const int32_t length)
 	{
 		modulePtr->onUpdate(deltaTime, particleArrPtr, length);
 	}
@@ -98,12 +98,12 @@ namespace Particles
 		return new NativeModule();
 	}
 
-	LIB_API(void) nativeModule_OnInitialize(NativeModule* modulePtr, int32_t particleArrayLength)
+	LIB_API(void) nativeModule_OnInitialize(NativeModule* const modulePtr, const int32_t particleArrayLength)
 	{
 		modulePtr->onInitialize(particleArrayLength);
 	}
 
-	LIB_API(void) nativeModule_Delete(NativeModule* modulePtr) 
+	LIB_API(void) nativeModule_Delete(NativeModule* const modulePtr) 
 	{
 		delete modulePtr;
 	}
