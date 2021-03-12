@@ -11,6 +11,7 @@ namespace Particles {
 	protected:
 		NativeModule* parent;
 		bool isInitialized = false;
+		int particlesLength;
 
 	public:
 		NativeSubmodule(NativeModule* const parent);

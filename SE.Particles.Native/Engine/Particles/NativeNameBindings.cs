@@ -33,6 +33,6 @@ namespace SE.Particles
         }
     }
 
-    internal struct Module { /* Used for naming only! */ }
-    internal struct Submodule { /* Used for naming only! */ }
+    public struct Module { /* Used for naming only! */ }
+    public struct Submodule { /* Used for naming only! */ }
 }

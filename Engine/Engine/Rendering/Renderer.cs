@@ -9,6 +9,7 @@ using SE.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using static SE.Core.Rendering;
 using Color = Microsoft.Xna.Framework.Color;
 using Console = SE.Core.Console;
@@ -320,7 +321,7 @@ namespace SE.Rendering
             ParticleEngine.GetEmitters(Particles.BlendMode.Alpha, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
                 foreach (Emitter pEmitter in tmpEmitters) {
-                    pEmitter.Renderer.Draw(cam.ViewMatrix);
+                    pEmitter.Draw(cam.ViewMatrix);
                 }
             }
 
@@ -328,7 +329,7 @@ namespace SE.Rendering
             ParticleEngine.GetEmitters(Particles.BlendMode.Additive, tmpEmitters, SearchFlags.Visible);
             if (tmpEmitters != null) {
                 foreach (Emitter pEmitter in tmpEmitters) {
-                    pEmitter.Renderer.Draw(cam.ViewMatrix);
+                    pEmitter.Draw(cam.ViewMatrix);
                 }
             }
         }

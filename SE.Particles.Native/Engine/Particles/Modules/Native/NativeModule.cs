@@ -13,6 +13,7 @@ namespace SE.Particles.Modules.Native
     public unsafe class NativeModule : ParticleModule, IDisposable
     {
         internal Module* NativeModulePtr;
+        internal QuickList<NativeSubmodule> submodules = new QuickList<NativeSubmodule>();
 
         private bool isDisposed;
 
@@ -25,32 +26,42 @@ namespace SE.Particles.Modules.Native
             alphaCurve.Keys.Add(0.1f, 1.0f);
             alphaCurve.Keys.Add(0.667f, 1.0f);
             alphaCurve.Keys.Add(1.0f, 0.0f);
-            //new NativeAlphaModule(this).SetCurve(alphaCurve);
 
-            //new NativeHueModule(this).SetRandomLerp(0.0f, 30.0f);
-            //new NativeLightnessModule(this).SetLerp(0.667f);
+            new NativeHueModule(this).SetRandomLerp(0.0f, 30.0f);
+            new NativeLightnessModule(this).SetLerp(0.667f);
             new NativeScaleModule(this).SetLerp(0.5f, 2.0f);
             new NativeAlphaModule(this).SetCurve(alphaCurve);
-            new NativeSpriteRotationModule(this).SetRandomConstant(1.0f, 99.0f);
-            NativeSpeedModule speedMod = new NativeSpeedModule(this);
-            speedMod.SetLerp(0.0f, 200.0f);
-            speedMod.AbsoluteValue = false;
+            new NativeSpriteRotationModule(this).SetRandomConstant(2.0f, 10.0f);
+            new NativeTextureAnimationModule(this).SetOverLifetime(5, 5);
+
+            //NativeSpeedModule speedMod = new NativeSpeedModule(this);
+            //speedMod.SetLerp(0.0f, 200.0f);
+            //speedMod.AbsoluteValue = false;
         }
 
         public override void OnParticlesActivated(Span<int> particlesIndex)
         {
             fixed (int* indexPtr = particlesIndex) {
+                for (int i = 0; i < submodules.Count; i++) {
+                    submodules.Array[i].PreParticlesActivated(particlesIndex);
+                }
                 nativeModule_OnParticlesActivated(NativeModulePtr, indexPtr, Emitter.GetParticlePointer(), particlesIndex.Length);
             }
         }
 
         public override void OnUpdate(float deltaTime, Particle* arrayPtr, int length)
         {
+            for (int i = 0; i < submodules.Count; i++) {
+                submodules.Array[i].PreUpdate();
+            }
             nativeModule_OnUpdate(NativeModulePtr, deltaTime, arrayPtr, length);
         }
 
         public override void OnInitialize()
         {
+            for (int i = 0; i < submodules.Count; i++) {
+                submodules.Array[i].PreInitialize();
+            }
             nativeModule_OnInitialize(NativeModulePtr, Emitter.ParticlesLength);
         }
 
@@ -98,9 +109,21 @@ namespace SE.Particles.Modules.Native
 
     public unsafe class NativeSubmodule
     {
-        internal Module* ModulePtr;
-        internal Submodule* SubmodulePtr;
+        public NativeModule Module { get; }
+        public Module* ModulePtr { get; }
+        public Submodule* SubmodulePtr { get; protected set; }
 
-        internal NativeSubmodule(NativeModule module) => ModulePtr = module.NativeModulePtr;
+        public Emitter Emitter => Module.Emitter;
+
+        protected internal virtual void PreUpdate() { }
+        protected internal virtual void PreInitialize() { }
+        protected internal virtual void PreParticlesActivated(Span<int> particlesIndex) { }
+
+        internal NativeSubmodule(NativeModule module)
+        {
+            Module = module;
+            ModulePtr = module.NativeModulePtr;
+            module.submodules.Add(this);
+        }
     }
 }

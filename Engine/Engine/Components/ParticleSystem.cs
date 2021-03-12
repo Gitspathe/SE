@@ -46,7 +46,7 @@ namespace SE.Components
             Emitter.Config.Life.SetRandomBetween(0.2f, 1.0f);
             Emitter.Config.Speed.SetRandomBetween(32.0f, 128.0f);
 
-            Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
+            //Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
 
             // Native test.
             // TODO: Reenable and test!
@@ -79,10 +79,6 @@ namespace SE.Components
         {
             Emitter.Position = Owner.Transform.GlobalPositionInternal;
             Emitter.Rotation += MathHelper.TwoPi * Time.DeltaTime;
-
-            if(InputManager.KeyCodePressed(Microsoft.Xna.Framework.Input.Keys.O)) {
-                Emitter.ParallelEmission = !Emitter.ParallelEmission;
-            }
 
             time -= Time.DeltaTime;
             while (time <= 0.0f) {
