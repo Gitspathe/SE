@@ -27,7 +27,7 @@ namespace SE.Particles.Modules.Native
             alphaCurve.Keys.Add(0.667f, 1.0f);
             alphaCurve.Keys.Add(1.0f, 0.0f);
 
-            new NativeHueModule(this).SetRandomLerp(0.0f, 30.0f);
+            new NativeHueModule(this).SetRandomLerp(0.0f, 100.0f);
             new NativeLightnessModule(this).SetLerp(0.667f);
             new NativeScaleModule(this).SetLerp(0.5f, 2.0f);
             new NativeAlphaModule(this).SetCurve(alphaCurve);

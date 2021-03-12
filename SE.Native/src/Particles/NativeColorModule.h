@@ -20,7 +20,6 @@ namespace Particles {
 		int particlesLength;
 		Vector4 end1, end2;
 		Vector4* startColorsArr = nullptr;
-		Vector4* rand = nullptr;
 		Vector4* randEndColors = nullptr;
 		Curve4* curve = nullptr;
 

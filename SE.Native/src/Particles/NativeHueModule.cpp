@@ -18,16 +18,14 @@ namespace Particles {
 		if (!isRandom() || !isInitialized)
 			return;
 
-		delete[] rand;
 		delete[] randEndHues;
-		rand = new float[particlesLength];
 		randEndHues = new float[particlesLength];
 	}
 
 	void NativeHueModule::onInitialize(const int32_t particleArrayLength)
 	{
 		particlesLength = particleArrayLength;
-		startHuesArr = new float[particleArrayLength];
+		startHuesArr = new float[particlesLength];
 		isInitialized = true;
 
 		regenerateRandom();
@@ -37,12 +35,12 @@ namespace Particles {
 	{
 		for (int32_t i = 0; i < length; i++) {
 			int32_t pIndex = particleIndexArr[i];
-			startHuesArr[pIndex] = particlesArrPtr[pIndex].color.x;
+			Particle* particle = &particlesArrPtr[pIndex];
+			startHuesArr[particle->id] = particle->color.x;
 			if (!isRandom())
 				continue;
 
-			rand[particleIndexArr[i]] = Random::range(0.0f, 1.0f);
-			randEndHues[i] = ParticleMath::between(end1, end2, rand[i]);
+			randEndHues[particle->id] = ParticleMath::between(end1, end2, Random::range(0.0f, 1.0f));
 		}
 	}
 
@@ -53,14 +51,14 @@ namespace Particles {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.x = ParticleMath::lerp(startHuesArr[i], end1, particle->timeAlive / particle->initialLife);
+					particle->color.x = ParticleMath::lerp(startHuesArr[particle->id], end1, particle->timeAlive / particle->initialLife);
 				}
 			} break;
 			case HueTransition::RandomLerp: {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.x = ParticleMath::lerp(startHuesArr[i], randEndHues[i], particle->timeAlive / particle->initialLife);
+					particle->color.x = ParticleMath::lerp(startHuesArr[particle->id], randEndHues[particle->id], particle->timeAlive / particle->initialLife);
 				}
 			} break;
 			case HueTransition::Curve: {
@@ -113,7 +111,6 @@ namespace Particles {
 	NativeHueModule::~NativeHueModule()
 	{
 		delete[] startHuesArr;
-		delete[] rand;
 		delete[] randEndHues;
 		delete curve;
 	}

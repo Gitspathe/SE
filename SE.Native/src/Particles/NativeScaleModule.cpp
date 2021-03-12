@@ -35,11 +35,12 @@ namespace Particles {
 	{
 		for (int32_t i = 0; i < length; i++) {
 			int32_t pIndex = particleIndexArr[i];
-			startScalesArr[pIndex] = particlesArrPtr[pIndex].scale;
+			int32_t pId = particlesArrPtr[pIndex].id;
+			startScalesArr[pId] = particlesArrPtr[pIndex].scale;
 			if (!isRandom())
 				continue;
 
-			rand[particleIndexArr[i]] = Random::range(0.0f, 1.0f);
+			rand[particleIndexArr[pId]] = Random::range(0.0f, 1.0f);
 		}
 	}
 
@@ -82,24 +83,27 @@ namespace Particles {
 					for (int32_t i = 0; i < length; i++) {
 						Particle* particle = &particleArrPtr[i];
 						const float scale = ParticleMath::between(start, end, particle->timeAlive / particle->initialLife);
-						particle->scale.x = scale * startScalesArr[i].x;
-						particle->scale.y = scale * startScalesArr[i].y;
+						const int32_t pId = particle->id;
+						particle->scale.x = scale * startScalesArr[pId].x;
+						particle->scale.y = scale * startScalesArr[pId].y;
 					}
 				} break;
 				case ScaleTransition::Curve: {
 					for (int32_t i = 0; i < length; i++) {
 						Particle* particle = &particleArrPtr[i];
 						const float scale = curve->Evaluate(particle->timeAlive / particle->initialLife);
-						particle->scale.x = scale * startScalesArr[i].x;
-						particle->scale.y = scale * startScalesArr[i].y;
+						const int32_t pId = particle->id;
+						particle->scale.x = scale * startScalesArr[pId].x;
+						particle->scale.y = scale * startScalesArr[pId].y;
 					}
 				} break;
 				case ScaleTransition::RandomCurve: {
 					for (int32_t i = 0; i < length; i++) {
 						Particle* particle = &particleArrPtr[i];
 						const float scale = curve->Evaluate(particle->timeAlive / particle->initialLife);
-						particle->scale.x = scale * startScalesArr[i].x;
-						particle->scale.y = scale * startScalesArr[i].y;
+						const int32_t pId = particle->id;
+						particle->scale.x = scale * startScalesArr[pId].x;
+						particle->scale.y = scale * startScalesArr[pId].y;
 					}
 				} break;
 				case ScaleTransition::None:

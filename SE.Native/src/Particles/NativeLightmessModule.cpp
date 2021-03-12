@@ -18,9 +18,7 @@ namespace Particles {
 		if (!isRandom() || !isInitialized)
 			return;
 
-		delete[] rand;
 		delete[] randEndLightness;
-		rand = new float[particlesLength];
 		randEndLightness = new float[particlesLength];
 	}
 
@@ -37,12 +35,12 @@ namespace Particles {
 	{
 		for (int32_t i = 0; i < length; i++) {
 			int32_t pIndex = particleIndexArr[i];
-			startLightnessArr[pIndex] = particlesArrPtr[pIndex].color.z;
+			Particle* particle = &particlesArrPtr[pIndex];
+			startLightnessArr[particle->id] = particle->color.z;
 			if (!isRandom())
 				continue;
 
-			rand[particleIndexArr[i]] = Random::range(0.0f, 1.0f);
-			randEndLightness[i] = ParticleMath::between(end1, end2, rand[i]);
+			randEndLightness[particle->id] = ParticleMath::between(end1, end2, Random::range(0.0f, 1.0f));
 		}
 	}
 
@@ -53,14 +51,14 @@ namespace Particles {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.z = ParticleMath::lerp(startLightnessArr[i], end1, particle->timeAlive / particle->initialLife);
+					particle->color.z = ParticleMath::lerp(startLightnessArr[particle->id], end1, particle->timeAlive / particle->initialLife);
 				}
 			} break;
 			case LightnessTransition::RandomLerp: {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.z = ParticleMath::lerp(startLightnessArr[i], randEndLightness[i], particle->timeAlive / particle->initialLife);
+					particle->color.z = ParticleMath::lerp(startLightnessArr[particle->id], randEndLightness[particle->id], particle->timeAlive / particle->initialLife);
 				}
 			} break;
 			case LightnessTransition::Curve: {
@@ -113,7 +111,6 @@ namespace Particles {
 	NativeLightnessModule::~NativeLightnessModule()
 	{
 		delete[] startLightnessArr;
-		delete[] rand;
 		delete[] randEndLightness;
 		delete curve;
 	}

@@ -20,9 +20,6 @@ namespace Particles {
 
 		delete[] rand;
 		rand = new float[particlesLength];
-		for (int i = 0; i < particlesLength; i++) {
-			rand[i] = Random::range(0.0f, 1.0f);
-		}
 	}
 
 	void NativeSpriteRotationModule::onInitialize(const int32_t particleArrayLength)
@@ -39,7 +36,8 @@ namespace Particles {
 			if (!isRandom())
 				continue;
 
-			rand[particleIndexArr[i]] = Random::range(0.0f, 1.0f);
+			Particle* particle = &particlesArrPtr[particleIndexArr[i]];
+			rand[particle->id] = Random::range(0.0f, 1.0f);
 		}
 	}
 
@@ -71,13 +69,13 @@ namespace Particles {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->spriteRotation += ParticleMath::between(start, end, rand[i]) * deltaTime;
+					particle->spriteRotation += ParticleMath::between(start, end, rand[particle->id]) * deltaTime;
 				}
 			} break;
 			case SpriteRotationTransition::RandomCurve: {
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->spriteRotation += curve->Evaluate(rand[i]) * deltaTime;
+					particle->spriteRotation += curve->Evaluate(rand[particle->id]) * deltaTime;
 				}
 			} break;
 			case SpriteRotationTransition::None:

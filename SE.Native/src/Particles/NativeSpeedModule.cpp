@@ -20,9 +20,6 @@ namespace Particles {
 
 		delete[] rand;
 		rand = new float[particlesLength];
-		for (int i = 0; i < particlesLength; i++) {
-			rand[i] = Random::range(0.0f, 1.0f);
-		}
 	}
 
 	void NativeSpeedModule::onInitialize(const int32_t particleArrayLength)
@@ -39,7 +36,8 @@ namespace Particles {
 			if (!isRandom())
 				continue;
 
-			rand[particleIndexArr[i]] = Random::range(0.0f, 1.0f);
+			Particle* particle = &particlesArrPtr[particleIndexArr[i]];
+			rand[particle->id] = Random::range(0.0f, 1.0f);
 		}
 	}
 
@@ -65,7 +63,7 @@ namespace Particles {
 				case SpeedTransition::RandomCurve: {
 					for (int32_t i = 0; i < length; i++) {
 						Particle* particle = &particleArrPtr[i];
-						const float velocity = curve->Evaluate(rand[i]);
+						const float velocity = curve->Evaluate(rand[particle->id]);
 						particle->speed = velocity;
 					}
 				} break;
@@ -92,7 +90,7 @@ namespace Particles {
 				case SpeedTransition::RandomCurve: {
 					for (int32_t i = 0; i < length; i++) {
 						Particle* particle = &particleArrPtr[i];
-						const float velocity = curve->Evaluate(rand[i]);
+						const float velocity = curve->Evaluate(rand[particle->id]);
 						particle->speed = velocity + (velocity * deltaTime);
 					}
 				} break;

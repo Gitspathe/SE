@@ -20,7 +20,6 @@ namespace Particles {
 		int particlesLength;
 		float end1, end2;
 		float* startLightnessArr = nullptr;
-		float* rand = nullptr;
 		float* randEndLightness = nullptr;
 		Curve* curve = nullptr;
 

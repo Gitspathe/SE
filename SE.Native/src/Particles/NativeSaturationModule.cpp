@@ -18,9 +18,7 @@ namespace Particles {
 		if (!isRandom() || !isInitialized)
 			return;
 
-		delete[] rand;
 		delete[] randEndSaturation;
-		rand = new float[particlesLength];
 		randEndSaturation = new float[particlesLength];
 	}
 
@@ -37,12 +35,12 @@ namespace Particles {
 	{
 		for (int32_t i = 0; i < length; i++) {
 			int32_t pIndex = particleIndexArr[i];
-			startSaturationArr[pIndex] = particlesArrPtr[pIndex].color.y;
+			Particle* particle = &particlesArrPtr[pIndex];
+			startSaturationArr[particle->id] = particle->color.y;
 			if (!isRandom())
 				continue;
 
-			rand[particleIndexArr[i]] = Random::range(0.0f, 1.0f);
-			randEndSaturation[i] = ParticleMath::between(end1, end2, rand[i]);
+			randEndSaturation[particle->id] = ParticleMath::between(end1, end2, Random::range(0.0f, 1.0f));
 		}
 	}
 
@@ -53,14 +51,14 @@ namespace Particles {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.y = ParticleMath::lerp(startSaturationArr[i], end1, particle->timeAlive / particle->initialLife);
+					particle->color.y = ParticleMath::lerp(startSaturationArr[particle->id], end1, particle->timeAlive / particle->initialLife);
 				}
 			} break;
 			case SaturationTransition::RandomLerp: {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.y = ParticleMath::lerp(startSaturationArr[i], randEndSaturation[i], particle->timeAlive / particle->initialLife);
+					particle->color.y = ParticleMath::lerp(startSaturationArr[particle->id], randEndSaturation[particle->id], particle->timeAlive / particle->initialLife);
 				}
 			} break;
 			case SaturationTransition::Curve: {
@@ -113,7 +111,6 @@ namespace Particles {
 	NativeSaturationModule::~NativeSaturationModule()
 	{
 		delete[] startSaturationArr;
-		delete[] rand;
 		delete[] randEndSaturation;
 		delete curve;
 	}

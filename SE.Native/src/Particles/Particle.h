@@ -13,6 +13,7 @@ namespace Particles
 	public:
 		Vector2 position;
 		Vector2 scale;
+		int id;
 		Vector2 direction;
 		Vector4 color;
 		float mass;
