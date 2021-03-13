@@ -46,7 +46,18 @@ namespace SE.Components
             Emitter.Config.Life.SetRandomBetween(0.2f, 1.0f);
             Emitter.Config.Speed.SetRandomBetween(32.0f, 128.0f);
 
-            //Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
+            Curve alphaCurve = new Curve();
+            alphaCurve.Keys.Add(0.0f, 0.0f);
+            alphaCurve.Keys.Add(0.1f, 1.0f);
+            alphaCurve.Keys.Add(0.667f, 1.0f);
+            alphaCurve.Keys.Add(1.0f, 0.0f);
+
+            Emitter.AddModule(HueModule.RandomLerp(0.0f, 100.0f));
+            Emitter.AddModule(LightnessModule.Lerp(0.667f));
+            Emitter.AddModule(ScaleModule.Lerp(0.2f, 0.333f));
+            Emitter.AddModule(AlphaModule.Curve(alphaCurve));
+            Emitter.AddModule(SpriteRotationModule.RandomConstant(2.0f, 10.0f));
+            Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
 
             // Native test.
             // TODO: Reenable and test!
