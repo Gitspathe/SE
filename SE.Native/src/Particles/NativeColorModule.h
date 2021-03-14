@@ -27,7 +27,7 @@ namespace Particles {
 		bool isRandom();
 
 	public:
-		NativeColorModule(NativeModule* const parent);
+		NativeColorModule();
 
 		void onInitialize(const int32_t particleArrayLength) override;
 		void onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length) override;

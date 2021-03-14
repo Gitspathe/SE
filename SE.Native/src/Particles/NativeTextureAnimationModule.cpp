@@ -1,12 +1,11 @@
 #include "NativeTextureAnimationModule.h"
-#include "NativeModule.h"
 #include "ParticleMath.h"
 #include "Particle.h"
 #include "src/Utility.h"
 
 namespace Particles {
 
-	NativeTextureAnimationModule::NativeTextureAnimationModule(NativeModule* const parent) : NativeSubmodule(parent) { }
+	NativeTextureAnimationModule::NativeTextureAnimationModule() : NativeSubmodule() { }
 
 	void Particles::NativeTextureAnimationModule::onInitialize(const int32_t particleArrayLength)
 	{
@@ -59,9 +58,9 @@ namespace Particles {
 
 	NativeTextureAnimationModule::~NativeTextureAnimationModule() { }
 
-	LIB_API(NativeTextureAnimationModule*) nativeModule_TextureAnimationModule_Ctor(NativeModule* const modulePtr)
+	LIB_API(NativeTextureAnimationModule*) nativeModule_TextureAnimationModule_Ctor()
 	{
-		return new NativeTextureAnimationModule(modulePtr);
+		return new NativeTextureAnimationModule();
 	}
 
 	LIB_API(void) nativeModule_TextureAnimationModule_SetTextureSize(NativeTextureAnimationModule* const modulePtr, const Vector2 textureSize)

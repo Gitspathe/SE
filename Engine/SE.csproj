@@ -131,7 +131,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SE.Input\SE.Input.csproj" />
     <ProjectReference Include="..\SE.Net\SE.Net.csproj" />
-    <ProjectReference Include="..\SE.Particles.Native\SE.Particles.Native.csproj" />
     <ProjectReference Include="..\SE.Particles\SE.Particles.MonoGame.csproj" />
     <ProjectReference Include="..\SE.Serializer.Ini\SE.Serializer.Ini.csproj" />
     <ProjectReference Include="..\SE.Serializer\SE.Serializer\SE.Serializer.csproj" />

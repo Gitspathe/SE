@@ -1,4 +1,3 @@
-#include "NativeModule.h"
 #include "NativeSaturationModule.h"
 #include "ParticleMath.h"
 #include "Particle.h"
@@ -11,7 +10,7 @@ namespace Particles {
 		return transition == SaturationTransition::RandomLerp;
 	}
 
-	NativeSaturationModule::NativeSaturationModule(NativeModule* const parent) : NativeSubmodule(parent) { }
+	NativeSaturationModule::NativeSaturationModule() : NativeSubmodule() { }
 
 	void NativeSaturationModule::regenerateRandom()
 	{
@@ -115,9 +114,9 @@ namespace Particles {
 		delete curve;
 	}
 
-	LIB_API(NativeSaturationModule*) nativeModule_SaturationModule_Ctor(NativeModule* const modulePtr)
+	LIB_API(NativeSaturationModule*) nativeModule_SaturationModule_Ctor()
 	{
-		return new NativeSaturationModule(modulePtr);
+		return new NativeSaturationModule();
 	}
 
 	LIB_API(void) nativeModule_SaturationModule_SetNone(NativeSaturationModule* const modulePtr)

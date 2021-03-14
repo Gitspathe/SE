@@ -1,4 +1,3 @@
-#include "NativeModule.h"
 #include "NativeSpeedModule.h"
 #include "ParticleMath.h"
 #include "Particle.h"
@@ -11,7 +10,7 @@ namespace Particles {
 		return transition == SpeedTransition::RandomCurve;
 	}
 
-	NativeSpeedModule::NativeSpeedModule(NativeModule* const parent) : NativeSubmodule(parent) { }
+	NativeSpeedModule::NativeSpeedModule() : NativeSubmodule() { }
 
 	void NativeSpeedModule::regenerateRandom()
 	{
@@ -151,9 +150,9 @@ namespace Particles {
 		delete curve;
 	}
 
-	LIB_API(NativeSpeedModule*) nativeModule_SpeedModule_Ctor(NativeModule* const modulePtr)
+	LIB_API(NativeSpeedModule*) nativeModule_SpeedModule_Ctor()
 	{
-		return new NativeSpeedModule(modulePtr);
+		return new NativeSpeedModule();
 	}
 
 	LIB_API(bool) nativeModule_SpeedModule_GetAbsoluteValue(NativeSpeedModule* const modulePtr)

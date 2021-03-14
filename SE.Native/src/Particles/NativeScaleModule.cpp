@@ -1,4 +1,3 @@
-#include "NativeModule.h"
 #include "NativeScaleModule.h"
 #include "ParticleMath.h"
 #include "Particle.h"
@@ -11,7 +10,7 @@ namespace Particles {
 		return transition == ScaleTransition::RandomCurve;
 	}
 
-	NativeScaleModule::NativeScaleModule(NativeModule* const parent) : NativeSubmodule(parent) { }
+	NativeScaleModule::NativeScaleModule() : NativeSubmodule() { }
 
 	void NativeScaleModule::regenerateRandom()
 	{
@@ -164,9 +163,9 @@ namespace Particles {
 		delete curve;
 	}
 
-	LIB_API(NativeScaleModule*) nativeModule_ScaleModule_Ctor(NativeModule* const modulePtr)
+	LIB_API(NativeScaleModule*) nativeModule_ScaleModule_Ctor()
 	{
-		return new NativeScaleModule(modulePtr);
+		return new NativeScaleModule();
 	}
 
 	LIB_API(bool) nativeModule_ScaleModule_GetAbsoluteValue(NativeScaleModule* const modulePtr)

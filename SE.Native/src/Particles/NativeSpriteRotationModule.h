@@ -26,7 +26,7 @@ namespace Particles {
 		bool isRandom();
 
 	public:
-		NativeSpriteRotationModule(NativeModule* const parent);
+		NativeSpriteRotationModule();
 
 		void onInitialize(const int32_t particleArrayLength) override;
 		void onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length) override;

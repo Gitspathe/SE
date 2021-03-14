@@ -22,7 +22,7 @@ namespace Particles {
 		Vector2 textureSize = Vector2(512, 512);
 
 	public:
-		NativeTextureAnimationModule(NativeModule* const parent);
+		NativeTextureAnimationModule();
 
 		void onInitialize(const int32_t particleArrayLength) override;
 		void onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length) override;

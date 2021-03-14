@@ -1,4 +1,3 @@
-#include "NativeModule.h"
 #include "NativeLightnessModule.h"
 #include "ParticleMath.h"
 #include "Particle.h"
@@ -11,7 +10,7 @@ namespace Particles {
 		return transition == LightnessTransition::RandomLerp;
 	}
 
-	NativeLightnessModule::NativeLightnessModule(NativeModule* const parent) : NativeSubmodule(parent) { }
+	NativeLightnessModule::NativeLightnessModule() : NativeSubmodule() { }
 
 	void NativeLightnessModule::regenerateRandom()
 	{
@@ -115,9 +114,9 @@ namespace Particles {
 		delete curve;
 	}
 
-	LIB_API(NativeLightnessModule*) nativeModule_LightnessModule_Ctor(NativeModule* const modulePtr)
+	LIB_API(NativeLightnessModule*) nativeModule_LightnessModule_Ctor()
 	{
-		return new NativeLightnessModule(modulePtr);
+		return new NativeLightnessModule();
 	}
 
 	LIB_API(void) nativeModule_LightnessModule_SetNone(NativeLightnessModule* const modulePtr)

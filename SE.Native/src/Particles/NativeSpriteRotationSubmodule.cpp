@@ -1,4 +1,3 @@
-#include "NativeModule.h"
 #include "NativeSpriteRotationModule.h"
 #include "ParticleMath.h"
 #include "Particle.h"
@@ -11,7 +10,7 @@ namespace Particles {
 		return (transition == SpriteRotationTransition::RandomCurve) || (transition == SpriteRotationTransition::RandomConstant);
 	}
 
-	NativeSpriteRotationModule::NativeSpriteRotationModule(NativeModule* const parent) : NativeSubmodule(parent) { }
+	NativeSpriteRotationModule::NativeSpriteRotationModule() : NativeSubmodule() { }
 
 	void NativeSpriteRotationModule::regenerateRandom()
 	{
@@ -137,9 +136,9 @@ namespace Particles {
 		delete curve;
 	}
 
-	LIB_API(NativeSpriteRotationModule*) nativeModule_SpriteRotationModule_Ctor(NativeModule* const modulePtr)
+	LIB_API(NativeSpriteRotationModule*) nativeModule_SpriteRotationModule_Ctor()
 	{
-		return new NativeSpriteRotationModule(modulePtr);
+		return new NativeSpriteRotationModule();
 	}
 
 	LIB_API(void) nativeModule_SpriteRotationModule_SetNone(NativeSpriteRotationModule* const modulePtr)

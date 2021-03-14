@@ -1,4 +1,3 @@
-#include "NativeModule.h"
 #include "NativeAlphaModule.h"
 #include "ParticleMath.h"
 #include "Particle.h"
@@ -11,7 +10,7 @@ namespace Particles {
 		return transition == AlphaTransition::RandomLerp;
 	}
 
-	NativeAlphaModule::NativeAlphaModule(NativeModule* const parent) : NativeSubmodule(parent) { }
+	NativeAlphaModule::NativeAlphaModule() : NativeSubmodule() { }
 
 	void NativeAlphaModule::regenerateRandom()
 	{
@@ -115,9 +114,9 @@ namespace Particles {
 		delete curve;
 	}
 
-	LIB_API(NativeAlphaModule*) nativeModule_AlphaModule_Ctor(NativeModule* const modulePtr)
+	LIB_API(NativeAlphaModule*) nativeModule_AlphaModule_Ctor()
 	{
-		return new NativeAlphaModule(modulePtr);
+		return new NativeAlphaModule();
 	}
 
 	LIB_API(void) nativeModule_AlphaModule_SetNone(NativeAlphaModule* const modulePtr)

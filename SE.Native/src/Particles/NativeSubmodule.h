@@ -9,12 +9,11 @@ namespace Particles {
 	class NativeModule;
 	class NativeSubmodule {
 	protected:
-		NativeModule* parent;
 		bool isInitialized = false;
 		int particlesLength;
 
 	public:
-		NativeSubmodule(NativeModule* const parent);
+		NativeSubmodule();
 
 		virtual void onInitialize(const int32_t particleArrayLength);
 		virtual void onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length);

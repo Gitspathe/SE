@@ -41,11 +41,9 @@ namespace Particles
 		submodules = newSubmodules;
 	}
 
-	void NativeModule::onInitialize(int32_t particleArrayLength)
+	void NativeModule::onInitialize(NativeSubmodule* const submodulePtr, const int32_t particleArrayLength)
 	{
-		for(NativeSubmodule* ptr : *submodules) {
-			ptr->onInitialize(particleArrayLength);
-		}
+		submodulePtr->onInitialize(particleArrayLength);
 	}
 
 	void NativeModule::onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length)
@@ -98,9 +96,9 @@ namespace Particles
 		return new NativeModule();
 	}
 
-	LIB_API(void) nativeModule_OnInitialize(NativeModule* const modulePtr, const int32_t particleArrayLength)
+	LIB_API(void) nativeModule_OnInitialize(NativeModule* const modulePtr, NativeSubmodule* const submodulePtr, const int32_t particleArrayLength)
 	{
-		modulePtr->onInitialize(particleArrayLength);
+		modulePtr->onInitialize(submodulePtr, particleArrayLength);
 	}
 
 	LIB_API(void) nativeModule_Delete(NativeModule* const modulePtr) 

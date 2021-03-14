@@ -26,7 +26,7 @@ namespace Particles {
 		bool isRandom();
 
 	public:
-		NativeSpeedModule(NativeModule* const parent);
+		NativeSpeedModule();
 
 		bool absoluteValue = false;
 

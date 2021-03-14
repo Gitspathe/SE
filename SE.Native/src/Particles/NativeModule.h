@@ -19,7 +19,7 @@ namespace Particles
 
 		void addSubmodule(NativeSubmodule* const submodule);
 		void removeSubmodule(NativeSubmodule* const submodule);
-		void onInitialize(const int32_t particleArrayLength);
+		void onInitialize(NativeSubmodule* const submodulePtr, const int32_t particleArrayLength);
 		void onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length);
 		void onUpdate(const float deltaTime, Particle* const particleArrPtr, const int32_t length);
 

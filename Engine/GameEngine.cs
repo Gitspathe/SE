@@ -319,6 +319,11 @@ namespace SE
                 Console.WriteLine("NEW: " + ParticleEngine.ParticleCount + ", EMITTERS #: " + ParticleEngine.EmitterCount);
             }
 
+            if (InputManager.KeyCodePressed(Microsoft.Xna.Framework.Input.Keys.O)) {
+                ParticleEngine.NativeEnabled = !ParticleEngine.NativeEnabled;
+                Console.WriteLine(ParticleEngine.NativeEnabled ? "ON!" : "OFF!");
+            }
+
             // Multithreaded render test.
             if (InputManager.KeyCodePressed(Keys.F)) {
                 Renderer.Multithreaded = !Renderer.Multithreaded;

@@ -1,4 +1,3 @@
-#include "NativeModule.h"
 #include "NativeColorModule.h"
 #include "ParticleMath.h"
 #include "Particle.h"
@@ -11,7 +10,7 @@ namespace Particles {
 		return transition == ColorTransition::RandomLerp;
 	}
 
-	NativeColorModule::NativeColorModule(NativeModule* const parent) : NativeSubmodule(parent) { }
+	NativeColorModule::NativeColorModule() : NativeSubmodule() { }
 
 	void NativeColorModule::regenerateRandom()
 	{
@@ -135,9 +134,9 @@ namespace Particles {
 		delete curve;
 	}
 
-	LIB_API(NativeColorModule*) nativeModule_ColorModule_Ctor(NativeModule* const modulePtr)
+	LIB_API(NativeColorModule*) nativeModule_ColorModule_Ctor()
 	{
-		return new NativeColorModule(modulePtr);
+		return new NativeColorModule();
 	}
 
 	LIB_API(void) nativeModule_ColorModule_SetNone(NativeColorModule* const modulePtr)

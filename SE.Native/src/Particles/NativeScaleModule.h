@@ -28,7 +28,7 @@ namespace Particles {
 
 	public:
 		bool absoluteValue = false;
-		NativeScaleModule(NativeModule* const parent);
+		NativeScaleModule();
 
 		void onInitialize(const int32_t particleArrayLength) override;
 		void onParticlesActivated(const int32_t* const particleIndexArr, Particle* const particlesArrPtr, const int32_t length) override;

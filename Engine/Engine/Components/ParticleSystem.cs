@@ -11,7 +11,7 @@ using Curve = SE.Utility.Curve;
 using Vector4 = System.Numerics.Vector4;
 using Vector2 = System.Numerics.Vector2;
 using System;
-using SE.Particles.Modules.Native;
+using Console = SE.Core.Console;
 
 namespace SE.Components
 {
@@ -52,17 +52,17 @@ namespace SE.Components
             alphaCurve.Keys.Add(0.667f, 1.0f);
             alphaCurve.Keys.Add(1.0f, 0.0f);
 
-            Emitter.AddModule(HueModule.RandomLerp(0.0f, 100.0f));
+            Emitter.AddModule(HueModule.RandomLerp(0.0f, 360.0f));
             Emitter.AddModule(LightnessModule.Lerp(0.667f));
-            Emitter.AddModule(ScaleModule.Lerp(0.2f, 0.333f));
+            Emitter.AddModule(ScaleModule.Lerp(0.5f, 2.0f));
             Emitter.AddModule(AlphaModule.Curve(alphaCurve));
             Emitter.AddModule(SpriteRotationModule.RandomConstant(2.0f, 10.0f));
             Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
 
             // Native test.
             // TODO: Reenable and test!
-            NativeModule nativeMod = new NativeModule();
-            Emitter.AddModule(nativeMod);
+            //NativeModule nativeMod = new NativeModule();
+            //Emitter.AddModule(nativeMod);
             //Emitter.RemoveModules(s, baseColorModule);
 
             //Emitter.Enabled = true;
