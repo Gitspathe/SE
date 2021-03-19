@@ -190,13 +190,13 @@ namespace SE.Components
                 return;
 
             SpatialPartitionManager.Insert(this);
-            Data.TypeInfo.Lit?.Shadow?.InsertIntoPartition();
+            Data.Lit?.Shadow?.InsertIntoPartition();
         }
 
         public void RemoveFromPartition()
         {
             SpatialPartitionManager.Remove(this);
-            Data.TypeInfo.Lit?.Shadow?.RemoveFromPartition();
+            Data.Lit?.Shadow?.RemoveFromPartition();
         }
     }
 

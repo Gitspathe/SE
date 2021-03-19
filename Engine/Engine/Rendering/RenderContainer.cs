@@ -36,13 +36,12 @@ namespace SE.Rendering
 
         public void Add(IRenderable renderObj, RenderableData info)
         {
-            RenderableTypeInfo typeInfo = info.TypeInfo;
             Material material = info.Material;
 
             // Determine if the sprite ignores light or not.
             bool ignoreLight = true;
-            if (typeInfo.Lit != null) {
-                ignoreLight = typeInfo.Lit.IgnoreLight;
+            if (info.Lit != null) {
+                ignoreLight = info.Lit.IgnoreLight;
             }
 
             // Index of the specific RenderList the sprite should be added to.

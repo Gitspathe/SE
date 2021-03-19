@@ -21,7 +21,6 @@ namespace SE.Rendering
     public sealed class RenderableData
     {
         public Material Material;
-        public RenderableTypeInfo TypeInfo;
 
         internal ILit Lit;
         internal IUISprite UISprite;
@@ -29,7 +28,6 @@ namespace SE.Rendering
         public RenderableData(IRenderable renderable, Material material = null)
         {
             Material = material ?? new Material();
-            TypeInfo = RenderableTypeLookup.Retrieve(renderable);
             Lit = renderable as ILit;
             UISprite = renderable as IUISprite;
         }

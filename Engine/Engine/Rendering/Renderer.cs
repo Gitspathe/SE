@@ -89,7 +89,7 @@ namespace SE.Rendering
             for (int i = 0; i < renderedSprites.Count; i++) {
                 IPartitionedRenderable renderObj = spriteArray[i];
                 RenderableData info = renderObj.Data;
-                if (excludeUI && info.TypeInfo.UISprite != null)
+                if (excludeUI && info.UISprite != null)
                     continue;
 
                 RenderContainer.Add(renderObj, info);
@@ -138,7 +138,7 @@ namespace SE.Rendering
             }
         }
 
-        // TODO: This (and ChangeDrawCallIfNeeded) needs to be optimized.
+        // TODO: This needs to be optimized.
         public void ProcessUnorderedRenderList(Camera2D camera, UnorderedRenderList renderList)
         {
             if (renderList == null || renderList.Data.Count < 1)
@@ -147,15 +147,16 @@ namespace SE.Rendering
             // Change draw call to a temporary state.
             ChangeDrawCall(SpriteSortMode.Deferred, camera.ViewMatrix, null, null, DepthRead, null, null);
 
+            // Sorting. TODO: Multi-tiered sorting (sort by material ID after layerDepth).
             QuickList<IRenderable> data = renderList.Data;
             data.Sort(new UnorderedComparer());
 
             IRenderable[] renderArray = data.Array;
             for (int i = 0; i < renderList.Data.Count; i++) {
                 IRenderable obj = renderArray[i];
-                RenderableData objData = obj.Data;
-                BlendMode blendMode = objData.Material.BlendMode;
-                Effect effect = objData.Material.Effect;
+                Material mat = obj.Data.Material;
+                BlendMode blendMode = mat.BlendMode;
+                Effect effect = mat.Effect;
 
                 ChangeDrawCallIfNeeded(blendMode, effect);
                 obj.Render(camera, Space.World);
@@ -169,7 +170,7 @@ namespace SE.Rendering
                     continue;
 
                 graphicsDevice.ScissorRectangle = scissorRectBackup;
-                Rectangle curScissorRect = topLevelMenu.ScissorRect 
+                Rectangle curScissorRect = topLevelMenu.ScissorRect
                                            ?? graphicsDevice.ScissorRectangle;
 
                 graphicsDevice.ScissorRectangle = ApplyScreenRectangleScaling(curScissorRect);
