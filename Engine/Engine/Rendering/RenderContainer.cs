@@ -10,8 +10,10 @@ namespace SE.Rendering
         // Weird, but is faster than SortedDictionary. Might get more benefit from adding
         // an additional QuickList which stores the indexes of ACTUAL RenderList elements.
         public QuickList<RenderList> RenderLists = new QuickList<RenderList>();
+        public QuickList<UnorderedRenderList> UnorderedRenderLists = new QuickList<UnorderedRenderList>();
         
         private Dictionary<uint, IRenderLoopAction> renderActions = new Dictionary<uint, IRenderLoopAction>();
+        private Dictionary<uint, IRenderLoopAction> unorderedRenderActions = new Dictionary<uint, IRenderLoopAction>();
         private bool isDirty;
 
         public void Clear()
@@ -25,9 +27,14 @@ namespace SE.Rendering
             for (int i = 0; i < RenderLists.Count; i++) {
                 lists[i]?.Reset();
             }
+
+            UnorderedRenderList[] unorderedLists = UnorderedRenderLists.Array;
+            for (int i = 0; i < UnorderedRenderLists.Count; i++) {
+                unorderedLists[i]?.Reset();
+            }
         }
 
-        public void Add(IRenderable renderObj, RenderableData info, bool threadSafe = false)
+        public void Add(IRenderable renderObj, RenderableData info)
         {
             RenderableTypeInfo typeInfo = info.TypeInfo;
             Material material = info.Material;
@@ -40,6 +47,7 @@ namespace SE.Rendering
 
             // Index of the specific RenderList the sprite should be added to.
             int renderIndex = (int) (ignoreLight ? RenderLoop.LoopEnum.AfterLighting : RenderLoop.LoopEnum.DuringLighting);
+            bool requiresUnordered = false;
 
             // Determine if the sprite is transparent.
             BlendMode blendMode = material.BlendMode;
@@ -49,41 +57,41 @@ namespace SE.Rendering
                     break;
                 case BlendMode.Transparent:
                     renderIndex += 1000;
+                    requiresUnordered = true;
                     break;
                 case BlendMode.Additive:
                     renderIndex += 2000;
+                    requiresUnordered = true;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            while (RenderLists.Count < renderIndex + 1) {
-                RenderLists.Add(null);
-            }
 
             // Add the sprite to the correct RenderList.
-            RenderList list = RenderLists.Array[renderIndex];
-            if (list != null) {
-                if (threadSafe) {
-                    list.AddThreaded(material.DrawCallID, renderObj);
-                } else {
-                    list.Add(material.DrawCallID, renderObj);
+            if (requiresUnordered) {
+                while (UnorderedRenderLists.Count < renderIndex + 1) {
+                    UnorderedRenderLists.Add(null);
                 }
-            } else {
-                if (threadSafe) {
-                    lock (RenderLists) {
-                        //if (RenderLists.ContainsKey(renderIndex))
-                        //    return;
 
-                        RenderList newList = new RenderList(renderIndex, material.BlendMode);
-                        newList.AddThreaded(material.DrawCallID, renderObj);
-                        RenderLists.Array[renderIndex] = newList;
-                    }
-                } else {
-                    RenderList newList = new RenderList(renderIndex, material.BlendMode);
-                    newList.Add(material.DrawCallID, renderObj);
-                    RenderLists.Array[renderIndex] = newList;
+                UnorderedRenderList list = UnorderedRenderLists.Array[renderIndex];
+                if (list == null) {
+                    list = new UnorderedRenderList();
+                    UnorderedRenderLists.Array[renderIndex] = list;
+                    isDirty = true;
                 }
-                isDirty = true;
+                list.Add(renderObj);
+            } else {
+                while (RenderLists.Count < renderIndex + 1) {
+                    RenderLists.Add(null);
+                }
+
+                RenderList list = RenderLists.Array[renderIndex];
+                if (list == null) {
+                    list = new RenderList(renderIndex, material.BlendMode);
+                    RenderLists.Array[renderIndex] = list;
+                    isDirty = true;
+                }
+                list.Add(material.DrawCallID, renderObj);
             }
         }
 
@@ -92,21 +100,42 @@ namespace SE.Rendering
             if(!isDirty)
                 return;
 
+            Renderer renderer = RenderLoop.Render;
+
+            // Clear ordered render list actions.
             foreach ((uint key, _) in renderActions) {
                 RenderLoop.Loop.Remove(key);
             }
             renderActions.Clear();
 
-            Renderer renderer = RenderLoop.Render;
+            // Clear unordered render list actions.
+            foreach ((uint key, _) in unorderedRenderActions) {
+                RenderLoop.Loop.Remove(key);
+            }
+            unorderedRenderActions.Clear();
+
+            // Ensure transparent objects are always rendered after opaque.
+            // FIRST - Add all ordered (opaque) render actions to the rendering loop.
             for (uint i = 0; i < RenderLists.Count; i++) {
                 RenderList list = RenderLists.Array[i];
-                if (list == null || RenderLoop.Loop.ContainsKey(i))
+                if (list == null)
                     continue;
 
                 IRenderLoopAction action = new LoopProcessRenderList(renderer, list);
                 renderActions.Add(i, action);
                 RenderLoop.Add(i, action);
             }
+            // NEXT - Add all unordered (transparent) render actions to the rendering loop.
+            for (uint i = 0; i < UnorderedRenderLists.Count; i++) {
+                UnorderedRenderList list = UnorderedRenderLists.Array[i];
+                if (list == null)
+                    continue;
+
+                IRenderLoopAction action = new LoopProcessUnorderedRenderList(renderer, list);
+                unorderedRenderActions.Add(i, action);
+                RenderLoop.Add(i, action);
+            }
+
             isDirty = false;
         }
     }

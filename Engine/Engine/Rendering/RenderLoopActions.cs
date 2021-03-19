@@ -71,6 +71,15 @@ namespace SE.Rendering
         public LoopProcessRenderList(Renderer renderer, RenderList renderList) : base(renderer) => this.renderList = renderList;
     }
 
+    public class LoopProcessUnorderedRenderList : DefaultRendererAction
+    {
+        public override string Name => "Process unordered render list: " + renderList;
+        private UnorderedRenderList renderList;
+
+        public override void Invoke(Camera2D camera) => Renderer.ProcessUnorderedRenderList(camera, renderList);
+        public LoopProcessUnorderedRenderList(Renderer renderer, UnorderedRenderList renderList) : base(renderer) => this.renderList = renderList;
+    }
+
     public class LoopStartLighting : DefaultRendererAction
     {
         public override string Name => "Start lighting";

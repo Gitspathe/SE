@@ -74,6 +74,7 @@ namespace SEDemos.GameObjects
                 light.Color = c;
             };
 
+            sprite.LayerDepth = 0.01f;
             sprite.SpriteTextureAsset = tex;
             sprite.Origin = new Vector2(16, 16);
             sprite.Color = c;

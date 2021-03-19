@@ -5,7 +5,8 @@ namespace SE.Rendering
 {
     public class RenderList
     {
-        public QuickList<ThreadSafeList<IRenderable>> Data;
+        public QuickList<QuickList<IRenderable>> Data;
+
         public BlendMode Mode;
         private int newListCapacity;
 
@@ -16,17 +17,6 @@ namespace SE.Rendering
         /// <param name="rd">RenderData.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(int key, IRenderable rd)
-        {
-            Data.Array[key].AddUnsafe(rd);
-        }
-
-        /// <summary>
-        /// Adds render data to the cache.
-        /// </summary>
-        /// <param name="key">Draw-call entry.</param>
-        /// <param name="rd">RenderData.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddThreaded(int key, IRenderable rd)
         {
             Data.Array[key].Add(rd);
         }
@@ -40,12 +30,12 @@ namespace SE.Rendering
                 Data.Clear();
 
                 int goal = DrawCallDatabase.LookupArray.Count+1;
-                Data = new QuickList<ThreadSafeList<IRenderable>>();
+                Data = new QuickList<QuickList<IRenderable>>();
                 for (int i = 0; i < goal; i++) {
-                    Data.Add(new ThreadSafeList<IRenderable>(newListCapacity));
+                    Data.Add(new QuickList<IRenderable>(newListCapacity));
                 }
             } else {
-                foreach (ThreadSafeList<IRenderable> list in Data) {
+                foreach (QuickList<IRenderable> list in Data) {
                     list.Clear();
                 }
             }
@@ -53,7 +43,7 @@ namespace SE.Rendering
 
         public RenderList(int renderIndex, BlendMode mode, int capacity = 1, int newListCapacity = 128)
         {
-            Data = new QuickList<ThreadSafeList<IRenderable>>();
+            Data = new QuickList<QuickList<IRenderable>>();
             Mode = mode;
             this.newListCapacity = newListCapacity;
             Reset();

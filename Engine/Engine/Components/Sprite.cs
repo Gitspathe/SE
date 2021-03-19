@@ -70,7 +70,6 @@ namespace SE.Components
                 position += camera.Position;
             }
 
-            // TODO: Make a SpriteBatch overload which takes in Vector3. (Doesn't need to actually use Z, but will be faster)
             Core.Rendering.SpriteBatch.Draw(
                 Data.Material.Texture,
                 position,

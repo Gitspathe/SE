@@ -9,7 +9,6 @@ using SE.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
 using static SE.Core.Rendering;
 using Color = Microsoft.Xna.Framework.Color;
 using Console = SE.Core.Console;
@@ -33,22 +32,6 @@ namespace SE.Rendering
         
         public static bool Multithreaded { get; set; } = false;
         public static int CullingThreshold { get; set; } = 128;
-
-        public static BlendState Alpha = new BlendState {
-            ColorSourceBlend = Blend.SourceAlpha,
-            AlphaSourceBlend = Blend.SourceAlpha,
-            ColorDestinationBlend = Blend.InverseSourceAlpha,
-            AlphaDestinationBlend = Blend.InverseSourceAlpha,
-        };
-
-        public static BlendState AlphaSubtract = new BlendState {
-            ColorBlendFunction = BlendFunction.ReverseSubtract,
-            ColorSourceBlend = Blend.SourceAlpha,
-            AlphaSourceBlend = Blend.SourceAlpha,
-            ColorDestinationBlend = Blend.InverseSourceAlpha,
-            AlphaDestinationBlend = Blend.InverseSourceAlpha,
-            IndependentBlendEnable = true
-        };
 
         public void NewFrame(Camera2D camera)
         {
@@ -93,11 +76,7 @@ namespace SE.Rendering
 
         public void GenerateRenderLists(bool excludeUI = true)
         {
-            if (Multithreaded) {
-                GenerateRenderListsMultiThreaded(excludeUI);
-            } else {
-                GenerateRenderListsSingleThread(excludeUI);
-            }
+            GenerateRenderListsSingleThread(excludeUI);
             RenderContainer.RegisterToRenderLoop();
         }
 
@@ -117,22 +96,22 @@ namespace SE.Rendering
             }
         }
 
-        public void GenerateRenderListsMultiThreaded(bool excludeUI)
-        {
-            QuickList<IPartitionedRenderable> renderedSprites = VisibleSprites;
-            RenderContainer.Reset();
+        //public void GenerateRenderListsMultiThreaded(bool excludeUI)
+        //{
+        //    QuickList<IPartitionedRenderable> renderedSprites = VisibleSprites;
+        //    RenderContainer.Reset();
 
-            QuickParallel.ForEach(renderedSprites, (objects, count) => {
-                for (int i = 0; i < count; i++) {
-                    IPartitionedRenderable renderObj = objects[i];
-                    RenderableData info = renderObj.Data;
-                    if (excludeUI && info.TypeInfo.UISprite != null)
-                        continue;
+        //    QuickParallel.ForEach(renderedSprites, (objects, count) => {
+        //        for (int i = 0; i < count; i++) {
+        //            IPartitionedRenderable renderObj = objects[i];
+        //            RenderableData info = renderObj.Data;
+        //            if (excludeUI && info.TypeInfo.UISprite != null)
+        //                continue;
 
-                    RenderContainer.Add(renderObj, info, true);
-                }
-            });
-        }
+        //            RenderContainer.Add(renderObj, info, true);
+        //        }
+        //    });
+        //}
 
         public void ProcessRenderList(Camera2D camera, RenderList renderList)
         {
@@ -140,49 +119,46 @@ namespace SE.Rendering
                 return;
 
             for (int i = 0; i < renderList.Data.Count; i++) {
-                ThreadSafeList<IRenderable> data = renderList.Data.Array[i];
+                QuickList<IRenderable> data = renderList.Data.Array[i];
                 Effect effect = DrawCallDatabase.LookupArray.Array[i].Effect;
-                switch (renderList.Mode) {
-                    case BlendMode.Opaque:
-                        ChangeDrawCall(
-                            SpriteSortMode.Deferred,
-                            camera.ViewMatrix,
-                            BlendState.Opaque,
-                            SamplerState.PointClamp,
-                            DepthStencilGreater, 
-                            null, 
-                            effect);
-                        break;
-                    case BlendMode.Transparent:
-                        data.Sort(new DepthComparer());
-                        ChangeDrawCall(
-                            SpriteSortMode.Deferred, 
-                            camera.ViewMatrix, 
-                            BlendState.NonPremultiplied, // Fix: was BlendState.AlphaBlend.
-                            SamplerState.PointClamp, 
-                            DepthStencilGreater, 
-                            null, 
-                            effect);
-                        break;
-                    case BlendMode.Additive:
-                        data.Sort(new DepthComparer());
-                        ChangeDrawCall(
-                            SpriteSortMode.Deferred,
-                            camera.ViewMatrix,
-                            BlendState.Additive,
-                            SamplerState.PointClamp,
-                            DepthStencilGreater,
-                            null,
-                            effect);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(renderList.Mode), renderList.Mode, null);
-                }
+
+                ChangeDrawCall(
+                    SpriteSortMode.Deferred,
+                    camera.ViewMatrix,
+                    BlendState.Opaque,
+                    SamplerState.PointClamp,
+                    DepthStencilGreater,
+                    null,
+                    effect);
 
                 IRenderable[] renderArray = data.Array;
                 for (int z = 0; z < data.Count; z++) {
                     renderArray[z].Render(camera, Space.World);
                 }
+            }
+        }
+
+        // TODO: This (and ChangeDrawCallIfNeeded) needs to be optimized.
+        public void ProcessUnorderedRenderList(Camera2D camera, UnorderedRenderList renderList)
+        {
+            if (renderList == null || renderList.Data.Count < 1)
+                return;
+
+            // Change draw call to a temporary state.
+            ChangeDrawCall(SpriteSortMode.Deferred, camera.ViewMatrix, null, null, DepthRead, null, null);
+
+            QuickList<IRenderable> data = renderList.Data;
+            data.Sort(new UnorderedComparer());
+
+            IRenderable[] renderArray = data.Array;
+            for (int i = 0; i < renderList.Data.Count; i++) {
+                IRenderable obj = renderArray[i];
+                RenderableData objData = obj.Data;
+                BlendMode blendMode = objData.Material.BlendMode;
+                Effect effect = objData.Material.Effect;
+
+                ChangeDrawCallIfNeeded(blendMode, effect);
+                obj.Render(camera, Space.World);
             }
         }
 
@@ -382,25 +358,15 @@ namespace SE.Rendering
             }
         }
 
-        public enum RenderModes
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+        public struct DepthComparer : IComparer<IRenderable>
         {
-            Deferred,
-            Albedo,
-            Normal,
-            Depth,
-            Diffuse,
-            Specular,
-            Volumetric,
-            //Hologram,
-            SSAO,
-            SSBlur,
-            //Emissive,
-            SSR,
-            HDR
+            int IComparer<IRenderable>.Compare(IRenderable x, IRenderable y)
+                => ((SpriteBase)x).LayerDepth.CompareTo(((SpriteBase)y).LayerDepth);
         }
 
         [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-        public struct DepthComparer : IComparer<IRenderable>
+        public struct UnorderedComparer : IComparer<IRenderable>
         {
             int IComparer<IRenderable>.Compare(IRenderable x, IRenderable y)
                 => ((SpriteBase)x).LayerDepth.CompareTo(((SpriteBase)y).LayerDepth);

@@ -15,6 +15,7 @@ using Vector2 = System.Numerics.Vector2;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 using Vector4 = System.Numerics.Vector4;
 using SE.Particles;
+using BlendMode = SE.Rendering.BlendMode;
 
 namespace SE.Core
 {
@@ -24,13 +25,30 @@ namespace SE.Core
         public static QuickList<IPartitionedRenderable> VisibleSprites = new QuickList<IPartitionedRenderable>(512);
         public static SpriteBatch SpriteBatch;
 
+        private static RasterizerState currentRasterizerState;
+        private static DepthStencilState currentDepthStencilState;
+        private static SamplerState currentSamplerState;
+        private static SpriteSortMode currentSortMode;
+        private static Matrix? currentMatrix;
+        private static BlendState currentBlendState;
+        private static Effect currentEffect;
+
         public static DepthStencilState DepthStencilLess = new DepthStencilState {
             DepthBufferEnable = true,
+            DepthBufferWriteEnable = true,
             DepthBufferFunction = CompareFunction.Less
         };
 
         public static DepthStencilState DepthStencilGreater = new DepthStencilState {
             DepthBufferEnable = true,
+            DepthBufferWriteEnable = true,
+            DepthBufferFunction = CompareFunction.GreaterEqual
+        };
+
+        public static DepthStencilState DepthRead = new DepthStencilState
+        {
+            DepthBufferEnable = true,
+            DepthBufferWriteEnable = false,
             DepthBufferFunction = CompareFunction.GreaterEqual
         };
 
@@ -38,6 +56,22 @@ namespace SE.Core
             FillMode = FillMode.Solid,
             CullMode = CullMode.None
         };
+
+        //public static BlendState Alpha = new BlendState {
+        //    ColorSourceBlend = Blend.SourceAlpha,
+        //    AlphaSourceBlend = Blend.SourceAlpha,
+        //    ColorDestinationBlend = Blend.InverseSourceAlpha,
+        //    AlphaDestinationBlend = Blend.InverseSourceAlpha,
+        //};
+
+        //public static BlendState AlphaSubtract = new BlendState {
+        //    ColorBlendFunction = BlendFunction.ReverseSubtract,
+        //    ColorSourceBlend = Blend.SourceAlpha,
+        //    AlphaSourceBlend = Blend.SourceAlpha,
+        //    ColorDestinationBlend = Blend.InverseSourceAlpha,
+        //    AlphaDestinationBlend = Blend.InverseSourceAlpha,
+        //    IndependentBlendEnable = true
+        //};
 
         public static bool SpriteBatchActive { get; private set; }
 
@@ -177,8 +211,42 @@ namespace SE.Core
                 SpriteBatch.End();
             }
 
+            currentSortMode = sortMode;
+            currentMatrix = transformMatrix;
+            currentBlendState = blendState;
+            currentSamplerState = samplerState;
+            currentDepthStencilState = depthStencilState;
+            currentRasterizerState = rasterizerState;
+            currentEffect = effect;
+
             SpriteBatch.Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, effect, transformMatrix);
             SpriteBatchActive = true;
+        }
+
+        public static void ChangeDrawCallIfNeeded(BlendMode blendMode, Effect effect)
+        {
+            BlendState blendState = null;
+            switch (blendMode) {
+                case BlendMode.Opaque:
+                    blendState = BlendState.Opaque;
+                    break;
+                case BlendMode.Transparent:
+                    blendState = BlendState.NonPremultiplied;
+                    break;
+                case BlendMode.Additive:
+                    blendState = BlendState.Additive;
+                    break;
+            }
+
+            bool shouldChange = false;
+            if(currentBlendState != blendState)
+                shouldChange = true;
+            else if(currentEffect != effect)
+                shouldChange = true;
+
+            if (shouldChange) {
+                ChangeDrawCall(currentSortMode, currentMatrix, blendState, currentSamplerState, currentDepthStencilState, currentRasterizerState, effect);
+            }
         }
 
         public static void EndDrawCall()

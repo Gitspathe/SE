@@ -27,15 +27,13 @@ namespace SE.Editor.Debug.GameObjects
             Sprite sprite = GetComponent<Sprite>();
             sprite.SpriteTextureAsset = AssetManager.GetAsset<SpriteTexture>("leveleditorcursor");
             sprite.Color = Color.Red;
-            sprite.LayerDepth = 0.2f;
+            sprite.LayerDepth = 1.0f;
             sprite.IgnoreLight = true;
             sprite.BlendMode = BlendMode.Transparent;
             p = GetComponent<LightComponent>();
             p.Light.Size = new Vector2(64.0f * 10);
             p.Light.CastsShadows = true;
             p.Light.Offset = new Vector2(-9999,-9999);
-            AddComponent(sprite);
-            AddComponent(p);
         }
 
         /// <inheritdoc />
