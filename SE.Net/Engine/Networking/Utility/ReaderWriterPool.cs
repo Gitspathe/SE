@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using LiteNetLib.Utils;
+﻿using LiteNetLib.Utils;
 using SE.Core;
 using SE.Pooling;
 
-namespace SE.Engine.Networking
+namespace SE.Engine.Networking.Utility
 {
-    public static class NetworkPool
+    public static class ReaderWriterPool
     {
         private static ObjectPool<NetDataReader> readerPool = new ObjectPool<NetDataReader>();
         private static ObjectPool<NetDataWriter> writerPool = new ObjectPool<NetDataWriter>();

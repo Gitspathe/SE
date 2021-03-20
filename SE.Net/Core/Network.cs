@@ -16,6 +16,7 @@ using SE.Engine.Networking;
 using SE.Engine.Networking.Attributes;
 using SE.Engine.Networking.Internal;
 using SE.Engine.Networking.Packets;
+using SE.Engine.Networking.Utility;
 
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 
@@ -23,7 +24,6 @@ namespace SE.Core
 {
     // TODO: Option to ignore all errors to improve performance. (don't throw exceptions)
     // TODO: Clean this up, split into multiple classes. Error handling is very ugly and alternatives should be investigated.
-    // TODO: Peer-to-peer support? (may be VERY hard to implement at this point.)
     public static class Network
     {
         #region VARIABLES & DELEGATE EVENT HANDLERS
@@ -173,7 +173,7 @@ namespace SE.Core
                 SetupNetLogic(extension.Value, true);
             }
 
-            NetworkRPC.Initialize();
+            NetworkRPCManager.Initialize();
             initialized = true;
         }
 
@@ -246,19 +246,22 @@ namespace SE.Core
                 // TODO: SEPacket pool.
                 SEPacket packet = new SEPacket(msg);
                 PacketProcessor processor = PacketProcessorManager.GetProcessor(packet.PacketType);
+                if (processor == null)
+                    return;
 
                 INetLogic netLogic;
                 lock (NetworkLock) {
                     if (!NetworkObjects.TryGetValue(packet.NetworkID, out netLogic)) {
-                        if(Report) LogWarning($"No object for network ID {packet.NetworkID} found."); return;
+                        if (Report) {
+                            LogWarning($"No object for network ID {packet.NetworkID} found.");
+                        }
+                        return;
                     }
                 }
 
-                if (processor != null) {
-                    NetDataReader reader = NetworkPool.GetReader(packet.Buffer);
-                    processor?.OnReceive(netLogic, reader, peer, deliveryMethod);
-                    NetworkPool.ReturnReader(reader);
-                }
+                NetDataReader reader = ReaderWriterPool.GetReader(packet.Buffer);
+                processor?.OnReceive(netLogic, reader, peer, deliveryMethod);
+                ReaderWriterPool.ReturnReader(reader);
             } catch (Exception e) {
                 NetProtector.ReportError(e, peer);
             }
@@ -304,6 +307,7 @@ namespace SE.Core
             Task forwardPortTask = ForwardPort(incomingPort, outgoingPort, "SE Server Port");
             forwardPortTask.Wait();
 
+            InstanceType = NetInstanceType.Server;
             Server = new NetManager(listener) {
                 ReconnectDelay = 2000, 
                 PingInterval = 2000,
@@ -316,7 +320,6 @@ namespace SE.Core
             }
             Server.EnableStatistics = true;
 
-            InstanceType = NetInstanceType.Server;
             onServerStartedHandler?.Invoke();
         }
 
@@ -328,10 +331,11 @@ namespace SE.Core
             ResetListener();
 
             listener.PeerConnectedEvent += peer => {
-                if (!Connections.ContainsKey(peer.GetUniqueID())) {
-                    Connections.Add(peer.GetUniqueID(), peer);
-                    Console.WriteLine("Connection established: " + peer.EndPoint);
-                }
+                if (Connections.ContainsKey(peer.GetUniqueID())) 
+                    return;
+
+                Connections.Add(peer.GetUniqueID(), peer);
+                Console.WriteLine("Connection established: " + peer.EndPoint);
             };
 
             listener.NetworkReceiveEvent += (peer, reader, deliveryMethod) => {
@@ -399,7 +403,10 @@ namespace SE.Core
         public static void SendPacketServer<T>(INetLogic netLogic, NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender) where T : PacketProcessor
         {
             if (!PacketProcessorManager.GetVal(typeof(T), out ushort s)) {
-                if(Report) LogError(new Exception($"No network processor for type {typeof(T)} was found.")); return;
+                if(Report) {
+                    LogError(new Exception($"No network processor for type {typeof(T)} was found."));
+                }
+                return;
             }
             SEPacket packet = new SEPacket(s, netLogic.ID, netWriter.Data, netWriter.Length);
             
@@ -424,19 +431,22 @@ namespace SE.Core
                 
             lock(NetworkLock) {
                 // Send the RPC message to any recipient(s).
-                NetDataWriter writer = NetworkPool.GetWriter();
+                NetDataWriter writer = ReaderWriterPool.GetWriter();
                 packet.WriteTo(writer);
                 for (int i = 0; i < recipients.Count; i++) {
                     recipients[i].Send(writer, channel, deliveryMethod);
                 }
-                NetworkPool.ReturnWriter(writer);
+                ReaderWriterPool.ReturnWriter(writer);
             }
         }
 
         public static void SendPacketClient<T>(INetLogic netLogic, NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel) where T : PacketProcessor
         {
             if (!PacketProcessorManager.GetVal(typeof(T), out ushort s)) {
-                if(Report) LogError(new Exception($"No network processor for type {typeof(T)} was found.")); return;
+                if (Report) {
+                    LogError(new Exception($"No network processor for type {typeof(T)} was found."));
+                }
+                return;
             }
             SEPacket packet = new SEPacket(s, netLogic.ID, netWriter.Data, netWriter.Length);
 
@@ -448,21 +458,21 @@ namespace SE.Core
 
             lock(NetworkLock) {
                 // Send the RPC message to any recipient(s).
-                NetDataWriter writer = NetworkPool.GetWriter();
+                NetDataWriter writer = ReaderWriterPool.GetWriter();
                 packet.WriteTo(writer);
                 for (int i = 0; i < recipients.Count; i++) {
                     recipients[i].Send(writer, channel, deliveryMethod);
                 }
-                NetworkPool.ReturnWriter(writer);
+                ReaderWriterPool.ReturnWriter(writer);
             }
         }
 
         public static void SendRPC(RPCMethod method, params object[] parameters)
-            => NetworkRPC.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, null, null, method.Method, parameters);
+            => NetworkRPCManager.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, null, null, method.Method, parameters);
         public static void SendRPC(RPCMethod method, NetPeer recipient, params object[] parameters)
-            => NetworkRPC.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, new [] { recipient }, null, method.Method, parameters);
+            => NetworkRPCManager.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, new [] { recipient }, null, method.Method, parameters);
         public static void SendRPC(RPCMethod method, NetPeer[] recipients, params object[] parameters) 
-            => NetworkRPC.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, recipients, null, method.Method, parameters);
+            => NetworkRPCManager.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, recipients, null, method.Method, parameters);
 
         public static T[] GetSubArray<T>(T[] data, int index, int length)
         {
@@ -473,9 +483,18 @@ namespace SE.Core
         }
     }
 
-    public ref struct PeerErrorInfo
+    /// <summary>
+    /// An instance's state in relation to the networking system.
+    /// </summary>
+    public enum NetInstanceType
     {
-        public NetPeer Sender;
+        /// <summary>Instance is not a client or a server.</summary>
+        None,
 
+        /// <summary>Instance is hosting a server.</summary>
+        Server,
+
+        /// <summary>Instance is a client connected to a server.</summary>
+        Client
     }
 }

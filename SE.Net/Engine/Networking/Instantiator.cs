@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using SE.Core;
 using SE.Core.Extensions;
 using SE.Engine.Networking.Attributes;
+using SE.Engine.Networking.Utility;
 using SE.Utility;
 using static SE.Core.Network;
 
@@ -71,7 +73,7 @@ namespace SE.Engine.Networking
             lock (NetworkLock) {
                 try {
                     if (netObj.NetLogic is INetInstantiatable instantiatable) {
-                        writer = NetworkPool.GetWriter();
+                        writer = ReaderWriterPool.GetWriter();
                         object[] parameters = instantiatable.InstantiateParameters;
                         foreach (object writeObj in parameters) {
                             writer.Put(NetData.PacketConverters[writeObj.GetType()]);
@@ -79,20 +81,20 @@ namespace SE.Engine.Networking
                         }
 
                         instantiateParams = writer.CopyData();
-                        NetworkPool.ReturnWriter(writer);
+                        ReaderWriterPool.ReturnWriter(writer);
 
-                        writer = NetworkPool.GetWriter();
+                        writer = ReaderWriterPool.GetWriter();
                         data = instantiatable.GetBufferedData(writer);
-                        NetworkPool.ReturnWriter(writer);
+                        ReaderWriterPool.ReturnWriter(writer);
                     }
 
                     if (netObj.NetLogic is INetPersistable persist) {
-                        writer = NetworkPool.GetWriter();
+                        writer = ReaderWriterPool.GetWriter();
                         netState = persist.SerializeNetworkState(writer);
-                        NetworkPool.ReturnWriter(writer);
+                        ReaderWriterPool.ReturnWriter(writer);
                     }
                 } catch (Exception) {
-                    NetworkPool.ReturnWriter(writer);
+                    ReaderWriterPool.ReturnWriter(writer);
                     throw;
                 }
             }
@@ -137,7 +139,7 @@ namespace SE.Engine.Networking
                     SetupNetLogic(logic, owner == "SERVER");
                     SpawnedNetObjects.Add(logic.ID, new SpawnedNetObject(logic, logic.ID, type, owner));
 
-                    writer = NetworkPool.GetWriter();
+                    writer = ReaderWriterPool.GetWriter();
                     if (parameters != null) {
                         foreach (object writeObj in parameters) {
                             writer.Put(NetData.PacketConverters[writeObj.GetType()]);
@@ -146,25 +148,25 @@ namespace SE.Engine.Networking
                     }
 
                     paramsData = writer.Length > 0 ? writer.CopyData() : null;
-                    NetworkPool.ReturnWriter(writer);
+                    ReaderWriterPool.ReturnWriter(writer);
 
                     if (logic is INetInstantiatable instantiatable) {
-                        writer = NetworkPool.GetWriter();
+                        writer = ReaderWriterPool.GetWriter();
                         instantiatable.OnNetworkInstantiatedServer(type, owner, writer);
-                        NetworkPool.ReturnWriter(writer);
+                        ReaderWriterPool.ReturnWriter(writer);
 
-                        writer = NetworkPool.GetWriter();
+                        writer = ReaderWriterPool.GetWriter();
                         returned = instantiatable.GetBufferedData(writer);
-                        NetworkPool.ReturnWriter(writer);
+                        ReaderWriterPool.ReturnWriter(writer);
                     }
 
                     if (logic is INetPersistable persist) {
-                        writer = NetworkPool.GetWriter();
+                        writer = ReaderWriterPool.GetWriter();
                         netState = persist.SerializeNetworkState(writer);
-                        NetworkPool.ReturnWriter(writer);
+                        ReaderWriterPool.ReturnWriter(writer);
                     }
                 } catch (Exception e) {
-                    NetworkPool.ReturnWriter(writer);
+                    ReaderWriterPool.ReturnWriter(writer);
                     LogError(null, new Exception("", e));
                     return;
                 }
@@ -192,11 +194,11 @@ namespace SE.Engine.Networking
                         throw new Exception("No Spawnable of Type " + type + " found in dictionary.");
 
                     List<object> instantiateParameters = new List<object>();
-                    reader = NetworkPool.GetReader(paramsData);
+                    reader = ReaderWriterPool.GetReader(paramsData);
                     while (!reader.EndOfData) {
                         instantiateParameters.Add(NetData.Read(NetData.PacketBytes[reader.GetByte()], reader));
                     }
-                    NetworkPool.ReturnReader(reader);
+                    ReaderWriterPool.ReturnReader(reader);
 
                     // TODO: Temporary fix to prevent error where JSON deserializes floats to doubles.
                     for (int i = 0; i < instantiateParameters.Count; i++) {
@@ -216,19 +218,19 @@ namespace SE.Engine.Networking
                     if (logic == null)
                         throw new Exception("NetLogic not found.");
 
-                    reader = NetworkPool.GetReader(netState);
+                    reader = ReaderWriterPool.GetReader(netState);
                     SetupNetLogic(logic, netID, isOwner, reader);
-                    NetworkPool.ReturnReader(reader);
+                    ReaderWriterPool.ReturnReader(reader);
 
                     SpawnedNetObjects.Add(logic.ID, new SpawnedNetObject(logic, logic.ID, type));
 
                     if (logic is INetInstantiatable instantiatable) {
-                        reader = NetworkPool.GetReader(data);
+                        reader = ReaderWriterPool.GetReader(data);
                         instantiatable.OnNetworkInstantiatedClient(type, isOwner, reader);
-                        NetworkPool.ReturnReader(reader);
+                        ReaderWriterPool.ReturnReader(reader);
                     }
                 } catch (Exception) {
-                    NetworkPool.ReturnReader(reader);
+                    ReaderWriterPool.ReturnReader(reader);
                     throw;
                 }
             }

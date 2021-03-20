@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using LiteNetLib;
 using LiteNetLib.Utils;
+using SE.Core;
 using static SE.Core.Network;
 
 namespace SE.Engine.Networking
@@ -18,14 +19,14 @@ namespace SE.Engine.Networking
         public static bool LogExceptions { get; set; } = true;
 
         /// <summary>Peers who exceed this threshold of exceptions within 1 minute will be kicked from the server,
-        ///          if KickPeers is set to true.</summary>
-        public static int KickExceptionThreshold { get; set; } = 360;
+        ///          if KickPeers is set to true. Intended to mitigate exception-spamming DOS attacks.</summary>
+        public static int KickExceptionThreshold { get; set; } = 512;
 
         private static Dictionary<NetPeer, PeerRecord> peerRecords = new Dictionary<NetPeer, PeerRecord>();
 
         public static void Update(float deltaTime)
         {
-            if(InstanceType != NetInstanceType.Server)
+            if(!IsServer)
                 return;
 
             foreach (PeerRecord peer in peerRecords.Values) {
@@ -35,7 +36,7 @@ namespace SE.Engine.Networking
 
         public static void AddPeer(NetPeer peer)
         {
-            if (InstanceType != NetInstanceType.Server)
+            if (!IsServer)
                 return;
 
             if (!peerRecords.ContainsKey(peer)) {
@@ -45,7 +46,7 @@ namespace SE.Engine.Networking
 
         public static bool RemovePeer(NetPeer peer)
         {
-            if (InstanceType != NetInstanceType.Server)
+            if (!IsServer)
                 return false;
 
             return peerRecords.Remove(peer);
@@ -54,13 +55,11 @@ namespace SE.Engine.Networking
         public static void ReportError(Exception exception, NetPeer peer = null)
         {
             if (LogExceptions) {
-                if (peer != null) {
-                    LogError(exception: new Exception("NetException from " + peer.EndPoint + ": ", exception));
-                } else {
-                    LogError(exception: new Exception("NetException: ", exception));
-                }
+                LogError(peer != null
+                    ? new Exception("NetException from " + peer.EndPoint + ": ", exception)
+                    : new Exception("NetException: ", exception));
             }
-            if (InstanceType != NetInstanceType.Server || peer == null)
+            if (!IsServer || peer == null)
                 return;
 
             PeerRecord record = peerRecords[peer];
@@ -75,13 +74,11 @@ namespace SE.Engine.Networking
         public static void ReportWarning(Exception exception, NetPeer peer = null)
         {
             if (LogExceptions) {
-                if (peer != null) {
-                    LogWarning(exception: new Exception("NetException from " + peer.EndPoint + ": ", exception));
-                } else {
-                    LogWarning(exception: new Exception("NetException: ", exception));
-                }
+                LogWarning(peer != null
+                    ? new Exception("NetException from " + peer.EndPoint + ": ", exception)
+                    : new Exception("NetException: ", exception));
             }
-            if (InstanceType != NetInstanceType.Server || peer == null)
+            if (!IsServer || peer == null)
                 return;
 
             PeerRecord record = peerRecords[peer];
@@ -90,7 +87,7 @@ namespace SE.Engine.Networking
 
         public static void Kick(NetPeer peer, string reason)
         {
-            if (InstanceType != NetInstanceType.Server || peer == null)
+            if (!IsServer || peer == null)
                 return;
 
             NetDataWriter writer = new NetDataWriter();
@@ -99,23 +96,23 @@ namespace SE.Engine.Networking
             LogInfo("Kicked peer " + peer.EndPoint + ". Reason: '" + reason + "'");
         }
 
-        public class PeerRecord
+        internal class PeerRecord
         {
             public NetPeer Peer;
             public ulong TotalErrors;
             public ulong TotalWarnings;
             public float KickThreshold;
 
+            public PeerRecord(NetPeer peer)
+            {
+                Peer = peer;
+            }
+
             public void Update(float deltaTime)
             {
                 KickThreshold -= deltaTime / 60.0f;
                 if (KickThreshold < 0.0f)
                     KickThreshold = 0.0f;
-            }
-
-            public PeerRecord(NetPeer peer)
-            {
-                Peer = peer;
             }
         }
 
