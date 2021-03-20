@@ -23,7 +23,8 @@ namespace SE
             "He can't keep getting away with it!",
             "BRUH.",
             "Who wrote this piece of crap?",
-            "Have you tried turning it off and on again?"
+            "Have you tried turning it off and on again?",
+            "Formerly chuck's."
         };
 
         public static void HookUnhandledExceptionEvents()

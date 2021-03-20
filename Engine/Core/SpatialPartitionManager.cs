@@ -24,18 +24,18 @@ namespace SE.Core
             }
         }
 
-        public static void Insert<T>(IPartitionObject<T> obj) where T : IPartitionObject<T> 
-            => SpatialPartitionManager<T>.Insert((T) obj);
-
-        public static void Remove<T>(IPartitionObject<T> obj) where T : IPartitionObject<T> 
-            => SpatialPartitionManager<T>.Remove((T) obj);
-
         public static void DebugDraw(Camera2D cam)
         {
             foreach (Action<Camera2D> a in ManagerDraws) {
                 a.Invoke(cam);
             }
         }
+
+        public static void Insert<T>(IPartitionObject<T> obj) where T : IPartitionObject<T> 
+            => SpatialPartitionManager<T>.Insert((T) obj);
+
+        public static void Remove<T>(IPartitionObject<T> obj) where T : IPartitionObject<T> 
+            => SpatialPartitionManager<T>.Remove((T) obj);
     }
 
     public static class SpatialPartitionManager<T> where T : IPartitionObject<T>
@@ -75,9 +75,11 @@ namespace SE.Core
                 obj.RemoveFromPartition();
             }
 
+            // If the object is too large, add it to the large object tile.
             Rectangle aabb = obj.AABB;
             if (aabb.Width > TileSize || aabb.Height > TileSize) {
                 largeObjectTile.Insert(obj);
+                return;
             }
 
             partition.Insert(obj);
@@ -98,9 +100,7 @@ namespace SE.Core
         internal static PartitionTile<T> GetTile(Vector2 position) 
             => partition.GetTile(position);
 
-        internal static void DrawBoundingRectangle(Camera2D camera)
-        {
-            partition.DrawBoundingRectangle(camera);
-        }
+        internal static void DrawBoundingRectangle(Camera2D camera) 
+            => partition.DrawBoundingRectangle(camera);
     }
 }

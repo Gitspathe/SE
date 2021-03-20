@@ -114,7 +114,7 @@ namespace SE.Rendering
             unorderedRenderActions.Clear();
 
             // Ensure transparent objects are always rendered after opaque.
-            // FIRST - Add all ordered (opaque) render actions to the rendering loop.
+            // FIRST - Add pre-ordered render actions to the rendering loop.
             for (uint i = 0; i < RenderLists.Count; i++) {
                 RenderList list = RenderLists.Array[i];
                 if (list == null)
@@ -124,7 +124,7 @@ namespace SE.Rendering
                 renderActions.Add(i, action);
                 RenderLoop.Add(i, action);
             }
-            // NEXT - Add all unordered (transparent) render actions to the rendering loop.
+            // NEXT - Add unordered render actions to the rendering loop (for proper transparency).
             for (uint i = 0; i < UnorderedRenderLists.Count; i++) {
                 UnorderedRenderList list = UnorderedRenderLists.Array[i];
                 if (list == null)

@@ -68,6 +68,8 @@ namespace SE
         /// </summary>
         protected GameEngine(string[] args, IEditor editorEntry = null, Game existingGame = null) : base(existingGame)
         {
+            ReflectionUtil.Initialize();
+
             Editor = editorEntry;
             if (IsEditor) {
                 // Don't display 2nd window if editor! But pretend the Game() isn't headless.
