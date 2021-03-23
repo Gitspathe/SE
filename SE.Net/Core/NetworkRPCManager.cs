@@ -12,6 +12,7 @@ using SE.Engine.Networking.Attributes;
 using SE.Engine.Networking.Internal;
 using SE.Engine.Networking.Packets;
 using SE.Engine.Networking.Utility;
+using SE.Utility;
 using static SE.Core.Network;
 
 namespace SE.Core
@@ -31,13 +32,12 @@ namespace SE.Core
         {
             // Use reflection to determine which functions in the assemblies are RPCs.
             LogInfo("  Loading RPC methods...", true);
-            List<MethodData> methodBundlesServerRPC = new List<MethodData>();
-            List<MethodData> methodBundlesClientRPC = new List<MethodData>();
+            QuickList<MethodData> methodBundlesServerRPC = new QuickList<MethodData>();
+            QuickList<MethodData> methodBundlesClientRPC = new QuickList<MethodData>();
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies()) {
-                MethodInfo[] methods = assembly.GetTypes()
+                IEnumerable<MethodInfo> methods = assembly.GetTypes()
                     .SelectMany(t => t.GetMethods())
-                    .Where(m => m.GetCustomAttributes(typeof(ServerRPCAttribute), false).Length > 0)
-                    .ToArray();
+                    .Where(m => m.GetCustomAttributes(typeof(ServerRPCAttribute), false).Length > 0);
                 foreach (MethodInfo info in methods) {
                     methodBundlesServerRPC.Add(new MethodData(GetName(info), info));
                     LogInfo("  S-RPC: " + GetName(info));
@@ -45,8 +45,7 @@ namespace SE.Core
 
                 methods = assembly.GetTypes()
                     .SelectMany(t => t.GetMethods())
-                    .Where(m => m.GetCustomAttributes(typeof(ClientRPCAttribute), false).Length > 0)
-                    .ToArray();
+                    .Where(m => m.GetCustomAttributes(typeof(ClientRPCAttribute), false).Length > 0);
                 foreach (MethodInfo info in methods) {
                     string methodName = GetName(info).Replace("_CLIENT", "");
                     methodBundlesClientRPC.Add(new MethodData(methodName, info));

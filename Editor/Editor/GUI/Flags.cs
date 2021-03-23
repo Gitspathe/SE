@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace DeeZ.Editor.GUI
+namespace SE.Editor.GUI
 {
     public enum GUIStyleVar
     {

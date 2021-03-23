@@ -24,10 +24,10 @@ namespace SE.Core
         public static List<UIObject> OrderedTopLevelMenus = new List<UIObject>();
 
         private static Dictionary<string, UIObject> menus = new Dictionary<string, UIObject>();
-        private static List<UIObject> gizmos = new List<UIObject>();
-        private static List<UIObject> assumedKeyboardControl = new List<UIObject>();
+        private static QuickList<UIObject> gizmos = new QuickList<UIObject>();
+        private static QuickList<UIObject> assumedKeyboardControl = new QuickList<UIObject>();
         private static bool listenButtonInput;
-        private static List<string> uiInputButtons = new List<string> 
+        private static QuickList<string> uiInputButtons = new QuickList<string> 
             {"UIUp", "UILeft", "UIDown", "UIRight", "UIConfirm", "UIBack"};
         
         private static AssetConsumerContext assetConsumerContext = new AssetConsumerContext();
@@ -355,7 +355,7 @@ namespace SE.Core
         private static bool IsMouseBlocker(UIObject uiObj) 
             => mouseBlocker == null || mouseBlocker.Transform.Children.Contains(uiObj.Transform);
 
-        public static List<UIObject> GetGizmos() => gizmos;
+        public static QuickList<UIObject> GetGizmos() => gizmos;
 
         public static void AddGizmo(UIObject gizmo)
         {

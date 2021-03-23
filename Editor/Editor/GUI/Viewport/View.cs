@@ -1,11 +1,10 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SE;
 using SE.Core;
 using Vector2 = System.Numerics.Vector2;
 
-namespace DeeZ.Editor.GUI.Viewport
+namespace SE.Editor.GUI.Viewport
 {
     public class View : GUIObject
     {

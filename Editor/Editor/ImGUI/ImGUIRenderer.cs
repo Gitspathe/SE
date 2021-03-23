@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace DeeZ.Editor.ImGUI
+namespace SE.Editor.ImGUI
 {
     public class ImGuiRenderer
     {

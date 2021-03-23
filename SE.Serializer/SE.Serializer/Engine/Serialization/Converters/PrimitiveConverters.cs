@@ -179,9 +179,9 @@ namespace SE.Serialization.Converters
         public override Type Type => typeof(string);
         
         public override void SerializeBinary(string obj, Utf8Writer writer, ref SerializeTask task)
-            => writer.Write(obj);
+            => writer.WriteQuotedTextUtf8(obj);
         public override string DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
-            => reader.ReadString();
+            => reader.ReadQuotedString();
 
         public override void SerializeText(string obj, Utf8Writer writer, ref SerializeTask task) 
             => writer.WriteQuotedTextUtf8(obj);

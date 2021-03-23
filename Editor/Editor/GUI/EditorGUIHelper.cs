@@ -1,21 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using DeeZ.Editor.GUI.ValueDrawers;
-using ImGuiNET;
-using Microsoft.Xna.Framework;
-using SE.Core;
-using SE.Core.Internal;
-using SE.Engine.Utility;
+using SE.Editor.GUI.ValueDrawers;
 using SE.Serialization;
-using SE.Utility;
-using SE.World;
-using Vector2 = System.Numerics.Vector2;
-using Vector4 = System.Numerics.Vector4;
 
-namespace DeeZ.Editor.GUI
+namespace SE.Editor.GUI
 {
     public static class EditorGUIHelper
     {

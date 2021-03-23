@@ -282,8 +282,6 @@ namespace SE
                 GC.Collect();
                 gcFrame = false;
             }
-
-            //_screenManager.Update(gameTime, true);
         }
 
         protected sealed override void Draw(GameTime gameTime)
@@ -295,15 +293,11 @@ namespace SE
             Core.Rendering.Update();
             Editor?.OnDraw(GraphicsDeviceManager.GraphicsDevice, gameTime);
             EngineUtility.TransformHierarchyDirty = false;
-
-            //_screenManager.Draw(gameTime);
         }
 
         internal void GraphicsPresent()
         {
             DoDraw(GameTime);
-            //Draw(GameTime);
-            //EndDraw();
         }
 
         // TODO: Test code area. Don't include this in actual builds.

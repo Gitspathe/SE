@@ -1,5 +1,6 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
+using System;
 
 namespace SE.Engine.Networking.Packets
 {
@@ -9,10 +10,15 @@ namespace SE.Engine.Networking.Packets
     /// </summary>
     public class SEPacket
     {
+        public const int _HEADER_OFFSET = sizeof(ushort) + sizeof(uint);
+
+        // Serialized.
         public ushort PacketType;
         public uint NetworkID;
-        public int BufferLength;
         public byte[] Buffer;
+
+        // NOT serialized.
+        public int BufferLength;
 
         public SEPacket(ushort packetType, uint networkID, byte[] buffer, int bufferLength = -1)
         {
@@ -49,8 +55,13 @@ namespace SE.Engine.Networking.Packets
         {
             PacketType = message.GetUShort();
             NetworkID = message.GetUInt();
-            Buffer = message.GetBytesWithLength();
-            BufferLength = Buffer.Length;
+
+            // To get the buffer, we simply grab the rest of the data from the NetPacketReader.
+            // By doing this, 4 less bytes are used, because the byte array length isn't serialized.
+            // TODO: When SEPacket pooling is added, the buffer can be resized as needed.
+            BufferLength = message.UserDataSize - _HEADER_OFFSET;
+            Buffer = new byte[BufferLength];
+            message.GetBytes(Buffer, BufferLength);
         }
 
         /// <summary>
@@ -61,7 +72,7 @@ namespace SE.Engine.Networking.Packets
         {
             message.Put(PacketType);
             message.Put(NetworkID);
-            message.PutBytesWithLength(Buffer, 0, BufferLength);
+            message.Put(Buffer, 0, BufferLength);
         }
     }
 }

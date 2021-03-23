@@ -1,10 +1,9 @@
 ﻿using System;
 using SE.Common;
-using SE.Engine.Utility;
 using SE.Serialization;
 using SE.Utility;
 
-namespace DeeZ.Editor.GUI.Properties
+namespace SE.Editor.GUI.Properties
 {
     public class PropertiesComponentNode : PropertiesNode<Component>
     {

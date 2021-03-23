@@ -17,6 +17,7 @@ using SE.Serialization.Resolvers;
 using SE.Utility;
 using System.Text;
 using static SE.Serialization.Constants;
+using static SE.Serialization.SerializerUtil;
 
 namespace SE.Serialization.Converters
 {
@@ -30,12 +31,6 @@ namespace SE.Serialization.Converters
 
         private Dictionary<string, Node> nodesDictionary;
         private Node[] nodesArray;
-
-        // Binary format delimiters.
-        private const int _NODE_HEADER_SIZE = sizeof(byte) + sizeof(ushort);
-        private const byte _NAME_DELIMITER  = (byte) ':';
-        private const byte _DELIMITER       = (byte) '|';
-        private const byte _BREAK_DELIMITER = (byte) '^';
 
         private GeneratedConverter(Type type, ConverterResolver resolver)
         {
@@ -85,7 +80,7 @@ namespace SE.Serialization.Converters
                 string memberName = member.Name;
                 ushort index = curIndex;
 
-                // Skip property backing fields. TODO: May want to support serializing these?
+                // Skip property backing fields. // TODO: These might be needed to deserialize read-only properties.
                 if(realMemberName.Contains("k__BackingField"))
                     continue;
 
@@ -183,6 +178,12 @@ namespace SE.Serialization.Converters
 
         public override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task)
         {
+            bool writeClassDelimiters = task.CurrentDepth > 1;
+
+            if (writeClassDelimiters) {
+                writer.Write(_BEGIN_CLASS);
+            }
+
             if (task.CurrentDepth < task.Settings.MaxDepth) {
                 bool writeName = task.Settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
                 for (int i = 0; i < nodesArray.Length; i++) {
@@ -190,8 +191,9 @@ namespace SE.Serialization.Converters
                 }
             }
 
-            // Always write delimiter, even when MaxDepth has been reached.
-            writer.Write(_BREAK_DELIMITER);
+            if (writeClassDelimiters) {
+                writer.Write(_END_CLASS);
+            }
         }
 
         public override void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task)
@@ -233,6 +235,9 @@ namespace SE.Serialization.Converters
                 case ConvertBehaviour.Order: {
                     DeserializeBinaryOrder(ref obj, reader, ref task);
                 } break;
+                case ConvertBehaviour.Name: {
+                    throw new NotSupportedException("Deserializing binary by name only is not supported.");
+                } break;
                 case ConvertBehaviour.NameAndOrder: {
                     DeserializeBinaryNameAndOrder(ref obj, reader, ref task);
                 } break;
@@ -245,50 +250,83 @@ namespace SE.Serialization.Converters
         private void DeserializeBinaryOrder(ref object obj, Utf8Reader reader, ref DeserializeTask task)
         {
             Stream stream = reader.BaseStream;
-            while (stream.Position + 1 < stream.Length && reader.ReadByte() == _DELIMITER) {
-                long startIndex = (stream.Position + _NODE_HEADER_SIZE) - 1;
-                //try {
-                    nodesArray[reader.ReadUInt16()].ReadBinary(obj, reader, ref task);
+            while (true) {
+                long startIndex = stream.Position;
+                if (stream.Position + 1 > stream.Length)
+                    return;
+
+                switch (reader.ReadByte()) {
+                    case _BEGIN_CLASS:
+                        continue;
+                    case _END_CLASS:
+                        return;
+                    case _BEGIN_META:
+                        break;
+                    default:
+                        goto failed;
+                }
+
+                try {
+                    ushort val = reader.ReadUInt16();
+                    stream.Position += 1;
+                    nodesArray[val].ReadBinary(obj, reader, ref task);
                     continue;
-                //} catch (EndOfStreamException) {
-                //    break;
-                //} catch (Exception) { /* ignored */ }
+                } catch (EndOfStreamException) {
+                    break;
+                } catch (Exception) { /* ignored */ }
 
                 // Failed. Skip to next node.
+                // Note that binary error handling is unstable due to limitations.
+                failed:
                 try {
-                    stream.Position = startIndex;
-                    if(!SkipToNextDelimiter(reader))
+                    stream.Position = startIndex + 1;
+                    if (!BinarySkipToNextNode(reader))
                         break;
 
-                } catch(Exception) { break; }
+                } catch (Exception) { break; }
             }
         }
 
         private void DeserializeBinaryNameAndOrder(ref object obj, Utf8Reader reader, ref DeserializeTask task)
         {
             Stream stream = reader.BaseStream;
-            while (stream.Position + 1 < stream.Length && reader.ReadByte() == _DELIMITER) {
-                long startIndex = (stream.Position + _NODE_HEADER_SIZE) - 1;
-                ushort readIndex = 0;
+            while (true) {
+                if(stream.Position + 1 > stream.Length)
+                    return;
+
+                long startIndex = stream.Position;
+                switch (reader.ReadByte()) {
+                    case _BEGIN_CLASS:
+                        continue;
+                    case _END_CLASS:
+                        return;
+                    case _BEGIN_META:
+                        break;
+                    default:
+                        goto failed;
+                }
+
+                // Get the index first.
+                ushort readIndex = reader.ReadUInt16();
+                stream.Position += 1;
 
                 // Step 1: Attempt to deserialize based on name.
                 try {
-                    readIndex = reader.ReadUInt16();
-                    if(!TryReadString(reader, out string name))
+                    if (!TryReadString(reader, out string name))
                         goto Step2;
                     if (!nodesDictionary.TryGetValue(name, out Node node))
                         goto Step2;
 
-                    SkipDelimiter(reader);
+                    stream.Position += 1;
                     node.ReadBinary(obj, reader, ref task);
                     continue;
-                } catch(Exception) { /* ignored */ }
+                } catch (Exception) { /* ignored */ }
 
                 // Step 2: Attempt to deserialize based on declaration order.
                 Step2:
                 try {
                     stream.Position = startIndex;
-                    if(!SkipToEndOfName(reader))
+                    if (!SkipToNextSymbol(reader, _BEGIN_VALUE))
                         break;
 
                     nodesArray[readIndex].ReadBinary(obj, reader, ref task);
@@ -298,9 +336,11 @@ namespace SE.Serialization.Converters
                 } catch (Exception) { /* ignored */ }
 
                 // Step 3: Failed. Skip to next node.
+                // Note that binary error handling is unstable due to limitations.
+                failed:
                 try {
                     stream.Position = startIndex;
-                    if(!SkipToNextDelimiter(reader))
+                    if (!BinarySkipToNextNode(reader))
                         break;
                 } catch (Exception) {
                     break;
@@ -319,6 +359,9 @@ namespace SE.Serialization.Converters
                 case ConvertBehaviour.Order: {
                     DeserializeTextOrder(ref obj, reader, ref task);
                 } break;
+                case ConvertBehaviour.Name: {
+                    DeserializeTextName(ref obj, reader, ref task);
+                } break;
                 case ConvertBehaviour.NameAndOrder: {
                     DeserializeTextNameAndOrder(ref obj, reader, ref task);
                 } break;
@@ -331,15 +374,16 @@ namespace SE.Serialization.Converters
         private void DeserializeTextOrder(ref object obj, Utf8Reader reader, ref DeserializeTask task)
         {
             Stream stream = reader.BaseStream;
-            while (stream.Position + 1 < stream.Length) {
-                
-                // Look for next variable.
-                try {
-                    byte b = reader.ReadByte();
+            while (true) {
+                if(stream.Position + 1 > stream.Length)
+                    return;
 
+                long startIndex = stream.Position;
+                try {
+                    // Look for next variable.
                     // Skip _TAB, _NEW_LINE and _BEGIN_CLASS.
                     // Break if _END_CLASS is encountered.
-                    switch (b) {
+                    switch (reader.ReadByte()) {
                         case _TAB:
                         case _NEW_LINE:
                         case _BEGIN_CLASS:
@@ -347,8 +391,7 @@ namespace SE.Serialization.Converters
                         case _END_CLASS:
                             return;
                     }
-
-                    reader.BaseStream.Position -= 1;
+                    stream.Position -= 1;
 
                     // Index meta parsing.
                     SkipToNextSymbol(reader, _BEGIN_META);
@@ -359,71 +402,277 @@ namespace SE.Serialization.Converters
                     reader.SkipWhiteSpace();
                     nodesArray[index].ReadText(obj, reader, ref task);
 
+                    continue;
                 } catch (EndOfStreamException) {
                     break;
                 } catch (Exception) { /* ignored */ }
 
-                // TODO: Error handling.
+                // Failed, skip to next node.
+                try {
+                    stream.Position = startIndex + 1;
+                    if (!TextSkipToNextNode(reader, ref task))
+                        break;
+                } catch (Exception) {
+                    break;
+                }
+            }
+        }
+        
+        private void DeserializeTextName(ref object obj, Utf8Reader reader, ref DeserializeTask task)
+        {
+            Stream stream = reader.BaseStream;
+            while (true){
+                if (stream.Position + 1 > stream.Length)
+                    return;
+
+                long startIndex = stream.Position;
+                try {
+                    switch (reader.ReadByte()) {
+                        case _TAB:
+                        case _NEW_LINE:
+                        case _BEGIN_CLASS:
+                            continue;
+                        case _END_CLASS:
+                            return;
+                    }
+                    stream.Position -= 1;
+
+                    reader.SkipWhiteSpace();
+                    string name = reader.ReadUntil(_BEGIN_VALUE);
+                    reader.SkipWhiteSpace();
+                    if (!nodesDictionary.TryGetValue(name, out Node node))
+                        goto Failed;
+
+                    node.ReadText(obj, reader, ref task);
+                    continue;
+                } catch (EndOfStreamException) {
+                    break;
+                } catch (Exception) { /* ignored */ }
+
+                Failed:
+                try {
+                    stream.Position = startIndex;
+                    if (!TextSkipToNextNode(reader, ref task))
+                        break;
+                } catch (Exception) {
+                    break;
+                }
             }
         }
 
         private void DeserializeTextNameAndOrder(ref object obj, Utf8Reader reader, ref DeserializeTask task)
         {
-            throw new NotImplementedException();
-        }
+            Stream stream = reader.BaseStream;
+            while (true) {
+                if(stream.Position + 1 > stream.Length)
+                    return;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void SkipDelimiter(Utf8Reader reader) 
-            => reader.BaseStream.Position += sizeof(byte);
+                long startIndex = stream.Position;
+                uint? readIndex = null;
 
-        internal static bool SkipToNextSymbol(Utf8Reader reader, byte symbol, bool skipPast = true)
-        {
-            Stream baseStream = reader.BaseStream;
-            while (baseStream.Position + 1 < baseStream.Length) {
-                byte b = reader.ReadByte();
-                if (b != symbol) 
-                    continue;
+                // Step 1: Parse by name.
+                try {
+                    // Look for next variable.
+                    // Skip _TAB, _NEW_LINE and _BEGIN_CLASS.
+                    // Break if _END_CLASS is encountered.
+                    switch (reader.ReadByte()) {
+                        case _TAB:
+                        case _NEW_LINE:
+                        case _BEGIN_CLASS:
+                            continue;
+                        case _END_CLASS:
+                            return;
+                    }
+                    stream.Position -= 1;
 
-                if (!skipPast) {
-                    reader.BaseStream.Position -= 1;
+                    // Find the index.
+                    SkipToNextSymbol(reader, _BEGIN_META);
+                    readIndex = uint.Parse(reader.ReadUntil(_END_META));
+
+                    // Grab name, and attempt to get the node based on it.
+                    reader.SkipWhiteSpace();
+                    string name = reader.ReadUntil(_BEGIN_VALUE);
+                    if(!nodesDictionary.TryGetValue(name, out Node node))
+                        goto Step2;
+
+                    // Parse the node.
+                    SkipToNextSymbol(reader, _BEGIN_VALUE);
+                    reader.SkipWhiteSpace();
+                    node.ReadText(obj, reader, ref task);
+                } catch (EndOfStreamException) {
+                    break;
+                } catch (Exception) { /* ignored */ }
+
+                // Step 2: Failed, try to parse via index.
+                Step2:
+                if(readIndex == null)
+                    goto Failed;
+
+                try {
+                    // Go to the original position, and skip to the value.
+                    stream.Position = startIndex;
+                    SkipToNextSymbol(reader, _BEGIN_META, false);
+                    SkipMeta(reader);
+                    SkipToNextSymbol(reader, _BEGIN_VALUE);
+                    reader.SkipWhiteSpace();
+
+                    // Finally, read the value.
+                    nodesArray[readIndex.Value].ReadText(obj, reader, ref task);
+                } catch (EndOfStreamException) {
+                    break;
+                } catch (Exception) { /* ignored */ }
+
+                // Failed. Go to next node.
+                Failed:
+                try {
+                    stream.Position = startIndex;
+                    if (!TextSkipToNextNode(reader, ref task))
+                        break;
+                } catch (Exception) {
+                    break;
                 }
-                return true;
             }
-            return false;
         }
 
-        internal static bool SkipToNextDelimiter(Utf8Reader reader)
+        internal bool BinarySkipToNextNode(Utf8Reader reader)
         {
-            Stream baseStream = reader.BaseStream;
-            while (baseStream.Position + 1 < baseStream.Length) {
-                byte b = reader.ReadByte();
-                if (b == _DELIMITER) {
-                    reader.BaseStream.Position -= 1;
-                    return true;
-                }
-                if (b == _BREAK_DELIMITER) {
-                    reader.BaseStream.Position -= 1;
+            Stream stream = reader.BaseStream;
+            while (true) {
+                if(stream.Position + 1 > stream.Length)
                     return false;
+
+                switch (reader.ReadByte()) {
+                    case _BEGIN_ARRAY:
+                        stream.Position -= 1;
+                        SkipArray(reader);
+                        break;
+                    case _BEGIN_CLASS:
+                        stream.Position -= 1;
+                        SkipClass(reader);
+                        break;
+                    case _STRING_IDENTIFIER:
+                        stream.Position -= 1;
+                        SkipQuotedString(reader);
+                        break;
+                    case _BEGIN_META:
+                        ushort index = reader.ReadUInt16();
+                        if (index > nodesArray.Length) {
+                            stream.Position -= 1 + sizeof(ushort);
+                            return true;
+                        } else {
+                            stream.Position -= 1 + sizeof(ushort);
+                            SkipMeta(reader);
+                        }
+                        break;
+                    default:
+                        continue;
+
                 }
             }
-            return false;
         }
 
-        internal static bool SkipToEndOfName(Utf8Reader reader)
+        internal bool TextSkipToNextNode(Utf8Reader reader, ref DeserializeTask task)
         {
-            Stream baseStream = reader.BaseStream;
-            while (baseStream.Position + 1 < baseStream.Length) {
-                byte b = reader.ReadByte();
-                if (b == _NAME_DELIMITER) {
-                    SkipDelimiter(reader);
-                    return true;
-                } 
-                if (b == _BREAK_DELIMITER) {
-                    SkipDelimiter(reader);
+            Stream stream = reader.BaseStream;
+            ConvertBehaviour convertType = task.Settings.ConvertBehaviour;
+
+            if (convertType == ConvertBehaviour.NameAndOrder || convertType == ConvertBehaviour.Order) {
+                // Meta tokens are before each node. Therefore, the reader needs to read until a begin meta token,
+                // and then check if the next byte is a UTF8 number character. If both conditions are true,
+                // the next node has been found.
+                while (true) {
+                    if (stream.Position + 1 > stream.Length)
+                        return false;
+
+                    switch (reader.ReadByte()) {
+                        case _BEGIN_ARRAY:
+                            stream.Position -= 1;
+                            SkipArray(reader);
+                            break;
+                        case _BEGIN_CLASS:
+                            stream.Position -= 1;
+                            SkipClass(reader);
+                            break;
+                        case _STRING_IDENTIFIER:
+                            stream.Position -= 1;
+                            SkipQuotedString(reader);
+                            break;
+                        case _BEGIN_META:
+                            byte numTest = reader.ReadByte();
+                            if (IsNumber(numTest)) {
+                                stream.Position -= 2;
+                                return true;
+                            } else {
+                                stream.Position -= 2;
+                                SkipMeta(reader);
+                            }
+                            break;
+                        default:
+                            continue;
+
+                    }
+                }
+
+            }
+
+            // There is NO meta token used to identify new nodes. Therefore, a begin value token must be found,
+            // and then the reader needs to seek backwards to the beginning of the node's name.
+            // The first begin token is ignored, as that would be the current node.
+            bool firstBeginValueTokenFound = false;
+            while (true) {
+                if (stream.Position + 1 > stream.Length)
                     return false;
+
+                switch (reader.ReadByte()) {
+                    case _BEGIN_ARRAY:
+                        stream.Position -= 1;
+                        SkipArray(reader);
+                        break;
+                    case _BEGIN_CLASS:
+                        stream.Position -= 1;
+                        SkipClass(reader);
+                        break;
+                    case _STRING_IDENTIFIER:
+                        stream.Position -= 1;
+                        SkipQuotedString(reader);
+                        break;
+                    case _BEGIN_META:
+                        stream.Position -= 1;
+                        SkipMeta(reader);
+                        break;
+                    case _BEGIN_VALUE:
+                        if (firstBeginValueTokenFound) {
+                            return SeekBackToStartOfNodeName(reader);
+                        } else {
+                            firstBeginValueTokenFound = true;
+                        }
+                        continue;
+                    default:
+                        continue;
+
                 }
             }
-            return false;
+        }
+
+        internal static bool SeekBackToStartOfNodeName(Utf8Reader reader)
+        {
+            Stream stream = reader.BaseStream;
+            while (true) {
+                if(stream.Position - 1 < 0)
+                    return false;
+
+                stream.Position -= 1;
+                byte b = reader.ReadByte();
+                stream.Position -= 1;
+                switch (b) {
+                    case _TAB:
+                    case _NEW_LINE:
+                        stream.Position += 1;
+                        return true;
+                    default:
+                        continue;
+                }
+            }
         }
 
         private static bool TryReadString(Utf8Reader reader, out string str)
@@ -558,11 +807,12 @@ namespace SE.Serialization.Converters
                     return;
 
                 // Name & index.
-                writer.Write(_DELIMITER);
+                writer.Write(_BEGIN_META);
                 writer.Write(Index);
+                writer.Write(_END_META);
                 if (writeName) {
                     writer.Write(Name);
-                    writer.Write(_NAME_DELIMITER);
+                    writer.Write(_BEGIN_VALUE);
                 }
 
                 // Write bool for null or default values.
@@ -577,7 +827,7 @@ namespace SE.Serialization.Converters
                 bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Type, settings);
                 string metaType = null;
                 if (shouldWriteType && valType != null) {
-                    metaType = SerializerUtil.GetQualifiedTypeName(valType, settings);
+                    metaType = GetQualifiedTypeName(valType, settings);
                 }
                 Serializer.WriteMetaBinary(writer, settings, metaType, null);
 
@@ -595,6 +845,10 @@ namespace SE.Serialization.Converters
                 Converter typeConverter = converter;
                 SerializerSettings settings = task.Settings;
                 bool serializeType = settings.TypeHandling != TypeHandling.Ignore && allowPolymorphism;
+                
+                byte[] nameToWrite = settings.ConvertBehaviour == ConvertBehaviour.Name 
+                    ? precompiledName 
+                    : precompiledNameWithIndex;
 
                 // Resolve true type converter (in case of polymorphism).
                 if (serializeType && val != null) {
@@ -611,19 +865,19 @@ namespace SE.Serialization.Converters
                     return false;
 
                 // If this is the first parameter, go to new line.
-                if (task.CurrentParameterIndex == 0) {
+                if (task.CurrentParameterIndex == 0 && task.CurrentDepth > 1) {
                     writer.Write(_NEW_LINE);
                 }
 
                 // Write name.
                 writer.WriteIndent(task.CurrentDepth);
-                writer.Write(precompiledNameWithIndex);
+                writer.Write(nameToWrite);
 
                 // Write meta-info.
                 bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Type, settings);
                 string metaType = null;
                 if (shouldWriteType && valType != null) {
-                    metaType = SerializerUtil.GetQualifiedTypeName(valType, settings);
+                    metaType = GetQualifiedTypeName(valType, settings);
                 }
                 Serializer.WriteMetaText(writer, settings, metaType, null);
 

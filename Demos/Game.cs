@@ -102,17 +102,6 @@ namespace SEDemos
                 GameObject camera = new InternalCamera(Vector2.Zero, 0f, Vector2.One);
             }
 
-            // Temporary serializer benchmark code.
-            JsonSerializerSettings options = new JsonSerializerSettings {
-                ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
-                PreserveReferencesHandling = PreserveReferencesHandling.None,
-                Formatting = Formatting.Indented,
-                TypeNameHandling = TypeNameHandling.None,
-                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
-                NullValueHandling = Newtonsoft.Json.NullValueHandling.Include,
-                DefaultValueHandling = DefaultValueHandling.Include
-            };
-
             System.Text.Json.JsonSerializerOptions textJsonOptions = new System.Text.Json.JsonSerializerOptions() {
                 WriteIndented = true
             };
@@ -120,51 +109,52 @@ namespace SEDemos
             //string test = FileIO.ReadFileString("testIni.ini");
             //IniData testDat = IniSerializer.Parse(test);
 
-            //int iterations = 50_000;
-            //int innerIterations = 3;
+            int iterations = 50_000;
+            int innerIterations = 3;
 
-            //for (int z = 0; z < innerIterations; z++)
-            //{
+            for (int z = 0; z < innerIterations; z++)
+            {
 
-            //    Stopwatch s = new Stopwatch();
-            //    s.Start();
+                Stopwatch s = new Stopwatch();
+                s.Start();
 
-            //    TestClass test = new TestClass(255)
-            //    {
-            //        baseVal = 43546,
-            //        pizza1 = 0,
-            //        //pizza4 = 69.420f,
-            //        pizza5 = 0,
-            //        //pizza3 = { [1] = 59.0f },
-            //        ObjTest = new TestClass2()
-            //    };
-            //    test.testClass1.test1.lol = 64;
+                TestClass test = new TestClass(255)
+                {
+                    baseVal = 43546,
+                    pizza1 = 0,
+                    //pizza4 = 69.420f,
+                    pizza5 = 0,
+                    //pizza3 = { [1] = 59.0f },
+                    //ObjTest = new TestClass2(),
+                    TestString = "NEW STR"
+                };
+                test.testClass1.test1.lol = 64;
 
-            //    //New serializer.
-            //    s.Start();
-            //    for (int i = 0; i < iterations; i++)
-            //    {
-            //        byte[] bytes = Serializer.Serialize(test);
-            //        test = Serializer.Deserialize<TestClass>(bytes);
-            //    }
-            //    s.Stop();
-            //    long s1 = s.ElapsedMilliseconds;
+                //New serializer.
+                s.Start();
+                for (int i = 0; i < iterations; i++)
+                {
+                    byte[] bytes = Serializer.Serialize(test);
+                    test = Serializer.Deserialize<TestClass>(bytes);
+                }
+                s.Stop();
+                long s1 = s.ElapsedMilliseconds;
 
-            //    // JSON serializer.
-            //    s = new Stopwatch();
-            //    s.Start();
-            //    for (int i = 0; i < iterations; i++)
-            //    {
-            //        string bytes = System.Text.Json.JsonSerializer.Serialize(test, textJsonOptions);
-            //        test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes, textJsonOptions);
-            //    }
-            //    s.Stop();
-            //    long s2 = s.ElapsedMilliseconds;
+                // JSON serializer.
+                s = new Stopwatch();
+                s.Start();
+                for (int i = 0; i < iterations; i++)
+                {
+                    string bytes = System.Text.Json.JsonSerializer.Serialize(test, textJsonOptions);
+                    test = System.Text.Json.JsonSerializer.Deserialize<TestClass>(bytes, textJsonOptions);
+                }
+                s.Stop();
+                long s2 = s.ElapsedMilliseconds;
 
-            //    string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
-            //    Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
-            //    Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
-            //}
+                string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
+                Console.WriteLine($"Serializer benchmark ({iterations} iterations, measured in ms):");
+                Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
+            }
 
             // Text serialization test.
             //int textIterations = 200_000;
@@ -211,7 +201,8 @@ namespace SEDemos
                 //pizza4 = 69.420f,
                 pizza5 = 0,
                 //pizza3 = { [1] = 59.0f },
-                ObjTest = new TestClass2()
+                ObjTest = new TestClass2(),
+                TestString = "NEW STR"
             };
             lel.testClass1.test1.lol = 64;
 
@@ -260,6 +251,7 @@ namespace SEDemos
         [SerializeObject(ObjectSerialization.Fields)]
         public class TestClass : TestClassBase
         {
+            public string TestString { get; set; } = "OLD STR!!!";
             public int pizza1 { get; set; } = 12;
             private int pizza2 { get; set; } = 2;
             //public float?[] pizza3 { get; set; } = { 1.0f, 2.05f, null };

@@ -1,4 +1,4 @@
-﻿namespace DeeZ.Editor.GUI
+﻿namespace SE.Editor.GUI
 {
     public abstract class GUIObject
     {

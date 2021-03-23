@@ -34,6 +34,15 @@ namespace SE.Serialization
             stream = input;
         }
 
+        /// <summary>
+        /// Move buffer back one byte.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void BackOne()
+        {
+            BaseStream.Position -= 1;
+        }
+
         private ReadOnlySpan<byte> ReadNumber()
         {
             position = 0;

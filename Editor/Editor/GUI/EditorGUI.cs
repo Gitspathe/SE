@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
-using DeeZ.Editor.GUI.ValueDrawers;
-using SE.Core;
-using DeeZ.Editor.GUI.Viewport;
 using ImGuiNET;
+using SE.Core;
+using SE.Editor.GUI.ValueDrawers;
+using SE.Editor.GUI.Viewport;
 using SE.Utility;
 
-namespace DeeZ.Editor.GUI
+namespace SE.Editor.GUI
 {
     public static class EditorGUI
     {
@@ -21,7 +19,7 @@ namespace DeeZ.Editor.GUI
             guiObjects.Clear();
             InitializeStyle();
 
-            View = new View(Rendering.FinalRender, new Vector2(1920 - 1477, 18),
+            View = new View(Core.Rendering.FinalRender, new Vector2(1920 - 1477, 18),
                 new Vector2(1920 / 1.3f, 1080 / 1.3f));
 
             Properties = new Properties.Properties();

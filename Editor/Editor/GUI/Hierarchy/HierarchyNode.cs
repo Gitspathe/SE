@@ -1,13 +1,10 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using DeeZ.Editor.GUI.Properties.Views;
-using ImGuiNET;
+﻿using ImGuiNET;
 using SE.Common;
 using SE.Core.Extensions;
-using SE.Engine.Utility;
+using SE.Editor.GUI.Properties.Views;
 using SE.Utility;
 
-namespace DeeZ.Editor.GUI.Hierarchy
+namespace SE.Editor.GUI.Hierarchy
 {
     public class HierarchyNode : GUIObject
     {

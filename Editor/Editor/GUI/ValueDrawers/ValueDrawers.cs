@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Xna.Framework;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
 using Vector4 = System.Numerics.Vector4;
 
-namespace DeeZ.Editor.GUI.ValueDrawers
+namespace SE.Editor.GUI.ValueDrawers
 {
     public interface IGUIValueDrawer
     {

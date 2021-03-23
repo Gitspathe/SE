@@ -1,9 +1,8 @@
 ﻿using System.Numerics;
-using SE;
 using SE.Common;
 using SE.Utility;
 
-namespace DeeZ.Editor.GUI.Hierarchy
+namespace SE.Editor.GUI.Hierarchy
 {
     public class Hierarchy : GUIObject
     {

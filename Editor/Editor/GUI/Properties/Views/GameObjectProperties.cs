@@ -2,10 +2,11 @@
 using ImGuiNET;
 using SE.Common;
 using SE.Core;
-using SE.Engine.Utility;
 using SE.Utility;
 
-namespace DeeZ.Editor.GUI.Properties.Views
+using FileIO = SE.Core.FileIO;
+
+namespace SE.Editor.GUI.Properties.Views
 {
     public class GameObjectProperties : PropertiesView<GameObject>
     {
@@ -48,9 +49,9 @@ namespace DeeZ.Editor.GUI.Properties.Views
 
             string goName = selectedGameObject.EngineName;
             bool enabled = selectedGameObject.Enabled;
-            GUI.Checkbox("##Enabled", ref enabled);
+            GUI.Checkbox("##goProp##Enabled", ref enabled);
             GUI.SameLine();
-            GUI.InputText("##EngineName", ref goName);
+            GUI.InputText("##goProp##EngineName", ref goName);
 
             if (ImGui.CollapsingHeader("Transform", TransformHeaderFlags)) {
                 GUI.PushID("Transform");
@@ -63,7 +64,7 @@ namespace DeeZ.Editor.GUI.Properties.Views
                 Component component = componentNodes.Array[i].Internal;
 
                 bool cEnabled = component.Enabled;
-                GUI.Checkbox("##Enabled" + i, ref cEnabled);
+                GUI.Checkbox("##goComp##Enabled" + i, ref cEnabled);
                 GUI.SameLine();
                 component.Enabled = cEnabled;
 

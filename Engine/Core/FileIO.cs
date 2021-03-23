@@ -8,7 +8,6 @@ using System.Text;
 
 namespace SE.Core
 {
-
     /// <summary>
     /// Handles serializing and file I/O.
     /// </summary>
@@ -141,6 +140,13 @@ namespace SE.Core
             }
         }
 
+        public static class SEFileExtensions
+        {
+            /// <summary>Extension for human-readable SE configuration files.</summary>
+            public const string _CONFIG = ".seconf"; // SpaghettiEngine CONFig.
+            /// <summary>Extension for mostly non-readable SE data files.</summary>
+            public const string _DATA = ".sedf";     // SpaghettiEngine Data Format.
+        }
     }
 
 }

@@ -434,7 +434,7 @@ namespace SE.Core
                 NetDataWriter writer = ReaderWriterPool.GetWriter();
                 packet.WriteTo(writer);
                 for (int i = 0; i < recipients.Count; i++) {
-                    recipients[i].Send(writer, channel, deliveryMethod);
+                    recipients[i].Send(writer.Data, 0, writer.Data.Length, channel, deliveryMethod);
                 }
                 ReaderWriterPool.ReturnWriter(writer);
             }
@@ -461,7 +461,7 @@ namespace SE.Core
                 NetDataWriter writer = ReaderWriterPool.GetWriter();
                 packet.WriteTo(writer);
                 for (int i = 0; i < recipients.Count; i++) {
-                    recipients[i].Send(writer, channel, deliveryMethod);
+                    recipients[i].Send(writer.Data, 0, writer.Data.Length, channel, deliveryMethod);
                 }
                 ReaderWriterPool.ReturnWriter(writer);
             }

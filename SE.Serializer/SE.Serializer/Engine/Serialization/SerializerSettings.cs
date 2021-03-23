@@ -15,9 +15,9 @@ namespace SE.Serialization
         /// <summary>How the serializer handles default values.</summary>
         public DefaultValueHandling DefaultValueHandling   = DefaultValueHandling.Serialize;
         /// <summary>How the serializer converts data. Determines performance and parsing error resilience.</summary>
-        public ConvertBehaviour ConvertBehaviour           = ConvertBehaviour.Order;
+        public ConvertBehaviour ConvertBehaviour           = ConvertBehaviour.Name;
         /// <summary>How the serializer handles types.</summary>
-        public TypeHandling TypeHandling                   = TypeHandling.Always;
+        public TypeHandling TypeHandling                   = TypeHandling.Auto;
         /// <summary>How verbose the serialized Type information is.</summary>
         public TypeNaming TypeNaming                       = TypeNaming.Minimal;
         /// <summary>How the serializer behaves when encountering a recursive loop of references.</summary>
@@ -53,6 +53,9 @@ namespace SE.Serialization
         /// <summary>Only declaration order is stored with the data. This options is very fast but has lower resilience to parsing errors.
         ///          It's recommended to use SerializeOrder attributes on variables with this setting.</summary>
         Order,
+
+        // TODO.
+        Name,
 
         /// <summary>Declaration order and name is stored with the data. Both are used during deserialization.
         ///          This option is the slowest, but has the highest resilience to parsing errors.</summary>

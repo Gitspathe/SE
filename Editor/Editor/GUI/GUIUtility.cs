@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using ImGuiNET;
 
-namespace DeeZ.Editor.GUI
+namespace SE.Editor.GUI
 {
     public static class GUIUtility
     {

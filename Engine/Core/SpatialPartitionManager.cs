@@ -19,15 +19,17 @@ namespace SE.Core
 
         public static void Update()
         {
-            foreach (Action a in ManagerUpdates) {
-                a.Invoke();
+            Action[] array = ManagerUpdates.Array;
+            for (int i = 0; i < ManagerUpdates.Count; i++) {
+                array[i].Invoke();
             }
         }
 
         public static void DebugDraw(Camera2D cam)
         {
-            foreach (Action<Camera2D> a in ManagerDraws) {
-                a.Invoke(cam);
+            Action<Camera2D>[] array = ManagerDraws.Array;
+            for (int i = 0; i < ManagerUpdates.Count; i++) {
+                array[i].Invoke(cam);
             }
         }
 
@@ -79,7 +81,7 @@ namespace SE.Core
             Rectangle aabb = obj.AABB;
             if (aabb.Width > TileSize || aabb.Height > TileSize) {
                 largeObjectTile.Insert(obj);
-                return;
+                return; // This wasn't here before, might cause a bug!
             }
 
             partition.Insert(obj);

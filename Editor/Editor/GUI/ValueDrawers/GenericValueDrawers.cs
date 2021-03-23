@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using ImGuiNET;
 using SE.Serialization;
 
-namespace DeeZ.Editor.GUI.ValueDrawers
+namespace SE.Editor.GUI.ValueDrawers
 {
     public interface IGenericGUIValueDrawer
     {

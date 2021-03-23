@@ -1,4 +1,4 @@
-﻿namespace DeeZ.Editor.GUI.Properties
+﻿namespace SE.Editor.GUI.Properties
 {
     public abstract class PropertiesView<T> : GUIObject, IPropertiesView
     {

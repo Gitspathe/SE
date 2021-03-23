@@ -1,7 +1,7 @@
 ﻿using ImGuiNET;
 using SE.Serialization;
 
-namespace DeeZ.Editor.GUI.Properties
+namespace SE.Editor.GUI.Properties
 {
     public class PropertiesValue : GUIObject
     {
@@ -24,7 +24,7 @@ namespace DeeZ.Editor.GUI.Properties
             GUI.SetNextItemWidth(width);
 
             // TODO: Add these to GUI.
-            ImGui.LabelText("##"+value.Name, value.Name);
+            ImGui.LabelText("##props##"+value.Name, value.Name);
             if (GUI.IsItemClicked(ImGuiMouseButton.Left)) {
                 ImGui.OpenPopup(GetPopupID, 0);
             }

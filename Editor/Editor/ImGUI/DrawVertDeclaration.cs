@@ -1,7 +1,7 @@
 ﻿using ImGuiNET;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace DeeZ.Editor.ImGUI
+namespace SE.Editor.ImGUI
 {
     public static class DrawVertDeclaration
     {

@@ -115,7 +115,7 @@ namespace SE.UI
             if (!active)
                 return;
 
-            List<Keys> pressedKeys = InputManager.PressedKeys;
+            QuickList<Keys> pressedKeys = InputManager.PressedKeys;
             foreach (Keys key in pressedKeys) {
                 if (key == Keys.Back && input.Length > 0) {
                     input = input.Remove(input.Length - 1, 1);

@@ -3,14 +3,16 @@ using System.Diagnostics;
 using System.Net.Mime;
 using System.Reflection;
 using System.Threading;
-using DeeZ.Editor.GUI;
-using DeeZ.Editor.ImGUI;
 using ImGuiNET;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.Components;
 using SE.Core;
+using SE.Editor;
+using SE.Editor.GUI;
+using SE.Editor.ImGUI;
+using SE.Serialization;
 using Console = SE.Core.Console;
 using Vector2 = System.Numerics.Vector2;
 
