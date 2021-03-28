@@ -35,6 +35,7 @@ namespace SE.Serialization.Converters
         private GeneratedConverter(Type type, ConverterResolver resolver)
         {
             // Throw error if this generated converter is for a type which isn't whitelisted.
+            // This is performed to mitigate possibly dangerous exploits (remote code execution).
             if (!Serializer.Whitelist.PolymorphicWhitelist.Contains(type))
                 throw new SerializerWhitelistException(Type);
 
@@ -42,7 +43,7 @@ namespace SE.Serialization.Converters
             isValueType = type.IsValueType;
             TypeAccessor accessor = TypeAccessor.Create(type, true);
 
-            // Try and create a default instance for the type.
+            // Try and create a default instance for the THIS generator's type.
             // Objects/RefTypes default to null. Structs/ValueTypes default to their default instance.
             try {
                 defaultTypeInstance = isValueType ? Activator.CreateInstance(Type) : null;
@@ -178,14 +179,17 @@ namespace SE.Serialization.Converters
 
         public override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task)
         {
-            bool writeClassDelimiters = task.CurrentDepth > 1;
+            ConvertBehaviour behaviour = task.Settings.ConvertBehaviour;
+            if (behaviour == ConvertBehaviour.Configuration)
+                throw new NotSupportedException("Binary serialization is not supported with the 'Configuration' convert behaviour.");
 
+            bool writeClassDelimiters = task.CurrentDepth > 1;
             if (writeClassDelimiters) {
                 writer.Write(_BEGIN_CLASS);
             }
 
             if (task.CurrentDepth < task.Settings.MaxDepth) {
-                bool writeName = task.Settings.ConvertBehaviour == ConvertBehaviour.NameAndOrder;
+                bool writeName = behaviour == ConvertBehaviour.NameAndOrder;
                 for (int i = 0; i < nodesArray.Length; i++) {
                     nodesArray[i].WriteBinary(obj, writer, writeName, ref task);
                 }
@@ -235,12 +239,11 @@ namespace SE.Serialization.Converters
                 case ConvertBehaviour.Order: {
                     DeserializeBinaryOrder(ref obj, reader, ref task);
                 } break;
-                case ConvertBehaviour.Name: {
-                    throw new NotSupportedException("Deserializing binary by name only is not supported.");
-                } break;
                 case ConvertBehaviour.NameAndOrder: {
                     DeserializeBinaryNameAndOrder(ref obj, reader, ref task);
                 } break;
+                case ConvertBehaviour.Configuration:
+                    throw new NotSupportedException("Binary deserialization is not supported with the 'Configuration' convert behaviour.");
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -359,7 +362,7 @@ namespace SE.Serialization.Converters
                 case ConvertBehaviour.Order: {
                     DeserializeTextOrder(ref obj, reader, ref task);
                 } break;
-                case ConvertBehaviour.Name: {
+                case ConvertBehaviour.Configuration: {
                     DeserializeTextName(ref obj, reader, ref task);
                 } break;
                 case ConvertBehaviour.NameAndOrder: {
@@ -437,6 +440,7 @@ namespace SE.Serialization.Converters
                     }
                     stream.Position -= 1;
 
+                    // Grab name, and attempt to get the node based on it. If no node is found, goto Failed.
                     reader.SkipWhiteSpace();
                     string name = reader.ReadUntil(_BEGIN_VALUE);
                     reader.SkipWhiteSpace();
@@ -489,7 +493,7 @@ namespace SE.Serialization.Converters
                     SkipToNextSymbol(reader, _BEGIN_META);
                     readIndex = uint.Parse(reader.ReadUntil(_END_META));
 
-                    // Grab name, and attempt to get the node based on it.
+                    // Grab name, and attempt to get the node based on it. If no node is found, goto Failed.
                     reader.SkipWhiteSpace();
                     string name = reader.ReadUntil(_BEGIN_VALUE);
                     if(!nodesDictionary.TryGetValue(name, out Node node))
@@ -541,6 +545,7 @@ namespace SE.Serialization.Converters
                 if(stream.Position + 1 > stream.Length)
                     return false;
 
+                // TODO: I probably need to fully break out of the GeneratedConverter loop if _END_CLASS is encountered.
                 switch (reader.ReadByte()) {
                     case _BEGIN_ARRAY:
                         stream.Position -= 1;
@@ -549,6 +554,9 @@ namespace SE.Serialization.Converters
                     case _BEGIN_CLASS:
                         stream.Position -= 1;
                         SkipClass(reader);
+                        break;
+                    case _END_CLASS:
+                        // TODO: Break out of this generatedconverter.
                         break;
                     case _STRING_IDENTIFIER:
                         stream.Position -= 1;
@@ -580,6 +588,7 @@ namespace SE.Serialization.Converters
                 // Meta tokens are before each node. Therefore, the reader needs to read until a begin meta token,
                 // and then check if the next byte is a UTF8 number character. If both conditions are true,
                 // the next node has been found.
+                // TODO: I probably need to fully break out of the GeneratedConverter loop if _END_CLASS is encountered.
                 while (true) {
                     if (stream.Position + 1 > stream.Length)
                         return false;
@@ -592,6 +601,9 @@ namespace SE.Serialization.Converters
                         case _BEGIN_CLASS:
                             stream.Position -= 1;
                             SkipClass(reader);
+                            break;
+                        case _END_CLASS:
+                            // TODO: Break out of this generatedconverter.
                             break;
                         case _STRING_IDENTIFIER:
                             stream.Position -= 1;
@@ -631,6 +643,9 @@ namespace SE.Serialization.Converters
                     case _BEGIN_CLASS:
                         stream.Position -= 1;
                         SkipClass(reader);
+                        break;
+                    case _END_CLASS:
+                        // TODO: Break out of this generatedconverter.
                         break;
                     case _STRING_IDENTIFIER:
                         stream.Position -= 1;
@@ -846,7 +861,7 @@ namespace SE.Serialization.Converters
                 SerializerSettings settings = task.Settings;
                 bool serializeType = settings.TypeHandling != TypeHandling.Ignore && allowPolymorphism;
                 
-                byte[] nameToWrite = settings.ConvertBehaviour == ConvertBehaviour.Name 
+                byte[] nameToWrite = settings.ConvertBehaviour == ConvertBehaviour.Configuration 
                     ? precompiledName 
                     : precompiledNameWithIndex;
 

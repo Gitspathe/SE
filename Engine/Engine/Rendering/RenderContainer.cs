@@ -8,7 +8,8 @@ namespace SE.Rendering
     public class RenderContainer
     {
         // Weird, but is faster than SortedDictionary. Might get more benefit from adding
-        // an additional QuickList which stores the indexes of ACTUAL RenderList elements.
+        // an additional QuickList which stores the indexes of ACTUAL RenderList elements. (??)
+        // Note: ^^^ WTF is this supposed to mean?
         public QuickList<RenderList> RenderLists = new QuickList<RenderList>();
         public QuickList<UnorderedRenderList> UnorderedRenderLists = new QuickList<UnorderedRenderList>();
         

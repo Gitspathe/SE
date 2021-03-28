@@ -13,6 +13,7 @@ using SE.Debug.Commands;
 using SE.Editor.Debug.Commands;
 using SE.Editor.Debug.Commands.LevelEdit;
 using SE.Rendering;
+using SE.Utility;
 
 //using SE.Engine.Physics;
 
@@ -244,52 +245,27 @@ namespace SE.Core
             outputWriter?.WriteLine(output);
         }
 
-        private static string GetExceptionInfo(Exception e)
-        {
-            if(PrintStackTrace) {
-                return e.ToString();
-            }
-            string msg = e.Message;
-            int recursion = 0;
-            while (e.InnerException != null && recursion <= 5) {
-                msg += "\n  -->" + e.InnerException.Message;
-                e = e.InnerException;
-                recursion++;
-            }
-            return msg;
-        }
-
         public static void WriteLine(object output, ConsoleColor? color = null)
         {
             WriteLine(output.ToString(), color);
         }
 
-        public static void LogError(Exception e, LogSource source = LogSource.Default)
+        public static void LogError(SEException e, LogSource source = LogSource.Default)
         {
-            if (UnhandledExceptions && source == LogSource.Network)
-                throw e;
+            if (UnhandledExceptions && source == LogSource.Network && e is SEException sysExcept)
+                throw sysExcept.Exception;
             if (LoggingLevel > LoggingLevel.Error)
                 return;
 
-            WriteLine(GetExceptionInfo(e), ConsoleColor.Red);
+            WriteLine(e.VerboseInfo, ConsoleColor.Red);
         }
 
-        public static void LogError(string output, LogSource source = LogSource.Default)
-        {
-            if (UnhandledExceptions && source == LogSource.Network)
-                throw new Exception(output);
-            if (LoggingLevel > LoggingLevel.Error)
-                return;
-
-            WriteLine(output, ConsoleColor.Red);
-        }
-
-        public static void LogWarning(Exception e, LogSource source = LogSource.Default)
+        public static void LogWarning(SEException e, LogSource source = LogSource.Default)
         {
             if (LoggingLevel > LoggingLevel.Warning)
                 return;
 
-            WriteLine(GetExceptionInfo(e), ConsoleColor.Yellow);
+            WriteLine(e.VerboseInfo, ConsoleColor.Yellow);
         }
 
         public static void LogWarning(string output, LogSource source = LogSource.Default)

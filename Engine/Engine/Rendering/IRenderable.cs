@@ -13,6 +13,13 @@ namespace SE.Rendering
         RenderableData Data { get; }
     }
 
+    // TODO: IRenderableGroup, to provide more flexibility and overcome virtual overhead.
+    public interface IRenderableGroup
+    {
+        void Render(Camera2D camera, Space space);
+        Material Material { get; }
+    }
+
     /// <summary>
     /// Renderable which can be within a spatial partition.
     /// </summary>

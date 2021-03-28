@@ -4,29 +4,42 @@ using ImGuiNET;
 using SE.Core;
 using SE.Editor.GUI.ValueDrawers;
 using SE.Editor.GUI.Viewport;
+using SE.Editor.GUI.Windows.Hierarchy;
+using SE.Editor.GUI.Windows.Properties;
 using SE.Utility;
 
 namespace SE.Editor.GUI
 {
     public static class EditorGUI
     {
-        public static View View { get; private set; }
-        public static Properties.Properties Properties { get; private set; }
         public static QuickList<GUIObject> guiObjects { get; } = new QuickList<GUIObject>();
+
+        public static bool ShowMainMenuBar = true;
+
+        public static QuickList<T> GetGUIObjects<T>() where T : GUIObject
+        {
+            QuickList<T> list = new QuickList<T>();
+            GUIObject[] arr = guiObjects.Array;
+            for (int i = 0; i < guiObjects.Count; i++) {
+                GUIObject obj = arr[i];
+                if(obj.GetType() == typeof(T) || obj.GetType().IsSubclassOf(typeof(T))) {
+                    list.Add((T)obj);
+                }
+            }
+            return list;
+        }
 
         public static void Initialize()
         {
             guiObjects.Clear();
             InitializeStyle();
 
-            View = new View(Core.Rendering.FinalRender, new Vector2(1920 - 1477, 18),
+            View gameView = new View(Core.Rendering.FinalRender, new Vector2(1920 - 1477, 18),
                 new Vector2(1920 / 1.3f, 1080 / 1.3f));
 
-            Properties = new Properties.Properties();
-
-            guiObjects.Add(new Hierarchy.Hierarchy());
-            guiObjects.Add(View);
-            guiObjects.Add(Properties);
+            guiObjects.Add(new HierarchyWindow());
+            guiObjects.Add(gameView);
+            guiObjects.Add(new PropertiesWindow());
 
             {
                 // Add GUI value drawers to the GUI helper.
@@ -51,17 +64,26 @@ namespace SE.Editor.GUI
                     EditorGUIHelper.GenericGUITable.Add(drawer.ValueType, drawer);
                 }
             }
+
+            EditorLayoutManager.SwapToLayout(new IntroLayout());
         }
 
         public static void Paint()
         {
-            GUI.BeginMainMenuBar();
-            GUI.MenuItem("File");
+            if (ShowMainMenuBar) {
+                GUI.BeginMainMenuBar();
+                GUI.MenuItem("File");
+            }
+
             for (int i = 0; i < guiObjects.Count; i++) {
                 guiObjects.Array[i].OnPaint();
             }
-            GUI.EndMainMenuBar();
-            ImGui.ShowDemoWindow();
+
+            if (ShowMainMenuBar) {
+                GUI.EndMainMenuBar();
+            }
+
+            //ImGui.ShowDemoWindow();
         }
 
         public static void InitializeStyle()

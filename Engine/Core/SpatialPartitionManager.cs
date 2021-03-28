@@ -42,7 +42,7 @@ namespace SE.Core
 
     public static class SpatialPartitionManager<T> where T : IPartitionObject<T>
     {
-        private static SpatialPartition<T> partition;
+        private static Dictionary<uint, SpatialPartition<T>> partition;
         private static PartitionTile<T> largeObjectTile;
         private static float pruneTime = 5.0f;
         private static float pruneTimer = pruneTime;
@@ -56,7 +56,8 @@ namespace SE.Core
         static SpatialPartitionManager()
         {
             largeObjectTile = new PartitionTile<T>();
-            partition = new SpatialPartition<T>(TileSize);
+            partition = new Dictionary<uint, SpatialPartition<T>>();
+            partition.Add(0, new SpatialPartition<T>(TileSize));
 
             SpatialPartitionManager.ManagerUpdates.Add(Update);
             SpatialPartitionManager.ManagerDraws.Add(DrawBoundingRectangle);
@@ -65,10 +66,13 @@ namespace SE.Core
         internal static void Update()
         {
             pruneTimer -= Time.UnscaledDeltaTime;
-            if (pruneTimer <= 0.0f) {
-                partition.Prune();
-                pruneTimer = pruneTime;
+            if (!(pruneTimer <= 0.0f)) 
+                return;
+
+            foreach (SpatialPartition<T> p in partition.Values) {
+                p.Prune();
             }
+            pruneTimer = pruneTime;
         }
 
         internal static void Insert(T obj)
@@ -84,7 +88,12 @@ namespace SE.Core
                 return; // This wasn't here before, might cause a bug!
             }
 
-            partition.Insert(obj);
+            // Try and get the partition for the object's layer. If one isn't found, create a new one.
+            if (!partition.TryGetValue(obj.PartitionLayer, out SpatialPartition<T> p)) {
+                p = new SpatialPartition<T>(TileSize);
+                partition.Add(obj.PartitionLayer, p);
+            }
+            p.Insert(obj);
         }
 
         internal static void Remove(T obj)
@@ -93,16 +102,28 @@ namespace SE.Core
             largeObjectTile.Remove(obj);
         }
 
-        public static void GetFromRegion(QuickList<T> existingList, Rectangle regionBounds)
+        public static void GetFromRegion(QuickList<T> existingList, Rectangle regionBounds, uint layer = 0)
         {
-            partition.GetFromRegion(existingList, regionBounds);
+            if (!partition.TryGetValue(layer, out SpatialPartition<T> p))
+                throw new NullReferenceException();
+
+            p.GetFromRegion(existingList, regionBounds);
             largeObjectTile.Get(existingList);
         }
 
-        internal static PartitionTile<T> GetTile(Vector2 position) 
-            => partition.GetTile(position);
+        internal static PartitionTile<T> GetTile(Vector2 position, uint layer = 0)
+        {
+            if (!partition.TryGetValue(layer, out SpatialPartition<T> p))
+                throw new NullReferenceException();
 
-        internal static void DrawBoundingRectangle(Camera2D camera) 
-            => partition.DrawBoundingRectangle(camera);
+            return p.GetTile(position);
+        }
+
+        internal static void DrawBoundingRectangle(Camera2D camera)
+        {
+            foreach (SpatialPartition<T> p in partition.Values) {
+                p.DrawBoundingRectangle(camera);
+            }
+        }
     }
 }

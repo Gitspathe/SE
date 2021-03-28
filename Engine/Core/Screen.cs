@@ -11,8 +11,12 @@ namespace SE.Core
     /// </summary>
     public static class Screen
     {
-        internal const int _BASE_RES_X = 1920;
-        internal const int _BASE_RES_Y = 1080;
+        //internal const int _BASE_RES_X = 1920;
+        //internal const int _BASE_RES_Y = 1080;
+
+        public static int SizeX { get; private set; } = 1920;
+        public static int SizeY { get; private set; } = 1080;
+
         internal static Matrix ScreenScaleMatrix;
         internal static float SizeRatio = 1.0f;
 
@@ -42,6 +46,16 @@ namespace SE.Core
         // TODO: Tidy this up. Maybe have stuff like Capabilities.HasGPU, etc. Then I can have headless with GPU but no window.
         public static bool IsFullHeadless => DisplayMode == DisplayMode.Decapitated;
 
+        public static void SetScreenSize(int sizeX, int sizeY)
+        {
+            if (SizeX < 1 || SizeY < 1)
+                throw new InvalidOperationException();
+
+            SizeX = sizeX;
+            SizeY = sizeY;
+            Reset();
+        }
+
         internal static void CalculateScreenScale()
         {
             ScreenScaleMatrix = Matrix.CreateScale(new MGVector2(SizeRatio, SizeRatio, 1));
@@ -53,7 +67,7 @@ namespace SE.Core
 
             // Calculate the mouse point.
             if (GameEngine.IsEditor) {
-                Vector2 scale = new Vector2((float) EditorViewBounds.Width / _BASE_RES_X, (float) EditorViewBounds.Height / _BASE_RES_Y);
+                Vector2 scale = new Vector2((float) EditorViewBounds.Width / SizeX, (float) EditorViewBounds.Height / SizeY);
                 Vector2 mousePos = new Vector2(
                     (mouseState.X / SizeRatio - EditorViewBounds.X) / scale.X,
                     (mouseState.Y / SizeRatio - EditorViewBounds.Y) / scale.Y);
@@ -66,7 +80,7 @@ namespace SE.Core
             }
 
             // Determine whether or not the mouse point is contained within the game window.
-            if (screenMousePoint.X < 0 || screenMousePoint.X > _BASE_RES_X || screenMousePoint.Y < 0 || screenMousePoint.Y > _BASE_RES_Y)
+            if (screenMousePoint.X < 0 || screenMousePoint.X > SizeX || screenMousePoint.Y < 0 || screenMousePoint.Y > SizeY)
                 MouseInWindow = false;
             else
                 MouseInWindow = true;
@@ -87,8 +101,8 @@ namespace SE.Core
             // TODO: Proper supports for switching between windowed, borderless fullscreen, and fullscreen.
             graphics = Rendering.GraphicsDeviceManager;
             graphics.IsFullScreen = true;
-            graphics.PreferredBackBufferWidth = (int)(_BASE_RES_X * SizeRatio);
-            graphics.PreferredBackBufferHeight = (int)(_BASE_RES_Y * SizeRatio);
+            graphics.PreferredBackBufferWidth = (int)(SizeX * SizeRatio);
+            graphics.PreferredBackBufferHeight = (int)(SizeY * SizeRatio);
             graphics.ApplyChanges();
             graphics.IsFullScreen = false;
             graphics.ApplyChanges();

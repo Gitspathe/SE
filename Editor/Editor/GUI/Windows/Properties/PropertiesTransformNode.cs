@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using SE.Common;
 using Vector2 = System.Numerics.Vector2;
 
-namespace SE.Editor.GUI.Properties
+namespace SE.Editor.GUI.Windows.Properties
 {
     public class PropertiesTransformNode : PropertiesNode<Transform>
     {

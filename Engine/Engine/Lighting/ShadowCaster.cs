@@ -27,6 +27,7 @@ namespace SE.Lighting
 
         public Rectangle AABB => Bounds;
         public PartitionTile<ShadowCaster> CurrentPartitionTile { get; set; }
+        public uint PartitionLayer => 0;
 
         public void Enable()
             => Enabled = true;

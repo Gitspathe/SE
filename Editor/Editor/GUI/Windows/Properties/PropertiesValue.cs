@@ -1,7 +1,7 @@
 ﻿using ImGuiNET;
 using SE.Serialization;
 
-namespace SE.Editor.GUI.Properties
+namespace SE.Editor.GUI.Windows.Properties
 {
     public class PropertiesValue : GUIObject
     {

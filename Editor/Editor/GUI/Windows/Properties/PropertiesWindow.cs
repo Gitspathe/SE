@@ -1,6 +1,6 @@
-﻿namespace SE.Editor.GUI.Properties
+﻿namespace SE.Editor.GUI.Windows.Properties
 {
-    public class Properties : GUIObject
+    public class PropertiesWindow : GUIObject
     {
         public IPropertiesView View;
 

@@ -1,10 +1,3 @@
-//Ah almost forgot you'll need the shader too.
-
-//_________________________________________________________________
-//_______________________ InstancingShader ___________________________
-//_________________________________________________________________
-
-
 // the shader model well use for dx or gl
 #if OPENGL
 #define SV_POSITION POSITION
@@ -49,8 +42,6 @@ sampler2D TexSampler = sampler_state
 };
 
 
-
-
 //______________________________________
 // the shader structs well be defining.
 // these match the vertex definitions in game1.
@@ -62,7 +53,7 @@ struct VSInstanceInputSimple
     float3 InstancePosition : POSITION1; // the number used must match the vertex declaration.
     float4 InstanceColor : COLOR1;
     float2 TexCoordOffset : TEXCOORD1;
-    float2 InstanceScale : POSITION2;
+	float2 InstanceScale : POSITION2;
     float InstanceRotation : POSITION3;
 };
 
@@ -116,7 +107,7 @@ VSOutputSimple VertexShader01(in VSVertexInputSimple vertexInput, VSInstanceInpu
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f
     };
-
+	
     // Apply rotation.
     float4x4 rotated = mul(rotationAroundZ, World);
 

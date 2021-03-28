@@ -2,9 +2,9 @@
 using SE.Common;
 using SE.Utility;
 
-namespace SE.Editor.GUI.Hierarchy
+namespace SE.Editor.GUI.Windows.Hierarchy
 {
-    public class Hierarchy : GUIObject
+    public class HierarchyWindow : GUIObject
     {
         internal int currentNodeIndex;
         internal int selectedNode = -1;

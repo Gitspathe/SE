@@ -88,8 +88,8 @@ namespace SE.Components
         private void CalculateBounds()
         {
             ViewBounds = new Rectangle((int)Position.X, (int)Position.Y,
-                Convert.ToInt32(Screen._BASE_RES_X / renderRegion.Width),
-                Convert.ToInt32(Screen._BASE_RES_Y / renderRegion.Height));
+                Convert.ToInt32(Screen.SizeX / renderRegion.Width),
+                Convert.ToInt32(Screen.SizeY / renderRegion.Height));
         }
 
         private void CalculateScaleMatrix()
@@ -129,8 +129,8 @@ namespace SE.Components
         {
             if (screenPoint.HasValue) {
                 Vector2 worldPoint = new Vector2(
-                    (screenPoint.Value.X - (renderRegion.X * Screen._BASE_RES_X)) / zoom / renderRegion.Width,
-                    (screenPoint.Value.Y - (renderRegion.Y * Screen._BASE_RES_Y)) / zoom / renderRegion.Height);
+                    (screenPoint.Value.X - (renderRegion.X * Screen.SizeX)) / zoom / renderRegion.Width,
+                    (screenPoint.Value.Y - (renderRegion.Y * Screen.SizeY)) / zoom / renderRegion.Height);
 
                 // Apply world offset.
                 worldPoint += new Vector2(ViewBounds.X, ViewBounds.Y);
@@ -144,8 +144,8 @@ namespace SE.Components
         {
             if (worldPoint.HasValue) {
                 Vector2 screenPoint = new Vector2(
-                    (worldPoint.Value.X + (renderRegion.X * Screen._BASE_RES_X)) / zoom / renderRegion.Width,
-                    (worldPoint.Value.Y + (renderRegion.Y * Screen._BASE_RES_Y)) / zoom / renderRegion.Height);
+                    (worldPoint.Value.X + (renderRegion.X * Screen.SizeX)) / zoom / renderRegion.Width,
+                    (worldPoint.Value.Y + (renderRegion.Y * Screen.SizeY)) / zoom / renderRegion.Height);
 
                 // Translate to camera pos.
                 screenPoint -= new Vector2(ViewBounds.X, ViewBounds.Y);

@@ -3,7 +3,7 @@ using SE.Common;
 using SE.Serialization;
 using SE.Utility;
 
-namespace SE.Editor.GUI.Properties
+namespace SE.Editor.GUI.Windows.Properties
 {
     public class PropertiesComponentNode : PropertiesNode<Component>
     {

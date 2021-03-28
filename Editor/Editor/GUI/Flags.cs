@@ -343,4 +343,43 @@ namespace SE.Editor.GUI
         Modal = 1 << 27,
         ChildMenu = 1 << 28,
     }
+
+    [Flags]
+    public enum GUIPopupFlags
+    {
+        None = 0,
+        MouseButtonLeft = 0,
+        MouseButtonRight = 1,
+        MouseButtonMiddle = 2,
+        MouseButtonMask = 31, // 0x0000001F
+        MouseButtonDefault = MouseButtonRight, // 0x00000001
+        NoOpenOverExistingPopup = 32, // 0x00000020
+        NoOpenOverItems = 64, // 0x00000040
+        AnyPopupId = 128, // 0x00000080
+        AnyPopupLevel = 256, // 0x00000100
+        AnyPopup = AnyPopupLevel | AnyPopupId, // 0x00000180
+    }
+
+    [Flags]
+    public enum GUIDockNodeFlags
+    {
+        None = 0,
+        KeepAliveOnly = 1,
+        NoDockingInCentralNode = 4,
+        PassthruCentralNode = 8,
+        NoSplit = 16, // 0x00000010
+        NoResize = 32, // 0x00000020
+        AutoHideTabBar = 64, // 0x00000040
+    }
+
+    [Flags]
+    public enum GUISliderFlags
+    {
+        None = 0,
+        ClampOnInput = 16, // 0x00000010
+        Logarithmic = 32, // 0x00000020
+        NoRoundToFormat = 64, // 0x00000040
+        NoInput = 128, // 0x00000080
+        InvalidMask = 1879048207, // 0x7000000F
+    }
 }

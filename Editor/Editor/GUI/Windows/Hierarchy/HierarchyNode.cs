@@ -1,14 +1,15 @@
 ﻿using ImGuiNET;
 using SE.Common;
 using SE.Core.Extensions;
-using SE.Editor.GUI.Properties.Views;
+using SE.Editor.GUI.Windows.Properties.Views;
+using SE.Editor.GUI.Windows.Properties;
 using SE.Utility;
 
-namespace SE.Editor.GUI.Hierarchy
+namespace SE.Editor.GUI.Windows.Hierarchy
 {
     public class HierarchyNode : GUIObject
     {
-        public Hierarchy Hierarchy;
+        public HierarchyWindow Hierarchy;
         public GameObject GameObject;
         public int NodeIndex;
         private QuickList<HierarchyNode> children = new QuickList<HierarchyNode>();
@@ -21,8 +22,9 @@ namespace SE.Editor.GUI.Hierarchy
                 if(value == isSelected)
                     return;
 
-                EditorGUI.Properties.View = value ? new GameObjectProperties(GameObject) : null;
-                isSelected = value;
+                foreach (PropertiesWindow propWindow in EditorGUI.GetGUIObjects<PropertiesWindow>()) {
+                    propWindow.View = value ? new GameObjectProperties(GameObject) : null;
+                }
             }
         }
         private bool isSelected;
@@ -116,7 +118,7 @@ namespace SE.Editor.GUI.Hierarchy
             }
         }
 
-        public HierarchyNode(Hierarchy hierarchy, GameObject go)
+        public HierarchyNode(HierarchyWindow hierarchy, GameObject go)
         {
             Hierarchy = hierarchy;
             GameObject = go;

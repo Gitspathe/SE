@@ -21,6 +21,21 @@ namespace SE.Core
 
         private static List<string> folders = new List<string>();
 
+        static FileIO()
+        {
+            //folders.Add("Levels");
+            BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            DataDirectory = Path.Combine(BaseDirectory, "Data" + Path.DirectorySeparatorChar);
+            if (!Directory.Exists(DataDirectory)) {
+                Directory.CreateDirectory(DataDirectory);
+            }
+            foreach (string folder in folders) {
+                if (!Directory.Exists(Path.Combine(DataDirectory, folder))) {
+                    Directory.CreateDirectory(Path.Combine(DataDirectory, folder));
+                }
+            }
+        }
+
         public static IEnumerable<string> GetAllFiles(string path, string[] extensions = null, string[] excludedExtensions = null)
         {
             QuickList<string> files = new QuickList<string>();
@@ -123,21 +138,6 @@ namespace SE.Core
         {
             string finalPath = Path.Combine(DataDirectory, path);
             return File.Exists(finalPath);
-        }
-
-        static FileIO()
-        {
-            //folders.Add("Levels");
-            BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            DataDirectory = Path.Combine(BaseDirectory, "Data" + Path.DirectorySeparatorChar);
-            if(!Directory.Exists(DataDirectory)) {
-                Directory.CreateDirectory(DataDirectory);
-            }
-            foreach(string folder in folders) {
-                if(!Directory.Exists(Path.Combine(DataDirectory, folder))) {
-                    Directory.CreateDirectory(Path.Combine(DataDirectory, folder));
-                }
-            }
         }
 
         public static class SEFileExtensions

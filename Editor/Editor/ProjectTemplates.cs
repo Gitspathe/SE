@@ -10,15 +10,19 @@ namespace SE.Editor
     {
         private static QuickList<ProjectTemplate> projectTemplates;
 
-        public static string ProjectTemplatesDirectory { get; private set; }
+        /// <summary>Directory in which the templates are stored.</summary>
+        public static string ProjectTemplatesDirectory { get;} = Path.Combine(EditorApp.BaseDirectory, "ProjectTemplates");
+        
+        /// <summary>Directory which contains SE binaries to be included in builds.</summary>
+        public static string BuildLibrariesDirectory { get; } = Path.Combine(EditorApp.BaseDirectory, "BuildLibraries");
+
+        public static ProjectTemplate Default { get; } = new ProjectTemplate(Path.Combine(ProjectTemplatesDirectory, "Default"));
 
         /// <summary>
         /// Initializes all the templates located in the ProjectTemplates folder.
         /// </summary>
         internal static void InitializeTemplates()
         {
-            ProjectTemplatesDirectory = Path.Combine(ProjectTemplatesDirectory, "ProjectTemplates");
-
             projectTemplates = new QuickList<ProjectTemplate>();
             foreach (string dirString in Directory.GetDirectories(ProjectTemplatesDirectory)) {
                 try {

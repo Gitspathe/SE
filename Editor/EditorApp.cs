@@ -32,6 +32,9 @@ namespace SE
         public GraphicsDeviceManager EditorGraphicsDeviceManager { get; set; }
         public GraphicsDevice EditorGraphicsDevice { get; set; }
 
+        public static string BaseDirectory { get; } = AppDomain.CurrentDomain.BaseDirectory;
+        public static string EnvironmentDirectory { get; } = Environment.CurrentDirectory;
+
         protected override void OnInitialize()
         {
             base.OnInitialize();
@@ -46,6 +49,21 @@ namespace SE
             //ImGuiRenderer = new ImGuiRenderer(game);
             //ImGuiRenderer.RebuildFontAtlas();
             //EditorGUI.Initialize();
+
+            SerializerSettings configSerializationSettings = new SerializerSettings
+            {
+                Formatting = Formatting.Text,
+                NullValueHandling = NullValueHandling.DefaultValue,
+                DefaultValueHandling = DefaultValueHandling.Serialize,
+                ConvertBehaviour = ConvertBehaviour.Configuration,
+                TypeHandling = TypeHandling.Ignore,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                MaxDepth = 10,
+                UseHeader = false
+            };
+
+            // Testing false project config values (corrupted names).
+            //ProjectConfig lolz = Serializer.Deserialize<ProjectConfig>(FileIO.ReadFileBytes("ProjectConfig.seconf"), configSerializationSettings);
         }
 
         public void OnUpdate(GraphicsDevice gfxDevice, GameTime gameTime)

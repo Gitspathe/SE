@@ -1,12 +1,10 @@
 ﻿using System.Numerics;
 using ImGuiNET;
 using SE.Common;
-using SE.Core;
 using SE.Utility;
-
 using FileIO = SE.Core.FileIO;
 
-namespace SE.Editor.GUI.Properties.Views
+namespace SE.Editor.GUI.Windows.Properties.Views
 {
     public class GameObjectProperties : PropertiesView<GameObject>
     {

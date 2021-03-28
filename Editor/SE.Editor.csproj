@@ -45,12 +45,16 @@
     <PackageReference Include="System.Text.Json" Version="5.0.0-preview.7.20364.11" />
   </ItemGroup>
 
-  <!-- Copy ProjectTemplates folder to the output. -->
+  <!-- Copy ProjectTemplates and BuildLibraries folders to the output. -->
   <ItemGroup>
     <Content Include="ProjectTemplates\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="BuildLibraries\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\Engine\SE.csproj" />
   </ItemGroup>
@@ -61,9 +65,6 @@
     </Reference>
     <Reference Include="FastMember">
       <HintPath>..\_DEPENDENCIES\fast-member\FastMember\bin\$(Configuration)\netstandard2.1\FastMember.dll</HintPath>
-    </Reference>
-    <Reference Include="SE.Input">
-      <HintPath>..\SE.Input\bin\Debug\netstandard2.0\SE.Input.dll</HintPath>
     </Reference>
     <Reference Include="SE.Particles.MonoGame">
       <HintPath>..\SE.Particles\bin\$(Configuration)\netstandard2.1\SE.Particles.MonoGame.dll</HintPath>
@@ -135,6 +136,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="ProjectTemplates">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SE.Native.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="x64\cimgui.dll">

@@ -58,14 +58,6 @@ namespace SE.Components
             Emitter.AddModule(AlphaModule.Curve(alphaCurve));
             Emitter.AddModule(SpriteRotationModule.RandomConstant(2.0f, 10.0f));
             Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
-
-            // Native test.
-            // TODO: Reenable and test!
-            //NativeModule nativeMod = new NativeModule();
-            //Emitter.AddModule(nativeMod);
-            //Emitter.RemoveModules(s, baseColorModule);
-
-            //Emitter.Enabled = true;
         }
 
         protected override void OnEnable()

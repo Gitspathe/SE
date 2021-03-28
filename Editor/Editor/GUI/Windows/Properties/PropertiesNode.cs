@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SE.Editor.GUI.Properties
+namespace SE.Editor.GUI.Windows.Properties
 {
     public abstract class PropertiesNode<T> : GUIObject
     {

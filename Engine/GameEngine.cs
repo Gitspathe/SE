@@ -155,13 +155,13 @@ namespace SE
                     if (!string.IsNullOrEmpty(msg))
                         Console.LogWarning(msg, LogSource.Network);
                     else
-                        Console.LogWarning(exception, LogSource.Network);
+                        Console.LogWarning(new SEException(exception), LogSource.Network);
                 };
                 Network.OnLogError += (msg, exception) => {
                     if (!string.IsNullOrEmpty(msg))
-                        Console.LogError(msg, LogSource.Network);
+                        Console.LogError(new SEException(msg), LogSource.Network);
                     else
-                        Console.LogError(exception, LogSource.Network);
+                        Console.LogError(new SEException(exception), LogSource.Network);
                 };
 
                 SetCurrentScene("_MAIN\\empty");

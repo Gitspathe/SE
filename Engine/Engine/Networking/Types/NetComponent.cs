@@ -2,6 +2,7 @@
 using SE.Components.Network;
 using SE.Core;
 using SE.Engine.Networking;
+using SE.Utility;
 
 namespace SE.Networking.Types
 {
@@ -19,7 +20,7 @@ namespace SE.Networking.Types
         {
             NetworkIdentity netID = Owner.Transform.Root.GameObject.NetIdentity;
             if (!(this is NetworkIdentity) && netID == null) {
-                Console.LogError(new System.Exception("Attempted to setup a NetComponent on a GameObject which does not have a NetIdentity."));
+                Console.LogError(new SEException("Attempted to setup a NetComponent on a GameObject which does not have a NetIdentity."));
                 return;
             }
 

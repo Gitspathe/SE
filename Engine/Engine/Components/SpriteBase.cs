@@ -24,6 +24,7 @@ namespace SE.Components
 
         public Rectangle AABB => bounds;
         public PartitionTile<IPartitionedRenderable> CurrentPartitionTile { get; set; }
+        public uint PartitionLayer => 0;
 
         public override int Queue => 100;
 
