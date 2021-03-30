@@ -47,8 +47,6 @@ namespace SE.Components
             }
         }
 
-        public bool IgnoreLight { get; set; }
-
         public ShadowCaster Shadow { get; set; }
 
         public override void RecalculateBounds()

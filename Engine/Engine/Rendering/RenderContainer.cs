@@ -39,33 +39,9 @@ namespace SE.Rendering
         {
             Material material = info.Material;
 
-            // Determine if the sprite ignores light or not.
-            bool ignoreLight = true;
-            if (info.Lit != null) {
-                ignoreLight = info.Lit.IgnoreLight;
-            }
-
             // Index of the specific RenderList the sprite should be added to.
-            int renderIndex = (int) (ignoreLight ? RenderLoop.LoopEnum.AfterLighting : RenderLoop.LoopEnum.DuringLighting);
-            bool requiresUnordered = false;
-
-            // Determine if the sprite is transparent.
-            BlendMode blendMode = material.BlendMode;
-            switch (blendMode) {
-                case BlendMode.Opaque:
-                    renderIndex += 100;
-                    break;
-                case BlendMode.Transparent:
-                    renderIndex += 1000;
-                    requiresUnordered = true;
-                    break;
-                case BlendMode.Additive:
-                    renderIndex += 2000;
-                    requiresUnordered = true;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            int renderIndex = (int) material.RenderQueue;
+            bool requiresUnordered = material.RequiresUnordered;
 
             // Add the sprite to the correct RenderList.
             if (requiresUnordered) {

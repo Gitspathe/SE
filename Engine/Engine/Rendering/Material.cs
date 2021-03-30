@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -44,19 +45,113 @@ namespace SE.Rendering
         private Effect effect;
         private bool isSharedEffect = true;
 
-        public BlendMode BlendMode;
+        public uint RenderQueue {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => renderQueue;
+
+            set {
+                if (value == renderQueue)
+                    return;
+                if (!useCustomRenderQueue)
+                    return;
+
+                renderQueue = value;
+                RegenerateDrawCall();
+            }
+        }
+        private uint renderQueue;
+
+        public BlendMode BlendMode {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => blendMode;
+
+            set {
+                if (value == blendMode)
+                    return;
+
+                blendMode = value;
+                if (!useCustomRenderQueue)
+                {
+                    CalculateRenderQueue();
+                }
+            }
+        }
+        private BlendMode blendMode = BlendMode.Opaque;
+
+        public bool IgnoreLighting
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => ignoreLighting;
+
+            set {
+                if (value == ignoreLighting)
+                    return;
+
+                ignoreLighting = value;
+                if (!useCustomRenderQueue) {
+                    CalculateRenderQueue();
+                }
+            }
+        }
+        private bool ignoreLighting;
+
+        public bool UseCustomRenderQueue
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => useCustomRenderQueue;
+
+            set {
+                if (value == useCustomRenderQueue)
+                    return;
+
+                useCustomRenderQueue = value;
+                if (!useCustomRenderQueue) {
+                    CalculateRenderQueue();
+                }
+            }
+        }
+        private bool useCustomRenderQueue;
+
+        public bool RequiresUnordered
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => BlendMode == BlendMode.Transparent || BlendMode == BlendMode.Additive;
+        }
 
         internal int DrawCallID;
 
         public Material()
         {
             // TODO: Empty/invalid material. Need a freaky looking texture to scare developers.
+            CalculateRenderQueue();
         }
 
         public Material(Texture2D texture, Effect effect = null)
         {
             this.texture = texture;
             this.effect = effect;
+            CalculateRenderQueue();
+            RegenerateDrawCall();
+        }
+
+        private void CalculateRenderQueue()
+        {
+            uint renderIndex = (uint)(ignoreLighting ? RenderLoop.LoopEnum.AfterLighting : RenderLoop.LoopEnum.DuringLighting);
+            switch (blendMode) {
+                case BlendMode.Opaque:
+                    renderIndex += 100;
+                    break;
+                case BlendMode.Transparent:
+                    renderIndex += 1000;
+                    break;
+                case BlendMode.Additive:
+                    renderIndex += 2000;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            renderQueue = renderIndex;
+
             RegenerateDrawCall();
         }
 
