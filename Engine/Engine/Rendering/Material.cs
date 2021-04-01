@@ -18,85 +18,84 @@ namespace SE.Rendering
 {
     // TODO: Allow this to be an Asset somehow?
     // TODO: What about Materials without textures?? (i.e non SpriteBatch stuff.)
-    public class Material
+    // TODO: Renderers should hold SharedMaterial and Material, like Unity. (How will this work with SpriteBatch?)
+    public sealed class Material
     {
         public Texture2D Texture {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => texture;
+            get => TextureInternal;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set {
-                texture = value;
+                TextureInternal = value;
                 RegenerateDrawCall();
             }
         }
-        private Texture2D texture;
+        internal Texture2D TextureInternal;
 
         public Effect Effect {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => effect;
+            get => EffectInternal;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set {
-                effect = value;
+                EffectInternal = value;
                 RegenerateDrawCall();
             }
         }
-        private Effect effect;
+        internal Effect EffectInternal;
         private bool isSharedEffect = true;
 
         public uint RenderQueue {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => renderQueue;
+            get => RenderQueueInternal;
 
             set {
-                if (value == renderQueue)
+                if (value == RenderQueueInternal)
                     return;
                 if (!useCustomRenderQueue)
                     return;
 
-                renderQueue = value;
+                RenderQueueInternal = value;
                 RegenerateDrawCall();
             }
         }
-        private uint renderQueue;
+        internal uint RenderQueueInternal;
 
         public BlendMode BlendMode {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => blendMode;
+            get => BlendModeInternal;
 
             set {
-                if (value == blendMode)
+                if (value == BlendModeInternal)
                     return;
 
-                blendMode = value;
-                if (!useCustomRenderQueue)
-                {
-                    CalculateRenderQueue();
-                }
-            }
-        }
-        private BlendMode blendMode = BlendMode.Opaque;
-
-        public bool IgnoreLighting
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => ignoreLighting;
-
-            set {
-                if (value == ignoreLighting)
-                    return;
-
-                ignoreLighting = value;
+                BlendModeInternal = value;
+                RequiresUnorderedInternal = BlendModeInternal == BlendMode.Transparent || BlendMode == BlendMode.Additive;
                 if (!useCustomRenderQueue) {
                     CalculateRenderQueue();
                 }
             }
         }
-        private bool ignoreLighting;
+        internal BlendMode BlendModeInternal = BlendMode.Opaque;
 
-        public bool UseCustomRenderQueue
-        {
+        public bool IgnoreLighting {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => IgnoreLightingInternal;
+
+            set {
+                if (value == IgnoreLightingInternal)
+                    return;
+
+                IgnoreLightingInternal = value;
+                if (!useCustomRenderQueue) {
+                    CalculateRenderQueue();
+                }
+            }
+        }
+        internal bool IgnoreLightingInternal;
+
+        public bool UseCustomRenderQueue {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => useCustomRenderQueue;
 
@@ -112,11 +111,8 @@ namespace SE.Rendering
         }
         private bool useCustomRenderQueue;
 
-        public bool RequiresUnordered
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => BlendMode == BlendMode.Transparent || BlendMode == BlendMode.Additive;
-        }
+        public bool RequiresUnordered => RequiresUnorderedInternal;
+        internal bool RequiresUnorderedInternal;
 
         internal int DrawCallID;
 
@@ -128,16 +124,16 @@ namespace SE.Rendering
 
         public Material(Texture2D texture, Effect effect = null)
         {
-            this.texture = texture;
-            this.effect = effect;
+            this.TextureInternal = texture;
+            this.EffectInternal = effect;
             CalculateRenderQueue();
             RegenerateDrawCall();
         }
 
         private void CalculateRenderQueue()
         {
-            uint renderIndex = (uint)(ignoreLighting ? RenderLoop.LoopEnum.AfterLighting : RenderLoop.LoopEnum.DuringLighting);
-            switch (blendMode) {
+            uint renderIndex = (uint)(IgnoreLightingInternal ? RenderLoop.LoopEnum.AfterLighting : RenderLoop.LoopEnum.DuringLighting);
+            switch (BlendModeInternal) {
                 case BlendMode.Opaque:
                     renderIndex += 100;
                     break;
@@ -150,7 +146,7 @@ namespace SE.Rendering
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            renderQueue = renderIndex;
+            RenderQueueInternal = renderIndex;
 
             RegenerateDrawCall();
         }
@@ -270,8 +266,10 @@ namespace SE.Rendering
 
         public void RegenerateDrawCall()
         {
-            if(Texture != null)
-                DrawCallID = DrawCallDatabase.TryGetID(new DrawCall(texture, Effect));
+            if (Texture != null) {
+                DrawCallID = DrawCallDatabase.TryGetID(new DrawCall(TextureInternal, Effect));
+            }
         }
+
     }
 }

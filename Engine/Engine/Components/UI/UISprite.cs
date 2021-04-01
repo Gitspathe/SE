@@ -1,6 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
+using SE.Core;
 using SE.Rendering;
 using Vector2 = System.Numerics.Vector2;
 
@@ -9,6 +11,41 @@ namespace SE.Components.UI
 
     public class UISprite : SpriteBase, IUISprite
     {
+        public Material Material {
+            get => material;
+            set {
+                if (value == null)
+                    value = Core.Rendering.BlankMaterial;
+                if (value.Equals(material))
+                    return;
+
+                material = value;
+                material.RegenerateDrawCall();
+            }
+        }
+        private Material material = Core.Rendering.BlankMaterial;
+
+        protected Rectangle TextureSourceRectangle;
+
+        public Asset<SpriteTexture> SpriteTextureAsset {
+            set {
+                if (value == spriteTextureAssetInternal)
+                    return;
+
+                spriteTextureAssetInternal?.RemoveReference(AssetConsumer);
+                spriteTextureAssetInternal = value;
+                SpriteTexture = spriteTextureAssetInternal.Get(this);
+                if (!Screen.IsFullHeadless && SpriteTexture.Texture == null)
+                    throw new NullReferenceException("The specified SpriteTexture has no Texture2D asset. Ensure that the asset exists, and that it's being set.");
+
+                Material.Texture = SpriteTexture.Texture;
+                TextureSourceRectangle = SpriteTexture.SourceRectangle;
+            }
+        }
+        private Asset<SpriteTexture> spriteTextureAssetInternal;
+
+        public SpriteTexture SpriteTexture { get; private set; }
+
         public override void Render(Camera2D camera, Space space)
         {
             Rectangle bounds = this.bounds;
@@ -18,7 +55,7 @@ namespace SE.Components.UI
             }
 
             Core.Rendering.SpriteBatch.Draw(
-                Data.Material.Texture, 
+                Material.Texture, 
                 bounds, 
                 TextureSourceRectangle, 
                 color, 

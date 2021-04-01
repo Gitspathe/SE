@@ -19,11 +19,14 @@ namespace SEDemos.GameObjects
 
         public override bool DestroyOnLoad => false; // Tiles are destroyed anyway.
 
+        private static Material tmpMaterial = new Material();
+
         protected override void OnInitialize()
         {
             base.OnInitialize();
             Sprite sprite = GetComponent<Sprite>();
             PhysicsObject physicsObj = GetComponent<PhysicsObject>();
+            sprite.Material = tmpMaterial;
             sprite.SpriteTextureAsset = AssetManager.GetAsset<SpriteTexture>("wall_up");
             sprite.LayerDepth = 0.1f;
             sprite.ShadowType = ShadowCasterType.Map;

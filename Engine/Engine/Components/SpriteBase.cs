@@ -17,21 +17,12 @@ namespace SE.Components
 {
 
     [ExecuteInEditor]
-    public abstract class SpriteBase : Component, IPartitionedRenderable
+    public abstract class SpriteBase : Component
     {
         // NOTE: Private protected fields are for increased performance. Access the properties instead
         // when not dealing with the core rendering system.
 
-        public Rectangle AABB => bounds;
-        public PartitionTile<IPartitionedRenderable> CurrentPartitionTile { get; set; }
-        public uint PartitionLayer => 0;
-
         public override int Queue => 100;
-
-        public BlendMode BlendMode {
-            get => Data.Material.BlendMode;
-            set => Data.Material.BlendMode = value;
-        }
 
         public virtual Point Offset {
             get {
@@ -118,37 +109,8 @@ namespace SE.Components
             set => layerDepth = value;
         }
 
-        // TODO: Move this out of SpriteBase. Or at least don't include it in UISlicedSprite since it's useless there.
-        public virtual Asset<SpriteTexture> SpriteTextureAsset {
-            set {
-                if(value == spriteTextureAssetInternal)
-                    return;
-
-                spriteTextureAssetInternal?.RemoveReference(AssetConsumer);
-                spriteTextureAssetInternal = value;
-                SpriteTexture = spriteTextureAssetInternal.Get(this);
-                if (!Screen.IsFullHeadless && SpriteTexture.Texture == null)
-                    throw new NullReferenceException("The specified SpriteTexture has no Texture2D asset. Ensure that the asset exists, and that it's being set.");
-
-                Data.Material.Texture = SpriteTexture.Texture;
-                TextureSourceRectangle = SpriteTexture.SourceRectangle;
-            }
-        }
-        private Asset<SpriteTexture> spriteTextureAssetInternal;
-
-        public SpriteTexture SpriteTexture { get; private set; }
-
-        protected Rectangle TextureSourceRectangle;
-
-        public RenderableData Data { get; }
-
         /// <summary>Cached owner transform. DO NOT MODIFY!</summary>
         protected Transform ownerTransform;
-
-        public SpriteBase()
-        {
-            Data = new RenderableData(this, new Material());
-        }
 
         public abstract void RecalculateBounds();
 
@@ -159,7 +121,6 @@ namespace SE.Components
                 Owner.AddSprite(this);
 
             ownerTransform = Owner.Transform;
-            Data.Material.RegenerateDrawCall();
         }
 
         protected override void OnDisable()
@@ -183,22 +144,6 @@ namespace SE.Components
         }
 
         public abstract void Render(Camera2D camera, Space space);
-        
-        public void InsertIntoPartition()
-        {
-            // UISprites ignore partitioning.
-            if(Data.UISprite != null)
-                return;
-
-            SpatialPartitionManager.Insert(this);
-            Data.Lit?.Shadow?.InsertIntoPartition();
-        }
-
-        public void RemoveFromPartition()
-        {
-            SpatialPartitionManager.Remove(this);
-            Data.Lit?.Shadow?.RemoveFromPartition();
-        }
     }
 
 }

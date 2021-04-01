@@ -16,8 +16,8 @@ namespace SEDemos.Levels
 
         public override void AfterSceneLoad()
         {
-            UnloadTestObj testObj = (UnloadTestObj)GameObject.Instantiate(typeof(UnloadTestObj), Vector2.Zero, 0f, Vector2.One);
-            testObj.Transform.Position = new Vector2(400, 400);
+            //UnloadTestObj testObj = (UnloadTestObj)GameObject.Instantiate(typeof(UnloadTestObj), Vector2.Zero, 0f, Vector2.One);
+            //testObj.Transform.Position = new Vector2(400, 400);
             NetworkTestMenu menu = new NetworkTestMenu();
         }
     }

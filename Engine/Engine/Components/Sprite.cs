@@ -1,18 +1,24 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using SE.AssetManagement;
+using SE.Core;
 using SE.Lighting;
 using SE.Rendering;
+using SE.World.Partitioning;
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
 // ReSharper disable UnusedMember.Global
+// ReSharper disable InconsistentNaming
 
 namespace SE.Components
 {
     /// <summary>
     /// Component used for rendering a GameObject.
     /// </summary>
-    public sealed class Sprite : SpriteBase, ILit
+    public sealed class Sprite : SpriteBase, ILit, IPartitionedRenderable
     {
+        public Rectangle AABB => bounds;
+
         private ShadowCasterType shadowType = ShadowCasterType.None;
         public ShadowCasterType ShadowType {
             get => shadowType;
@@ -27,14 +33,14 @@ namespace SE.Components
                         Shadow.Bounds = new Rectangle(
                             0 - (int)Origin.X,
                             0 - (int)Origin.Y,
-                            TextureSourceRectangle.Width,
-                            TextureSourceRectangle.Height);
+                            textureSourceRectangle.Width,
+                            textureSourceRectangle.Height);
                     } else {
                         Shadow.Bounds = new Rectangle(
                             0 - (int)Origin.X,
                             0 - (int)Origin.Y,
-                            TextureSourceRectangle.Width - (int)Origin.X,
-                            TextureSourceRectangle.Height - (int)Origin.Y);
+                            textureSourceRectangle.Width - (int)Origin.X,
+                            textureSourceRectangle.Height - (int)Origin.Y);
                         Shadow.CalculateHull(true);
                     }
                     Shadow.Position = Owner.Transform.GlobalPositionInternal;
@@ -46,6 +52,40 @@ namespace SE.Components
                 }
             }
         }
+
+        public Asset<SpriteTexture> SpriteTextureAsset {
+            set {
+                if (value == spriteTextureAssetInternal)
+                    return;
+
+                spriteTextureAssetInternal?.RemoveReference(AssetConsumer);
+                spriteTextureAssetInternal = value;
+                SpriteTexture = spriteTextureAssetInternal.Get(this);
+                if (!Screen.IsFullHeadless && SpriteTexture.Texture == null)
+                    throw new NullReferenceException("The specified SpriteTexture has no Texture2D asset. Ensure that the asset exists, and that it's being set.");
+
+                Material.Texture = SpriteTexture.Texture;
+                textureSourceRectangle = SpriteTexture.SourceRectangle;
+            }
+        }
+        private Asset<SpriteTexture> spriteTextureAssetInternal;
+
+        public SpriteTexture SpriteTexture { get; private set; }
+
+        private Rectangle textureSourceRectangle;
+
+        public Material Material {
+            get => material;
+            set {
+                if(value == null)
+                    value = Core.Rendering.BlankMaterial;
+                if(value.Equals(material))
+                    return;
+
+                material = value;
+            }
+        }
+        private Material material = Core.Rendering.BlankMaterial;
 
         public ShadowCaster Shadow { get; set; }
 
@@ -69,9 +109,9 @@ namespace SE.Components
             }
 
             Core.Rendering.SpriteBatch.Draw(
-                Data.Material.Texture,
+                Material.TextureInternal,
                 position,
-                TextureSourceRectangle,
+                textureSourceRectangle,
                 color,
                 ownerTransform.GlobalRotationInternal,
                 origin,
@@ -84,6 +124,7 @@ namespace SE.Components
         {
             base.OnInitialize();
             ShadowType = ShadowType;
+            Material.RegenerateDrawCall();
         }
 
         /// <inheritdoc />
@@ -123,6 +164,20 @@ namespace SE.Components
             }
         }
 
+        public void InsertIntoPartition()
+        {
+            SpatialPartitionManager.Insert(this);
+            Shadow?.InsertIntoPartition();
+        }
+
+        public void RemoveFromPartition()
+        {
+            SpatialPartitionManager.Remove(this);
+            Shadow?.RemoveFromPartition();
+        }
+
+        public uint PartitionLayer { get; }
+
         /// <summary>Creates a new sprite instance.</summary>
         /// <param name="spriteTexture">TextureSheet used.</param>
         /// <param name="color">Color used.</param>
@@ -152,5 +207,7 @@ namespace SE.Components
         /// Returns an empty sprite.
         /// </summary>
         public static Sprite Empty => new Sprite(null, Color.White);
+
+        public PartitionTile<IPartitionedRenderable> CurrentPartitionTile { get; set; }
     }
 }

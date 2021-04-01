@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using SE.Components;
 using SE.Utility;
 
 namespace SE.Rendering
 {
-    public class RenderContainer
+    public sealed class RenderContainer
     {
         // Weird, but is faster than SortedDictionary. Might get more benefit from adding
         // an additional QuickList which stores the indexes of ACTUAL RenderList elements. (??)
@@ -35,28 +36,15 @@ namespace SE.Rendering
             }
         }
 
-        public void Add(IRenderable renderObj, RenderableData info)
+        public void Add(IRenderable renderObj)
         {
-            Material material = info.Material;
+            Material material = renderObj.Material;
 
             // Index of the specific RenderList the sprite should be added to.
-            int renderIndex = (int) material.RenderQueue;
-            bool requiresUnordered = material.RequiresUnordered;
+            int renderIndex = (int) material.RenderQueueInternal;
 
             // Add the sprite to the correct RenderList.
-            if (requiresUnordered) {
-                while (UnorderedRenderLists.Count < renderIndex + 1) {
-                    UnorderedRenderLists.Add(null);
-                }
-
-                UnorderedRenderList list = UnorderedRenderLists.Array[renderIndex];
-                if (list == null) {
-                    list = new UnorderedRenderList();
-                    UnorderedRenderLists.Array[renderIndex] = list;
-                    isDirty = true;
-                }
-                list.Add(renderObj);
-            } else {
+            if (!material.RequiresUnorderedInternal) {
                 while (RenderLists.Count < renderIndex + 1) {
                     RenderLists.Add(null);
                 }
@@ -68,6 +56,18 @@ namespace SE.Rendering
                     isDirty = true;
                 }
                 list.Add(material.DrawCallID, renderObj);
+            } else {
+                while (UnorderedRenderLists.Count < renderIndex + 1) {
+                    UnorderedRenderLists.Add(null);
+                }
+
+                UnorderedRenderList list = UnorderedRenderLists.Array[renderIndex];
+                if (list == null) {
+                    list = new UnorderedRenderList();
+                    UnorderedRenderLists.Array[renderIndex] = list;
+                    isDirty = true;
+                }
+                list.Add(renderObj);
             }
         }
 

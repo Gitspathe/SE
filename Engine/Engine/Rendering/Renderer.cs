@@ -87,12 +87,7 @@ namespace SE.Rendering
 
             IPartitionedRenderable[] spriteArray = renderedSprites.Array;
             for (int i = 0; i < renderedSprites.Count; i++) {
-                IPartitionedRenderable renderObj = spriteArray[i];
-                RenderableData info = renderObj.Data;
-                if (excludeUI && info.UISprite != null)
-                    continue;
-
-                RenderContainer.Add(renderObj, info);
+                RenderContainer.Add(spriteArray[i]);
             }
         }
 
@@ -154,7 +149,7 @@ namespace SE.Rendering
             IRenderable[] renderArray = data.Array;
             for (int i = 0; i < renderList.Data.Count; i++) {
                 IRenderable obj = renderArray[i];
-                Material mat = obj.Data.Material;
+                Material mat = obj.Material;
                 BlendMode blendMode = mat.BlendMode;
                 Effect effect = mat.Effect;
 

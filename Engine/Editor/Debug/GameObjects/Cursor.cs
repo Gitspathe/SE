@@ -28,8 +28,8 @@ namespace SE.Editor.Debug.GameObjects
             sprite.SpriteTextureAsset = AssetManager.GetAsset<SpriteTexture>("leveleditorcursor");
             sprite.Color = Color.Red;
             sprite.LayerDepth = 1.0f;
-            sprite.Data.Material.IgnoreLighting = true;
-            sprite.BlendMode = BlendMode.Transparent;
+            sprite.Material.IgnoreLighting = true;
+            sprite.Material.BlendMode = BlendMode.Transparent;
             p = GetComponent<LightComponent>();
             p.Light.Size = new Vector2(64.0f * 10);
             p.Light.CastsShadows = true;

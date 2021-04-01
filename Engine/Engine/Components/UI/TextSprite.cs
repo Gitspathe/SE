@@ -49,6 +49,8 @@ namespace SE.Components.UI
                 LayerDepth + 0.000001f);
         }
 
+        //public Material Material { get; }
+
         public override void RecalculateBounds()
         {
             Rectangle bounds = Bounds;

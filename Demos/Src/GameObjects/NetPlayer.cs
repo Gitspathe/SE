@@ -15,7 +15,6 @@ namespace SEDemos.GameObjects
     {
         /// <inheritdoc />
         public override bool IsDynamic => true;
-
         public override bool DestroyOnLoad => false;
 
         public PhysicsObject Physics;
@@ -24,11 +23,14 @@ namespace SEDemos.GameObjects
 
         private NetworkIdentity identity;
 
+        private static Material tmpMaterial = new Material();
+
         /// <inheritdoc />
         protected sealed override void OnInitialize()
         {
             identity = new NetworkIdentity();
             Sprite sprite = new Sprite(AssetManager.GetAsset<SpriteTexture>("player"), Color.Blue, new Vector2(26, 26), 0.2f);
+            sprite.Material = tmpMaterial;
             Physics = new PhysicsObject(new Rectangle(26, 26, 50, 50), 1.0f, BodyType.Dynamic);
             Physics.Body.FixedRotation = true;
             Physics.Body.SetFriction(0.0f);

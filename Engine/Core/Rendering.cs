@@ -25,6 +25,8 @@ namespace SE.Core
         public static QuickList<IPartitionedRenderable> VisibleSprites = new QuickList<IPartitionedRenderable>(512);
         public static SpriteBatch SpriteBatch;
 
+        public static Material BlankMaterial { get; } = new Material();
+
         private static RasterizerState currentRasterizerState;
         private static DepthStencilState currentDepthStencilState;
         private static SamplerState currentSamplerState;

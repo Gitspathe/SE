@@ -35,12 +35,15 @@ namespace SEDemos.GameObjects
         private LightComponent light;
         private Color c = Color.White;
 
+        private static Material tmpMaterial = new Material();
+
         protected sealed override void OnInitialize()
         {
             myPhysics = GetComponent<PhysicsObject>();
             light = GetComponent<LightComponent>();
             NetworkIdentity networkIdentity = GetComponent<NetworkIdentity>();
             Sprite sprite = GetComponent<Sprite>();
+            sprite.Material = tmpMaterial;
             if (Network.InstanceType == NetInstanceType.Server) {
                 myPhysics.Body = Physics.CreateCircle(16, 1.0f, new Vector2(16), BodyType.Dynamic);
                 myPhysics.Body.SetRestitution(0.5f);
@@ -78,7 +81,7 @@ namespace SEDemos.GameObjects
             sprite.SpriteTextureAsset = tex;
             sprite.Origin = new Vector2(16, 16);
             sprite.Color = c;
-            sprite.BlendMode = BlendMode.Transparent;
+            sprite.Material.BlendMode = BlendMode.Transparent;
 
             light.Size = new Vector2(1200, 1200);
             light.Color = c;

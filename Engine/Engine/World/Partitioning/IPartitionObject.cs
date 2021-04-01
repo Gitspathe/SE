@@ -15,7 +15,6 @@ namespace SE.World.Partitioning
     {
         void InsertIntoPartition();
         void RemoveFromPartition();
-        uint PartitionLayer { get; }
     }
 
     /// <summary>

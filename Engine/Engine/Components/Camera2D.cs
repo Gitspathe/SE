@@ -24,8 +24,8 @@ namespace SE.Components
         public float Zoom {
             get => zoom;
             set {
-                if (value < 0.10f)
-                    value = 0.10f;
+                if (value < 0.05f)
+                    value = 0.05f;
                 else if (value > 8.0f)
                     value = 8.0f;
 

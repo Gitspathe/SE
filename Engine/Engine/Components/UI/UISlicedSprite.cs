@@ -6,9 +6,22 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components.UI
 {
-    // TODO: Support border coloring.
     public sealed class UISlicedSprite : SpriteBase, IUISprite
     {
+        public Material Material {
+            get => material;
+            set {
+                if (value == null)
+                    value = Core.Rendering.BlankMaterial;
+                if (value.Equals(material))
+                    return;
+
+                material = value;
+                material.RegenerateDrawCall();
+            }
+        }
+        private Material material = Core.Rendering.BlankMaterial;
+
         private SlicedImage slicedImage;
         public SlicedImage SlicedImage {
             get => slicedImage;
@@ -31,7 +44,7 @@ namespace SE.Components.UI
                         srcRects[(int)SliceIndexes.LowerLeft] = sliced.DownLeftCorner;
                         srcRects[(int)SliceIndexes.UpperLeft] = sliced.UpLeftCorner;
 
-                        Data.Material.Texture = sliced.Texture;
+                        Material.Texture = sliced.Texture;
                         break;
                     }
                     case SlicedImage5 sliced: {
@@ -46,7 +59,7 @@ namespace SE.Components.UI
                         srcRects[(int)SliceIndexes.Down] = sliced.Down;
                         srcRects[(int)SliceIndexes.Left] = sliced.Left;
 
-                        Data.Material.Texture = sliced.Texture;
+                        Material.Texture = sliced.Texture;
                         break;
                     }
                 }
@@ -151,7 +164,7 @@ namespace SE.Components.UI
                     destRects[i].Y -= (int)camera.Position.Y;
                 }
                 Core.Rendering.SpriteBatch.Draw(
-                    Data.Material.Texture,
+                    Material.Texture,
                     destRects[i], 
                     srcRects[i], 
                     Color, 
