@@ -25,6 +25,7 @@ namespace SE.Core
         public static QuickList<IPartitionedRenderable> VisibleSprites = new QuickList<IPartitionedRenderable>(512);
         public static SpriteBatch SpriteBatch;
 
+        // TODO: Properly set up BlankMaterial. Currently, it causes weird glitches. Should just be a readonly magenta texture or something.
         public static Material BlankMaterial { get; } = new Material();
 
         private static RasterizerState currentRasterizerState;

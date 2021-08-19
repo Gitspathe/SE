@@ -83,13 +83,13 @@ namespace SE.Components
         }
 
         private protected Rectangle bounds;
-        public virtual Rectangle Bounds {
+        public Rectangle Bounds {
             get => bounds; 
             set => bounds = value;
         }
 
         private protected Vector2 origin;
-        public virtual Vector2 Origin {
+        public Vector2 Origin {
             get => origin;
             set {
                 origin = value;
@@ -98,13 +98,13 @@ namespace SE.Components
         }
 
         private protected Color color;
-        public virtual Color Color {
+        public Color Color {
             get => color; 
             set => color = value;
         }
 
         private protected float layerDepth;
-        public virtual float LayerDepth {
+        public float LayerDepth {
             get => layerDepth; 
             set => layerDepth = value;
         }

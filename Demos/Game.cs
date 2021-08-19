@@ -190,27 +190,27 @@ namespace SEDemos
             //    Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
             //}
 
-            long bytesBefore = GC.GetTotalMemory(true);
-            new GameObject();
-            long bytesAfter = GC.GetTotalMemory(true);
-            Console.WriteLine(bytesAfter - bytesBefore);
+            //long bytesBefore = GC.GetTotalMemory(true);
+            //new GameObject();
+            //long bytesAfter = GC.GetTotalMemory(true);
+            //Console.WriteLine(bytesAfter - bytesBefore);
 
-            TestClass lel = new TestClass(255) {
-                baseVal = 43546,
-                pizza1 = 0,
-                //pizza4 = 69.420f,
-                pizza5 = 0,
-                //pizza3 = { [1] = 59.0f },
-                ObjTest = new TestClass2(),
-                TestString = "NEW STR"
-            };
-            lel.testClass1.test1.lol = 64;
+            //TestClass lel = new TestClass(255) {
+            //    baseVal = 43546,
+            //    pizza1 = 0,
+            //    //pizza4 = 69.420f,
+            //    pizza5 = 0,
+            //    //pizza3 = { [1] = 59.0f },
+            //    ObjTest = new TestClass2(),
+            //    TestString = "NEW STR"
+            //};
+            //lel.testClass1.test1.lol = 64;
 
-            byte[] lelBytes = Serializer.Serialize(lel);
-            FileIO.SaveFile(lelBytes, "LOLZ.data");
+            //byte[] lelBytes = Serializer.Serialize(lel);
+            //FileIO.SaveFile(lelBytes, "LOLZ.data");
 
-            string bb = System.Text.Json.JsonSerializer.Serialize(lel, textJsonOptions);
-            FileIO.SaveFile(bb, "LOLZJSON.data");
+            //string bb = System.Text.Json.JsonSerializer.Serialize(lel, textJsonOptions);
+            //FileIO.SaveFile(bb, "LOLZJSON.data");
         }
 
         [JsonObject(MemberSerialization.OptOut)]

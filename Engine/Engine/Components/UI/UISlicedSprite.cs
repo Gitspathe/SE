@@ -124,8 +124,8 @@ namespace SE.Components.UI
             Rectangle bounds = Bounds;
             Point offset = Offset;
             Point size = Size;
-            bounds.X = (int)(Owner.Transform.GlobalPositionInternal.X + offset.X);
-            bounds.Y = (int)(Owner.Transform.GlobalPositionInternal.Y + offset.Y);
+            bounds.X = (int)(ownerTransform.GlobalPositionInternal.X + offset.X);
+            bounds.Y = (int)(ownerTransform.GlobalPositionInternal.Y + offset.Y);
             bounds.Width = size.X;
             bounds.Height = size.Y;
             Bounds = bounds;
@@ -140,8 +140,8 @@ namespace SE.Components.UI
             Rectangle bounds = destRects[index];
             Point offset = offsets[index];
             Point size = sizes[index];
-            bounds.X = (int)(Owner.Transform.GlobalPositionInternal.X + offset.X);
-            bounds.Y = (int)(Owner.Transform.GlobalPositionInternal.Y + offset.Y);
+            bounds.X = (int)(ownerTransform.GlobalPositionInternal.X + offset.X);
+            bounds.Y = (int)(ownerTransform.GlobalPositionInternal.Y + offset.Y);
             bounds.Width = size.X;
             bounds.Height = size.Y;
             destRects[index] = bounds;

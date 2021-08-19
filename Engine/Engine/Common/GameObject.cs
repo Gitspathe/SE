@@ -474,7 +474,8 @@ namespace SE.Common
             EnsureValidAccess();
             for (int i = 0; i < Components.Count; i++) {
                 Component component = Components.Array[i];
-                if (component.GetType() == type || component.GetType().IsSubclassOf(type)) {
+                Type cType = component.GetType();
+                if (cType == type || cType.IsSubclassOf(type)) {
                     return component;
                 }
             }

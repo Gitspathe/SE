@@ -1,51 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using SE.Core;
 using SE.Utility;
 
 namespace SE.World.Partitioning
 {
-    public class PartitionTile<T> where T : IPartitionObject<T>
+    public sealed class PartitionTile<T> where T : IPartitionObject<T>
     {
         internal QuickList<T> PartitionObjects = new QuickList<T>();
 
         public bool ShouldPrune {
             get {
-                lock (TileLock) {
+                lock (tileLock) {
                     return PartitionObjects.Count < 1;
                 }
             }
         }
 
-        protected object TileLock = new object();
+        private object tileLock = new object();
 
         internal void Reset()
         {
-            lock (TileLock) {
+            lock (tileLock) {
                 PartitionObjects.Clear();
             }
         }
 
         internal QuickList<T> Get()
         {
-            lock (TileLock) {
+            lock (tileLock) {
                 QuickList<T> newList = new QuickList<T>();
                 newList.AddRange(PartitionObjects);
                 return newList;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Get(QuickList<T> existingList)
         {
-            lock (TileLock) {
+            lock (tileLock) {
                 existingList.AddRange(PartitionObjects);
             }
         }
 
         internal void Insert(T obj)
         {
-            lock (TileLock) {
+            lock (tileLock) {
                 PartitionObjects.Add(obj);
                 obj.CurrentPartitionTile = this;
             }
@@ -53,7 +55,7 @@ namespace SE.World.Partitioning
 
         internal void Remove(T obj)
         {
-            lock (TileLock) {
+            lock (tileLock) {
                 PartitionObjects.Remove(obj);
                 obj.CurrentPartitionTile = null;
             }

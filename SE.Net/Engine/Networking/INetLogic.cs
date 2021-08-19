@@ -42,40 +42,18 @@ namespace SE.Engine.Networking
     public interface INetPersistable : INetLogic
     {
         /// <summary>
-        /// Serializes custom network information into a Json string.
+        /// Serializes custom network information into bytes.
         /// Intended to be used for <see cref="RestoreNetworkState"/>.
         /// </summary>
-        /// <returns>Json string containing the custom state information.</returns>
+        /// <returns>Bytes containing the custom state information.</returns>
         byte[] SerializeNetworkState(NetDataWriter writer);
 
         /// <summary>
-        /// Deserializes a Json string sent from the SerializeNetworkState function.
+        /// Deserializes bytes sent from the SerializeNetworkState function.
         /// Intended to restore state retrieved from <see cref="SerializeNetworkState()"/>.
         /// </summary>
         /// <param name="reader">Serialized state information.</param>
         void RestoreNetworkState(NetDataReader reader);
-    }
-
-    public static class NetLogicHelper
-    {
-        public static byte[] SerializePersistable(INetPersistable persist)
-        {
-            lock (Network.NetworkLock) {
-                NetDataWriter writer = ReaderWriterPool.GetWriter();
-                byte[] bytes = persist.SerializeNetworkState(writer);
-                ReaderWriterPool.ReturnWriter(writer);
-                return bytes;
-            }
-        }
-
-        public static void RestorePersistable(INetPersistable persist, byte[] bytes)
-        {
-            lock (Network.NetworkLock) {
-                NetDataReader reader = ReaderWriterPool.GetReader(bytes);
-                persist.RestoreNetworkState(reader);
-                ReaderWriterPool.ReturnReader(reader);
-            }
-        }
     }
 
     /// <summary>
@@ -103,7 +81,7 @@ namespace SE.Engine.Networking
         /// <param name="reader">Data passed in from the server instance of the object.
         ///                    Intended to be used for constructors.</param>
         void OnNetworkInstantiatedClient(string type, bool isOwner, NetDataReader reader);
-        
+
         /// <summary>
         /// Used to obtain a byte array of custom data. Intended to be used for constructors.
         /// </summary>
@@ -128,4 +106,27 @@ namespace SE.Engine.Networking
         /// <returns>Byte array of serialized data.</returns>
         byte[] Serialize(NetDataWriter writer);
     }
+
+    public static class NetLogicHelper
+    {
+        public static byte[] SerializePersistable(INetPersistable persist)
+        {
+            lock (Network.NetworkLock) {
+                NetDataWriter writer = ReaderWriterPool.GetWriter();
+                byte[] bytes = persist.SerializeNetworkState(writer);
+                ReaderWriterPool.ReturnWriter(writer);
+                return bytes;
+            }
+        }
+
+        public static void RestorePersistable(INetPersistable persist, byte[] bytes)
+        {
+            lock (Network.NetworkLock) {
+                NetDataReader reader = ReaderWriterPool.GetReader(bytes);
+                persist.RestoreNetworkState(reader);
+                ReaderWriterPool.ReturnReader(reader);
+            }
+        }
+    }
+
 }

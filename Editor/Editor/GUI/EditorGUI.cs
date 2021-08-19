@@ -10,13 +10,13 @@ using SE.Utility;
 
 namespace SE.Editor.GUI
 {
-    public static class EditorGUI
+    public class EditorGUI : EditorComponent, IReloadableComponent, IPaintableComponent
     {
-        public static QuickList<GUIObject> guiObjects { get; } = new QuickList<GUIObject>();
+        public QuickList<GUIObject> guiObjects { get; } = new QuickList<GUIObject>();
 
-        public static bool ShowMainMenuBar = true;
+        public bool ShowMainMenuBar = true;
 
-        public static QuickList<T> GetGUIObjects<T>() where T : GUIObject
+        public QuickList<T> GetGUIObjects<T>() where T : GUIObject
         {
             QuickList<T> list = new QuickList<T>();
             GUIObject[] arr = guiObjects.Array;
@@ -29,7 +29,7 @@ namespace SE.Editor.GUI
             return list;
         }
 
-        public static void Initialize()
+        public override void InstanceChanged()
         {
             guiObjects.Clear();
             InitializeStyle();
@@ -65,10 +65,15 @@ namespace SE.Editor.GUI
                 }
             }
 
-            EditorLayoutManager.SwapToLayout(new IntroLayout());
+            //EditorLayoutManager.SwapToLayout(new IntroLayout());
         }
 
-        public static void Paint()
+        public override void Initialize()
+        {
+
+        }
+
+        public void Paint()
         {
             if (ShowMainMenuBar) {
                 GUI.BeginMainMenuBar();
@@ -115,15 +120,20 @@ namespace SE.Editor.GUI
             p.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
         }
 
-        public static void InitializeLayout()
-        {
-
-        }
-
         public static class Colors
         {
             public static Vector4 TextDisabled { get; set; } = new Vector4(0.65f, 0.65f, 0.65f, 1.0f);
             public static Vector4 FrameBgDisabled { get; set; } = new Vector4(0.11f, 0.11f, 0.11f, 1.0f);
+        }
+
+        public void ReloadInitiated()
+        {
+            //throw new System.NotImplementedException();
+        }
+
+        public void ReloadComplete()
+        {
+            //throw new System.NotImplementedException();
         }
     }
 }

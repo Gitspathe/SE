@@ -13,6 +13,7 @@ using MGVector2 = Microsoft.Xna.Framework.Vector2;
 using MGVector3 = Microsoft.Xna.Framework.Vector3;
 using MGVector4 = Microsoft.Xna.Framework.Vector4;
 using MGQuaternion = Microsoft.Xna.Framework.Quaternion;
+using SE.Core;
 
 namespace SE.Rendering
 {
@@ -111,21 +112,33 @@ namespace SE.Rendering
         }
         private bool useCustomRenderQueue;
 
+        // TODO: Might be a good idea to move TextureSourceRectangle from Sprite to Material.
+
         public bool RequiresUnordered => RequiresUnorderedInternal;
         internal bool RequiresUnorderedInternal;
 
         internal int DrawCallID;
 
+        internal static Texture2D NullTexture;
+
         public Material()
         {
             // TODO: Empty/invalid material. Need a freaky looking texture to scare developers.
+            if (!Screen.IsFullHeadless && NullTexture == null) {
+                NullTexture = new Texture2D(GameEngine.Engine.GraphicsDevice, 1, 1);
+                NullTexture.SetData(new Color[] { Color.Purple });
+            }
+            TextureInternal = NullTexture;
             CalculateRenderQueue();
         }
 
         public Material(Texture2D texture, Effect effect = null)
         {
-            this.TextureInternal = texture;
-            this.EffectInternal = effect;
+            if(texture == null) {
+                texture = NullTexture;
+            }
+            TextureInternal = texture;
+            EffectInternal = effect;
             CalculateRenderQueue();
             RegenerateDrawCall();
         }

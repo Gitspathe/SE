@@ -22,7 +22,8 @@ namespace SE.Editor.GUI.Windows.Hierarchy
                 if(value == isSelected)
                     return;
 
-                foreach (PropertiesWindow propWindow in EditorGUI.GetGUIObjects<PropertiesWindow>()) {
+                EditorGUI gui = (EditorGUI)EditorApp.Components.Get<EditorGUI>();
+                foreach (PropertiesWindow propWindow in gui.GetGUIObjects<PropertiesWindow>()) {
                     propWindow.View = value ? new GameObjectProperties(GameObject) : null;
                 }
             }

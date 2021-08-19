@@ -11,8 +11,10 @@ namespace SE.Editor.GUI
         public static void SwapToLayout(EditorLayout layout)
         {
             // Clear all windows...
-            EditorGUI.guiObjects.Clear();
-            EditorGUI.ShowMainMenuBar = layout.ShowMainMenuBar;
+            EditorGUI gui = (EditorGUI) EditorApp.Components.Get<EditorGUI>();
+
+            gui.guiObjects.Clear();
+            gui.ShowMainMenuBar = layout.ShowMainMenuBar;
             layout.SwapTo();
         }
     }
@@ -39,8 +41,10 @@ namespace SE.Editor.GUI
 
         public override void SwapTo()
         {
+            EditorGUI gui = (EditorGUI)EditorApp.Components.Get<EditorGUI>();
+
             Screen.SetScreenSize(1000, 600);
-            EditorGUI.guiObjects.Add(new IntroWindow());
+            gui.guiObjects.Add(new IntroWindow());
         }
     }
 }

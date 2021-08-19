@@ -7,15 +7,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using FastMember;
-using FastStream;
 using SE.Core;
 using SE.Serialization.Attributes;
 using SE.Serialization.Exceptions;
 using SE.Serialization.Resolvers;
 using SE.Utility;
-using System.Text;
 using static SE.Serialization.Constants;
 using static SE.Serialization.SerializerUtil;
 
@@ -900,12 +897,6 @@ namespace SE.Serialization.Converters
                 Serializer.SerializeWriter(writer, val, typeConverter, ref task);
 
                 return true;
-            }
-
-            private static Assembly AssemblyResolver(AssemblyName assemblyName)
-            {
-                assemblyName.Version = null;
-                return Assembly.Load(assemblyName);
             }
 
             public void ReadText(object target, Utf8Reader reader, ref DeserializeTask task)

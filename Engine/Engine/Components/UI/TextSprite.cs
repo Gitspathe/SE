@@ -27,11 +27,9 @@ namespace SE.Components.UI
 
         public override void Render(Camera2D camera, Space space)
         {
-            Vector2 position = Owner.Transform.GlobalPositionInternal;
-            Rectangle bounds = Bounds;
+            Vector2 position = ownerTransform.GlobalPositionInternal;
             if (space == Space.World) {
-                position.X -= camera.Position.X;
-                position.Y -= camera.Position.Y;
+                position -= camera.Position;
                 bounds.X -= (int) camera.Position.X;
                 bounds.Y -= (int) camera.Position.Y;
             }
@@ -40,16 +38,14 @@ namespace SE.Components.UI
             Core.Rendering.SpriteBatch.DrawString(
                 SpriteFontAsset.Value,
                 Text,
-                position, 
-                color, 
-                0, 
+                position,
+                color,
+                0,
                 origin, 
-                Owner.Transform.GlobalScaleInternal, 
+                ownerTransform.GlobalScaleInternal, 
                 SpriteEffects.None, 
                 LayerDepth + 0.000001f);
         }
-
-        //public Material Material { get; }
 
         public override void RecalculateBounds()
         {

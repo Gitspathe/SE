@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Mime;
 using System.Reflection;
@@ -13,6 +15,7 @@ using SE.Editor;
 using SE.Editor.GUI;
 using SE.Editor.ImGUI;
 using SE.Serialization;
+using SE.Utility;
 using Console = SE.Core.Console;
 using Vector2 = System.Numerics.Vector2;
 
@@ -23,10 +26,10 @@ namespace SE
     /// </summary>
     public class EditorApp : GameEngine, IEditor
     {
+        public static EditorApp Singleton { get; private set; }
         public static ImGuiRenderer ImGuiRenderer { get; private set; }
 
         internal static ContentLoader content;
-
         private static Game game;
 
         public GraphicsDeviceManager EditorGraphicsDeviceManager { get; set; }
@@ -34,6 +37,8 @@ namespace SE
 
         public static string BaseDirectory { get; } = AppDomain.CurrentDomain.BaseDirectory;
         public static string EnvironmentDirectory { get; } = Environment.CurrentDirectory;
+
+        public static EditorComponentHolder<EditorComponent> Components = new EditorComponentHolder<EditorComponent>();
 
         protected override void OnInitialize()
         {
@@ -85,13 +90,42 @@ namespace SE
                 // TODO: Exit and reopen program.
             }
 
-            // Test reload.
-            // This is how hot reloading of code will work. Even though it isn't hot reloading.
-            // Detect change -> Save editor state -> Close -> Reopen -> Restore editor state.
+            // Temporary test reload.
+            // TODO: I may be able to avoid a full reset?
+            // Detect change -> Save project state -> Delete project state (Game obj) -> Instantiate project -> Restore project state.
             if (InputManager.KeyCodePressed(Microsoft.Xna.Framework.Input.Keys.F9)) {
                 Process.Start(AppDomain.CurrentDomain.BaseDirectory + "/SEEditor.exe");
                 Thread.Sleep(2000);
                 Environment.Exit(-1);
+            }
+        }
+
+        public void ReloadProject()
+        {
+            // TODO.
+
+            // Delete non-reloadable components.
+            QuickList<EditorComponent> toRemove = new QuickList<EditorComponent>();
+            foreach (EditorComponent component in Components) {
+                if (!(component is IReloadableComponent)) {
+                    toRemove.Add(component);
+                }
+            }
+            foreach (EditorComponent c in toRemove) {
+                Components.Remove(c);
+            }
+
+            // ... Save project state      ...
+            foreach (EditorComponent component in Components) {
+                ((IReloadableComponent)component).ReloadInitiated();
+            }
+
+            // ... Delete project instance ...
+            // ... Instantiate project     ...
+
+            // ... Restore project state   ...
+            foreach (EditorComponent component in Components) {
+                ((IReloadableComponent)component).ReloadComplete();
             }
         }
 
@@ -102,7 +136,11 @@ namespace SE
             Core.Rendering.ChangeDrawCall(SpriteSortMode.Immediate, null, BlendState.AlphaBlend);
 
             ImGuiRenderer.BeforeLayout(gameTime);
-            EditorGUI.Paint();
+            foreach (EditorComponent component in Components) {
+                if (component is IPaintableComponent paint) {
+                    paint.Paint();
+                }
+            }
             ImGuiRenderer.AfterLayout();
         }
 
@@ -120,12 +158,19 @@ namespace SE
 
             ImGuiRenderer = new ImGuiRenderer(game);
             ImGuiRenderer.RebuildFontAtlas();
-            EditorGUI.Initialize();
+            foreach (EditorComponent component in Components) {
+                component.InstanceChanged();
+            }
         }
 
         public EditorApp() : base(null)
         {
+            if (Singleton != null)
+                throw new Exception();
+
             Editor = this;
+            Singleton = this;
+            Components.Add(new EditorGUI());
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using SE.AssetManagement;
+using SE.Common;
 using SE.Core;
 using SE.Lighting;
 using SE.Rendering;
@@ -91,14 +92,12 @@ namespace SE.Components
 
         public override void RecalculateBounds()
         {
-            Rectangle bounds = Bounds;
             Point offset = Offset;
             Point size = Size;
-            bounds.X = (int)(Owner.Transform.GlobalPositionInternal.X + (offset.X - Origin.X));
-            bounds.Y = (int)(Owner.Transform.GlobalPositionInternal.Y + (offset.Y - Origin.Y));
+            bounds.X = (int)(ownerTransform.GlobalPositionInternal.X + (offset.X - Origin.X));
+            bounds.Y = (int)(ownerTransform.GlobalPositionInternal.Y + (offset.Y - Origin.Y));
             bounds.Width = size.X;
             bounds.Height = size.Y;
-            Bounds = bounds;
         }
 
         public override void Render(Camera2D camera, Space space)
@@ -108,7 +107,7 @@ namespace SE.Components
                 position += camera.Position;
             }
 
-            Core.Rendering.SpriteBatch.Draw(
+            Core.Rendering.SpriteBatch.DrawDeferred(
                 Material.TextureInternal,
                 position,
                 textureSourceRectangle,
