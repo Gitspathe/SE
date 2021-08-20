@@ -329,29 +329,29 @@ namespace SE.Rendering
 
         private unsafe void DrawNewParticleEmitter(Camera2D cam, Emitter pEmitter)
         {
-            Vector2 camPos = new Vector2(cam.Position.X, cam.Position.Y);
-            Span<Particle> particles = pEmitter.ActiveParticles;
-            Texture2D tex = pEmitter.Texture;
-            fixed (Particle* ptr = particles) {
-                int size = particles.Length;
-                Particle* tail = ptr + size;
-                for (Particle* particle = ptr; particle < tail; particle++) {
-                    ref Int4 particleRect = ref particle->SourceRectangle;
-                    ref Vector4 particleCol = ref particle->Color;
+            //Vector2 camPos = new Vector2(cam.Position.X, cam.Position.Y);
+            //Span<Particle> particles = pEmitter.ActiveParticles;
+            //Texture2D tex = pEmitter.Texture;
+            //fixed (Particle* ptr = particles) {
+            //    int size = particles.Length;
+            //    Particle* tail = ptr + size;
+            //    for (Particle* particle = ptr; particle < tail; particle++) {
+            //        ref Int4 particleRect = ref particle->SourceRectangle;
+            //        ref Vector4 particleCol = ref particle->Color;
 
-                    Rectangle sourceRect = new Rectangle(particleRect.X, particleRect.Y, particleRect.Width, particleRect.Height);
-                    Vector2 origin = new Vector2(sourceRect.Width / 2.0f, sourceRect.Width / 2.0f);
-                    Color color = new Color(particleCol.X / 360, particleCol.Y, particleCol.Z, particleCol.W);
-                    Core.Rendering.SpriteBatch.Draw(tex, 
-                        particle->Position,
-                        sourceRect,
-                        color,
-                        particle->SpriteRotation,
-                        origin,
-                        particle->Scale,
-                        particle->layerDepth);
-                }
-            }
+            //        Rectangle sourceRect = new Rectangle(particleRect.X, particleRect.Y, particleRect.Width, particleRect.Height);
+            //        Vector2 origin = new Vector2(sourceRect.Width / 2.0f, sourceRect.Width / 2.0f);
+            //        Color color = new Color(particleCol.X / 360, particleCol.Y, particleCol.Z, particleCol.W);
+            //        Core.Rendering.SpriteBatch.Draw(tex, 
+            //            particle->Position,
+            //            sourceRect,
+            //            color,
+            //            particle->SpriteRotation,
+            //            origin,
+            //            particle->Scale,
+            //            particle->layerDepth);
+            //    }
+            //}
         }
 
         [SuppressMessage("ReSharper", "PossibleNullReferenceException")]

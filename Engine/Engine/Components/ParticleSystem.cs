@@ -35,9 +35,17 @@ namespace SE.Components
                 true);
 
             Emitter = new Emitter(4096, shape: circleShape);
-            Emitter.Texture = Texture;
             //Emitter.Space = Space.Local;
 
+            Curve emission = new Curve();
+            emission.Keys.Add(0.0f, 0.0f);
+            emission.Keys.Add(0.1f, 1000.0f);
+            emission.Keys.Add(0.667f, 500.0f);
+            emission.Keys.Add(1.0f, 0.0f);
+
+            Emitter.Config.Emission.SetConstant(1000);
+            Emitter.Config.Emission.Loop = true;
+            Emitter.Config.Texture.SetSheet(Texture, 5, 5);
             Emitter.Config.Color.SetRandomBetween(
                 new Vector4(0.0f, 1.0f, 0.5f, 1.0f),
                 new Vector4(30.0f, 1.0f, 0.6f, 1.0f));
@@ -58,6 +66,8 @@ namespace SE.Components
             Emitter.AddModule(AlphaModule.Curve(alphaCurve));
             Emitter.AddModule(SpriteRotationModule.RandomConstant(2.0f, 10.0f));
             Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
+
+            Emitter.Play();
         }
 
         protected override void OnEnable()
@@ -77,17 +87,10 @@ namespace SE.Components
                 Emitter.Enabled = false;
         }
 
-        private float time;
         protected override void OnUpdate()
         {
             Emitter.Position = Owner.Transform.GlobalPositionInternal;
             Emitter.Rotation += MathHelper.TwoPi * Time.DeltaTime;
-
-            time -= Time.DeltaTime;
-            while (time <= 0.0f) {
-                Emitter.Emit(96);
-                time += 0.0333f;
-            }
         }
 
         protected override void Dispose(bool disposing = true)

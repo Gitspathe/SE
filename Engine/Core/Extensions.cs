@@ -2,6 +2,10 @@
 using System.Numerics;
 using Microsoft.Xna.Framework;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Newtonsoft.Json;
+using System.IO;
+using System.IO.Compression;
+using System.Text;
 
 namespace SE.Core
 {
@@ -68,6 +72,55 @@ namespace SE.Core
 
             Matrix tM = mat.Value;
             return new Matrix4x4(tM.M11, tM.M12, tM.M13, tM.M14, tM.M21, tM.M22, tM.M23, tM.M24, tM.M31, tM.M32, tM.M33, tM.M34, tM.M41, tM.M42, tM.M43, tM.M44);
+        }
+    }
+
+    public static class SerializerExtensions
+    {
+        private static JsonSerializerSettings serializerOptions;
+
+        public static string Serialize<T>(this T obj, bool compress = false, JsonSerializerSettings options = null)
+        {
+            JsonSerializerSettings o = options ?? serializerOptions;
+            if (!compress)
+                return JsonConvert.SerializeObject(obj, o);
+
+            string str = JsonConvert.SerializeObject(obj, o);
+            byte[] bytes = Encoding.UTF8.GetBytes(str);
+            using (MemoryStream msBytes = new MemoryStream(bytes))
+            using (MemoryStream ms = new MemoryStream())
+            using (GZipStream gs = new GZipStream(ms, CompressionMode.Compress)) {
+                msBytes.CopyTo(gs);
+                return str;
+            }
+        }
+
+        public static T Deserialize<T>(this string jsonString, bool compress = false, JsonSerializerSettings options = null)
+        {
+            JsonSerializerSettings o = options ?? serializerOptions;
+            if (!compress)
+                return JsonConvert.DeserializeObject<T>(jsonString, o);
+
+            byte[] bytes = Encoding.UTF8.GetBytes(jsonString);
+            using (MemoryStream msBytes = new MemoryStream(bytes))
+            using (MemoryStream ms = new MemoryStream())
+            using (GZipStream gs = new GZipStream(msBytes, CompressionMode.Decompress)) {
+                gs.CopyTo(ms);
+                return JsonConvert.DeserializeObject<T>(jsonString, o);
+            }
+        }
+
+        static SerializerExtensions()
+        {
+            serializerOptions = new JsonSerializerSettings {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Auto,
+                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            };
         }
     }
 }
