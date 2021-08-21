@@ -76,21 +76,21 @@ namespace Particles {
 					for (int32_t i = 0; i < length; i++) {
 						Particle* particle = &particleArrPtr[i];
 						const float velocity = ParticleMath::lerp(start, end, particle->timeAlive / particle->initialLife);
-						particle->speed = velocity + (velocity * deltaTime);
+						particle->speed = particle->speed + (velocity * deltaTime);
 					}
 				} break;
 				case SpeedTransition::Curve: {
 					for (int32_t i = 0; i < length; i++) {
 						Particle* particle = &particleArrPtr[i];
 						const float velocity = curve->Evaluate(particle->timeAlive / particle->initialLife);
-						particle->speed = velocity + (velocity * deltaTime);
+						particle->speed = particle->speed + (velocity * deltaTime);
 					}
 				} break;
 				case SpeedTransition::RandomCurve: {
 					for (int32_t i = 0; i < length; i++) {
 						Particle* particle = &particleArrPtr[i];
 						const float velocity = curve->Evaluate(rand[particle->id]);
-						particle->speed = velocity + (velocity * deltaTime);
+						particle->speed = particle->speed + (velocity * deltaTime);
 					}
 				} break;
 				case SpeedTransition::None:
