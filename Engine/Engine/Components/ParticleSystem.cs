@@ -43,7 +43,7 @@ namespace SE.Components
             emission.Keys.Add(0.667f, 500.0f);
             emission.Keys.Add(1.0f, 0.0f);
 
-            Emitter.Config.Emission.SetConstant(1000);
+            Emitter.Config.Emission.SetConstant(4096);
             Emitter.Config.Emission.Loop = true;
             Emitter.Config.Texture.SetSheet(Texture, 5, 5);
             Emitter.Config.Color.SetRandomBetween(

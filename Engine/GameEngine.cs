@@ -142,7 +142,7 @@ namespace SE
                 ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolParticles
                     ? ParticleAllocationMode.ArrayPool
                     : ParticleAllocationMode.Array;
-                ParticleEngine.Initialize(this, GraphicsDeviceManager);
+                ParticleEngine.Initialize(GraphicsDevice);
 
                 UIManager.Initialize();
                 if (!Screen.IsFullHeadless) 
