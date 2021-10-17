@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 using SE.Attributes;
 using SE.Common;
 using SE.Components;
 using SE.Core;
+using System;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE
@@ -30,7 +30,7 @@ namespace SE
         public InternalCamera(Vector2 pos, float rot, Vector2 scale) : base(pos, rot, scale) { }
     }
 
-    public class SimpleCameraController : Component 
+    public class SimpleCameraController : Component
     {
         private Camera2D camera;
 

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using SE.Core;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using SE.Core;
 
 namespace SE.Modding
 {

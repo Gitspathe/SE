@@ -1,12 +1,10 @@
-﻿using System;
+﻿using SE.Core;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
-using FastStream;
-using SE.Core;
 using static SE.Serialization.Constants;
 
 namespace SE.Serialization
@@ -67,7 +65,7 @@ namespace SE.Serialization
             ArrayPool<byte>.Shared.Return(arr);
         }
 
-        internal static int GetUtf8Bytes(byte[] arr, string str) 
+        internal static int GetUtf8Bytes(byte[] arr, string str)
             => Serializer.UTF8.GetBytes(str, 0, str.Length, arr, 0);
 
         private static string GetPublicKeyTokenHexString(byte[] token)
@@ -109,7 +107,8 @@ namespace SE.Serialization
                         } else {
                             inArray = true;
                         }
-                    } break;
+                    }
+                    break;
                     case _END_ARRAY:
                         return true;
                     default:
@@ -135,7 +134,8 @@ namespace SE.Serialization
                             }
                         }
                         inMeta = true;
-                    } break;
+                    }
+                    break;
                     case _END_META:
                         return true;
                     default:
@@ -156,13 +156,13 @@ namespace SE.Serialization
                     case _BEGIN_CLASS: {
                         if (inClass) {
                             reader.BackOne();
-                            if (!SkipClass(reader))
-                            {
+                            if (!SkipClass(reader)) {
                                 return false;
                             }
                         }
                         inClass = true;
-                    } break;
+                    }
+                    break;
                     case _END_CLASS:
                         return true;
                     default:

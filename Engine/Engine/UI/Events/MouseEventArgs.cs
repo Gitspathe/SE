@@ -1,5 +1,5 @@
-﻿using System;
-using SE.Input;
+﻿using SE.Input;
+using System;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.UI.Events

@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.Components;
 using SE.Core.Exceptions;
-using SE.Rendering;
-using SE.World.Partitioning;
-using SE.Core.Extensions;
-using SE.Utility;
-using Vector2 = System.Numerics.Vector2;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
-using Vector4 = System.Numerics.Vector4;
 using SE.Particles;
+using SE.Rendering;
+using SE.Utility;
+using System;
+using System.Collections.Generic;
 using BlendMode = SE.Rendering.BlendMode;
+using Vector2 = System.Numerics.Vector2;
+using Vector4 = System.Numerics.Vector4;
 
 namespace SE.Core
 {
@@ -48,8 +43,7 @@ namespace SE.Core
             DepthBufferFunction = CompareFunction.GreaterEqual
         };
 
-        public static DepthStencilState DepthRead = new DepthStencilState
-        {
+        public static DepthStencilState DepthRead = new DepthStencilState {
             DepthBufferEnable = true,
             DepthBufferWriteEnable = false,
             DepthBufferFunction = CompareFunction.GreaterEqual
@@ -78,7 +72,7 @@ namespace SE.Core
 
         public static bool SpriteBatchActive { get; private set; }
 
-        private static Rectangle scissorRectBackup = new Rectangle(0,0,1920,1080);
+        private static Rectangle scissorRectBackup = new Rectangle(0, 0, 1920, 1080);
 
         public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
         public static GraphicsDevice GraphicsDevice { get; private set; }
@@ -119,7 +113,7 @@ namespace SE.Core
                             if (RenderLoop.IsDirty)
                                 break;
                         }
-                        if(RenderLoop.IsDirty)
+                        if (RenderLoop.IsDirty)
                             break;
                     }
                 }
@@ -159,18 +153,18 @@ namespace SE.Core
                 GraphicsDeviceManager.PreferredBackBufferHeight, false,
                 GraphicsDevice.PresentationParameters.BackBufferFormat, GraphicsDevice.PresentationParameters.DepthStencilFormat,
                 GraphicsDevice.PresentationParameters.MultiSampleCount, RenderTargetUsage.PreserveContents);
-            UIRender = new RenderTarget2D(GraphicsDevice, GraphicsDeviceManager.PreferredBackBufferWidth, 
+            UIRender = new RenderTarget2D(GraphicsDevice, GraphicsDeviceManager.PreferredBackBufferWidth,
                 GraphicsDeviceManager.PreferredBackBufferHeight, false,
-                GraphicsDevice.PresentationParameters.BackBufferFormat, GraphicsDevice.PresentationParameters.DepthStencilFormat, 
+                GraphicsDevice.PresentationParameters.BackBufferFormat, GraphicsDevice.PresentationParameters.DepthStencilFormat,
                 GraphicsDevice.PresentationParameters.MultiSampleCount, RenderTargetUsage.PreserveContents);
-            
-            FinalRender = GameEngine.IsEditor 
-                ? new RenderTarget2D(GraphicsDevice, GraphicsDeviceManager.PreferredBackBufferWidth, 
-                    GraphicsDeviceManager.PreferredBackBufferHeight, false, 
-                    GraphicsDevice.PresentationParameters.BackBufferFormat, GraphicsDevice.PresentationParameters.DepthStencilFormat, 
-                    GraphicsDevice.PresentationParameters.MultiSampleCount, RenderTargetUsage.DiscardContents) 
+
+            FinalRender = GameEngine.IsEditor
+                ? new RenderTarget2D(GraphicsDevice, GraphicsDeviceManager.PreferredBackBufferWidth,
+                    GraphicsDeviceManager.PreferredBackBufferHeight, false,
+                    GraphicsDevice.PresentationParameters.BackBufferFormat, GraphicsDevice.PresentationParameters.DepthStencilFormat,
+                    GraphicsDevice.PresentationParameters.MultiSampleCount, RenderTargetUsage.DiscardContents)
                 : null;
-            
+
             Lighting.Reset();
             GC.Collect();
         }
@@ -197,9 +191,9 @@ namespace SE.Core
             Cameras.Sort(new CameraQueueComparer());
             ChangeDrawCall(SpriteSortMode.Deferred, null, BlendState.AlphaBlend, SamplerState.PointClamp, null, RasterizerState.CullNone);
             foreach (Camera2D camera in Cameras) {
-                Rectangle renderRegion = new Rectangle((int)(camera.RenderRegion.X * screenWidth), 
-                    (int)(camera.RenderRegion.Y * screenHeight), 
-                    (int)(camera.RenderRegion.Width * screenWidth), 
+                Rectangle renderRegion = new Rectangle((int)(camera.RenderRegion.X * screenWidth),
+                    (int)(camera.RenderRegion.Y * screenHeight),
+                    (int)(camera.RenderRegion.Width * screenWidth),
                     (int)(camera.RenderRegion.Height * screenHeight));
 
                 SpriteBatch.Draw(camera.RenderTarget, renderRegion, Color.White);
@@ -242,9 +236,9 @@ namespace SE.Core
             }
 
             bool shouldChange = false;
-            if(currentBlendState != blendState)
+            if (currentBlendState != blendState)
                 shouldChange = true;
-            else if(currentEffect != effect)
+            else if (currentEffect != effect)
                 shouldChange = true;
 
             if (shouldChange) {
@@ -304,7 +298,7 @@ namespace SE.Core
             ChangeDrawCall(SpriteSortMode.Deferred, Screen.ScreenScaleMatrix);
             SpriteBatch.DrawString(defaultFont, str, Screen.ViewSize / 2.0f, Color.Red, 0f, strSize / 2.0f, Vector2.One, SpriteEffects.None, 0.0f);
             EndDrawCall();
-            
+
             GraphicsDevice.SetRenderTarget(null);
         }
 

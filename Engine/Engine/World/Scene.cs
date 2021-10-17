@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE.AssetManagement;
 using SE.Common;
 using SE.Components;
@@ -10,8 +6,11 @@ using SE.Core;
 using SE.Core.Internal;
 using SE.Lighting;
 using SE.Rendering;
-using SE.Core.Extensions;
 using SE.Utility;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization;
 //using SE.Engine.Physics;
 using Vector2 = System.Numerics.Vector2;
 
@@ -98,9 +97,9 @@ namespace SE.World
             int curTilesLoaded = 0;
             CreateLevel(data.TilesCount);
             MapData = new TileSpot[TilesCount.X][];
-            for(int x = 0; x < data.MapData.Length; x++) {
+            for (int x = 0; x < data.MapData.Length; x++) {
                 MapData[x] = new TileSpot[TilesCount.Y];
-                for(int y = 0; y < data.MapData[x].Length; y++) {
+                for (int y = 0; y < data.MapData[x].Length; y++) {
                     MapData[x][y] = new TileSpot(this);
                     MapData[x][y].TileTemplates = data.MapData[x][y];
                     CreateGameObjectsForTile(new Point(x, y));
@@ -121,9 +120,9 @@ namespace SE.World
             LevelData data = new LevelData();
             data.TilesCount = new Point(TilesCount.X, TilesCount.Y);
             data.MapData = new List<int>[TilesCount.X][];
-            for(int x = 0; x < MapData.Length; x++) {
+            for (int x = 0; x < MapData.Length; x++) {
                 data.MapData[x] = new List<int>[TilesCount.Y];
-                for(int y = 0; y < MapData[x].Length; y++) {
+                for (int y = 0; y < MapData[x].Length; y++) {
                     data.MapData[x][y] = MapData[x][y].TileTemplates;
                 }
             }
@@ -144,9 +143,9 @@ namespace SE.World
         public void CreateLevel(Point size)
         {
             MapData = new TileSpot[size.X][];
-            for(int x = 0; x < size.X; x++) {
+            for (int x = 0; x < size.X; x++) {
                 MapData[x] = new TileSpot[size.Y];
-                for(int y = 0; y < size.Y; y++) {
+                for (int y = 0; y < size.Y; y++) {
                     MapData[x][y] = new TileSpot(this);
                 }
             }
@@ -163,7 +162,7 @@ namespace SE.World
         /// <param name="tileID">Tileset tile ID to place.</param>
         public void PlaceTile(Point position, int tileID)
         {
-            if (position.X > MapData.Length-1 || position.Y > MapData[0].Length-1 || position.X < 0 || position.Y < 0 || TileExistsAtPoint(position, tileID))
+            if (position.X > MapData.Length - 1 || position.Y > MapData[0].Length - 1 || position.X < 0 || position.Y < 0 || TileExistsAtPoint(position, tileID))
                 return;
 
             MapData[position.X][position.Y].TileTemplates.Add(tileID);
@@ -188,8 +187,8 @@ namespace SE.World
                             Rectangle shadowBounds = sprite.Shadow.Bounds;
                             MapData[x][y].ShadowTemplates.Add(new TileSpot.ShadowTemplate(
                                 new Point(
-                                    (int)sprite.Bounds.X, 
-                                    (int)sprite.Bounds.Y), 
+                                    (int)sprite.Bounds.X,
+                                    (int)sprite.Bounds.Y),
                                 shadowBounds));
                         }
                     }
@@ -200,7 +199,7 @@ namespace SE.World
                 for (int y = 0; y < TilesCount.Y; y++) {
                     for (int z = 0; z < MapData[x][y].Gos.Count; z++) {
                         for (int s = 0; s < MapData[x][y].Gos[z].Sprites.Count; s++) {
-                            if(((ILit)MapData[x][y].Gos[z].Sprites.Array[s]).ShadowType == ShadowCasterType.Map)
+                            if (((ILit)MapData[x][y].Gos[z].Sprites.Array[s]).ShadowType == ShadowCasterType.Map)
                                 GenerateShadowsIteration(x, y, z, s);
                         }
                     }
@@ -234,7 +233,7 @@ namespace SE.World
         {
             GameObject go = MapData[x][y].Gos[z];
             SpriteBase sprite = go.Sprites.Array[s];
-            if(!(sprite is Sprite))
+            if (!(sprite is Sprite))
                 return;
 
             Rectangle shadowBounds = ((Sprite)sprite).Shadow.Bounds;
@@ -273,7 +272,7 @@ namespace SE.World
         /// <param name="position">Position in X and Y tile coordinates.</param>
         public void RemoveTilesAtPoint(Point position)
         {
-            if (position.X > MapData.Length-1 || position.Y > MapData[0].Length-1 || position.X < 0 || position.Y < 0)
+            if (position.X > MapData.Length - 1 || position.Y > MapData[0].Length - 1 || position.X < 0 || position.Y < 0)
                 return;
 
             MapData[position.X][position.Y].RemoveAndDestroyTiles();
@@ -287,7 +286,7 @@ namespace SE.World
         /// <returns>True if the specified tile exists at the given position.</returns>
         public bool TileExistsAtPoint(Point position, int id)
         {
-            if(MapData[position.X][position.Y] != null && MapData[position.X][position.Y].TileTemplateExists(id))
+            if (MapData[position.X][position.Y] != null && MapData[position.X][position.Y].TileTemplateExists(id))
                 return true;
 
             return false;
@@ -335,8 +334,8 @@ namespace SE.World
         /// </summary>
         public void RemoveAndDestroyAllTiles()
         {
-            for(int x = 0; x < MapData.Length; x++) {
-                for(int y = 0; y < MapData[x].Length; y++) {
+            for (int x = 0; x < MapData.Length; x++) {
+                for (int y = 0; y < MapData[x].Length; y++) {
                     MapData[x][y].RemoveAndDestroyTiles();
                 }
             }

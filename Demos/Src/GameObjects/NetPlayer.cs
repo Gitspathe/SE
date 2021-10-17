@@ -58,7 +58,7 @@ namespace SEDemos.GameObjects
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            if(!identity.IsOwner)
+            if (!identity.IsOwner)
                 return;
 
             //Ray2D ray = new Ray2D(Transform.GlobalPosition, Screen.WorldMousePoint);

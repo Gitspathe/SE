@@ -6,14 +6,11 @@ using SE.Core;
 using SE.Particles;
 using SE.UI;
 using SE.Utility;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using static SE.Core.Rendering;
 using Color = Microsoft.Xna.Framework.Color;
 using Console = SE.Core.Console;
-using Vector2 = System.Numerics.Vector2;
-using Vector4 = System.Numerics.Vector4;
 
 namespace SE.Rendering
 {
@@ -29,7 +26,7 @@ namespace SE.Rendering
         private QuickList<Emitter> tmpEmitters = new QuickList<Emitter>();
 
         private GraphicsDevice graphicsDevice = Core.Rendering.GraphicsDevice;
-        
+
         public static bool Multithreaded { get; set; } = false;
         public static int CullingThreshold { get; set; } = 128;
 
@@ -176,7 +173,7 @@ namespace SE.Rendering
 
         private void UIRenderIteration(Transform transform, Rectangle? originalScissorRect)
         {
-            if (transform.GameObject is UIObject drawnUIObject) { 
+            if (transform.GameObject is UIObject drawnUIObject) {
                 DrawUIElement(drawnUIObject, originalScissorRect);
             }
 
@@ -223,7 +220,7 @@ namespace SE.Rendering
                     continue;
 
                 graphicsDevice.ScissorRectangle = scissorRectBackup;
-                Rectangle curScissorRect = topLevelGizmo.ScissorRect 
+                Rectangle curScissorRect = topLevelGizmo.ScissorRect
                                            ?? graphicsDevice.ScissorRectangle;
 
                 graphicsDevice.ScissorRectangle = curScissorRect;

@@ -12,8 +12,7 @@ namespace SE.Animating
         private Ref<T> refValue;
 
         private T innerValue;
-        public T InnerValue
-        {
+        public T InnerValue {
             get => innerValue;
             set {
                 innerValue = value;

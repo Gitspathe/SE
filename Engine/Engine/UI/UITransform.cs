@@ -1,8 +1,8 @@
-﻿using System;
-using System.Numerics;
-using SE.Common;
+﻿using SE.Common;
 using SE.Components;
 using SE.Utility;
+using System;
+using System.Numerics;
 using Point = Microsoft.Xna.Framework.Point;
 
 namespace SE.UI
@@ -29,7 +29,7 @@ namespace SE.UI
             }
         }
 
-        public new UIObject GameObject => (UIObject) GameObjectProp;
+        public new UIObject GameObject => (UIObject)GameObjectProp;
 
         /// <summary>
         /// Parent size. Returns current Transform size if there is no parent.

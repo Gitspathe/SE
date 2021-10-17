@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Globalization;
-using System.Text;
-using FastStream;
-using SE.Core;
 
 namespace SE.Serialization.Converters
 {
@@ -23,7 +19,7 @@ namespace SE.Serialization.Converters
     public sealed class ByteConverter : Converter<byte>
     {
         public override Type Type => typeof(byte);
-        
+
         public override void SerializeBinary(byte obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
         public override byte DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
@@ -37,7 +33,7 @@ namespace SE.Serialization.Converters
     public sealed class SByteConverter : Converter<sbyte>
     {
         public override Type Type => typeof(sbyte);
-        
+
         public override void SerializeBinary(sbyte obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
         public override sbyte DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
@@ -51,7 +47,7 @@ namespace SE.Serialization.Converters
     public sealed class ShortConverter : Converter<short>
     {
         public override Type Type => typeof(short);
-        
+
         public override void SerializeBinary(short obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
         public override short DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
@@ -65,7 +61,7 @@ namespace SE.Serialization.Converters
     public sealed class UShortConverter : Converter<ushort>
     {
         public override Type Type => typeof(ushort);
-        
+
         public override void SerializeBinary(ushort obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
         public override ushort DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
@@ -80,7 +76,7 @@ namespace SE.Serialization.Converters
     {
         public override Type Type => typeof(int);
 
-        public override void SerializeBinary(int obj, Utf8Writer writer, ref SerializeTask task) 
+        public override void SerializeBinary(int obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
         public override int DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadInt32();
@@ -93,7 +89,7 @@ namespace SE.Serialization.Converters
     public sealed class UIntConverter : Converter<uint>
     {
         public override Type Type => typeof(uint);
-        
+
         public override void SerializeBinary(uint obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
         public override uint DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
@@ -107,7 +103,7 @@ namespace SE.Serialization.Converters
     public sealed class LongConverter : Converter<long>
     {
         public override Type Type => typeof(long);
-        
+
         public override void SerializeBinary(long obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
         public override long DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
@@ -121,7 +117,7 @@ namespace SE.Serialization.Converters
     public sealed class ULongConverter : Converter<ulong>
     {
         public override Type Type => typeof(ulong);
-        
+
         public override void SerializeBinary(ulong obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
         public override ulong DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
@@ -135,7 +131,7 @@ namespace SE.Serialization.Converters
     public sealed class FloatConverter : Converter<float>
     {
         public override Type Type => typeof(float);
-        
+
         public override void SerializeBinary(float obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
         public override float DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
@@ -149,7 +145,7 @@ namespace SE.Serialization.Converters
     public sealed class DoubleConverter : Converter<double>
     {
         public override Type Type => typeof(double);
-        
+
         public override void SerializeBinary(double obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
         public override double DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
@@ -163,7 +159,7 @@ namespace SE.Serialization.Converters
     public sealed class CharConverter : Converter<char>
     {
         public override Type Type => typeof(char);
-        
+
         public override void SerializeBinary(char obj, Utf8Writer writer, ref SerializeTask task)
             => writer.Write(obj);
         public override char DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
@@ -177,13 +173,13 @@ namespace SE.Serialization.Converters
     public sealed class StringConverter : Converter<string>
     {
         public override Type Type => typeof(string);
-        
+
         public override void SerializeBinary(string obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteQuotedTextUtf8(obj);
         public override string DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadQuotedString();
 
-        public override void SerializeText(string obj, Utf8Writer writer, ref SerializeTask task) 
+        public override void SerializeText(string obj, Utf8Writer writer, ref SerializeTask task)
             => writer.WriteQuotedTextUtf8(obj);
         public override string DeserializeTText(Utf8Reader reader, ref DeserializeTask task)
             => reader.ReadQuotedString();

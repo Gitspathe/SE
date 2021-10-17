@@ -9,7 +9,6 @@ using SE.Components.Lighting;
 using SE.Components.Network;
 using SE.Core;
 using SE.Core.Extensions;
-using SE.Engine.Networking;
 using SE.Physics;
 using SE.Rendering;
 using Random = SE.Utility.Random;
@@ -102,7 +101,7 @@ namespace SEDemos.GameObjects
         }
 
         protected override void OnUpdate()
-        { 
+        {
             base.OnUpdate();
             if (Network.InstanceType == NetInstanceType.Server) {
                 Transform.Rotation = myPhysics.Body.LinearVelocity.ToRotation();

@@ -8,6 +8,8 @@
     <AssemblyName>SE.Serializer.Tests</AssemblyName>
 
     <RootNamespace>SE.Serializer.Tests</RootNamespace>
+
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

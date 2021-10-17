@@ -9,7 +9,7 @@ namespace SE.Components.UI
     /// </summary>
     public class UIComponent : Component
     {
-        public new UIObject Owner => (UIObject) OwnerProp;
+        public new UIObject Owner => (UIObject)OwnerProp;
 
         protected sealed override GameObject OwnerProp { get; set; }
 

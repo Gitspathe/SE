@@ -1,5 +1,4 @@
 ﻿using SE.Components;
-using SE.Components.UI;
 using SE.World.Partitioning;
 
 namespace SE.Rendering

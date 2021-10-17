@@ -1,7 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using SE.Core;
-using System;
-using System.Numerics;
 
 namespace SE.World.Partitioning
 {

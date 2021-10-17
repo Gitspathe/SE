@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using SE.Common;
+﻿using Microsoft.Xna.Framework;
 using SE.Components;
 using SE.Utility;
 using SE.World.Partitioning;
+using System;
 using Vector2 = System.Numerics.Vector2;
 // ReSharper disable StaticMemberInGenericType
 
@@ -33,11 +31,11 @@ namespace SE.Core
             }
         }
 
-        public static void Insert<T>(IPartitionObject<T> obj) where T : IPartitionObject<T> 
-            => SpatialPartitionManager<T>.Insert((T) obj);
+        public static void Insert<T>(IPartitionObject<T> obj) where T : IPartitionObject<T>
+            => SpatialPartitionManager<T>.Insert((T)obj);
 
-        public static void Remove<T>(IPartitionObject<T> obj) where T : IPartitionObject<T> 
-            => SpatialPartitionManager<T>.Remove((T) obj);
+        public static void Remove<T>(IPartitionObject<T> obj) where T : IPartitionObject<T>
+            => SpatialPartitionManager<T>.Remove((T)obj);
     }
 
     public static class SpatialPartitionManager<T> where T : IPartitionObject<T>
@@ -65,7 +63,7 @@ namespace SE.Core
         internal static void Update()
         {
             pruneTimer -= Time.UnscaledDeltaTime;
-            if (!(pruneTimer <= 0.0f)) 
+            if (!(pruneTimer <= 0.0f))
                 return;
 
             partition.Prune();

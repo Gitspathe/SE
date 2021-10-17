@@ -35,7 +35,7 @@ namespace Particles {
 		for (int32_t i = 0; i < length; i++) {
 			int32_t pIndex = particleIndexArr[i];
 			Particle* particle = &particlesArrPtr[pIndex];
-			startSaturationArr[particle->id] = particle->color.y;
+			startSaturationArr[particle->id] = particle->color.getSaturation();
 			if (!isRandom())
 				continue;
 
@@ -50,20 +50,20 @@ namespace Particles {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.y = ParticleMath::lerp(startSaturationArr[particle->id], end1, particle->timeAlive / particle->initialLife);
+					particle->color.setSaturation(ParticleMath::lerp(startSaturationArr[particle->id], end1, particle->timeAlive / particle->initialLife));
 				}
 			} break;
 			case SaturationTransition::RandomLerp: {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.y = ParticleMath::lerp(startSaturationArr[particle->id], randEndSaturation[particle->id], particle->timeAlive / particle->initialLife);
+					particle->color.setSaturation(ParticleMath::lerp(startSaturationArr[particle->id], randEndSaturation[particle->id], particle->timeAlive / particle->initialLife));
 				}
 			} break;
 			case SaturationTransition::Curve: {
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.y = curve->Evaluate(particle->timeAlive / particle->initialLife);
+					particle->color.setSaturation(curve->Evaluate(particle->timeAlive / particle->initialLife));
 				}
 			} break;
 			case SaturationTransition::None:

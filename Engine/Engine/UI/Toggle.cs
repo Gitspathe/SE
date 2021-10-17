@@ -70,8 +70,7 @@ namespace SE.UI
                 if (IsToggled) {
                     IsToggled = false;
                     ToggleImage.Disable();
-                }
-                else {
+                } else {
                     IsToggled = true;
                     ToggleImage.Enable();
                 }

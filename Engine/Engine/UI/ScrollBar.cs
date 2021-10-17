@@ -20,7 +20,7 @@ namespace SE.UI
             set => this.value = value;
         }
 
-        public Color BackgroundColor { 
+        public Color BackgroundColor {
             get => Background.SpriteColor;
             set => Background.SpriteColor = value;
         }

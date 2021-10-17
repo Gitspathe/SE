@@ -18,13 +18,13 @@ namespace Particles {
 			return;
 
 		delete[] randEndColors;
-		randEndColors = new Vector4[particlesLength];
+		randEndColors = new ParticleColor[particlesLength];
 	}
 
 	void NativeColorModule::onInitialize(const int32_t particleArrayLength)
 	{
 		particlesLength = particleArrayLength;
-		startColorsArr = new Vector4[particleArrayLength];
+		startColorsArr = new ParticleColor[particleArrayLength];
 		isInitialized = true;
 
 		regenerateRandom();
@@ -39,11 +39,11 @@ namespace Particles {
 			if (!isRandom())
 				continue;
 
-			randEndColors[particle->id] = Vector4(
-				ParticleMath::between(end1.x, end2.x, Random::range(0.0f, 1.0f)),
-				ParticleMath::between(end1.y, end2.y, Random::range(0.0f, 1.0f)),
-				ParticleMath::between(end1.z, end2.z, Random::range(0.0f, 1.0f)),
-				ParticleMath::between(end1.w, end2.w, Random::range(0.0f, 1.0f)));
+			randEndColors[particle->id] = ParticleColor(
+				ParticleMath::between(end1.getHue(), end2.getHue(), Random::range(0.0f, 1.0f)),
+				ParticleMath::between(end1.getSaturation(), end2.getSaturation(), Random::range(0.0f, 1.0f)),
+				ParticleMath::between(end1.getLightness(), end2.getLightness(), Random::range(0.0f, 1.0f)),
+				ParticleMath::between(end1.getAlpha(), end2.getAlpha(), Random::range(0.0f, 1.0f)));
 		}
 	}
 
@@ -51,33 +51,27 @@ namespace Particles {
 	{
 		switch (transition) {
 			case ColorTransition::Lerp: {
-				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
 					const float life = particle->timeAlive / particle->initialLife;
 					int32_t pId = particleArrPtr[i].id;
-					particle->color.x = ParticleMath::lerp(startColorsArr[pId].x, end1.x, life);
-					particle->color.y = ParticleMath::lerp(startColorsArr[pId].y, end1.y, life);
-					particle->color.z = ParticleMath::lerp(startColorsArr[pId].z, end1.z, life);
-					particle->color.w = ParticleMath::lerp(startColorsArr[pId].w, end1.w, life);
+					particle->color = ParticleColor::Lerp(startColorsArr[pId], end1, life);
 				}
 			} break;
 			case ColorTransition::RandomLerp: {
-				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
 					const float life = particle->timeAlive / particle->initialLife;
 					int32_t pId = particleArrPtr[i].id;
-					particle->color.x = ParticleMath::lerp(startColorsArr[pId].x, randEndColors[pId].x, life);
-					particle->color.y = ParticleMath::lerp(startColorsArr[pId].y, randEndColors[pId].y, life);
-					particle->color.z = ParticleMath::lerp(startColorsArr[pId].z, randEndColors[pId].z, life);
-					particle->color.w = ParticleMath::lerp(startColorsArr[pId].w, randEndColors[pId].w, life);
+					particle->color = ParticleColor::Lerp(startColorsArr[pId], randEndColors[pId], life);
 				}
 			} break;
 			case ColorTransition::Curve: {
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color = curve->Evaluate(particle->timeAlive / particle->initialLife);
+					const float life = particle->timeAlive / particle->initialLife;
+					Vector4 vec = curve->Evaluate(life);
+					particle->color = ParticleColor(vec.x, vec.y, vec.z, vec.w);
 				}
 			} break;
 			case ColorTransition::None:
@@ -95,22 +89,22 @@ namespace Particles {
 		transition = ColorTransition::None;
 	}
 
-	void NativeColorModule::setLerp(Vector4 end)
+	void NativeColorModule::setLerp(ParticleColor end)
 	{
 		transition = ColorTransition::Lerp;
 		end1 = end;
 	}
 
-	void NativeColorModule::setRandomLerp(Vector4 min, Vector4 max)
+	void NativeColorModule::setRandomLerp(ParticleColor min, ParticleColor max)
 	{
-		if (min.x > max.x)
-			ParticleMath::swap(&min.x, &max.x);
-		if (min.y > max.y)
-			ParticleMath::swap(&min.y, &max.y);
-		if (min.z > max.z)
-			ParticleMath::swap(&min.z, &max.z);
-		if (min.w > max.w)
-			ParticleMath::swap(&min.w, &max.w);
+		//if (min.x > max.x)
+		//	ParticleMath::swap(&min.x, &max.x);
+		//if (min.y > max.y)
+		//	ParticleMath::swap(&min.y, &max.y);
+		//if (min.z > max.z)
+		//	ParticleMath::swap(&min.z, &max.z);
+		//if (min.w > max.w)
+		//	ParticleMath::swap(&min.w, &max.w);
 
 		transition = ColorTransition::RandomLerp;
 		end1 = min;
@@ -144,12 +138,12 @@ namespace Particles {
 		modulePtr->setNone();
 	}
 
-	LIB_API(void) nativeModule_ColorModule_SetLerp(NativeColorModule* const modulePtr, Vector4 end)
+	LIB_API(void) nativeModule_ColorModule_SetLerp(NativeColorModule* const modulePtr, ParticleColor end)
 	{
 		modulePtr->setLerp(end);
 	}
 
-	LIB_API(void) nativeModule_ColorModule_SetRandomLerp(NativeColorModule* const modulePtr, Vector4 min, Vector4 max)
+	LIB_API(void) nativeModule_ColorModule_SetRandomLerp(NativeColorModule* const modulePtr, ParticleColor min, ParticleColor max)
 	{
 		modulePtr->setRandomLerp(min, max);
 	}

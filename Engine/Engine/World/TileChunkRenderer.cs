@@ -1,10 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using SE.Components;
-using SE.Rendering;
-using SE.Utility;
-using Vector2 = System.Numerics.Vector2;
+﻿using SE.Rendering;
 
 namespace SE.World
 {

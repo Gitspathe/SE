@@ -13,8 +13,7 @@ namespace SE.Animating
         private bool reverse;
 
         private WrapMode wrapMode = WrapMode.Once;
-        public WrapMode WrapMode
-        {
+        public WrapMode WrapMode {
             get => wrapMode;
             set {
                 wrapMode = value;
@@ -63,7 +62,7 @@ namespace SE.Animating
 
         public IAnimatedValue Get(int index)
         {
-            if(index < 0 || index > animatedValues.Count)
+            if (index < 0 || index > animatedValues.Count)
                 return null;
 
             return animatedValues[index];
@@ -111,7 +110,7 @@ namespace SE.Animating
 
         public Animation(params IAnimatedValue[] animations)
         {
-            for(int i = 0; i < animations.Length; i++)
+            for (int i = 0; i < animations.Length; i++)
                 Add(animations[i]);
         }
     }

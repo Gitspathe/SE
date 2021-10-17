@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
+using System;
 
 namespace SE.Rendering
 {
@@ -31,13 +31,13 @@ namespace SE.Rendering
         public static bool operator ==(SpriteTexture a, SpriteTexture b) => a.Equals(b);
         public static bool operator !=(SpriteTexture a, SpriteTexture b) => !(a == b);
 
-        public bool Equals(SpriteTexture other) 
+        public bool Equals(SpriteTexture other)
             => Equals(textureAsset, other.textureAsset) && SourceRectangle.Equals(other.SourceRectangle);
 
-        public override bool Equals(object obj) 
+        public override bool Equals(object obj)
             => obj is SpriteTexture other && Equals(other);
 
-        public override int GetHashCode() 
+        public override int GetHashCode()
             => HashCode.Combine(textureAsset, SourceRectangle);
     }
 }

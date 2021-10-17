@@ -21,16 +21,16 @@ namespace SEDemos.GameObjects.UI
         private bool showControls = true;
         public BackButton() : base(Vector2.Zero)
         {
-            if(Screen.IsFullHeadless)
+            if (Screen.IsFullHeadless)
                 return;
 
-            Button controls = EditorTheme.CreateButton(new Vector2(1760, 910), new Point(150, 70), 
+            Button controls = EditorTheme.CreateButton(new Vector2(1760, 910), new Point(150, 70),
                 "Hide Controls", Transform, EditorTheme.ColorSet.Blue);
 
-            Button back = EditorTheme.CreateButton(new Vector2(1760, 990), new Point(150, 70), 
+            Button back = EditorTheme.CreateButton(new Vector2(1760, 990), new Point(150, 70),
                 "Back to Menu", Transform, EditorTheme.ColorSet.Blue);
 
-            Button disableMultithreading = EditorTheme.CreateButton(new Vector2(1450, 990), new Point(300, 70), 
+            Button disableMultithreading = EditorTheme.CreateButton(new Vector2(1450, 990), new Point(300, 70),
                 "Disable Multi-Threading", Transform, EditorTheme.ColorSet.Blue);
 
             back.Clicked += (sender, args) => SceneManager.SetCurrentScene("_DEMOS\\menu");

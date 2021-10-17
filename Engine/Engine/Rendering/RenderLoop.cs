@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using SE.Components;
-using SE.Core;
+﻿using SE.Core;
 using SE.Utility;
-using Console = SE.Core.Console;
+using System.Collections.Generic;
 
 namespace SE.Rendering
 {
@@ -52,7 +49,7 @@ namespace SE.Rendering
         static RenderLoop()
         {
             // Do not set rendering loop if fully headless.
-            if(Screen.IsFullHeadless)
+            if (Screen.IsFullHeadless)
                 return;
 
             // Headless mode.

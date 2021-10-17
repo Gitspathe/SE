@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using SE.AssetManagement;
-using SE.Attributes;
-using SE.Components;
+﻿using SE.Components;
 using SE.Components.Network;
 using SE.Core;
 using SE.Core.Internal;
+using SE.Engine.Networking;
+using SE.Networking.Internal;
 using SE.Pooling;
 using SE.Serialization;
 using SE.UI;
-using SE.Core.Extensions;
-using SE.Engine.Networking;
-using SE.Networking.Internal;
 using SE.Utility;
+using System;
+using System.Collections.Generic;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Common
@@ -80,7 +76,7 @@ namespace SE.Common
             ReflectionInfo = Reflection.GetGameObjectInfo(GetType());
 
             // Skip this constructor if the GameObject is a UIObject.
-            if (this is UIObject) 
+            if (this is UIObject)
                 return;
 
             Transform = new Transform(pos, scale, rot, this);
@@ -115,10 +111,10 @@ namespace SE.Common
         public bool ExecuteIsValid()
             => ReflectionInfo.Execute;
 
-        internal void AddSprite(SpriteBase s) 
+        internal void AddSprite(SpriteBase s)
             => Sprites.Add(s);
 
-        internal void RemoveSprite(SpriteBase s) 
+        internal void RemoveSprite(SpriteBase s)
             => Sprites.Remove(s);
 
         internal void UpdateSpriteBounds()
@@ -150,7 +146,7 @@ namespace SE.Common
             // If the GameObject has a Components attribute, add the components required, from the reflection cache.
             // Components added in this step are not initialized until Initialize() is called.
             foreach (Type type in Reflection.GetGameObjectInfo(GetType()).Components) {
-                Component component = (Component) Activator.CreateInstance(type);
+                Component component = (Component)Activator.CreateInstance(type);
                 component.InstantiatedFromAttribute = true;
                 AddComponentInternal(component, false);
             }
@@ -172,7 +168,7 @@ namespace SE.Common
         {
             OnInitializeInternal();
             OnAwakeInternal();
-            if(ExecuteIsValid())
+            if (ExecuteIsValid())
                 OnInitialize();
 
             // Initialize any components from the EngineInitialize() method.
@@ -195,13 +191,13 @@ namespace SE.Common
         public void Update()
         {
             OnUpdateInternal();
-            if(ExecuteIsValid())
+            if (ExecuteIsValid())
                 OnUpdate();
         }
 
         public override void Destroy()
         {
-            if(Destroyed)
+            if (Destroyed)
                 return;
 
             base.Destroy();
@@ -224,7 +220,7 @@ namespace SE.Common
                 return;
 
             // Call destroy if valid.
-            if(ExecuteIsValid())
+            if (ExecuteIsValid())
                 OnDestroy();
 
             // If the GameObject is networked, tell the NetHelper to clean it up and then call OnDestroyInternal.
@@ -240,13 +236,13 @@ namespace SE.Common
 
         public void Enable(bool isRoot = true)
         {
-            if (!Enabled) 
+            if (!Enabled)
                 OnEnableInternal(isRoot);
         }
 
         public void Disable(bool isRoot = true)
         {
-            if(Enabled)
+            if (Enabled)
                 OnDisableInternal(isRoot);
         }
 
@@ -381,7 +377,7 @@ namespace SE.Common
             GameEngine.AddGameObject(this);
             for (int i = 0; i < Components.Count; i++) {
                 Component component = Components.Array[i];
-                if (ExecuteIsValid(component)) { 
+                if (ExecuteIsValid(component)) {
                     component.Enabled = true;
                 }
             }
@@ -391,7 +387,7 @@ namespace SE.Common
                 Transform.ChildStateTree.Apply();
             }
 
-            if(execute)
+            if (execute)
                 OnEnable(isRoot);
         }
 
@@ -426,7 +422,7 @@ namespace SE.Common
                 children[i].GameObject?.OnDisableInternal(false);
             }
 
-            if(execute)
+            if (execute)
                 OnDisable(isRoot);
         }
 
@@ -446,7 +442,7 @@ namespace SE.Common
         /// </summary>
         /// <typeparam name="T">Component Type.</typeparam>
         /// <returns>True if the GameObject has a component of the specified Type.</returns>
-        public bool HasComponent<T>() where T : Component 
+        public bool HasComponent<T>() where T : Component
             => HasComponent(typeof(T));
 
         public bool HasComponent(Type type)
@@ -466,8 +462,8 @@ namespace SE.Common
         /// </summary>
         /// <typeparam name="T">Component Type.</typeparam>
         /// <returns>A Component.</returns>
-        public T GetComponent<T>() where T : Component 
-            => (T) GetComponent(typeof(T));
+        public T GetComponent<T>() where T : Component
+            => (T)GetComponent(typeof(T));
 
         public Component GetComponent(Type type)
         {
@@ -567,7 +563,7 @@ namespace SE.Common
             return component;
         }
 
-        public Component AddComponent(Component component) 
+        public Component AddComponent(Component component)
             => AddComponentInternal(component);
 
         /// <summary>
@@ -618,7 +614,7 @@ namespace SE.Common
             }
         }
 
-        protected internal void SortComponents() 
+        protected internal void SortComponents()
             => Components.Sort(new ComponentQueueComparer());
 
         internal string SerializeJson()
@@ -641,17 +637,17 @@ namespace SE.Common
             };
             for (int i = 0; i < Components.Count; i++) {
                 Component component = Components.Array[i];
-                if(!component.Serialized)
+                if (!component.Serialized)
                     continue;
 
                 ComponentData componentData = component.Serialize();
-                componentData.ComponentIndex = (ulong) i;
+                componentData.ComponentIndex = (ulong)i;
                 data.componentData.Add(componentData);
             }
             return data;
         }
 
-        internal void Deserialize(string jsonData) 
+        internal void Deserialize(string jsonData)
             => Deserialize(jsonData.Deserialize<GameObjectData>());
 
         internal void Deserialize(GameObjectData data)
@@ -665,9 +661,9 @@ namespace SE.Common
             // Deserialize any valid components...
             foreach (ComponentData serializedComponent in data.componentData) {
                 for (int i = 0; i < Components.Count; i++) {
-                    if(!Components.Array[i].Serialized)
+                    if (!Components.Array[i].Serialized)
                         continue;
-                    if(serializedComponent.ComponentIndex != (ulong) i)
+                    if (serializedComponent.ComponentIndex != (ulong)i)
                         continue;
 
                     Component component = Components.Array[i];

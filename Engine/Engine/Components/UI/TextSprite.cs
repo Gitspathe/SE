@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.Rendering;
-using System.Threading.Tasks;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components.UI
@@ -30,10 +29,10 @@ namespace SE.Components.UI
             Vector2 position = ownerTransform.GlobalPositionInternal;
             if (space == Space.World) {
                 position -= camera.Position;
-                bounds.X -= (int) camera.Position.X;
-                bounds.Y -= (int) camera.Position.Y;
+                bounds.X -= (int)camera.Position.X;
+                bounds.Y -= (int)camera.Position.Y;
             }
-            position = new Vector2((int) position.X, (int) position.Y);
+            position = new Vector2((int)position.X, (int)position.Y);
 
             Core.Rendering.SpriteBatch.DrawString(
                 SpriteFontAsset.Value,
@@ -41,9 +40,9 @@ namespace SE.Components.UI
                 position,
                 color,
                 0,
-                origin, 
-                ownerTransform.GlobalScaleInternal, 
-                SpriteEffects.None, 
+                origin,
+                ownerTransform.GlobalScaleInternal,
+                SpriteEffects.None,
                 LayerDepth + 0.000001f);
         }
 

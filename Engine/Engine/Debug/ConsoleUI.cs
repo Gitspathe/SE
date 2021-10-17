@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE.Core;
 using SE.Editor.UI;
 using SE.Pooling;
 using SE.Rendering;
 using SE.UI;
+using System;
+using System.Collections.Generic;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Debug
@@ -48,7 +48,7 @@ namespace SE.Debug
                     DisableHidden = true
                 };
 
-                TextInputField = EditorTheme.CreateTextField(new Vector2(0, 1040), new Point(1920, 40), ">", 
+                TextInputField = EditorTheme.CreateTextField(new Vector2(0, 1040), new Point(1920, 40), ">",
                     background.Transform);
 
                 ScrollBar = new ScrollBar(new Vector2(1920 - 30, 0), new Point(30, 1040), new Point(50, 50), AssetManager.GetAsset<SpriteTexture>("uiRect"), AssetManager.GetAsset<SpriteTexture>("uiRect")) {
@@ -68,7 +68,7 @@ namespace SE.Debug
                     DisableHidden = true
                 };
 
-                TextInputField = EditorTheme.CreateTextField(new Vector2(0, 265), new Point(1920, 35), ">", 
+                TextInputField = EditorTheme.CreateTextField(new Vector2(0, 265), new Point(1920, 35), ">",
                     background.Transform);
 
                 ScrollBar = new ScrollBar(new Vector2(1920 - 30, 0), new Point(30, 265), new Point(50, 50), AssetManager.GetAsset<SpriteTexture>("uiRect"), AssetManager.GetAsset<SpriteTexture>("uiRect")) {

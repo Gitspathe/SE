@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace SE.Animating
 {
@@ -28,7 +28,7 @@ namespace SE.Animating
         {
             this.curve = curve;
             TransitionType = TransitionType.Curve;
-            Duration = curve.Keys[curve.Keys.Count-1].Position;
+            Duration = curve.Keys[curve.Keys.Count - 1].Position;
         }
     }
 }

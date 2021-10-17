@@ -45,7 +45,7 @@ namespace SE.UI.Builders
             return this;
         }
 
-        public Panel Done() 
+        public Panel Done()
             => panel;
 
         public PanelBuilder(Vector2 pos, Point size)

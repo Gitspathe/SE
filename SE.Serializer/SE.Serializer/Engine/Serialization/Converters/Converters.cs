@@ -1,5 +1,5 @@
-﻿using System;
-using SE.Core;
+﻿using SE.Core;
+using System;
 
 namespace SE.Serialization.Converters
 {
@@ -25,7 +25,7 @@ namespace SE.Serialization.Converters
 
         internal void WhiteList()
         {
-            if(this is GeneratedConverter || Type == null)
+            if (this is GeneratedConverter || Type == null)
                 return;
 
             Serializer.Whitelist.PolymorphicWhitelist.Add(Type);
@@ -47,7 +47,7 @@ namespace SE.Serialization.Converters
             try {
                 if (Type == typeof(object)) {
                     isObject = true;
-                } else if(Type != null) {
+                } else if (Type != null) {
                     defaultInstance = Type.IsValueType ? Activator.CreateInstance(Type) : null;
                 }
             } catch (Exception) {
@@ -65,13 +65,13 @@ namespace SE.Serialization.Converters
 
     public abstract class Converter<T> : Converter
     {
-        public sealed override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task) 
+        public sealed override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task)
             => SerializeBinary((T)obj, writer, ref task);
-        public sealed override void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task) 
+        public sealed override void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task)
             => SerializeText((T)obj, writer, ref task);
-        public sealed override object DeserializeBinary(Utf8Reader reader, ref DeserializeTask task) 
+        public sealed override object DeserializeBinary(Utf8Reader reader, ref DeserializeTask task)
             => DeserializeTBinary(reader, ref task);
-        public sealed override object DeserializeText(Utf8Reader reader, ref DeserializeTask task) 
+        public sealed override object DeserializeText(Utf8Reader reader, ref DeserializeTask task)
             => DeserializeTText(reader, ref task);
 
         public abstract void SerializeBinary(T obj, Utf8Writer writer, ref SerializeTask task);

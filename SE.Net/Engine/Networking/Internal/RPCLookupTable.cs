@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using SE.Core.Exceptions;
 
 namespace SE.Engine.Networking.Internal
 {
@@ -34,10 +33,10 @@ namespace SE.Engine.Networking.Internal
             return false;
         }
 
-        public T GetRPCInfo(ushort id) 
+        public T GetRPCInfo(ushort id)
             => RPCTableInt[id];
 
-        public T GetRPCInfo(string id) 
+        public T GetRPCInfo(string id)
             => RPCTableString[id];
 
         public bool TryGetUshortID(string id, out ushort ushortID)

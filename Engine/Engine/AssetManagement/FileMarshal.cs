@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
 using SE.AssetManagement.FileProcessors;
 using SE.Core;
 using SE.Utility;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using IOFile = System.IO.File;
 
 namespace SE.AssetManagement
@@ -46,7 +43,7 @@ namespace SE.AssetManagement
             foreach (string dir in Directory.GetDirectories(FileIO.DataDirectory)) {
                 foreach (string file in FileIO.GetAllFiles(dir, excludedExtensions: excludedExtensions)) {
                     string extension = Path.GetExtension(file);
-                    if(string.IsNullOrEmpty(extension))
+                    if (string.IsNullOrEmpty(extension))
                         continue;
 
                     if (extension != _DATA_EXTENSION) {
@@ -101,7 +98,7 @@ namespace SE.AssetManagement
                 File file = bgLoadFiles.Array[i];
                 if (file.BackgroundState == BackgroundState.Load && file.LoadState < LoadState.LoadedBytes)
                     continue;
-                
+
                 file.BackgroundState = BackgroundState.None;
                 bgLoadFiles.Remove(file);
             }
@@ -121,7 +118,7 @@ namespace SE.AssetManagement
                 foreach (File file in pendingLoad) {
                     if (bgLoadFiles.Count > loadBatch)
                         break;
-                    if (file.BackgroundState != BackgroundState.Load || bgLoadFiles.Contains(file)) 
+                    if (file.BackgroundState != BackgroundState.Load || bgLoadFiles.Contains(file))
                         continue;
 
                     bgLoadFiles.Add(file);
@@ -131,7 +128,7 @@ namespace SE.AssetManagement
                 foreach (File file in pendingUnload) {
                     if (bgUnloadFiles.Count > loadBatch)
                         break;
-                    if (file.BackgroundState != BackgroundState.Unload || bgUnloadFiles.Contains(file)) 
+                    if (file.BackgroundState != BackgroundState.Unload || bgUnloadFiles.Contains(file))
                         continue;
 
                     bgUnloadFiles.Add(file);
@@ -174,7 +171,7 @@ namespace SE.AssetManagement
 
         public static void AddProcessor(FileProcessor processor)
         {
-            if(fileProcessors.ContainsKey(processor.Type))
+            if (fileProcessors.ContainsKey(processor.Type))
                 return;
 
             foreach (string ext in processor.FileExtensions) {
@@ -186,8 +183,8 @@ namespace SE.AssetManagement
         public static bool TryLoad<T>(string file, out T obj)
         {
             // Try to return from a FileProcessor.
-            if(TryGet(file, out File f)) {
-                obj = (T) f.Data;
+            if (TryGet(file, out File f)) {
+                obj = (T)f.Data;
                 return true;
             }
 
@@ -195,7 +192,7 @@ namespace SE.AssetManagement
             return false;
         }
 
-        public static bool TryGet(string file, out File f) 
+        public static bool TryGet(string file, out File f)
             => files.TryGetValue(file, out f);
 
         internal class File
@@ -214,7 +211,7 @@ namespace SE.AssetManagement
 
             public object Data {
                 get {
-                    if(data != null)
+                    if (data != null)
                         return data;
 
                     // Load into memory if unloaded.
@@ -228,7 +225,7 @@ namespace SE.AssetManagement
                     BinaryReader reader = new BinaryReader(stream);
                     if (!fileProcessorExtensions.TryGetValue(Header.OriginalExtension, out FileProcessor processor))
                         return null;
-                    if(processor.LoadFileInternal(GameEngine.Engine.GraphicsDevice, reader, ref Header, out object o))
+                    if (processor.LoadFileInternal(GameEngine.Engine.GraphicsDevice, reader, ref Header, out object o))
                         data = o;
 
                     bytes = null;
@@ -289,7 +286,7 @@ namespace SE.AssetManagement
 
             public void LoadHeader()
             {
-                if(SyncTask(TaskType.LoadHeader))
+                if (SyncTask(TaskType.LoadHeader))
                     return;
 
                 // Read and construct header.
@@ -309,7 +306,7 @@ namespace SE.AssetManagement
 
             public void Load()
             {
-                if(SyncTask(TaskType.Load))
+                if (SyncTask(TaskType.Load))
                     return;
 
                 // Load header if it's unloaded.
@@ -324,7 +321,7 @@ namespace SE.AssetManagement
                     BinaryReader reader = new BinaryReader(stream);
                     try {
                         stream.Position = Header.HeaderSize;
-                        bytes = reader.ReadBytes((int) Header.FileSize);
+                        bytes = reader.ReadBytes((int)Header.FileSize);
                     } finally {
                         reader.Close();
                         UpdateState();

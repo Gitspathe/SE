@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using SE.Animating;
+﻿using SE.Animating;
 using SE.Common;
 using SE.Core;
+using System;
+using System.Collections.Generic;
 
 namespace SE.Components
 {

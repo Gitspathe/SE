@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using LiteNetLib.Utils;
+﻿using LiteNetLib.Utils;
 using SE.Engine.Networking;
 using SE.Networking.Internal;
 using SE.Networking.Types;
+using System;
+using System.Collections.Generic;
+using System.Numerics;
 using static SE.Core.Network;
 
 namespace SE.Components.Network
@@ -159,7 +159,7 @@ namespace SE.Components.Network
 
             public byte[] Serialize(NetDataWriter writer)
             {
-                writer.Put((uint) NetStates.Count);
+                writer.Put((uint)NetStates.Count);
                 for (int i = 0; i < NetStates.Count; i++) {
                     writer.PutBytesWithLength(NetStates[i]);
                     writer.Put(NetIDs[i]);

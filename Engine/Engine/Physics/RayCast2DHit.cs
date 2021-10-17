@@ -1,7 +1,7 @@
-﻿using System;
-using System.Numerics;
-using SE.Common;
+﻿using SE.Common;
 using SE.Components;
+using System;
+using System.Numerics;
 
 namespace SE.Physics
 {
@@ -10,7 +10,7 @@ namespace SE.Physics
         private Fixture fixture;
         public Fixture Fixture {
             get {
-                if(fixture == null)
+                if (fixture == null)
                     throw new NullReferenceException("The RayCast2DHit is empty. Did you forget to check if the raycast returned true?");
 
                 return fixture;

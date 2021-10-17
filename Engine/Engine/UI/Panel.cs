@@ -10,7 +10,7 @@ namespace SE.UI
     /// </summary>
     public class Panel : UIObject
     {
-        public UISlicedSprite SlicedSprite { 
+        public UISlicedSprite SlicedSprite {
             get => slicedSprite;
             set {
                 slicedSprite?.Destroy();

@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using System;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Utility
@@ -21,22 +21,22 @@ namespace SE.Utility
 
         public float Bottom => (Y + Height);
 
-        public static bool operator ==(RectangleF a, RectangleF b) => 
+        public static bool operator ==(RectangleF a, RectangleF b) =>
             ((a.X == b.X) && (a.Y == b.Y) && (a.Width == b.Width) && (a.Height == b.Height));
 
-        public bool Contains(int x, int y) => 
+        public bool Contains(int x, int y) =>
             ((((X <= x) && (x < (X + Width))) && (Y <= y)) && (y < (Y + Height)));
 
-        public bool Contains(Vector2 value) => 
+        public bool Contains(Vector2 value) =>
             ((((X <= value.X) && (value.X < (X + Width))) && (Y <= value.Y)) && (value.Y < (Y + Height)));
 
-        public bool Contains(Point value) => 
+        public bool Contains(Point value) =>
             ((((X <= value.X) && (value.X < (X + Width))) && (Y <= value.Y)) && (value.Y < (Y + Height)));
 
-        public bool Contains(RectangleF value) => 
+        public bool Contains(RectangleF value) =>
             ((((X <= value.X) && ((value.X + value.Width) <= (X + Width))) && (Y <= value.Y)) && ((value.Y + value.Height) <= (Y + Height)));
 
-        public bool Contains(Rectangle value) => 
+        public bool Contains(Rectangle value) =>
             ((((X <= value.X) && ((value.X + value.Width) <= (X + Width))) && (Y <= value.Y)) && ((value.Y + value.Height) <= (Y + Height)));
 
         public static bool operator !=(RectangleF a, RectangleF b) => !(a == b);
@@ -128,15 +128,15 @@ namespace SE.Utility
             float distanceY = centerA.Y - centerB.Y;
             float minDistanceX = halfWidthA;
             float minDistanceY = halfHeightA;
-            
+
             // If we are not intersecting at all, return (0, 0).
-        #if NETSTANDARD2_1
+#if NETSTANDARD2_1
             if (MathF.Abs(distanceX) >= minDistanceX || MathF.Abs(distanceY) >= minDistanceY)
                 return Vector2.Zero;
-        #elif NETSTANDARD2_0
+#elif NETSTANDARD2_0
             if (Math.Abs(distanceX) >= minDistanceX || Math.Abs(distanceY) >= minDistanceY)
                 return Vector2.Zero;
-        #endif
+#endif
 
             // Calculate and return intersection depths.
             float depthX = distanceX > 0.0f ? minDistanceX - distanceX : -minDistanceX - distanceX;
@@ -163,13 +163,13 @@ namespace SE.Utility
             float minDistanceY = halfHeightA;
 
             // If we are not intersecting at all, return (0, 0).
-        #if NETSTANDARD2_1
+#if NETSTANDARD2_1
             if (MathF.Abs(distanceX) >= minDistanceX || MathF.Abs(distanceY) >= minDistanceY)
                 return Vector2.Zero;
-        #elif NETSTANDARD2_0
+#elif NETSTANDARD2_0
             if (Math.Abs(distanceX) >= minDistanceX || Math.Abs(distanceY) >= minDistanceY)
                 return Vector2.Zero;
-        #endif
+#endif
 
             // Calculate and return intersection depths.
             float depthX = distanceX > 0.0f ? minDistanceX - distanceX : -minDistanceX - distanceX;

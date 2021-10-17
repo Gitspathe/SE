@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
-using AetherRaycastInput = tainicom.Aether.Physics2D.Collision.RayCastInput;
 using static SE.Core.Physics;
+using AetherRaycastInput = tainicom.Aether.Physics2D.Collision.RayCastInput;
 
 namespace SE.Physics
 {

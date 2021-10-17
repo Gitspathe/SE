@@ -1,12 +1,12 @@
-﻿using System;
+﻿using SE.Serialization;
+using SE.Serialization.Attributes;
+using SE.Serialization.Converters;
+using SE.Serialization.Resolvers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using SE.Serialization;
-using SE.Serialization.Attributes;
-using SE.Serialization.Converters;
-using SE.Serialization.Resolvers;
 using static SE.Serialization.Constants;
 
 namespace SE.Core
@@ -18,22 +18,22 @@ namespace SE.Core
 
         public static UTF8Encoding UTF8 = new UTF8Encoding(false, false);
 
-        public static byte[] Serialize(object obj) 
+        public static byte[] Serialize(object obj)
             => Serialize(obj, DefaultSettings);
 
-        public static byte[] Serialize<T>(T obj) 
+        public static byte[] Serialize<T>(T obj)
             => Serialize(obj, DefaultSettings);
 
         public static byte[] Serialize(object obj, SerializerSettings settings)
         {
-            if(obj == null)
+            if (obj == null)
                 return null;
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
             SerializeTask task = new SerializeTask(settings);
             Converter converter = settings.Resolver.GetConverter(obj.GetType());
-            using(Utf8Writer writer = new Utf8Writer()) {
+            using (Utf8Writer writer = new Utf8Writer()) {
                 if (converter == null)
                     return null;
 
@@ -62,7 +62,7 @@ namespace SE.Core
 
         public static void SerializeWriter(Utf8Writer writer, object obj, Converter converter, ref SerializeTask task, bool increment = true)
         {
-            if(increment && task.CurrentDepth > task.Settings.MaxDepth)
+            if (increment && task.CurrentDepth > task.Settings.MaxDepth)
                 return;
 
             SerializeTask clone = task.Clone(increment ? 1 : 0);
@@ -85,7 +85,7 @@ namespace SE.Core
 
             SerializeTask task = new SerializeTask(settings);
             Converter<T> converterT = settings.Resolver.GetConverter<T>();
-            using(Utf8Writer writer = new Utf8Writer()) {
+            using (Utf8Writer writer = new Utf8Writer()) {
                 if (converterT != null) {
                     SerializeWriter(writer, obj, converterT, ref task);
                     return writer.ToArray();
@@ -93,7 +93,7 @@ namespace SE.Core
 
                 // Get non-generic converter if above fails.
                 Converter converter = settings.Resolver.GetConverter(typeof(T));
-                if(converter == null)
+                if (converter == null)
                     return null;
 
                 SerializeWriter(writer, obj, converter, ref task);
@@ -103,7 +103,7 @@ namespace SE.Core
 
         public static void SerializeWriter<T>(Utf8Writer writer, T obj, Converter<T> serializer, ref SerializeTask task, bool increment = true)
         {
-            if(increment && task.CurrentDepth > task.Settings.MaxDepth)
+            if (increment && task.CurrentDepth > task.Settings.MaxDepth)
                 return;
 
             SerializeTask clone = task.Clone(increment ? 1 : 0);
@@ -119,12 +119,12 @@ namespace SE.Core
             }
         }
 
-        public static T Deserialize<T>(byte[] data) 
+        public static T Deserialize<T>(byte[] data)
             => Deserialize<T>(data, DefaultSettings);
 
         public static T Deserialize<T>(byte[] data, SerializerSettings settings)
         {
-            if(data == null)
+            if (data == null)
                 return default;
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
@@ -139,7 +139,7 @@ namespace SE.Core
 
                 // Get non-generic converter if above fails.
                 Converter converter = settings.Resolver.GetConverter(typeof(T));
-                return (T) DeserializeReader(reader, converter, ref task);
+                return (T)DeserializeReader(reader, converter, ref task);
             }
         }
 
@@ -170,7 +170,7 @@ namespace SE.Core
         internal static Converter GetConverterForTypeString(string typeString, SerializerSettings settings)
         {
             ConverterResolver resolver = settings.Resolver;
-            if (resolver.TypeCache.TryGetValue(typeString, out Converter converter)) 
+            if (resolver.TypeCache.TryGetValue(typeString, out Converter converter))
                 return converter;
 
             Type type = Type.GetType(typeString);
@@ -179,9 +179,9 @@ namespace SE.Core
             return converter;
         }
 
-        internal static bool ShouldWriteConverterType(Type objType, Type defaultType, SerializerSettings settings) 
+        internal static bool ShouldWriteConverterType(Type objType, Type defaultType, SerializerSettings settings)
         {
-            if(settings.TypeHandling == TypeHandling.Ignore)
+            if (settings.TypeHandling == TypeHandling.Ignore)
                 return false;
 
             return settings.TypeHandling != TypeHandling.Auto || objType != defaultType;
@@ -246,16 +246,18 @@ namespace SE.Core
                 }
             }
 
-            FoundMetaTag:
+        FoundMetaTag:
             while (true) {
                 byte b = reader.ReadByte();
                 switch (b) {
                     case (byte)MetaBinaryIDs.ValueType: {
                         valueType = reader.ReadString();
-                    } break;
+                    }
+                    break;
                     case (byte)MetaBinaryIDs.ID: {
                         id = reader.ReadInt32();
-                    } break;
+                    }
+                    break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -284,7 +286,7 @@ namespace SE.Core
                 }
             }
 
-            FoundMetaTag:
+        FoundMetaTag:
             while (true) {
                 string str = reader.ReadQuotedString();
                 switch (str) {
@@ -292,12 +294,14 @@ namespace SE.Core
                         reader.BaseStream.Position += 1;
                         reader.SkipWhiteSpace();
                         valueType = reader.ReadQuotedString();
-                    } break;
+                    }
+                    break;
                     case "$id": {
                         reader.BaseStream.Position += 1;
                         reader.SkipWhiteSpace();
                         id = reader.ReadIntUtf8();
-                    } break;
+                    }
+                    break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }

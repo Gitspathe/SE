@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.Xna.Framework;
-using SE.Attributes;
+﻿using SE.Attributes;
 using SE.Common;
 using SE.Serialization;
-using SE.Utility;
 using SE.World;
-using Vector2 = System.Numerics.Vector2;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static SE.Core.ReflectionUtil;
 
 namespace SE.Core.Internal
@@ -27,7 +23,7 @@ namespace SE.Core.Internal
             // Check if it has interface
             foundType = null;
             Type[] i = type.GetInterfaces();
-            foreach(Type inter in i) {
+            foreach (Type inter in i) {
                 if (interfaces.Contains(inter)) {
                     foundType = inter;
                     return true;
@@ -46,7 +42,7 @@ namespace SE.Core.Internal
             // Throw an error if the Type provided isn't a GameObject.
             if (gameObject != typeof(GameObject) && !gameObject.IsSubclassOf(typeof(GameObject)))
                 throw new Exception(nameof(gameObject) + " is not a GameObject.");
-                   
+
             // If an entry isn't found, create one.
             GameObjectInfo info = new GameObjectInfo();
 
@@ -127,7 +123,7 @@ namespace SE.Core.Internal
                 && !myType.IsAbstract
                 && myType.IsSubclassOf(typeof(SceneScript)));
             foreach (SceneScript script in enumerable) {
-                if (script.LevelNamespace != nameSpace || script.LevelName != name) 
+                if (script.LevelNamespace != nameSpace || script.LevelName != name)
                     continue;
 
                 result.SceneScript = script;
@@ -167,9 +163,9 @@ namespace SE.Core.Internal
             {
                 bool isHeadless = Screen.IsFullHeadless;
                 Execute = true;
-                if(HeadlessSupportMode == HeadlessSupportMode.NoHeadless && isHeadless)
+                if (HeadlessSupportMode == HeadlessSupportMode.NoHeadless && isHeadless)
                     Execute = false;
-                else if(HeadlessSupportMode == HeadlessSupportMode.OnlyHeadless && !isHeadless)
+                else if (HeadlessSupportMode == HeadlessSupportMode.OnlyHeadless && !isHeadless)
                     Execute = false;
             }
         }
@@ -184,11 +180,11 @@ namespace SE.Core.Internal
             {
                 bool isHeadless = Screen.IsFullHeadless;
                 Execute = true;
-                if(HeadlessSupportMode == HeadlessSupportMode.NoHeadless && isHeadless)
+                if (HeadlessSupportMode == HeadlessSupportMode.NoHeadless && isHeadless)
                     Execute = false;
-                else if(HeadlessSupportMode == HeadlessSupportMode.OnlyHeadless && !isHeadless)
+                else if (HeadlessSupportMode == HeadlessSupportMode.OnlyHeadless && !isHeadless)
                     Execute = false;
-                else if(GameEngine.IsEditor && !RunInEditor)
+                else if (GameEngine.IsEditor && !RunInEditor)
                     Execute = false;
             }
         }

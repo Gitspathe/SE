@@ -3,8 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using SE.Attributes;
 using SE.Common;
 using SE.Lighting;
-using Vector2 = System.Numerics.Vector2;
 using PenumbraLight = Penumbra.Light;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components.Lighting
 {
@@ -14,22 +14,22 @@ namespace SE.Components.Lighting
         internal PenumbraLight PenumbraLight => Light?.PenumbraLight;
 
         private Light light;
-        public Light Light { 
+        public Light Light {
             get => light;
             set {
                 if (light != null) {
                     Core.Lighting.RemoveLight(light);
                 }
                 light = value;
-                if(Enabled) 
+                if (Enabled)
                     Core.Lighting.AddLight(light);
             }
         }
-        
+
         public LightType LightType {
             get => light.LightType;
             set {
-                if(value == LightType)
+                if (value == LightType)
                     return;
 
                 Light = new Light(value, Texture) {
@@ -66,20 +66,17 @@ namespace SE.Components.Lighting
             set => Light.Rotation = value;
         }
 
-        public bool CastsShadows
-        {
+        public bool CastsShadows {
             get => Light.CastsShadows;
             set => Light.CastsShadows = value;
         }
 
-        public Color Color
-        {
+        public Color Color {
             get => Light.Color;
             set => Light.Color = value;
         }
 
-        public float Intensity
-        {
+        public float Intensity {
             get => Light.Intensity;
             set => Light.Intensity = value;
         }
@@ -97,7 +94,7 @@ namespace SE.Components.Lighting
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            if(Light == null)
+            if (Light == null)
                 return;
 
             Light.Position = Owner.Transform.GlobalPositionInternal;
@@ -136,7 +133,7 @@ namespace SE.Components.Lighting
 
             // This (the Enabled check) fixes a low FPS bug.
             // TODO: Investigate a better way to handle this? This may also be a very viable way to handle it, however!
-            if(Enabled)
+            if (Enabled)
                 Core.Lighting.AddLight(Light);
         }
 
@@ -149,7 +146,8 @@ namespace SE.Components.Lighting
             Core.Lighting.RemoveLight(Light);
         }
 
-        protected override void OnDisable() {
+        protected override void OnDisable()
+        {
             base.OnDisable();
             if (Light == null)
                 return;

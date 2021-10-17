@@ -1,8 +1,5 @@
 ﻿using SE.Components;
-using SE.Rendering;
-using SE.Utility;
 using System.Collections.Generic;
-using System.Numerics;
 
 namespace SE.World
 {

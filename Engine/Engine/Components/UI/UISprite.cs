@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.Core;
 using SE.Rendering;
+using System;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components.UI
@@ -55,13 +55,13 @@ namespace SE.Components.UI
             }
 
             Core.Rendering.SpriteBatch.Draw(
-                Material.Texture, 
-                bounds, 
-                TextureSourceRectangle, 
-                color, 
+                Material.Texture,
+                bounds,
+                TextureSourceRectangle,
+                color,
                 0f,
-                origin, 
-                SpriteEffects.None, 
+                origin,
+                SpriteEffects.None,
                 layerDepth);
         }
 

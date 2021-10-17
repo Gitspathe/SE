@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System.IO;
 using System.Runtime.InteropServices;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace SE.AssetManagement.FileProcessors.Textures
 {
@@ -138,7 +138,7 @@ namespace SE.AssetManagement.FileProcessors.Textures
                 return true;
             }
 
-            public SurfaceFormat GetSurfaceFormat() 
+            public SurfaceFormat GetSurfaceFormat()
                 => DDSHelper.GetSurfaceFormat(ref this);
         }
 
@@ -214,16 +214,16 @@ namespace SE.AssetManagement.FileProcessors.Textures
                         format = PixelFormat.UNKNOWN;
                         blocksize *= 16;
                         break;
-                } 
+                }
             } else {
                 // uncompressed image
                 if ((header.pixelformat.flags & DDPF_LUMINANCE) == DDPF_LUMINANCE) {
-                    format = (header.pixelformat.flags & DDPF_ALPHAPIXELS) == DDPF_ALPHAPIXELS 
-                        ? PixelFormat.LUMINANCE_ALPHA 
+                    format = (header.pixelformat.flags & DDPF_ALPHAPIXELS) == DDPF_ALPHAPIXELS
+                        ? PixelFormat.LUMINANCE_ALPHA
                         : PixelFormat.LUMINANCE;
                 } else {
-                    format = (header.pixelformat.flags & DDPF_ALPHAPIXELS) == DDPF_ALPHAPIXELS 
-                        ? PixelFormat.RGBA 
+                    format = (header.pixelformat.flags & DDPF_ALPHAPIXELS) == DDPF_ALPHAPIXELS
+                        ? PixelFormat.RGBA
                         : PixelFormat.RGB;
                 }
 

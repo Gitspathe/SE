@@ -1,13 +1,11 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE.AssetManagement;
-using SE.Common;
 using SE.Core;
 using SE.Lighting;
 using SE.Rendering;
 using SE.World.Partitioning;
+using System;
 using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
 
@@ -78,9 +76,9 @@ namespace SE.Components
         public Material Material {
             get => material;
             set {
-                if(value == null)
+                if (value == null)
                     value = Core.Rendering.BlankMaterial;
-                if(value.Equals(material))
+                if (value.Equals(material))
                     return;
 
                 material = value;
@@ -197,7 +195,7 @@ namespace SE.Components
         /// <param name="spriteTexture">The SpriteTexture used to render this sprite.</param>
         /// <param name="color">Color used.</param>
         /// <param name="layerDepth">Render order of this sprite.</param>
-        public Sprite(Asset<SpriteTexture> spriteTexture, Color color, float layerDepth = 0.0f, ShadowCasterType shadowType = ShadowCasterType.None) 
+        public Sprite(Asset<SpriteTexture> spriteTexture, Color color, float layerDepth = 0.0f, ShadowCasterType shadowType = ShadowCasterType.None)
             : this(spriteTexture, color, Vector2.Zero, layerDepth, shadowType) { }
 
         public Sprite() { }

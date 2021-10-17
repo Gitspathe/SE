@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using SE.Common;
+﻿using SE.Common;
 using SE.Core;
 using SE.Core.Extensions;
 using SE.Physics;
+using System.Collections.Generic;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components

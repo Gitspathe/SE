@@ -1,10 +1,7 @@
-﻿using SE.Rendering;
-using SE.Utility;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using SE.Components;
-using Vector2 = System.Numerics.Vector2;
+using SE.Rendering;
+using System.Collections.Generic;
 
 namespace SE.World
 {
@@ -19,7 +16,7 @@ namespace SE.World
             if (renderedTiles.TryGetValue(tuple, out HashSet<Tile> tiles)) {
                 tiles.Add(tile);
             } else {
-                tiles = new HashSet<Tile> {tile};
+                tiles = new HashSet<Tile> { tile };
                 renderedTiles.Add(tuple, tiles);
             }
         }

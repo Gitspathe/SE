@@ -1,19 +1,13 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using SE.Core;
+using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using SE.Components.UI;
+using Quaternion = System.Numerics.Quaternion;
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
 using Vector4 = System.Numerics.Vector4;
-using Quaternion = System.Numerics.Quaternion;
-
-using MGVector2 = Microsoft.Xna.Framework.Vector2;
-using MGVector3 = Microsoft.Xna.Framework.Vector3;
-using MGVector4 = Microsoft.Xna.Framework.Vector4;
-using MGQuaternion = Microsoft.Xna.Framework.Quaternion;
-using SE.Core;
 
 namespace SE.Rendering
 {
@@ -134,7 +128,7 @@ namespace SE.Rendering
 
         public Material(Texture2D texture, Effect effect = null)
         {
-            if(texture == null) {
+            if (texture == null) {
                 texture = NullTexture;
             }
             TextureInternal = texture;
@@ -166,7 +160,7 @@ namespace SE.Rendering
 
         private void CloneEffectIfNeeded()
         {
-            if(isSharedEffect)
+            if (isSharedEffect)
                 return;
 
             isSharedEffect = false;

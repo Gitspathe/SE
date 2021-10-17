@@ -1,8 +1,8 @@
-﻿using System;
+﻿using SE.Common;
+using SE.Utility;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
-using SE.Common;
-using SE.Utility;
 
 namespace SE.Pooling
 {
@@ -40,17 +40,17 @@ namespace SE.Pooling
             if (Pool.Count < 1) {
                 switch (Behaviour) {
                     case PoolBehavior.Grow:
-                        gameObject = instantiateFunc != null 
-                            ? instantiateFunc.Invoke() 
+                        gameObject = instantiateFunc != null
+                            ? instantiateFunc.Invoke()
                             : (T)GameObject.Instantiate(typeof(T), Vector2.Zero, 0f, Vector2.One);
                         gameObject.PoolInitialize();
                         break;
                     case PoolBehavior.Fixed:
                         return null;
                     case PoolBehavior.FixedInstantiate:
-                        gameObject = instantiateFunc != null 
-                            ? instantiateFunc.Invoke() 
-                            : (T) GameObject.Instantiate(typeof(T), Vector2.Zero, 0f, Vector2.One);
+                        gameObject = instantiateFunc != null
+                            ? instantiateFunc.Invoke()
+                            : (T)GameObject.Instantiate(typeof(T), Vector2.Zero, 0f, Vector2.One);
                         return gameObject;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -58,7 +58,7 @@ namespace SE.Pooling
             } else {
                 gameObject = Pool.Array[Pool.Count - 1];
             }
-            if (gameObject == null) 
+            if (gameObject == null)
                 return null;
 
             Pool.Remove(gameObject);
@@ -113,7 +113,7 @@ namespace SE.Pooling
             Pool = new QuickList<T>(startingCapacity);
             Active = new HashSet<T>(startingCapacity);
             for (int i = 0; i < startingCapacity; i++) {
-                T go = (T) GameObject.Instantiate(typeof(T), Vector2.Zero, 0f, Vector2.One);
+                T go = (T)GameObject.Instantiate(typeof(T), Vector2.Zero, 0f, Vector2.One);
                 go.MyPool = this;
                 go.PoolInitialize();
                 go.Disable();

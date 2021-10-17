@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Vector2 = System.Numerics.Vector2;
+using System;
 using MGVector2 = Microsoft.Xna.Framework.Vector3;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core
 {
@@ -27,7 +27,7 @@ namespace SE.Core
 
         /// <value>Gets the mouse point in screen coordinates.
         ///        Returns null if the mouse isn't within the game window.</value>
-        public static Vector2? MousePoint => MouseInWindow ? (Vector2?) screenMousePoint : null;
+        public static Vector2? MousePoint => MouseInWindow ? (Vector2?)screenMousePoint : null;
 
         /// <summary>Where the viewport is located in the editor. Valid if running through the editor.</summary>
         public static Rectangle EditorViewBounds { get; set; }
@@ -67,7 +67,7 @@ namespace SE.Core
 
             // Calculate the mouse point.
             if (GameEngine.IsEditor) {
-                Vector2 scale = new Vector2((float) EditorViewBounds.Width / SizeX, (float) EditorViewBounds.Height / SizeY);
+                Vector2 scale = new Vector2((float)EditorViewBounds.Width / SizeX, (float)EditorViewBounds.Height / SizeY);
                 Vector2 mousePos = new Vector2(
                     (mouseState.X / SizeRatio - EditorViewBounds.X) / scale.X,
                     (mouseState.Y / SizeRatio - EditorViewBounds.Y) / scale.Y);

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SE.AssetManagement;
@@ -9,6 +7,7 @@ using SE.Core;
 using SE.Input;
 using SE.UI.Events;
 using SE.Utility;
+using System;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.UI
@@ -139,7 +138,7 @@ namespace SE.UI
 
         public void SetFont(Asset<SpriteFont> font, Color? color = null, Alignment? alignment = null)
         {
-            if(font == null)
+            if (font == null)
                 return;
 
             if (Input != null) {
@@ -157,7 +156,7 @@ namespace SE.UI
 
         public void SetBackground(SlicedImage image, Point? size = null, int? borderSize = null, Color? color = null)
         {
-            if(image == null)
+            if (image == null)
                 return;
 
             if (Background != null) {

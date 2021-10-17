@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using FastMember;
+﻿using FastMember;
 using SE.Core;
-using SE.Core.Extensions;
 using SE.Utility;
+using System;
 
 namespace SE.Serialization
 {
@@ -52,7 +50,7 @@ namespace SE.Serialization
         public void Restore(EngineSerializerData data)
         {
             if (!initialized)
-               throw new InvalidOperationException("Not initialized!");
+                throw new InvalidOperationException("Not initialized!");
 
             for (int i = 0; i < ValueWrappers.Count; i++) {
                 ValueWrappers.Array[i].Restore(data.ValueData.Array[i]);
@@ -71,7 +69,7 @@ namespace SE.Serialization
 
         protected virtual void Dispose(bool disposing = true)
         {
-            if(isDisposed)
+            if (isDisposed)
                 return;
 
             isDisposed = true;

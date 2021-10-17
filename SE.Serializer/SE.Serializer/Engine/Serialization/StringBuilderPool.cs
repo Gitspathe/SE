@@ -8,7 +8,7 @@ namespace SE.Serialization
         [ThreadStatic]
         private static StringBuilder stringBuilder;
 
-        [ThreadStatic] 
+        [ThreadStatic]
         private static bool rented;
 
         public static StringBuilder Rent()

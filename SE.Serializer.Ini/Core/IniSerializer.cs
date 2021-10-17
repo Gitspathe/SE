@@ -1,7 +1,4 @@
 ﻿using SE.Serialization.Ini.Parser;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SE.Core
 {
@@ -9,7 +6,7 @@ namespace SE.Core
     {
         public static IniData Parse(string iniString, ParserSettings settings = null)
         {
-            if(settings == null)
+            if (settings == null)
                 settings = ParserSettings.Default;
 
             return settings.Parser.Parse(iniString, settings);
@@ -17,7 +14,7 @@ namespace SE.Core
 
         public static string Compose(IniData iniData, ParserSettings settings = null)
         {
-            if(settings == null)
+            if (settings == null)
                 settings = ParserSettings.Default;
 
             return settings.Parser.Compose(iniData, settings);

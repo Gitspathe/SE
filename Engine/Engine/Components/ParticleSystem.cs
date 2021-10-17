@@ -3,15 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 using SE.Attributes;
 using SE.Common;
 using SE.Core;
-using SE.Engine.Utility;
 using SE.Particles;
 using SE.Particles.Modules;
 using SE.Particles.Shapes;
 using Curve = SE.Utility.Curve;
-using Vector4 = System.Numerics.Vector4;
 using Vector2 = System.Numerics.Vector2;
-using System;
-using Console = SE.Core.Console;
 
 namespace SE.Components
 {
@@ -25,13 +21,14 @@ namespace SE.Components
 
         protected override void OnInitialize()
         {
+            ParticleEngine.NativeEnabled = false;
             //Emitter = new Emitter(shape: new CircleEmitterShape(64.0f, EmissionDirection.Out, true, true, 0.5f));
 
             CircleEmitterShape circleShape = new CircleEmitterShape(32.0f, EmissionDirection.Out, false, false);
             RectangleEmitterShape rectangleShape = new RectangleEmitterShape(
-                new Vector2(128.0f, 128.0f), 
-                EmissionDirection.Out, 
-                true, 
+                new Vector2(128.0f, 128.0f),
+                EmissionDirection.Out,
+                true,
                 true);
 
             Emitter = new Emitter(4096, shape: circleShape);
@@ -47,8 +44,8 @@ namespace SE.Components
             Emitter.Config.Emission.Loop = true;
             Emitter.Config.Texture.SetSheet(Texture, 5, 5);
             Emitter.Config.Color.SetRandomBetween(
-                new Vector4(0.0f, 1.0f, 0.5f, 1.0f),
-                new Vector4(30.0f, 1.0f, 0.6f, 1.0f));
+                new ParticleColor(0, 100, 25, 1),
+                new ParticleColor(360, 100, 50, 1));
 
             Emitter.Config.Scale.SetRandomBetween(0.0333f, 0.0667f);
             Emitter.Config.Life.SetRandomBetween(0.2f, 1.0f);
@@ -60,10 +57,10 @@ namespace SE.Components
             alphaCurve.Keys.Add(0.667f, 1.0f);
             alphaCurve.Keys.Add(1.0f, 0.0f);
 
-            Emitter.AddModule(HueModule.RandomLerp(0.0f, 360.0f));
-            Emitter.AddModule(LightnessModule.Lerp(0.667f));
+            //Emitter.AddModule(HueModule.RandomLerp(0, 360.0f));
+            //Emitter.AddModule(LightnessModule.Lerp(0.0f));
             Emitter.AddModule(ScaleModule.Lerp(0.5f, 2.0f));
-            Emitter.AddModule(AlphaModule.Curve(alphaCurve));
+            //Emitter.AddModule(AlphaModule.Curve(alphaCurve));
             Emitter.AddModule(SpriteRotationModule.RandomConstant(2.0f, 10.0f));
             Emitter.AddModule(TextureAnimationModule.OverLifetime(5, 5));
 
@@ -83,7 +80,7 @@ namespace SE.Components
 
         protected override void OnDisable()
         {
-            if(!PendingDestroy)
+            if (!PendingDestroy)
                 Emitter.Enabled = false;
         }
 
@@ -96,7 +93,7 @@ namespace SE.Components
         protected override void Dispose(bool disposing = true)
         {
             base.Dispose(disposing);
-            if(!PendingDestroy)
+            if (!PendingDestroy)
                 Emitter?.Dispose();
         }
     }

@@ -1,40 +1,26 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Newtonsoft.Json;
 using SE;
 using SE.AssetManagement;
 using SE.AssetManagement.Processors;
 using SE.Common;
 using SE.Components;
 using SE.Core;
+using SE.Core.Extensions;
 using SE.Editor.Debug.GameObjects;
-using SE.Engine.Networking;
+using SE.Input;
 using SE.Networking.Internal;
 using SE.Rendering;
-using SE.Core.Extensions;
-using SE.Utility;
+using SE.Serialization.Attributes;
 using SEDemos.GameObjects;
 using SEDemos.GameObjects.UI;
-using Vector2 = System.Numerics.Vector2;
+using System;
 using DisplayMode = SE.DisplayMode;
-using SE.Serialization;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
-using Newtonsoft.Json;
-using SE.Input;
-using SE.Particles;
-using SE.Serialization.Attributes;
-using SE.Serialization.Ini.Parser;
-using Console = SE.Core.Console;
-using DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling;
-using Formatting = Newtonsoft.Json.Formatting;
 using MemberSerialization = Newtonsoft.Json.MemberSerialization;
-
-using Vector3 = System.Numerics.Vector3;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SEDemos
 {
@@ -53,12 +39,12 @@ namespace SEDemos
             bool headless = Screen.DisplayMode == DisplayMode.Decapitated || Screen.DisplayMode == DisplayMode.Headless;
 
             // Initialize input for player 1...
-            InputManager.AddAxisInputs("PlayerVertical", new [] { Players.One },
+            InputManager.AddAxisInputs("PlayerVertical", new[] { Players.One },
                 AxisInput.FromKeyboard(Keys.S, Keys.W),
                 AxisInput.FromThumbStick(ThumbSticks.Left, ThumbSticksAxis.Y, 0.1f, true));
 
             InputManager.AddAxisInputs("PlayerHorizontal", new[] { Players.One },
-                AxisInput.FromKeyboard(Keys.D, Keys.A), 
+                AxisInput.FromKeyboard(Keys.D, Keys.A),
                 AxisInput.FromThumbStick(ThumbSticks.Left, ThumbSticksAxis.X, 0.1f));
 
             // Initialize input for player 2...
@@ -301,7 +287,7 @@ namespace SEDemos
 
         public static void SpawnStuff()
         {
-            if(!Network.IsServer)
+            if (!Network.IsServer)
                 return;
 
             //NetHelper.Instantiate("bouncy", "SERVER", new Vector2(128, 128));
@@ -398,55 +384,55 @@ namespace SEDemos
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("0")
                .Create(new TileProcessor(pos => {
-                    Floor obj = new Floor(pos, 0f, Vector2.One); 
-                    obj.GetComponent<Sprite>().Color = Color.White;
-                    return obj;
-                }))
+                   Floor obj = new Floor(pos, 0f, Vector2.One);
+                   obj.GetComponent<Sprite>().Color = Color.White;
+                   return obj;
+               }))
                .FromContent(content)
             );
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("1")
                .Create(new TileProcessor(pos => {
-                    WallUp obj = new WallUp(pos, 0f, Vector2.One);
-                    obj.GetComponent<Sprite>().Color = Color.Red; 
-                    return obj;
-                }))
+                   WallUp obj = new WallUp(pos, 0f, Vector2.One);
+                   obj.GetComponent<Sprite>().Color = Color.Red;
+                   return obj;
+               }))
                .FromContent(content)
             );
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("2")
                .Create(new TileProcessor(pos => {
-                    WallRight obj = new WallRight(pos, 0f, Vector2.One);
-                    obj.GetComponent<Sprite>().Color = Color.Blue; 
-                    return obj;
-                }))
+                   WallRight obj = new WallRight(pos, 0f, Vector2.One);
+                   obj.GetComponent<Sprite>().Color = Color.Blue;
+                   return obj;
+               }))
                .FromContent(content)
             );
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("3")
                .Create(new TileProcessor(pos => {
-                    WallDown obj = new WallDown(pos, 0f, Vector2.One);
-                    obj.GetComponent<Sprite>().Color = Color.Orange; 
-                    return obj;
-                }))
+                   WallDown obj = new WallDown(pos, 0f, Vector2.One);
+                   obj.GetComponent<Sprite>().Color = Color.Orange;
+                   return obj;
+               }))
                .FromContent(content)
             );
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("4")
                .Create(new TileProcessor(pos => {
-                    WallLeft obj = new WallLeft(pos, 0f, Vector2.One);
-                    obj.GetComponent<Sprite>().Color = Color.Purple; 
-                    return obj;
-                }))
+                   WallLeft obj = new WallLeft(pos, 0f, Vector2.One);
+                   obj.GetComponent<Sprite>().Color = Color.Purple;
+                   return obj;
+               }))
                .FromContent(content)
             );
             AssetManager.Add(new AssetBuilder<Func<Vector2, GameObject>>()
                .ID("5")
                .Create(new TileProcessor(pos => {
-                    AnimatedFloor obj = new AnimatedFloor(pos, 0f, Vector2.One);
-                    obj.GetComponent<Sprite>().Color = Color.White; 
-                    return obj;
-                }))
+                   AnimatedFloor obj = new AnimatedFloor(pos, 0f, Vector2.One);
+                   obj.GetComponent<Sprite>().Color = Color.White;
+                   return obj;
+               }))
                .FromContent(content)
             );
 

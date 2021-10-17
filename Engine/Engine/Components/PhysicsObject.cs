@@ -1,11 +1,10 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE.Common;
 using SE.Physics;
 using SE.Utility;
+using System;
 using BodyType = SE.Physics.BodyType;
 using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
 
 namespace SE.Components
 {
@@ -22,7 +21,7 @@ namespace SE.Components
                     body.Dispose();
                 }
                 body = value;
-                if (body == null) 
+                if (body == null)
                     return;
 
                 body.Provider = this;
@@ -91,7 +90,7 @@ namespace SE.Components
         /// Resets the dynamics of this body.
         /// Sets torque, force and linear/angular velocity to 0
         /// </summary>
-        public void ResetDynamics() 
+        public void ResetDynamics()
             => Body.ResetDynamics();
 
         public PhysicsObject() { }

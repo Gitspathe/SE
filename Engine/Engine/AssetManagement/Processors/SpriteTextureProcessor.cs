@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Core;
 using SE.Rendering;
+using System.Collections.Generic;
 
 namespace SE.AssetManagement.Processors
 {
@@ -21,8 +21,8 @@ namespace SE.AssetManagement.Processors
 
         public override object Construct()
         {
-            Asset<Texture2D> asset = Screen.IsFullHeadless 
-                ? null 
+            Asset<Texture2D> asset = Screen.IsFullHeadless
+                ? null
                 : AssetManager.GetAsset<Texture2D>(textureAssetKey);
 
             return new SpriteTexture(asset, sourceRect);

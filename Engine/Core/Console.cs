@@ -1,4 +1,6 @@
 ﻿#if EDITOR
+using SE.Editor.Debug.Commands;
+using SE.Editor.Debug.Commands.LevelEdit;
 #endif
 using System;
 using System.IO;
@@ -10,8 +12,6 @@ using SE.AssetManagement;
 using SE.Components;
 using SE.Debug;
 using SE.Debug.Commands;
-using SE.Editor.Debug.Commands;
-using SE.Editor.Debug.Commands.LevelEdit;
 using SE.Rendering;
 using SE.Utility;
 
@@ -92,20 +92,20 @@ namespace SE.Core
             AddCommand(new ToggleFPS());
             AddCommand(new ToggleGrid());
             AddCommand(new ToggleNavigation());
-        #if EDITOR
+#if EDITOR
             AddCommand(new New());
             AddCommand(new Save());
             AddCommand(new Fill());
             AddCommand(new Load());
             AddCommand(new ToggleLighting());
             AddCommand(new DebugLighting());
-        #endif
+#endif
 
             try {
                 outputWriter = new StreamWriter(LogPath) {
                     AutoFlush = true
                 };
-            } catch(IOException) { } 
+            } catch (IOException) { }
         }
 
         public static void Initialize()
@@ -193,22 +193,22 @@ namespace SE.Core
             bool hasParams = false;
             char lastChar = ' ';
             try {
-                lastChar = _input[_input.Length-1];
+                lastChar = _input[_input.Length - 1];
                 if (lastChar == '?') {
                     _input = _input.Replace("?", "");
                 }
 
-                if(_input.Contains("(") && _input.Contains(")")) {
+                if (_input.Contains("(") && _input.Contains(")")) {
                     parametersStart = _input.IndexOf("(");
                     parametersEnd = _input.IndexOf(")");
-                    if(parametersEnd - parametersStart > 1) {
+                    if (parametersEnd - parametersStart > 1) {
                         hasParams = true;
                     }
                 }
 
                 if (hasParams) {
                     command = _input.Substring(0, parametersStart).ToLower();
-                    string parameterBody = _input.Substring(parametersStart+1, parametersEnd-parametersStart-1).Replace(" ", "");
+                    string parameterBody = _input.Substring(parametersStart + 1, parametersEnd - parametersStart - 1).Replace(" ", "");
                     parameters = parameterBody.Split(',');
                 } else {
                     command = _input.Replace("(", "").Replace(")", "").Replace(" ", "").ToLower();

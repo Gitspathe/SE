@@ -54,14 +54,14 @@ namespace SE.Physics
         /// 	<c>true</c> if this instance is touching; otherwise, <c>false</c>.
         /// </returns>
         public bool IsTouching {
-            get => InternalContact.IsTouching; 
+            get => InternalContact.IsTouching;
             set => InternalContact.IsTouching = value;
         }
 
-        public void ResetRestitution() 
+        public void ResetRestitution()
             => InternalContact.ResetRestitution();
 
-        public void ResetFriction() 
+        public void ResetFriction()
             => InternalContact.ResetFriction();
 
         internal Contact(AetherContact internalContact)

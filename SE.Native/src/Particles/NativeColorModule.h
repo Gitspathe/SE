@@ -18,9 +18,9 @@ namespace Particles {
 	private:
 		ColorTransition::Transition transition = ColorTransition::None;
 		int particlesLength;
-		Vector4 end1, end2;
-		Vector4* startColorsArr = nullptr;
-		Vector4* randEndColors = nullptr;
+		ParticleColor end1, end2;
+		ParticleColor* startColorsArr = nullptr;
+		ParticleColor* randEndColors = nullptr;
 		Curve4* curve = nullptr;
 
 		void regenerateRandom();
@@ -35,8 +35,8 @@ namespace Particles {
 		const bool isValid() override;
 
 		void setNone();
-		void setLerp(Vector4 end);
-		void setRandomLerp(Vector4 min, Vector4 max);
+		void setLerp(ParticleColor end);
+		void setRandomLerp(ParticleColor min, ParticleColor max);
 		void setCurve(Curve4* const curve);
 
 		~NativeColorModule() override;

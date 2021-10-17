@@ -1,11 +1,10 @@
-﻿using System;
-using LiteNetLib;
+﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using SE.Core;
 using SE.Engine.Networking;
 using SE.Engine.Networking.Attributes;
 using SE.Networking.Types;
-using SE.Core.Extensions;
+using System;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components.Network
@@ -55,7 +54,7 @@ namespace SE.Components.Network
                 return;
             }
 
-            if(physObj == null)
+            if (physObj == null)
                 physObj = Owner.GetComponent<PhysicsObject>();
 
             curPosition = Owner.Transform.GlobalPositionInternal;

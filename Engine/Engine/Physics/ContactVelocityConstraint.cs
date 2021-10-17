@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
-using AetherVelocityConstraint = tainicom.Aether.Physics2D.Dynamics.Contacts.ContactVelocityConstraint;
 using static SE.Core.Physics;
+using AetherVelocityConstraint = tainicom.Aether.Physics2D.Dynamics.Contacts.ContactVelocityConstraint;
 
 namespace SE.Physics
 {

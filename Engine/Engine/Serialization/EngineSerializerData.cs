@@ -1,9 +1,6 @@
-﻿using SE.Core;
+﻿using Newtonsoft.Json;
 using SE.Utility;
 using System;
-using System.Buffers;
-using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace SE.Serialization
 {
@@ -30,7 +27,7 @@ namespace SE.Serialization
 
         protected virtual void Dispose(bool disposing = true)
         {
-            if(isDisposed)
+            if (isDisposed)
                 return;
 
             isDisposed = true;

@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE.Common;
 using SE.Components;
 using SE.Components.UI;
 using SE.Core;
-using SE.UI.Events;
-using SE.Core.Extensions;
 using SE.Input;
+using SE.UI.Events;
 using SE.Utility;
+using System;
+using System.Collections.Generic;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.UI
@@ -45,8 +44,8 @@ namespace SE.UI
             internal set {
                 EnsureValidAccess();
                 UnscaledBounds = new RectangleF(value.X, value.Y,
-                    (int) (value.Width * Transform.Scale.X),
-                    (int) (value.Height * Transform.Scale.Y));
+                    (int)(value.Width * Transform.Scale.X),
+                    (int)(value.Height * Transform.Scale.Y));
                 RecalculateBoundsInternal();
             }
         }
@@ -128,7 +127,7 @@ namespace SE.UI
 
         protected bool MouseIn;
         protected bool DragListen;
-        private MouseButtons dragOldMouseButton; 
+        private MouseButtons dragOldMouseButton;
 
         private Vector2 dragOldMousePoint;
         private Vector2 dragOldPos;
@@ -184,13 +183,13 @@ namespace SE.UI
                 unscaledBounds = new RectangleF(
                     Transform.GlobalPositionInternal.X,
                     Transform.GlobalPositionInternal.Y,
-                    unscaledBounds.Width, 
+                    unscaledBounds.Width,
                     unscaledBounds.Height);
                 scaledBounds = new RectangleF(
-                    unscaledBounds.X, 
-                    unscaledBounds.Y, 
-                    (int) (unscaledBounds.Width * Transform.Scale.X), 
-                    (int) (unscaledBounds.Height * Transform.Scale.Y));
+                    unscaledBounds.X,
+                    unscaledBounds.Y,
+                    (int)(unscaledBounds.Width * Transform.Scale.X),
+                    (int)(unscaledBounds.Height * Transform.Scale.Y));
                 return;
             }
 
@@ -210,10 +209,10 @@ namespace SE.UI
 
             unscaledBounds = new RectangleF(minX, minY, largestWidth, largestHeight);
             scaledBounds = new RectangleF(
-                unscaledBounds.X, 
-                unscaledBounds.Y, 
-                (int) (unscaledBounds.Width * Transform.Scale.X), 
-                (int) (unscaledBounds.Height * Transform.Scale.Y));
+                unscaledBounds.X,
+                unscaledBounds.Y,
+                (int)(unscaledBounds.Width * Transform.Scale.X),
+                (int)(unscaledBounds.Height * Transform.Scale.Y));
         }
 
         internal void UpdateChildScissorRect(Rectangle? sr)
@@ -450,7 +449,7 @@ namespace SE.UI
             Point s;
             if (size.HasValue && size.Value != Point.Zero) {
                 s = size.Value;
-            } else if(Sprites.Count > 0) {
+            } else if (Sprites.Count > 0) {
                 int x = 0, y = 0;
                 for (int i = 0; i < Sprites.Count; i++) {
                     if (Sprites.Array[i].Size.X > x) {

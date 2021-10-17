@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using SE.AssetManagement.Processors;
+﻿using SE.AssetManagement.Processors;
+using System;
 
 namespace SE.AssetManagement
 {
@@ -16,7 +15,7 @@ namespace SE.AssetManagement
 
         public AssetBuilder<T> ID(string id)
         {
-            this.id = id;   
+            this.id = id;
             return this;
         }
 

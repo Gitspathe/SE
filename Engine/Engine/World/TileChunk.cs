@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE.Core;
-using SE.Core.Extensions;
-using SE.Utility;
+using System.Collections.Generic;
+using System.IO;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.World
@@ -18,7 +16,7 @@ namespace SE.World
         public Point Index { get; private set; }
         public Vector2 WorldPosition { get; private set; }
 
-        public Point ToLocalPoint(Point worldTilePoint) 
+        public Point ToLocalPoint(Point worldTilePoint)
             => new Point(worldTilePoint.X - (Index.X * TileMap.ChunkSize), worldTilePoint.Y - (Index.Y * TileMap.ChunkSize));
 
         public TileChunk(TileMap tileMap, Point index)
@@ -30,7 +28,7 @@ namespace SE.World
 
         private TileLayer AddNewLayer(int layer)
         {
-            if(Layers.ContainsKey(layer))
+            if (Layers.ContainsKey(layer))
                 return null;
 
             TileLayer tileLayer = new TileLayer();

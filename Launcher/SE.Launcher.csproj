@@ -2,15 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <ApplicationIcon />
-    <StartupObject />
+    <StartupObject></StartupObject>
     <AssemblyName>SELauncher</AssemblyName>
     <RootNamespace>SELauncher</RootNamespace>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
     <PublishTrimmed>false</PublishTrimmed>
     <TieredCompilation>false</TieredCompilation>
-    <Platforms>AnyCPU</Platforms>
+    <Platforms>x64</Platforms>
     <Configurations>Debug;Release</Configurations>
     <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -23,16 +23,12 @@
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;LINUX</DefineConstants>
-    <DebugType>full</DebugType>
-    <WarningLevel>4</WarningLevel>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DefineConstants>$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>LINUX</DefineConstants>
-    <DebugType>pdbonly</DebugType>
-    <WarningLevel>4</WarningLevel>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DefineConstants>$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -60,6 +56,8 @@
     <ProjectReference Include="..\Demos\SE.Demos.csproj" />
     <ProjectReference Include="..\Engine\SE.csproj" />
     <ProjectReference Include="..\SE.Particles\SE.Particles.MonoGame.csproj" />
+    <ProjectReference Include="..\SE.Serializer.Ini\SE.Serializer.Ini.csproj" />
+    <ProjectReference Include="..\SE.Serializer\SE.Serializer\SE.Serializer.csproj" />
     <ProjectReference Include="..\SE.Utility\SE.Utility.csproj" />
   </ItemGroup>
 
@@ -69,18 +67,6 @@
     </Reference>
     <Reference Include="FastMember">
       <HintPath>..\_DEPENDENCIES\fast-member\FastMember\bin\$(Configuration)\netstandard2.1\FastMember.dll</HintPath>
-    </Reference>
-    <Reference Include="SE.Net">
-      <HintPath>..\SE.Net\bin\$(Configuration)\netstandard2.1\SE.Net.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="SE.Serializer">
-      <HintPath>..\SE.Serializer\SE.Serializer\bin\$(Configuration)\netstandard2.1\SE.Serializer.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="SE.Serializer.Ini">
-      <HintPath>..\SE.Serializer.Ini\bin\$(Configuration)\netstandard2.1\SE.Serializer.Ini.dll</HintPath>
-      <Private>true</Private>
     </Reference>
     <Reference Include="MonoGame.Penumbra">
       <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\$(Configuration)\DesktopGL\MonoGame.Penumbra.dll</HintPath>

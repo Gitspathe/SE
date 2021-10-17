@@ -1,5 +1,4 @@
 ﻿using SE.Utility;
-using System.IO;
 using System.Linq;
 
 namespace SE.Serialization.Ini.Parser
@@ -17,7 +16,7 @@ namespace SE.Serialization.Ini.Parser
             // Trim whitespace.
             for (int i = 0; i < lines.Length; i++) {
                 string line = lines[i];
-                if(string.IsNullOrWhiteSpace(line))
+                if (string.IsNullOrWhiteSpace(line))
                     continue;
 
                 linesList.Add(line.Trim());
@@ -54,12 +53,12 @@ namespace SE.Serialization.Ini.Parser
                     // Line is a comment.
                     nextNodeComments.Add(line.Substring(1));
 
-                } else if(line.StartsWith(chars.SectionStart)) {
+                } else if (line.StartsWith(chars.SectionStart)) {
                     // Line indicates start of a new section.
                     iniData.AddSection(currentSection);
                     currentSection = new IniSection(
-                        line.ReadBetween(chars.SectionStart, chars.SectionEnd), 
-                        nextNodeComments.Copy(), 
+                        line.ReadBetween(chars.SectionStart, chars.SectionEnd),
+                        nextNodeComments.Copy(),
                         null);
 
                     nextNodeComments.Clear();

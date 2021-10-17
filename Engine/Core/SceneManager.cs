@@ -1,6 +1,6 @@
-﻿using System.IO;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE.World;
+using System.IO;
 
 namespace SE.Core
 {
@@ -24,7 +24,7 @@ namespace SE.Core
         {
             LoadingScreen.Initialize();
             string[] str = sceneName.Split('\\');
-            Scene scene = new Scene {LevelNamespace = str[0], LevelName = str[1]};
+            Scene scene = new Scene { LevelNamespace = str[0], LevelName = str[1] };
             SetCurrentScene(scene);
         }
 
@@ -53,7 +53,7 @@ namespace SE.Core
         /// <param name="nameSpace">Namespace the level is located in.</param>
         /// <param name="sceneName">Level name to check.</param>
         /// <returns>True if the level is found.</returns>
-        public static bool SceneExists(string nameSpace, string sceneName) 
+        public static bool SceneExists(string nameSpace, string sceneName)
             => FileIO.FileExists(Path.Combine(nameSpace, "Levels", sceneName + ".semap"));
 
         internal static void Update()

@@ -49,7 +49,7 @@ namespace SE.UI.Builders
 
         public ButtonBuilder ImageColor(Color color)
         {
-            if(button.Image == null)
+            if (button.Image == null)
                 return this;
 
             button.ImageColor = color;

@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.AssetManagement.Processors;
@@ -9,6 +8,7 @@ using SE.Core;
 using SE.Rendering;
 using SE.UI;
 using SE.UI.Builders;
+using System;
 using Button = SE.UI.Button;
 using Vector2 = System.Numerics.Vector2;
 

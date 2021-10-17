@@ -1,9 +1,9 @@
 ﻿using SE.Core;
 using tainicom.Aether.Physics2D;
 using tainicom.Aether.Physics2D.Common;
-using Vector2 = System.Numerics.Vector2;
-using AetherAABB = tainicom.Aether.Physics2D.Collision.AABB;
 using static SE.Core.Physics;
+using AetherAABB = tainicom.Aether.Physics2D.Collision.AABB;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Physics
 {

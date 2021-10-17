@@ -35,7 +35,7 @@ namespace Particles {
 		for (int32_t i = 0; i < length; i++) {
 			int32_t pIndex = particleIndexArr[i];
 			Particle* particle = &particlesArrPtr[pIndex];
-			startLightnessArr[particle->id] = particle->color.z;
+			startLightnessArr[particle->id] = particle->color.getLightness();
 			if (!isRandom())
 				continue;
 
@@ -50,20 +50,20 @@ namespace Particles {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.z = ParticleMath::lerp(startLightnessArr[particle->id], end1, particle->timeAlive / particle->initialLife);
+					particle->color.setLightness(ParticleMath::lerp(startLightnessArr[particle->id], end1, particle->timeAlive / particle->initialLife));
 				}
 			} break;
 			case LightnessTransition::RandomLerp: {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.z = ParticleMath::lerp(startLightnessArr[particle->id], randEndLightness[particle->id], particle->timeAlive / particle->initialLife);
+					particle->color.setLightness(ParticleMath::lerp(startLightnessArr[particle->id], randEndLightness[particle->id], particle->timeAlive / particle->initialLife));
 				}
 			} break;
 			case LightnessTransition::Curve: {
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.z = curve->Evaluate(particle->timeAlive / particle->initialLife);
+					particle->color.setLightness(curve->Evaluate(particle->timeAlive / particle->initialLife));
 				}
 			} break;
 			case LightnessTransition::None:

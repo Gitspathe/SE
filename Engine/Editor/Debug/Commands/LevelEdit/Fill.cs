@@ -1,6 +1,6 @@
 ﻿#if EDITOR
-using System;
 using SE.Debug.Commands;
+using System;
 
 namespace SE.Editor.Debug.Commands.LevelEdit
 {
@@ -18,7 +18,7 @@ namespace SE.Editor.Debug.Commands.LevelEdit
             } catch (Exception e) {
                 return GetError(e, parameters);
             }
-            return "Filled level with tiles of ID: "+id.ToString()+".";
+            return "Filled level with tiles of ID: " + id.ToString() + ".";
         }
 
         public string GetHelp()

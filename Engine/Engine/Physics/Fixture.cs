@@ -2,8 +2,8 @@
 using SE.Components;
 using tainicom.Aether.Physics2D.Collision.Shapes;
 using tainicom.Aether.Physics2D.Dynamics;
-using AetherFixture = tainicom.Aether.Physics2D.Dynamics.Fixture;
 using AetherCategory = tainicom.Aether.Physics2D.Dynamics.Category;
+using AetherFixture = tainicom.Aether.Physics2D.Dynamics.Fixture;
 
 namespace SE.Physics
 {
@@ -19,13 +19,13 @@ namespace SE.Physics
         }
 
         public Category CollidesWith {
-            get => (Category) ((int)(InternalFixture.CollidesWith));
-            set => InternalFixture.CollidesWith = (AetherCategory) ((int)(value));
+            get => (Category)((int)(InternalFixture.CollidesWith));
+            set => InternalFixture.CollidesWith = (AetherCategory)((int)(value));
         }
 
         public Category CollisionCategories {
-            get => (Category) ((int)(InternalFixture.CollisionCategories));
-            set => InternalFixture.CollisionCategories = (AetherCategory) ((int)(value));
+            get => (Category)((int)(InternalFixture.CollisionCategories));
+            set => InternalFixture.CollisionCategories = (AetherCategory)((int)(value));
         }
 
         public bool IsSensor {

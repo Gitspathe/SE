@@ -35,7 +35,7 @@ namespace Particles {
 		for (int32_t i = 0; i < length; i++) {
 			int32_t pIndex = particleIndexArr[i];
 			Particle* particle = &particlesArrPtr[pIndex];
-			startHuesArr[particle->id] = particle->color.x;
+			startHuesArr[particle->id] = particle->color.getHue();
 			if (!isRandom())
 				continue;
 
@@ -50,20 +50,20 @@ namespace Particles {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.x = ParticleMath::lerp(startHuesArr[particle->id], end1, particle->timeAlive / particle->initialLife);
+					particle->color.setHue(ParticleMath::lerp(startHuesArr[particle->id], end1, particle->timeAlive / particle->initialLife));
 				}
 			} break;
 			case HueTransition::RandomLerp: {
 				#pragma omp simd
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.x = ParticleMath::lerp(startHuesArr[particle->id], randEndHues[particle->id], particle->timeAlive / particle->initialLife);
+					particle->color.setHue(ParticleMath::lerp(startHuesArr[particle->id], randEndHues[particle->id], particle->timeAlive / particle->initialLife));
 				}
 			} break;
 			case HueTransition::Curve: {
 				for (int32_t i = 0; i < length; i++) {
 					Particle* particle = &particleArrPtr[i];
-					particle->color.x = curve->Evaluate(particle->timeAlive / particle->initialLife);
+					particle->color.setHue(curve->Evaluate(particle->timeAlive / particle->initialLife));
 				}
 			} break;
 			case HueTransition::None:

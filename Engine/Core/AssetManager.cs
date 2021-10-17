@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.Core.Exceptions;
+using System;
+using System.Collections.Generic;
 
 namespace SE.Core
 {
@@ -13,14 +13,14 @@ namespace SE.Core
     {
         // Dynamic is of type of AssetDictionary<T>.
         internal static Dictionary<Type, dynamic> LookupDictionary = new Dictionary<Type, dynamic>();
-        
+
         //Increments for each new Asset instance.
         internal static uint CurrentAssetPriority;
 
         private static Dictionary<string, ContentLoader> contentManagers = new Dictionary<string, ContentLoader>();
 
         private static HashSet<Type> noHeadlessSupportTypes = new HashSet<Type> {
-            typeof(Texture2D), 
+            typeof(Texture2D),
             typeof(SpriteFont)
         };
 
@@ -61,7 +61,7 @@ namespace SE.Core
                 }
             } catch (ArgumentNullException e) {
                 if (Screen.IsFullHeadless) {
-                    throw new HeadlessNotSupportedException("Cannot add asset of type '"+type+"' while in fully headless display mode.", e);
+                    throw new HeadlessNotSupportedException("Cannot add asset of type '" + type + "' while in fully headless display mode.", e);
                 }
             }
             return value;
@@ -132,7 +132,7 @@ namespace SE.Core
         public static Dictionary<string, TValue> GetDictionary<TValue>(IAssetConsumer consumer)
         {
             if (LookupDictionary.ContainsKey(typeof(Asset<TValue>))) {
-                return LookupDictionary[(dynamic) typeof(Asset<TValue>)].GetData(consumer);
+                return LookupDictionary[(dynamic)typeof(Asset<TValue>)].GetData(consumer);
             }
             return null;
         }

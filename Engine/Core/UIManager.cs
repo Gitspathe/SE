@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SE.AssetManagement;
@@ -10,6 +9,7 @@ using SE.Input;
 using SE.UI;
 using SE.UI.Events;
 using SE.Utility;
+using System.Collections.Generic;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core
@@ -27,9 +27,9 @@ namespace SE.Core
         private static QuickList<UIObject> gizmos = new QuickList<UIObject>();
         private static QuickList<UIObject> assumedKeyboardControl = new QuickList<UIObject>();
         private static bool listenButtonInput;
-        private static QuickList<string> uiInputButtons = new QuickList<string> 
+        private static QuickList<string> uiInputButtons = new QuickList<string>
             {"UIUp", "UILeft", "UIDown", "UIRight", "UIConfirm", "UIBack"};
-        
+
         private static AssetConsumerContext assetConsumerContext = new AssetConsumerContext();
 
         // Caching...
@@ -128,7 +128,7 @@ namespace SE.Core
         {
             if (Screen.DisplayMode != DisplayMode.Normal && key != "Console")
                 return;
-            if (menus.ContainsKey(key)) 
+            if (menus.ContainsKey(key))
                 return;
 
             rootUIObject.SetPriority(priority);
@@ -232,7 +232,7 @@ namespace SE.Core
                 menuUIObjects.Sort((x, y) => y.Priority.CompareTo(x.Priority));
 
                 // Update each UIObject.
-                for (int i = 0; i < menuUIObjects.Count; i++) { 
+                for (int i = 0; i < menuUIObjects.Count; i++) {
                     UpdateUIObject(menuUIObjects[i], mousePoint);
                 }
             }
@@ -287,12 +287,10 @@ namespace SE.Core
                 // Otherwise, if the mouse isn't over the UIObject, handle events such as MouseLeave().
             } else {
                 uiObject.OnDeselected(noneEventArgs);
-                if (InputManager.LeftMouseClicked)
-                {
+                if (InputManager.LeftMouseClicked) {
                     uiObject.OnClickAway(leftEventArgs);
                 }
-                if (InputManager.RightMouseClicked)
-                {
+                if (InputManager.RightMouseClicked) {
                     uiObject.OnClickAway(rightEventArgs);
                 }
             }
@@ -313,7 +311,7 @@ namespace SE.Core
             }
 
             // Don't update the controller / keyboard input if the mouse is being used.
-            if (!listenButtonInput || InputFocus == null) 
+            if (!listenButtonInput || InputFocus == null)
                 return;
 
             // Handle controller + keyboard input.
@@ -352,7 +350,7 @@ namespace SE.Core
             }
         }
 
-        private static bool IsMouseBlocker(UIObject uiObj) 
+        private static bool IsMouseBlocker(UIObject uiObj)
             => mouseBlocker == null || mouseBlocker.Transform.Children.Contains(uiObj.Transform);
 
         public static QuickList<UIObject> GetGizmos() => gizmos;
@@ -384,7 +382,7 @@ namespace SE.Core
             foreach (UIObject menu in menus.Values) {
                 OrderedTopLevelMenus.Add(menu);
             }
-            OrderedTopLevelMenus.Sort((pair1,pair2) => pair1.Priority.CompareTo(pair2.Priority));
+            OrderedTopLevelMenus.Sort((pair1, pair2) => pair1.Priority.CompareTo(pair2.Priority));
         }
 
         public static bool IsKeyboardFree()

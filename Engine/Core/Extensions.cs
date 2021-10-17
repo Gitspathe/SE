@@ -1,11 +1,11 @@
-﻿using System;
-using System.Numerics;
-using Microsoft.Xna.Framework;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
+﻿using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.IO.Compression;
+using System.Numerics;
 using System.Text;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace SE.Core
 {
@@ -28,7 +28,7 @@ namespace SE.Core
 
         public static Matrix? ToMonoGameMatrix(this Matrix4x4? mat)
         {
-            if (!mat.HasValue) 
+            if (!mat.HasValue)
                 return null;
 
             Matrix4x4 tM = mat.Value;
@@ -37,11 +37,11 @@ namespace SE.Core
 
         public static float ToRotation(this Vector2 vector)
         {
-        #if NETSTANDARD2_1
+#if NETSTANDARD2_1
             float angle = MathF.Atan2(vector.X, -vector.Y);
-        #else
+#else
             float angle = (float)Math.Atan2(vector.X, -vector.Y);
-        #endif
+#endif
             return angle;
         }
 
@@ -67,7 +67,7 @@ namespace SE.Core
 
         public static Matrix4x4? ToNumericsMatrix(this Matrix? mat)
         {
-            if (!mat.HasValue) 
+            if (!mat.HasValue)
                 return null;
 
             Matrix tM = mat.Value;

@@ -15,9 +15,9 @@ namespace SE.Debug
 
         public static void DrawRectangle(Camera2D camera, Rectangle srcRect, Color? color = null, int borderWidth = 4)
         {
-            if(debugSpriteTex.Texture == null)
+            if (debugSpriteTex.Texture == null)
                 debugSpriteTex = AssetManager.Get<SpriteTexture>(assetConsumerContext, "floor");
-            
+
             Color c = color ?? Color.Purple;
             SpriteBatch spriteBatch = Core.Rendering.SpriteBatch;
             Texture2D texture = debugSpriteTex.Texture;
@@ -33,7 +33,7 @@ namespace SE.Debug
             spriteBatch.Draw(texture, new Rectangle(r.Left, r.Top, r.Width, bw),
                 debugSpriteTex.SourceRectangle, c, 0.0f, Vector2.Zero, SpriteEffects.None, 0f); // Top
 
-            spriteBatch.Draw(texture, new Rectangle(r.Left, r.Bottom, r.Width, bw), 
+            spriteBatch.Draw(texture, new Rectangle(r.Left, r.Bottom, r.Width, bw),
                 debugSpriteTex.SourceRectangle, c, 0.0f, Vector2.Zero, SpriteEffects.None, 0f); // Bottom
         }
     }

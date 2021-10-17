@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using LiteNetLib;
-using LiteNetLib.Utils;
-using SE.Core.Exceptions;
+﻿using LiteNetLib.Utils;
 using SE.Engine.Networking.Packets;
+using System;
+using System.Collections.Generic;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Engine.Networking
@@ -146,7 +144,7 @@ namespace SE.Engine.Networking
                 throw new ArgumentNullException(nameof(reader));
             if (!DataReaders.TryGetValue(type, out var func))
                 throw new NullReferenceException("No data reader found for type " + type + ".");
-            
+
             return func.Invoke(reader);
         }
 
@@ -164,7 +162,7 @@ namespace SE.Engine.Networking
                 throw new ArgumentNullException(nameof(writer));
             if (!DataWriters.TryGetValue(type, out var func))
                 throw new NullReferenceException("No data writer found for type " + type + ".");
-            
+
             func.Invoke(obj, writer);
         }
 

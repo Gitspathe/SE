@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using LiteNetLib;
+﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using Open.Nat;
-using SE.Core.Exceptions;
 using SE.Core.Extensions;
-using SE.Engine;
 using SE.Engine.Networking;
-using SE.Engine.Networking.Attributes;
-using SE.Engine.Networking.Internal;
 using SE.Engine.Networking.Packets;
 using SE.Engine.Networking.Utility;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 // ReSharper disable SwitchStatementHandlesSomeKnownEnumValuesWithDefault
 
@@ -155,7 +147,7 @@ namespace SE.Core
         public static T GetNetworkObject<T>(uint networkID) where T : class, INetLogic
         {
             lock (NetworkLock) {
-                return NetworkObjects.TryGetValue(networkID, out INetLogic netLogic) ? (T) netLogic : null;
+                return NetworkObjects.TryGetValue(networkID, out INetLogic netLogic) ? (T)netLogic : null;
             }
         }
 
@@ -283,7 +275,7 @@ namespace SE.Core
             // TODO: Do not accept other packets until all buffered data is received. This should fix 'No object ID found ...' spam.
             listener.PeerConnectedEvent += peer => {
                 Console.WriteLine("Connection established: " + peer.EndPoint);
-                if (Connections.ContainsKey(peer.GetUniqueID())) 
+                if (Connections.ContainsKey(peer.GetUniqueID()))
                     return;
 
                 Connections.Add(peer.GetUniqueID(), peer);
@@ -309,7 +301,7 @@ namespace SE.Core
 
             InstanceType = NetInstanceType.Server;
             Server = new NetManager(listener) {
-                ReconnectDelay = 2000, 
+                ReconnectDelay = 2000,
                 PingInterval = 2000,
                 ChannelsCount = 8
             };
@@ -331,7 +323,7 @@ namespace SE.Core
             ResetListener();
 
             listener.PeerConnectedEvent += peer => {
-                if (Connections.ContainsKey(peer.GetUniqueID())) 
+                if (Connections.ContainsKey(peer.GetUniqueID()))
                     return;
 
                 Connections.Add(peer.GetUniqueID(), peer);
@@ -352,7 +344,7 @@ namespace SE.Core
             forwardPortTask.Wait();
 
             Client = new NetManager(listener) {
-                ReconnectDelay = 2000, 
+                ReconnectDelay = 2000,
                 PingInterval = 2000,
                 ChannelsCount = 8
             };
@@ -390,10 +382,10 @@ namespace SE.Core
 
         #region EXTENSIONS
 
-        public static void RegisterExtension(INetworkExtension netLogic) 
+        public static void RegisterExtension(INetworkExtension netLogic)
             => networkExtensions.Add(netLogic.GetType(), netLogic);
 
-        public static INetworkExtension GetExtension<T>() where T : INetworkExtension 
+        public static INetworkExtension GetExtension<T>() where T : INetworkExtension
             => networkExtensions.TryGetValue(typeof(T), out INetworkExtension extension) ? extension : null;
 
         #endregion
@@ -403,13 +395,13 @@ namespace SE.Core
         public static void SendPacketServer<T>(INetLogic netLogic, NetDataWriter netWriter, DeliveryMethod deliveryMethod, byte channel, Scope targets, NetPeer[] connections, NetPeer sender) where T : PacketProcessor
         {
             if (!PacketProcessorManager.GetVal(typeof(T), out ushort s)) {
-                if(Report) {
+                if (Report) {
                     LogError(new Exception($"No network processor for type {typeof(T)} was found."));
                 }
                 return;
             }
             SEPacket packet = new SEPacket(s, netLogic.ID, netWriter.Data, netWriter.Length);
-            
+
             // Find recipients who should receive the RPC.
             recipients.Clear();
             switch (targets) {
@@ -426,10 +418,10 @@ namespace SE.Core
                 case Scope.None:
                     break;
             }
-            if (recipients.Count <= 0) 
+            if (recipients.Count <= 0)
                 return;
-                
-            lock(NetworkLock) {
+
+            lock (NetworkLock) {
                 // Send the RPC message to any recipient(s).
                 NetDataWriter writer = ReaderWriterPool.GetWriter();
                 packet.WriteTo(writer);
@@ -453,10 +445,10 @@ namespace SE.Core
             // Find recipients.
             recipients.Clear();
             Client.GetPeersNonAlloc(recipients, ConnectionState.Connected);
-            if (recipients.Count <= 0) 
+            if (recipients.Count <= 0)
                 return;
 
-            lock(NetworkLock) {
+            lock (NetworkLock) {
                 // Send the RPC message to any recipient(s).
                 NetDataWriter writer = ReaderWriterPool.GetWriter();
                 packet.WriteTo(writer);
@@ -470,8 +462,8 @@ namespace SE.Core
         public static void SendRPC(RPCMethod method, params object[] parameters)
             => NetworkRPCManager.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, null, null, method.Method, parameters);
         public static void SendRPC(RPCMethod method, NetPeer recipient, params object[] parameters)
-            => NetworkRPCManager.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, new [] { recipient }, null, method.Method, parameters);
-        public static void SendRPC(RPCMethod method, NetPeer[] recipients, params object[] parameters) 
+            => NetworkRPCManager.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, new[] { recipient }, null, method.Method, parameters);
+        public static void SendRPC(RPCMethod method, NetPeer[] recipients, params object[] parameters)
             => NetworkRPCManager.SendRPC(method.NetLogic.ID, method.DeliveryMethod, method.Channel, method.Scope, recipients, null, method.Method, parameters);
 
         public static T[] GetSubArray<T>(T[] data, int index, int length)

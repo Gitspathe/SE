@@ -1,6 +1,5 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
-using System;
 
 namespace SE.Engine.Networking.Packets
 {
@@ -32,7 +31,7 @@ namespace SE.Engine.Networking.Packets
 
         public void Reset(ushort packetType, uint networkID, byte[] buffer, int bufferLength = -1)
         {
-            if(bufferLength == -1)
+            if (bufferLength == -1)
                 bufferLength = buffer.Length;
 
             PacketType = packetType;

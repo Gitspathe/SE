@@ -1,5 +1,4 @@
-﻿using FastStream;
-using System;
+﻿using System;
 using System.Buffers;
 using System.Buffers.Text;
 using System.IO;
@@ -75,7 +74,7 @@ namespace SE.Serialization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void EnsureCapacity(int count)
         {
-            if(position + count < bufferLength)
+            if (position + count < bufferLength)
                 return;
 
             IncrementSize(count);
@@ -275,7 +274,7 @@ namespace SE.Serialization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteIndent(int depth)
         {
-            int toWrite = (depth-1) * 2;
+            int toWrite = (depth - 1) * 2;
             EnsureCapacity(toWrite);
             for (int i = 0; i < toWrite; i++) {
                 buffer[position++] = _TAB;
@@ -320,8 +319,7 @@ namespace SE.Serialization
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            switch (origin)
-            {
+            switch (origin) {
                 case SeekOrigin.Begin:
                     Position = offset;
                     break;

@@ -15,17 +15,15 @@ namespace SE.UI
         public Panel Background { get; private set; }
 
         public Image Image { get; private set; }
-        
+
         public Text Text { get; private set; }
 
-        public Color BackgroundColor
-        {
+        public Color BackgroundColor {
             get => Background.SpriteColor;
             set => Background.SpriteColor = value;
         }
 
-        public Color ImageColor
-        {
+        public Color ImageColor {
             get => Image?.Color ?? Color.White;
             set {
                 if (Image != null) {
@@ -91,7 +89,7 @@ namespace SE.UI
 
         public void SetBackground(SlicedImage image, Color? color, int borderSize = 8)
         {
-            if(image == null)
+            if (image == null)
                 return;
 
             // Destroy and recreate background. Or just create a background if one doesn't exist.
@@ -106,7 +104,7 @@ namespace SE.UI
 
         public void SetFont(Asset<SpriteFont> font, Color color)
         {
-            if(font == null)
+            if (font == null)
                 return;
 
             // Create new Text UIObject.

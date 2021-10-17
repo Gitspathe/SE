@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using LiteNetLib;
+﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using SE.Core.Exceptions;
 using SE.Core.Extensions;
@@ -13,6 +8,11 @@ using SE.Engine.Networking.Internal;
 using SE.Engine.Networking.Packets;
 using SE.Engine.Networking.Utility;
 using SE.Utility;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using static SE.Core.Network;
 
 namespace SE.Core
@@ -60,10 +60,10 @@ namespace SE.Core
                 MethodData data = methodData[i];
                 ServerRPCAttribute attribute = data.Info.GetCustomAttribute<ServerRPCAttribute>();
                 ServerRPCLookupTable.Add(new RPCServerInfo(
-                    attribute, 
-                    new RPCCache(data.Info), 
-                    i, 
-                    data.ID, 
+                    attribute,
+                    new RPCCache(data.Info),
+                    i,
+                    data.ID,
                     data.Info.GetParameterTypes()));
             }
 
@@ -75,9 +75,9 @@ namespace SE.Core
                 ClientRPCAttribute attribute = data.Info.GetCustomAttribute<ClientRPCAttribute>();
                 ClientRPCLookupTable.Add(new RPCClientInfo(
                     attribute,
-                    new RPCCache(data.Info), 
-                    i, 
-                    data.ID, 
+                    new RPCCache(data.Info),
+                    i,
+                    data.ID,
                     data.Info.GetParameterTypes()));
             }
             initialized = true;
@@ -92,7 +92,7 @@ namespace SE.Core
                 methodSignature = GetMethodSignature(networkIdentity, method, parameters);
 
             // Convert the method signature into an ID which can then be sent over the network.
-            if(!ServerRPCLookupTable.TryGetUshortID(methodSignature, out ushort methodID)) {
+            if (!ServerRPCLookupTable.TryGetUshortID(methodSignature, out ushort methodID)) {
                 if (Report) {
                     LogError(new InvalidRPCException($"Invalid RPC send: client RPC method '{method}' not found."));
                 }
@@ -173,24 +173,28 @@ namespace SE.Core
                     // Send server -> client(s) RPC.
                     case NetInstanceType.Server: {
                         SendRPCServer(networkIdentity, deliveryMethod, channel, targets, connections, sender, method, parameters);
-                    } break;
+                    }
+                    break;
 
                     // Send client -> server RPC.
                     case NetInstanceType.Client: {
                         SendRPCClient(networkIdentity, deliveryMethod, channel, method, parameters);
-                    } break;
-                    
+                    }
+                    break;
+
                     // Invalid network states.
                     case NetInstanceType.None: {
                         if (Report) {
                             LogError(new InvalidRPCException($"Invalid RPC send: attempted to send RPC '{method}' without connection."));
                         }
-                    } break;
+                    }
+                    break;
                     default: {
                         if (Report) {
                             LogError(new ArgumentOutOfRangeException());
                         }
-                    } break;
+                    }
+                    break;
                 }
             } catch (Exception e) {
                 NetProtector.ReportError(e);
@@ -205,12 +209,12 @@ namespace SE.Core
             INetLogic nObj = null;
             RPCInfo rpcInfo = null;
 
-            lock(NetworkLock) {
+            lock (NetworkLock) {
                 // If the networkID is zero, the RPC's target is this (Network static). Otherwise, search current NetworkObjects for the RPC target.
                 if (rpcFunc.NetworkID != 0) {
                     NetworkObjects.TryGetValue(rpcFunc.NetworkID, out nObj);
                 }
-                
+
                 // Check if obj is null.
                 if (nObj == null) {
                     if (Report) {
@@ -225,24 +229,28 @@ namespace SE.Core
                         if (ServerRPCLookupTable.TryGetRPCInfo(rpcFunc.MethodID, out RPCServerInfo serverRPC)) {
                             rpcInfo = serverRPC;
                         }
-                    } break;
+                    }
+                    break;
                     case NetInstanceType.Client: {
                         if (ClientRPCLookupTable.TryGetRPCInfo(rpcFunc.MethodID, out RPCClientInfo clientRPC)) {
                             rpcInfo = clientRPC;
                         }
-                    } break;
+                    }
+                    break;
                     case NetInstanceType.None: {
                         if (Report) {
                             LogError(new InvalidRPCException($"Invalid RPC invocation: attempted to invoke RPC '{rpcFunc.MethodID}' without connection."));
                         }
-                    } return;
+                    }
+                    return;
                     default: {
                         if (Report) {
                             LogError(new ArgumentOutOfRangeException());
                         }
-                    } return;
+                    }
+                    return;
                 }
-                
+
                 // If info is not found, log error.
                 if (rpcInfo == null) {
                     if (Report) {

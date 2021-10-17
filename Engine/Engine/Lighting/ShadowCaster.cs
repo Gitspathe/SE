@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Penumbra;
 using SE.Core;
-using SE.Rendering;
 using SE.World.Partitioning;
-using Vector2 = System.Numerics.Vector2;
+using System.Collections.Generic;
 using MGVector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Lighting
 {
@@ -48,7 +46,7 @@ namespace SE.Lighting
             Hull.Points.AddRange(pointList);
         }
 
-        public void InsertIntoPartition() 
+        public void InsertIntoPartition()
             => SpatialPartitionManager.Insert(this);
 
         public void RemoveFromPartition()

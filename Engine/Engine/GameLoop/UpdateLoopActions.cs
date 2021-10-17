@@ -1,6 +1,6 @@
-﻿using System.Buffers;
-using SE.Common;
+﻿using SE.Common;
 using SE.Core;
+using System.Buffers;
 
 namespace SE.GameLoop
 {

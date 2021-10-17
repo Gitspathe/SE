@@ -45,8 +45,8 @@ namespace SE.Engine.Networking.Internal
             ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
             ParameterExpression argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
 
-            MethodCallExpression call = Expression.Call(Expression.Convert(instanceParameter, method.DeclaringType), 
-                method, 
+            MethodCallExpression call = Expression.Call(Expression.Convert(instanceParameter, method.DeclaringType),
+                method,
                 CreateParameterExpressions(method, argumentsParameter));
 
             Expression<LateBoundMethod> lambda = Expression.Lambda<LateBoundMethod>(

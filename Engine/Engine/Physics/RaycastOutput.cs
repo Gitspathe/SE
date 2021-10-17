@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
-using AetherRaycastOutput = tainicom.Aether.Physics2D.Collision.RayCastOutput;
 using static SE.Core.Physics;
+using AetherRaycastOutput = tainicom.Aether.Physics2D.Collision.RayCastOutput;
 
 namespace SE.Physics
 {
@@ -19,7 +19,7 @@ namespace SE.Physics
         /// </summary>
         public Vector2 Normal => ToPixels(InternalOutput.Normal);
 
-        public RayCastOutput(AetherRaycastOutput output) 
+        public RayCastOutput(AetherRaycastOutput output)
             => InternalOutput = output;
 
     }

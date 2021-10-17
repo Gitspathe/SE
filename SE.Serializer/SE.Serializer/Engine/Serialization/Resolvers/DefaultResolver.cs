@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SE.Serialization.Converters;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using SE.Serialization.Converters;
 using static SE.Core.ReflectionUtil;
 // ReSharper disable StaticMemberInGenericType
 
@@ -9,10 +9,10 @@ namespace SE.Serialization.Resolvers
 {
     public sealed class DefaultResolver : ConverterResolver
     {
-        private Dictionary<Type, Converter> converterCache               = new Dictionary<Type, Converter>();
-        private Dictionary<Type, Converter> typeConverters               = new Dictionary<Type, Converter>();
+        private Dictionary<Type, Converter> converterCache = new Dictionary<Type, Converter>();
+        private Dictionary<Type, Converter> typeConverters = new Dictionary<Type, Converter>();
         private Dictionary<Type, GeneratedConverter> generatedConverters = new Dictionary<Type, GeneratedConverter>();
-        private Dictionary<Type, Type> genericTypeConverterTypes         = new Dictionary<Type, Type>();
+        private Dictionary<Type, Type> genericTypeConverterTypes = new Dictionary<Type, Type>();
 
         private Func<Type, bool> converterPredicate = myType
             => typeof(Converter).IsAssignableFrom(myType)
@@ -21,7 +21,7 @@ namespace SE.Serialization.Resolvers
                && !myType.IsAbstract;
 
         private Func<Type, bool> genericConverterPredicate = myType
-            => typeof(GenericConverter).IsAssignableFrom(myType) 
+            => typeof(GenericConverter).IsAssignableFrom(myType)
                && myType != typeof(GeneratedConverter)
                && myType.IsClass
                && !myType.IsAbstract;
@@ -52,10 +52,10 @@ namespace SE.Serialization.Resolvers
 
             // Step 2: Check if the concrete type is in the ValueSerializersType dictionary.
             converter = GetTypeConverter(objType);
-            if(converter != null) {
+            if (converter != null) {
                 RegisterConverter(objType, converter);
                 return converter;
-            } 
+            }
 
             // Step 3: Test to see if it's a specially recognized type.
             // A) Flat array.
@@ -65,7 +65,7 @@ namespace SE.Serialization.Resolvers
             }
 
             // B) TODO: Multidimensional array. NOTE: Jagged array seems to already work!!
-                
+
             // Step 4: Check if the type implements an interface within the ValueSerializersType dictionary.
             foreach (Type intType in objType.GetInterfaces()) {
                 converter = GetTypeConverter(intType);
@@ -113,7 +113,7 @@ namespace SE.Serialization.Resolvers
         public GenericConverter CreateGenericTypeConverter(Type concreteType, Type genericType, Type[] typeArgs)
         {
             if (genericTypeConverterTypes.TryGetValue(genericType, out Type serializerType)) {
-                GenericConverter newSerializer = (GenericConverter) Activator.CreateInstance(serializerType);
+                GenericConverter newSerializer = (GenericConverter)Activator.CreateInstance(serializerType);
                 newSerializer.TypeArguments = typeArgs;
                 RegisterConverter(concreteType, newSerializer);
                 return newSerializer;
@@ -136,13 +136,13 @@ namespace SE.Serialization.Resolvers
 
             IEnumerable<Converter> enumerable = GetTypeInstances<Converter>(converterPredicate);
             foreach (Converter valSerializer in enumerable) {
-                if(valSerializer.StoreAtRuntime)
+                if (valSerializer.StoreAtRuntime)
                     typeConverters.Add(valSerializer.Type, valSerializer);
             }
 
             IEnumerable<GenericConverter> genericEnumerable = GetTypeInstances<GenericConverter>(genericConverterPredicate);
             foreach (GenericConverter genericTypeSerializer in genericEnumerable) {
-                if(genericTypeSerializer.StoreAtRuntime)
+                if (genericTypeSerializer.StoreAtRuntime)
                     genericTypeConverterTypes.Add(genericTypeSerializer.Type, genericTypeSerializer.GetType());
             }
 

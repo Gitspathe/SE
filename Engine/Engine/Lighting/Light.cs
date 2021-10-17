@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Penumbra;
+using System;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Lighting
@@ -43,7 +43,7 @@ namespace SE.Lighting
                 return -1;
             }
             set {
-                if(PenumbraLight is Spotlight spotlight)
+                if (PenumbraLight is Spotlight spotlight)
                     spotlight.ConeDecay = value;
             }
         }
@@ -58,7 +58,7 @@ namespace SE.Lighting
                 return null;
             }
             set {
-                if(PenumbraLight is TexturedLight texturedLight)
+                if (PenumbraLight is TexturedLight texturedLight)
                     texturedLight.Texture = value;
             }
         }

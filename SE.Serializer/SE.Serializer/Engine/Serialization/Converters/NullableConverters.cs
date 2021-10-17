@@ -1,5 +1,4 @@
 ﻿using System;
-using FastStream;
 
 namespace SE.Serialization.Converters
 {
@@ -9,7 +8,7 @@ namespace SE.Serialization.Converters
 
         public override int? DeserializeTBinary(Utf8Reader reader, ref DeserializeTask task)
         {
-            if (!reader.ReadBoolean()) 
+            if (!reader.ReadBoolean())
                 return null;
 
             return reader.ReadInt32();

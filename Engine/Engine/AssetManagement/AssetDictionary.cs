@@ -61,10 +61,10 @@ namespace SE.AssetManagement
             return false;
         }
 
-        public TValue Get(IAssetConsumer consumer, string key) 
+        public TValue Get(IAssetConsumer consumer, string key)
             => data.TryGetValue(key, out Asset<TValue> asset) ? asset.Get(consumer) : default;
 
-        public Asset<TValue> GetAsset(string key) 
+        public Asset<TValue> GetAsset(string key)
             => data.TryGetValue(key, out Asset<TValue> asset) ? asset : default;
     }
 }

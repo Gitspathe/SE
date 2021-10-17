@@ -14,11 +14,11 @@ namespace SE.Debug.Commands
             try {
                 x = Convert.ToInt32(parameters[0]);
                 y = Convert.ToInt32(parameters[1]);
-                GameEngine.Engine.Player.Transform.Position = new Vector2(x,y);
+                GameEngine.Engine.Player.Transform.Position = new Vector2(x, y);
             } catch (Exception e) {
                 return GetError(e, parameters);
             }
-            return "Teleported player to X: "+x+", Y: "+y;
+            return "Teleported player to X: " + x + ", Y: " + y;
         }
 
         public string GetError(Exception e, string[] parameters)

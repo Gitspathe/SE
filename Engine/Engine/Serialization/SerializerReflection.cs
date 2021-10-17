@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using SE.Attributes;
+using SE.Core.Extensions;
+using SE.Core.Internal;
+using SE.Utility;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Xna.Framework;
-using SE.Attributes;
-using SE.Core.Extensions;
-using SE.Utility;
-using Vector2 = System.Numerics.Vector2;
-using System.Collections;
-using SE.Core.Internal;
 using static SE.Core.ReflectionUtil;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Serialization
 {
@@ -120,7 +120,7 @@ namespace SE.Serialization
                         strList.Add(pInfo.Name);
                     } else if (isGenericField && SerializableTypes.Contains(t.GetGenericTypeDefinition())) {
                         strList.Add(pInfo.Name);
-                    } else if(Reflection.TypeHasAnyOfInterface(t, SerializableTypes, out Type intT)) {
+                    } else if (Reflection.TypeHasAnyOfInterface(t, SerializableTypes, out Type intT)) {
                         strList.Add(pInfo.Name);
                     }
                 }
@@ -135,7 +135,7 @@ namespace SE.Serialization
                         strList.Add(fInfo.Name);
                     } else if (isGenericField && SerializableTypes.Contains(t.GetGenericTypeDefinition())) {
                         strList.Add(fInfo.Name);
-                    } else if(Reflection.TypeHasAnyOfInterface(t, SerializableTypes, out Type intT)) {
+                    } else if (Reflection.TypeHasAnyOfInterface(t, SerializableTypes, out Type intT)) {
                         strList.Add(fInfo.Name);
                     }
                 }
@@ -144,7 +144,7 @@ namespace SE.Serialization
             }
         }
 
-        internal static SerializerInfo GetObjectSerializer(Type type) 
+        internal static SerializerInfo GetObjectSerializer(Type type)
             => ObjectSerializers.TryGetValue(type, out SerializerInfo result) ? result : null;
 
         static SerializerReflection()
@@ -166,7 +166,7 @@ namespace SE.Serialization
         public Type Type;
         public QuickList<string> SerializedVariables;
 
-        public SerializerInfo(Type type, QuickList<string> serializedVariables) 
+        public SerializerInfo(Type type, QuickList<string> serializedVariables)
         {
             Type = type;
             SerializedVariables = serializedVariables;

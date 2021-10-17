@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace SE.Animating
 {
@@ -32,19 +32,19 @@ namespace SE.Animating
             curveA = a;
             TransitionType = TransitionType.Curve;
             float highest = 0;
-            float cur = curveR.Keys[curveR.Keys.Count-1].Position;
+            float cur = curveR.Keys[curveR.Keys.Count - 1].Position;
             if (cur > highest)
                 highest = cur;
 
-            cur = curveG.Keys[curveG.Keys.Count-1].Position;
+            cur = curveG.Keys[curveG.Keys.Count - 1].Position;
             if (cur > highest)
                 highest = cur;
 
-            cur = curveB.Keys[curveB.Keys.Count-1].Position;
+            cur = curveB.Keys[curveB.Keys.Count - 1].Position;
             if (cur > highest)
                 highest = cur;
 
-            cur = curveA.Keys[curveA.Keys.Count-1].Position;
+            cur = curveA.Keys[curveA.Keys.Count - 1].Position;
             if (cur > highest)
                 highest = cur;
 

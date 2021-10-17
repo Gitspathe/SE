@@ -16,7 +16,7 @@ namespace SE.UI
         public PointPercent Zero => new PointPercent(0, 0);
         public PointPercent Hundred => new PointPercent(100, 100);
 
-        public static PointPercent operator +(PointPercent a, PointPercent b) => new PointPercent(a.X+b.X, a.Y+b.Y);
+        public static PointPercent operator +(PointPercent a, PointPercent b) => new PointPercent(a.X + b.X, a.Y + b.Y);
 
         public static PointPercent operator -(PointPercent a, PointPercent b) => new PointPercent(a.X - b.X, a.Y - b.Y);
 

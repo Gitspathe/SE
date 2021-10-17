@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SE.Utility;
 using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework;
-using SE.Core;
-using SE.Utility;
 
 namespace SE.World.Partitioning
 {

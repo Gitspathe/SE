@@ -1,7 +1,7 @@
-﻿using System;
-using SE.Common;
+﻿using SE.Common;
 using SE.Core;
 using SE.Input;
+using System;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components
@@ -16,7 +16,7 @@ namespace SE.Components
         {
             if (Owner.NetIdentity == null || !Owner.NetIdentity.IsOwner)
                 return;
-            if(PhysicsObject == null)
+            if (PhysicsObject == null)
                 PhysicsObject = Owner.GetComponent<PhysicsObject>();
 
             Vector2 velocity = Vector2.Zero;
@@ -30,8 +30,8 @@ namespace SE.Components
             }
 
             Vector2? vec = Transform.Position - Camera2D.Main.MouseToWorldPoint();
-            float rot = vec.HasValue 
-                ? (float) Math.Atan2(vec.Value.Y, vec.Value.X) 
+            float rot = vec.HasValue
+                ? (float)Math.Atan2(vec.Value.Y, vec.Value.X)
                 : 0f;
 
             Owner.Transform.Rotation = rot;

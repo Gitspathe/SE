@@ -1,13 +1,10 @@
-﻿using System;
+﻿using SE.Core;
+using System;
 using System.Buffers;
-using System.Buffers.Binary;
 using System.Buffers.Text;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using FastStream;
-using SE.Core;
 using static SE.Serialization.Constants;
 
 namespace SE.Serialization
@@ -71,7 +68,7 @@ namespace SE.Serialization
                 }
             }
 
-            end:
+        end:
             return memory.Span.Slice(0, position);
         }
 
@@ -130,7 +127,7 @@ namespace SE.Serialization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void EnsureCapacity(int capacity)
         {
-            if(position + capacity < bufferLength)
+            if (position + capacity < bufferLength)
                 return;
 
             Grow(capacity);

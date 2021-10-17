@@ -1,32 +1,22 @@
 ﻿#if EDITOR
 #endif
-using System;
-using System.Collections.Generic;
-using System.Net.Mime;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using SE.AssetManagement;
 using SE.AssetManagement.Processors;
 using SE.Common;
 using SE.Components;
 using SE.Core;
-using SE.Core.Internal;
-using SE.Rendering;
 using SE.Core.Extensions;
+using SE.Core.Internal;
+using SE.GameLoop;
+using SE.Rendering;
 using SE.Utility;
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using static SE.Core.SceneManager;
 using Console = SE.Core.Console;
-using SE.Serialization;
-using SE.GameLoop;
-using SE.World.Partitioning;
-using SE.Particles.Shapes;
-using System.Numerics;
-using Random = SE.Utility.Random;
-using Vector2 = System.Numerics.Vector2;
 
 [assembly: InternalsVisibleTo("SEEditor")]
 namespace SE
@@ -40,7 +30,7 @@ namespace SE
         public static Action Initalized;
         public static UpdateLoop UpdateLoop;
         public GraphicsDeviceManager GraphicsDeviceManager;
-        
+
         internal static HashSet<GameObject> DynamicGameObjects = new HashSet<GameObject>();
         internal static HashSet<GameObject> AllGameObjects = new HashSet<GameObject>();
         internal GameObject Player;
@@ -145,7 +135,7 @@ namespace SE
                 ParticleEngine.Initialize(GraphicsDevice);
 
                 UIManager.Initialize();
-                if (!Screen.IsFullHeadless) 
+                if (!Screen.IsFullHeadless)
                     Core.Lighting.Initialize();
 
                 Core.Physics.Initialize();
@@ -198,7 +188,7 @@ namespace SE
         private void LoadEngineContent()
         {
             EngineContent = new ContentLoader(Content.ServiceProvider, "EngineContent", "Data/_MAIN/Content/");
-            if (Screen.IsFullHeadless) 
+            if (Screen.IsFullHeadless)
                 return;
 
             // Particle shader.
@@ -287,7 +277,7 @@ namespace SE
         protected sealed override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
-            if(Screen.IsFullHeadless)
+            if (Screen.IsFullHeadless)
                 return;
 
             Core.Rendering.Update();
@@ -320,24 +310,24 @@ namespace SE
                 Console.WriteLine(ParticleEngine.NativeEnabled ? "ON!" : "OFF!");
             }
 
-            // Multithreaded render test.
-            if (InputManager.KeyCodePressed(Keys.F)) {
-                Renderer.Multithreaded = !Renderer.Multithreaded;
-                Console.WriteLine("Multithreaded: " + (Renderer.Multithreaded ? "on" : "off"));
-            }
+            //// Multithreaded render test.
+            //if (InputManager.KeyCodePressed(Keys.F)) {
+            //    Renderer.Multithreaded = !Renderer.Multithreaded;
+            //    Console.WriteLine("Multithreaded: " + (Renderer.Multithreaded ? "on" : "off"));
+            //}
 
-            if (InputManager.KeyCodePressed(Keys.I)) {
-                ParticleEngine.UseParticleRenderer = !ParticleEngine.UseParticleRenderer;
-                Console.WriteLine("Instanced: " + (ParticleEngine.UseParticleRenderer ? "on" : "off"));
-            }
+            //if (InputManager.KeyCodePressed(Keys.I)) {
+            //    ParticleEngine.UseParticleRenderer = !ParticleEngine.UseParticleRenderer;
+            //    Console.WriteLine("Instanced: " + (ParticleEngine.UseParticleRenderer ? "on" : "off"));
+            //}
 
-            if (InputManager.KeyCodePressed(Keys.L)) {
-                ParticleEngine.UpdateMode = ParticleEngine.UpdateMode == UpdateMode.ParallelAsynchronous 
-                    ? UpdateMode.Synchronous 
-                    : UpdateMode.ParallelAsynchronous;
+            //if (InputManager.KeyCodePressed(Keys.L)) {
+            //    ParticleEngine.UpdateMode = ParticleEngine.UpdateMode == UpdateMode.ParallelAsynchronous 
+            //        ? UpdateMode.Synchronous 
+            //        : UpdateMode.ParallelAsynchronous;
 
-                Console.WriteLine("Multithreaded particles: " + (ParticleEngine.UpdateMode == UpdateMode.ParallelAsynchronous ? "on" : "off"));
-            }
+            //    Console.WriteLine("Multithreaded particles: " + (ParticleEngine.UpdateMode == UpdateMode.ParallelAsynchronous ? "on" : "off"));
+            //}
 
             //Debug.WriteLine(SpatialPartitionManager.EntitiesCount);
         }
@@ -384,7 +374,7 @@ namespace SE
 
                 AllGameObjects.Add(go);
                 CurrentScene.GameObjectsToRemove.Remove(go);
-                
+
                 if (go.DestroyOnLoad) {
                     CurrentScene.AttachedGameObjects.Add(go);
                 }

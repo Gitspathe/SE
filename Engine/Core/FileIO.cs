@@ -1,10 +1,8 @@
-﻿using SE.Particles.AreaModules;
-using SE.Utility;
+﻿using SE.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace SE.Core
 {
@@ -80,7 +78,7 @@ namespace SE.Core
         public static void SaveFile(string data, string path)
         {
             string finalPath = Path.Combine(DataDirectory, path);
-            using(StreamWriter sw = new StreamWriter(finalPath, false)) {
+            using (StreamWriter sw = new StreamWriter(finalPath, false)) {
                 sw.Write(data);
             }
         }
@@ -113,7 +111,7 @@ namespace SE.Core
             }
         }
 
-        
+
         /// <summary>
         /// Reads a file from the Data directory.
         /// </summary>

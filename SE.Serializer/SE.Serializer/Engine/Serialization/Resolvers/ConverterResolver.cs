@@ -1,6 +1,6 @@
-﻿using System;
+﻿using SE.Serialization.Converters;
+using System;
 using System.Collections.Generic;
-using SE.Serialization.Converters;
 
 namespace SE.Serialization.Resolvers
 {

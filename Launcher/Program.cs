@@ -1,9 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using Microsoft.Xna.Framework.Graphics;
-using SE;
+﻿using SE;
 using SE.Core;
+using System;
+using System.Runtime.InteropServices;
 using Console = System.Console;
 
 namespace SELauncher

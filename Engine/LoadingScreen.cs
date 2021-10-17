@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.Core;
+using System;
 
 namespace SE
 {
@@ -34,7 +34,7 @@ namespace SE
         /// <param name="showProgress">Whether to display the loading screen graphic or not.</param>
         public static void Initialize(bool showProgress = true)
         {
-            if(CurrentlyLoading) 
+            if (CurrentlyLoading)
                 throw new Exception("Something is already loading!");
 
             Progress = 0;
@@ -57,7 +57,7 @@ namespace SE
                 loadingMessage = loadMessage;
             }
             Progress = progress;
-            if(ShowProgress)
+            if (ShowProgress)
                 Draw();
         }
 
@@ -71,7 +71,7 @@ namespace SE
 
         private static void Draw()
         {
-            if(spriteBatch == null)
+            if (spriteBatch == null)
                 return;
 
             Core.Rendering.ChangeDrawCall(SpriteSortMode.FrontToBack, null, null, SamplerState.PointClamp);

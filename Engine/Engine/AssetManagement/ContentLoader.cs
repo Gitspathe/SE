@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using SE.AssetManagement.FileProcessors;
 using SE.Core;
 using SE.Core.Exceptions;
-using SE.Utility;
-using Console = SE.Core.Console;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace SE.AssetManagement
 {
@@ -39,7 +32,7 @@ namespace SE.AssetManagement
             ID = id;
             this.rootDirectory = rootDirectory;
             if (!Screen.IsFullHeadless) {
-                gfxDevice = ((IGraphicsDeviceService) serviceProvider.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
+                gfxDevice = ((IGraphicsDeviceService)serviceProvider.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
             }
 
             AssetManager.AddContentManager(this);
@@ -69,12 +62,12 @@ namespace SE.AssetManagement
             path = path.Replace('\\', Path.DirectorySeparatorChar);
             path = path.Replace('/', Path.DirectorySeparatorChar);
             int first = path.IndexOf(Path.DirectorySeparatorChar);
-            return path.Substring(first+1);
+            return path.Substring(first + 1);
         }
 
         public void Update(float deltaTime)
         {
-            if(Inactive)
+            if (Inactive)
                 return;
 
             if (References.Count < 1)
@@ -94,7 +87,7 @@ namespace SE.AssetManagement
             // Tell the FileMarshal to load files in the background.
             foreach (string str in PreloadFiles) {
                 string path = FixPath(Path.Combine(rootDirectory, str));
-                if(FileMarshal.TryGet(path, out FileMarshal.File file)) {
+                if (FileMarshal.TryGet(path, out FileMarshal.File file)) {
                     FileMarshal.FlagBackgroundLoad(file);
                 }
             }
@@ -143,7 +136,7 @@ namespace SE.AssetManagement
             // Tell the FileMarshal to unload files in the background.
             foreach (string str in PreloadFiles) {
                 string path = FixPath(Path.Combine(rootDirectory, str));
-                if(FileMarshal.TryGet(path, out FileMarshal.File file)) {
+                if (FileMarshal.TryGet(path, out FileMarshal.File file)) {
                     FileMarshal.FlagBackgroundUnload(file);
                 }
             }

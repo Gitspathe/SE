@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using LiteNetLib;
+﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using SE.Core;
 using SE.Core.Extensions;
 using SE.Engine.Networking.Attributes;
 using SE.Engine.Networking.Utility;
 using SE.Utility;
+using System;
+using System.Collections.Generic;
 using static SE.Core.Network;
 
 namespace SE.Engine.Networking
@@ -99,13 +99,13 @@ namespace SE.Engine.Networking
                 }
             }
 
-            SendRPC(instantiateMethod, 
-                conn, 
-                netObj.SpawnableID, 
+            SendRPC(instantiateMethod,
+                conn,
+                netObj.SpawnableID,
                 conn.GetUniqueID() == netObj.Owner,
-                netObj.NetworkID, 
-                netState ?? new byte[0], 
-                data ?? new byte[0], 
+                netObj.NetworkID,
+                netState ?? new byte[0],
+                data ?? new byte[0],
                 instantiateParams ?? new byte[0]);
         }
 
@@ -117,7 +117,7 @@ namespace SE.Engine.Networking
             byte[] netState = null;
             byte[] paramsData;
 
-            lock(NetworkLock) {
+            lock (NetworkLock) {
                 try {
                     if (InstanceType != NetInstanceType.Server)
                         throw new InvalidOperationException("Attempted to instantiate on a client. Instantiate can only be called on the server.");
@@ -173,13 +173,13 @@ namespace SE.Engine.Networking
             }
 
             foreach (string playerID in Connections.Keys) {
-                SendRPC(instantiateMethod, 
-                    Connections[playerID], 
-                    type, 
-                    playerID == owner, 
-                    logic.ID, 
-                    netState ?? new byte[0], 
-                    returned ?? new byte[0], 
+                SendRPC(instantiateMethod,
+                    Connections[playerID],
+                    type,
+                    playerID == owner,
+                    logic.ID,
+                    netState ?? new byte[0],
+                    returned ?? new byte[0],
                     paramsData ?? new byte[0]);
             }
         }
@@ -187,7 +187,7 @@ namespace SE.Engine.Networking
         [ClientRPC(frequent: true)]
         public void Instantiate_CLIENT(string type, bool isOwner, uint netID, byte[] netState, byte[] data, byte[] paramsData)
         {
-            lock(NetworkLock) {
+            lock (NetworkLock) {
                 NetDataReader reader = null;
                 try {
                     if (!spawnables.TryGetValue(type, out Type t))

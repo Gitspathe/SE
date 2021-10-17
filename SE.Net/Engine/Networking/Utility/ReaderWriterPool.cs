@@ -11,7 +11,7 @@ namespace SE.Engine.Networking.Utility
 
         internal static NetDataReader GetReader()
         {
-            lock (Network.NetworkLock) 
+            lock (Network.NetworkLock)
                 return readerPool.Take();
         }
 

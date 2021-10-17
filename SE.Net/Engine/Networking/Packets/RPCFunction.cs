@@ -1,9 +1,9 @@
-﻿using System;
-using LiteNetLib;
+﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using SE.Core;
 using SE.Core.Exceptions;
 using SE.Engine.Networking.Internal;
+using System;
 
 namespace SE.Engine.Networking.Packets
 {
@@ -28,13 +28,15 @@ namespace SE.Engine.Networking.Packets
                         if (Network.Report) throw new Exception(); return;
                     }
                     RPCInfo = clientInfo;
-                } break;
+                }
+                break;
                 case NetInstanceType.Client: {
                     if (!NetworkRPCManager.ServerRPCLookupTable.TryGetRPCInfo(methodID, out RPCServerInfo serverInfo)) {
                         if (Network.Report) throw new Exception(); return;
                     }
                     RPCInfo = serverInfo;
-                } break;
+                }
+                break;
             }
 
             ParametersNum = RPCInfo.ParameterTypes.Length;
@@ -50,20 +52,22 @@ namespace SE.Engine.Networking.Packets
         {
             try {
                 MethodID = message.GetUShort();
-                
+
                 switch (Network.InstanceType) {
                     case NetInstanceType.Server: {
                         if (!NetworkRPCManager.ServerRPCLookupTable.TryGetRPCInfo(MethodID, out RPCServerInfo serverInfo)) {
                             if (Network.Report) throw new Exception(); return;
                         }
                         RPCInfo = serverInfo;
-                    } break;
+                    }
+                    break;
                     case NetInstanceType.Client: {
                         if (!NetworkRPCManager.ClientRPCLookupTable.TryGetRPCInfo(MethodID, out RPCClientInfo clientInfo)) {
                             if (Network.Report) throw new Exception(); return;
                         }
                         RPCInfo = clientInfo;
-                    } break;
+                    }
+                    break;
                 }
 
                 ParametersNum = RPCInfo.ParameterTypes.Length;
@@ -74,7 +78,7 @@ namespace SE.Engine.Networking.Packets
                     Parameters[i] = NetData.Read(RPCInfo.ParameterTypes[i], message);
                 }
             } catch (Exception e) {
-                if(Network.Report) throw new MalformedPacketException("Failed to read packet.", e);
+                if (Network.Report) throw new MalformedPacketException("Failed to read packet.", e);
             }
         }
 
@@ -86,7 +90,7 @@ namespace SE.Engine.Networking.Packets
                     NetData.Write(RPCInfo.ParameterTypes[i], Parameters[i], message);
                 }
             } catch (Exception e) {
-                if(Network.Report) throw new MalformedPacketException("Failed to write packet.", e);
+                if (Network.Report) throw new MalformedPacketException("Failed to write packet.", e);
             }
         }
     }

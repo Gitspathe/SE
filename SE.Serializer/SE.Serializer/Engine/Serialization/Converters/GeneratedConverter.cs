@@ -1,4 +1,10 @@
-﻿using System;
+﻿using FastMember;
+using SE.Core;
+using SE.Serialization.Attributes;
+using SE.Serialization.Exceptions;
+using SE.Serialization.Resolvers;
+using SE.Utility;
+using System;
 using System.Buffers;
 using System.Buffers.Text;
 using System.Collections.Generic;
@@ -7,12 +13,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using FastMember;
-using SE.Core;
-using SE.Serialization.Attributes;
-using SE.Serialization.Exceptions;
-using SE.Serialization.Resolvers;
-using SE.Utility;
 using static SE.Serialization.Constants;
 using static SE.Serialization.SerializerUtil;
 
@@ -68,7 +68,7 @@ namespace SE.Serialization.Converters
             foreach (Member member in members) {
                 // Skip member if it has an ignore attribute.
                 SerializeIgnoreAttribute ignoreAttribute = member.Info.GetCustomAttribute<SerializeIgnoreAttribute>();
-                if(ignoreAttribute != null)
+                if (ignoreAttribute != null)
                     continue;
 
                 // Set some default info.
@@ -79,7 +79,7 @@ namespace SE.Serialization.Converters
                 ushort index = curIndex;
 
                 // Skip property backing fields. // TODO: These might be needed to deserialize read-only properties.
-                if(realMemberName.Contains("k__BackingField"))
+                if (realMemberName.Contains("k__BackingField"))
                     continue;
 
                 // Process other attributes.
@@ -129,7 +129,7 @@ namespace SE.Serialization.Converters
             Array.Sort(nodesArray, new NodeIndexComparer());
 
             // Generate compiled constructors for reference types.
-            if(!isValueType)
+            if (!isValueType)
                 GenerateCtor();
         }
 
@@ -141,7 +141,7 @@ namespace SE.Serialization.Converters
 
         private string ResolveName(string memberName)
         {
-            if (!nodesDictionary.ContainsKey(memberName)) 
+            if (!nodesDictionary.ContainsKey(memberName))
                 return memberName;
 
             int tmpInt = 0;
@@ -168,10 +168,10 @@ namespace SE.Serialization.Converters
             return gen.nodesDictionary.Count > 0 ? gen : null;
         }
 
-        private void GenerateCtor() 
+        private void GenerateCtor()
             => objCtor = Expression.Lambda<Func<object>>(Expression.New(Type)).Compile();
 
-        public override bool IsDefault(object obj) 
+        public override bool IsDefault(object obj)
             => obj == null || obj.Equals(defaultTypeInstance);
 
         public override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task)
@@ -200,7 +200,7 @@ namespace SE.Serialization.Converters
         public override void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task)
         {
             task.CurrentParameterIndex = 0;
-            if (task.CurrentDepth >= task.Settings.MaxDepth) 
+            if (task.CurrentDepth >= task.Settings.MaxDepth)
                 return;
 
             // Starting delimiters.
@@ -235,10 +235,12 @@ namespace SE.Serialization.Converters
             switch (task.Settings.ConvertBehaviour) {
                 case ConvertBehaviour.Order: {
                     DeserializeBinaryOrder(ref obj, reader, ref task);
-                } break;
+                }
+                break;
                 case ConvertBehaviour.NameAndOrder: {
                     DeserializeBinaryNameAndOrder(ref obj, reader, ref task);
-                } break;
+                }
+                break;
                 case ConvertBehaviour.Configuration:
                     throw new NotSupportedException("Binary deserialization is not supported with the 'Configuration' convert behaviour.");
                 default:
@@ -275,9 +277,9 @@ namespace SE.Serialization.Converters
                     break;
                 } catch (Exception) { /* ignored */ }
 
-                // Failed. Skip to next node.
-                // Note that binary error handling is unstable due to limitations.
-                failed:
+            // Failed. Skip to next node.
+            // Note that binary error handling is unstable due to limitations.
+            failed:
                 try {
                     stream.Position = startIndex + 1;
                     if (!BinarySkipToNextNode(reader))
@@ -291,7 +293,7 @@ namespace SE.Serialization.Converters
         {
             Stream stream = reader.BaseStream;
             while (true) {
-                if(stream.Position + 1 > stream.Length)
+                if (stream.Position + 1 > stream.Length)
                     return;
 
                 long startIndex = stream.Position;
@@ -322,8 +324,8 @@ namespace SE.Serialization.Converters
                     continue;
                 } catch (Exception) { /* ignored */ }
 
-                // Step 2: Attempt to deserialize based on declaration order.
-                Step2:
+            // Step 2: Attempt to deserialize based on declaration order.
+            Step2:
                 try {
                     stream.Position = startIndex;
                     if (!SkipToNextSymbol(reader, _BEGIN_VALUE))
@@ -335,9 +337,9 @@ namespace SE.Serialization.Converters
                     break;
                 } catch (Exception) { /* ignored */ }
 
-                // Step 3: Failed. Skip to next node.
-                // Note that binary error handling is unstable due to limitations.
-                failed:
+            // Step 3: Failed. Skip to next node.
+            // Note that binary error handling is unstable due to limitations.
+            failed:
                 try {
                     stream.Position = startIndex;
                     if (!BinarySkipToNextNode(reader))
@@ -348,8 +350,8 @@ namespace SE.Serialization.Converters
             }
         }
 
-        public T Deserialize<T>(Utf8Reader reader, ref DeserializeTask task) 
-            => (T) DeserializeBinary(reader, ref task);
+        public T Deserialize<T>(Utf8Reader reader, ref DeserializeTask task)
+            => (T)DeserializeBinary(reader, ref task);
 
         public override object DeserializeText(Utf8Reader reader, ref DeserializeTask task)
         {
@@ -358,13 +360,16 @@ namespace SE.Serialization.Converters
             switch (task.Settings.ConvertBehaviour) {
                 case ConvertBehaviour.Order: {
                     DeserializeTextOrder(ref obj, reader, ref task);
-                } break;
+                }
+                break;
                 case ConvertBehaviour.Configuration: {
                     DeserializeTextName(ref obj, reader, ref task);
-                } break;
+                }
+                break;
                 case ConvertBehaviour.NameAndOrder: {
                     DeserializeTextNameAndOrder(ref obj, reader, ref task);
-                } break;
+                }
+                break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -375,7 +380,7 @@ namespace SE.Serialization.Converters
         {
             Stream stream = reader.BaseStream;
             while (true) {
-                if(stream.Position + 1 > stream.Length)
+                if (stream.Position + 1 > stream.Length)
                     return;
 
                 long startIndex = stream.Position;
@@ -417,11 +422,11 @@ namespace SE.Serialization.Converters
                 }
             }
         }
-        
+
         private void DeserializeTextName(ref object obj, Utf8Reader reader, ref DeserializeTask task)
         {
             Stream stream = reader.BaseStream;
-            while (true){
+            while (true) {
                 if (stream.Position + 1 > stream.Length)
                     return;
 
@@ -450,7 +455,7 @@ namespace SE.Serialization.Converters
                     break;
                 } catch (Exception) { /* ignored */ }
 
-                Failed:
+            Failed:
                 try {
                     stream.Position = startIndex;
                     if (!TextSkipToNextNode(reader, ref task))
@@ -465,7 +470,7 @@ namespace SE.Serialization.Converters
         {
             Stream stream = reader.BaseStream;
             while (true) {
-                if(stream.Position + 1 > stream.Length)
+                if (stream.Position + 1 > stream.Length)
                     return;
 
                 long startIndex = stream.Position;
@@ -493,7 +498,7 @@ namespace SE.Serialization.Converters
                     // Grab name, and attempt to get the node based on it. If no node is found, goto Failed.
                     reader.SkipWhiteSpace();
                     string name = reader.ReadUntil(_BEGIN_VALUE);
-                    if(!nodesDictionary.TryGetValue(name, out Node node))
+                    if (!nodesDictionary.TryGetValue(name, out Node node))
                         goto Step2;
 
                     // Parse the node.
@@ -504,9 +509,9 @@ namespace SE.Serialization.Converters
                     break;
                 } catch (Exception) { /* ignored */ }
 
-                // Step 2: Failed, try to parse via index.
-                Step2:
-                if(readIndex == null)
+            // Step 2: Failed, try to parse via index.
+            Step2:
+                if (readIndex == null)
                     goto Failed;
 
                 try {
@@ -523,8 +528,8 @@ namespace SE.Serialization.Converters
                     break;
                 } catch (Exception) { /* ignored */ }
 
-                // Failed. Go to next node.
-                Failed:
+            // Failed. Go to next node.
+            Failed:
                 try {
                     stream.Position = startIndex;
                     if (!TextSkipToNextNode(reader, ref task))
@@ -539,7 +544,7 @@ namespace SE.Serialization.Converters
         {
             Stream stream = reader.BaseStream;
             while (true) {
-                if(stream.Position + 1 > stream.Length)
+                if (stream.Position + 1 > stream.Length)
                     return false;
 
                 // TODO: I probably need to fully break out of the GeneratedConverter loop if _END_CLASS is encountered.
@@ -568,6 +573,12 @@ namespace SE.Serialization.Converters
                             stream.Position -= 1 + sizeof(ushort);
                             SkipMeta(reader);
                         }
+                        break;
+                    case _ESCAPE:
+                        if (stream.Position + 1 > stream.Length) {
+                            return false;
+                        }
+                        stream.Position += 1;
                         break;
                     default:
                         continue;
@@ -616,6 +627,12 @@ namespace SE.Serialization.Converters
                                 SkipMeta(reader);
                             }
                             break;
+                        case _ESCAPE:
+                            if (stream.Position + 1 > stream.Length) {
+                                return false;
+                            }
+                            stream.Position += 1;
+                            break;
                         default:
                             continue;
 
@@ -659,6 +676,12 @@ namespace SE.Serialization.Converters
                             firstBeginValueTokenFound = true;
                         }
                         continue;
+                    case _ESCAPE:
+                        if (stream.Position + 1 > stream.Length) {
+                            return false;
+                        }
+                        stream.Position += 1;
+                        break;
                     default:
                         continue;
 
@@ -670,7 +693,7 @@ namespace SE.Serialization.Converters
         {
             Stream stream = reader.BaseStream;
             while (true) {
-                if(stream.Position - 1 < 0)
+                if (stream.Position - 1 < 0)
                     return false;
 
                 stream.Position -= 1;
@@ -700,10 +723,10 @@ namespace SE.Serialization.Converters
 
                 str = reader.ReadString();
                 return true;
-            } catch(Exception) { return false; }
+            } catch (Exception) { return false; }
         }
 
-        private sealed class Node 
+        private sealed class Node
         {
             public string Name;
             public string RealName;
@@ -744,11 +767,11 @@ namespace SE.Serialization.Converters
                 Utf8Formatter.TryFormat(Index, indexSpan, out int bytesWritten);
                 string indexStr = Serializer.UTF8.GetString(indexSpan.Slice(0, bytesWritten));
                 precompiledNameWithIndex = Serializer.UTF8.GetBytes(
-                    (char) _BEGIN_META 
-                    + indexStr 
-                    + (char) _END_META 
-                    + Name 
-                    + (char) _BEGIN_VALUE + ' ');
+                    (char)_BEGIN_META
+                    + indexStr
+                    + (char)_END_META
+                    + Name
+                    + (char)_BEGIN_VALUE + ' ');
                 ArrayPool<byte>.Shared.Return(tmpByteArr);
 
                 if (accessor is TypeAccessor.DelegateAccessor delAccessor) {
@@ -773,7 +796,7 @@ namespace SE.Serialization.Converters
                 // If value shouldn't be set, set it to default.
                 // TODO: ^^^ How do I handle NULL vs default??
                 if (!shouldSetValue) {
-                    if(Default == null)
+                    if (Default == null)
                         return; // Fix dumb FastMember bug where setting null causes exception.
 
                     SetValue(target, Default);
@@ -815,7 +838,7 @@ namespace SE.Serialization.Converters
                 bool isDefault = IsDefault(val);
                 bool writeNull = settings.NullValueHandling == NullValueHandling.DefaultValue;
                 bool writeDefault = settings.DefaultValueHandling == DefaultValueHandling.Serialize;
-                if(!writeNull && val == null || !writeDefault && isDefault)
+                if (!writeNull && val == null || !writeDefault && isDefault)
                     return;
 
                 // Name & index.
@@ -857,9 +880,9 @@ namespace SE.Serialization.Converters
                 Converter typeConverter = converter;
                 SerializerSettings settings = task.Settings;
                 bool serializeType = settings.TypeHandling != TypeHandling.Ignore && allowPolymorphism;
-                
-                byte[] nameToWrite = settings.ConvertBehaviour == ConvertBehaviour.Configuration 
-                    ? precompiledName 
+
+                byte[] nameToWrite = settings.ConvertBehaviour == ConvertBehaviour.Configuration
+                    ? precompiledName
                     : precompiledNameWithIndex;
 
                 // Resolve true type converter (in case of polymorphism).
@@ -926,8 +949,8 @@ namespace SE.Serialization.Converters
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public object GetValue(object target)
-                => delegateAccessor != null 
-                    ? delegateAccessor.Get(target, accessorIndex) 
+                => delegateAccessor != null
+                    ? delegateAccessor.Get(target, accessorIndex)
                     : accessor[target, RealName];
 
             private bool IsDefault(object value)

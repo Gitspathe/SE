@@ -33,7 +33,7 @@ namespace SE.Editor.Debug.GameObjects
             p = GetComponent<LightComponent>();
             p.Light.Size = new Vector2(64.0f * 10);
             p.Light.CastsShadows = true;
-            p.Light.Offset = new Vector2(-9999,-9999);
+            p.Light.Offset = new Vector2(-9999, -9999);
         }
 
         /// <inheritdoc />

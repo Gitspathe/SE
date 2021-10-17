@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using SE.Common;
+using SE.Core;
 using SE.Core.Extensions;
 using SE.Editor.GUI.Windows.Properties.Views;
 using SE.Editor.GUI.Windows.Properties;

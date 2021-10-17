@@ -1,6 +1,5 @@
-﻿using System;
-using FastStream;
-using SE.Core;
+﻿using SE.Core;
+using System;
 using static SE.Serialization.Constants;
 
 namespace SE.Serialization.Converters
@@ -23,7 +22,7 @@ namespace SE.Serialization.Converters
 
         public override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task)
         {
-            Array val = (Array) obj;
+            Array val = (Array)obj;
             writer.Write(val.Length);
 
             Converter serializer = GetSerializer(0, ref task);
@@ -80,7 +79,7 @@ namespace SE.Serialization.Converters
 
         public override object DeserializeBinary(Utf8Reader reader, ref DeserializeTask task)
         {
-            if (!reader.ReadBoolean()) 
+            if (!reader.ReadBoolean())
                 return null;
 
             Converter serializer = task.Settings.Resolver.GetConverter(TypeArguments[0]);

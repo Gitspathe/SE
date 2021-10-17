@@ -1,9 +1,9 @@
 ﻿#if EDITOR
-using System;
 using Microsoft.Xna.Framework;
 using SE.Core;
 using SE.Debug.Commands;
 using SE.World;
+using System;
 
 namespace SE.Editor.Debug.Commands.LevelEdit
 {
@@ -20,7 +20,7 @@ namespace SE.Editor.Debug.Commands.LevelEdit
             try {
                 x = Convert.ToInt32(parameters[2]);
                 y = Convert.ToInt32(parameters[3]);
-                
+
                 nameSpace = parameters[0].ToLower();
                 name = parameters[1].ToLower();
                 scene = new Scene {
@@ -41,7 +41,7 @@ namespace SE.Editor.Debug.Commands.LevelEdit
         {
             return GetSyntax() + "\n" +
                    " >LEVELEDIT.NEW - Creates and loads a new level.\n" +
-                   "    NAMESPACE: Where the level is located.\n"+
+                   "    NAMESPACE: Where the level is located.\n" +
                    "    NAME: Name the level will use.\n" +
                    "    X: Level size in the horizontal axis.\n" +
                    "    Y: Level size in the vertical axis.";

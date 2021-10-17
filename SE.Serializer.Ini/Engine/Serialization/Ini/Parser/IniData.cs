@@ -1,6 +1,5 @@
 ﻿using SE.Utility;
 using System.Collections.Generic;
-using System.Xml.Schema;
 
 namespace SE.Serialization.Ini.Parser
 {
@@ -40,7 +39,7 @@ namespace SE.Serialization.Ini.Parser
 
         public void RemoveSection(string name)
         {
-            if(!sectionLookup.Remove(name))
+            if (!sectionLookup.Remove(name))
                 return;
 
             for (int i = sections.Count - 1; i > 0; i--) {
@@ -53,7 +52,7 @@ namespace SE.Serialization.Ini.Parser
 
         public void RemoveSection(IniSection section)
         {
-            if(!sectionLookup.Remove(section.Name))
+            if (!sectionLookup.Remove(section.Name))
                 return;
 
             for (int i = sections.Count - 1; i > 0; i--) {
@@ -64,7 +63,7 @@ namespace SE.Serialization.Ini.Parser
             }
         }
 
-        public IniData Clone() 
+        public IniData Clone()
             => new IniData(DataHelper.CloneList(sections));
     }
 
@@ -115,7 +114,7 @@ namespace SE.Serialization.Ini.Parser
 
         public void RemoveNode(string node)
         {
-            if(!nodeLookup.Remove(node))
+            if (!nodeLookup.Remove(node))
                 return;
 
             for (int i = nodes.Count - 1; i > 0; i--) {
@@ -128,9 +127,9 @@ namespace SE.Serialization.Ini.Parser
 
         public void RemoveNode(IniNode node)
         {
-            if(!nodeLookup.Remove(node.Name))
+            if (!nodeLookup.Remove(node.Name))
                 return;
-            
+
             for (int i = nodes.Count - 1; i > 0; i--) {
                 if (nodes.Array[i] == node) {
                     node.ParentSection = null;
@@ -160,7 +159,7 @@ namespace SE.Serialization.Ini.Parser
         internal IniSection ParentSection;
 
         public QuickList<string> Comments { get; } = new QuickList<string>();
-        
+
         public IniNode() { }
 
         public IniNode(string name, QuickList<string> value, QuickList<string> comments)
@@ -170,7 +169,7 @@ namespace SE.Serialization.Ini.Parser
             Comments = comments ?? new QuickList<string>();
         }
 
-        public IniNode Clone() 
+        public IniNode Clone()
             => new IniNode(Name, Values.Copy(), Comments.Copy());
     }
 

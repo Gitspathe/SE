@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE;
 using SE.Animating;
 using SE.Common;
@@ -7,8 +6,9 @@ using SE.Components;
 using SE.Core;
 using SE.Pooling;
 using SE.Rendering;
-using Vector2 = System.Numerics.Vector2;
+using System.Collections.Generic;
 using Random = SE.Utility.Random;
+using Vector2 = System.Numerics.Vector2;
 namespace SEDemos.GameObjects
 {
 
@@ -30,7 +30,7 @@ namespace SEDemos.GameObjects
             base.OnInitialize();
             int m = Random.Next(5);
             Sprite sprite = new Sprite(AssetManager.GetAsset<SpriteTexture>("floor"), Color.White) {
-                LayerDepth = 0.1f, 
+                LayerDepth = 0.1f,
             };
             AddComponent(sprite);
 
@@ -82,7 +82,7 @@ namespace SEDemos.GameObjects
             base.OnUpdate();
             timer += Time.DeltaTime;
             if (timer > 10) {
-                if(anim.IsPlaying("Anim"))
+                if (anim.IsPlaying("Anim"))
                     anim.Play("Anim2");
                 else
                     anim.Play("Anim");

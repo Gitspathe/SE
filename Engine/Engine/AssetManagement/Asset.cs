@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using SE.AssetManagement.Processors;
+﻿using SE.AssetManagement.Processors;
 using SE.Common;
 using SE.Core;
 using SE.Rendering;
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace SE.AssetManagement
 {
     public abstract class Asset : SEObject, IAssetConsumer
     {
         public ulong AssetID { get; internal set; }
-        public uint LoadOrder { get; internal set; } 
+        public uint LoadOrder { get; internal set; }
         public bool Loaded { get; internal set; }
         internal HashSet<AssetConsumer> References { get; set; } = new HashSet<AssetConsumer>();
         public AssetConsumer AssetConsumer { get; }
@@ -62,7 +62,7 @@ namespace SE.AssetManagement
             ContentLoader = contentLoader;
             this.processor = processor;
             HashSet<Asset> refAssets = processor.GetReferencedAssets();
-            if(refAssets == null)
+            if (refAssets == null)
                 return;
 
             foreach (Asset refAsset in processor.GetReferencedAssets()) {
@@ -74,7 +74,7 @@ namespace SE.AssetManagement
         {
             if (consumer == null)
                 throw new NullReferenceException("The IAssetConsumer instance was null.");
-            if(consumer == this)
+            if (consumer == this)
                 throw new InvalidOperationException("Attempted to retrieve self.");
 
             AddReference(consumer.AssetConsumer);
@@ -91,7 +91,7 @@ namespace SE.AssetManagement
         {
             if (consumer == null)
                 throw new NullReferenceException("The IAssetConsumer instance was null.");
-            if(consumer == AssetConsumer)
+            if (consumer == AssetConsumer)
                 return;
 
             References.Add(consumer);
@@ -115,10 +115,10 @@ namespace SE.AssetManagement
 
         internal override void Load()
         {
-            if(Loaded)
+            if (Loaded)
                 return;
 
-            value = (T) processor.Construct();
+            value = (T)processor.Construct();
             AssetConsumer.ReferenceAssets();
             Loaded = true;
             ContentLoader.AddReference(this);
@@ -126,7 +126,7 @@ namespace SE.AssetManagement
 
         internal override void Unload()
         {
-            if(!Loaded)
+            if (!Loaded)
                 return;
 
             DrawCallDatabase.PruneAsset(Value);

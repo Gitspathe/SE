@@ -1,5 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using SE.Utility;
+﻿using SE.Utility;
+using System.Runtime.CompilerServices;
 
 namespace SE.Rendering
 {
@@ -26,10 +26,10 @@ namespace SE.Rendering
         /// </summary>
         public void Reset()
         {
-            if (DrawCallDatabase.LookupArray.Count+1 > Data.Count) {
+            if (DrawCallDatabase.LookupArray.Count + 1 > Data.Count) {
                 Data.Clear();
 
-                int goal = DrawCallDatabase.LookupArray.Count+1;
+                int goal = DrawCallDatabase.LookupArray.Count + 1;
                 Data = new QuickList<QuickList<IRenderable>>();
                 for (int i = 0; i < goal; i++) {
                     Data.Add(new QuickList<IRenderable>(newListCapacity));

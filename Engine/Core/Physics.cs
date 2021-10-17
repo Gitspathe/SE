@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE.Physics;
-using SE.Core.Extensions;
 using SE.Utility;
+using System;
+using System.Collections.Generic;
 using tainicom.Aether.Physics2D.Dynamics;
-using Vector2 = System.Numerics.Vector2;
-using MonoGameVector2 = Microsoft.Xna.Framework.Vector2;
-using Fixture = SE.Physics.Fixture;
-using AetherFixture = tainicom.Aether.Physics2D.Dynamics.Fixture;
-using AetherContact = tainicom.Aether.Physics2D.Dynamics.Contacts.Contact;
-using BodyType = SE.Physics.BodyType;
 using AetherBodyType = tainicom.Aether.Physics2D.Dynamics.BodyType;
+using AetherContact = tainicom.Aether.Physics2D.Dynamics.Contacts.Contact;
+using AetherFixture = tainicom.Aether.Physics2D.Dynamics.Fixture;
+using BodyType = SE.Physics.BodyType;
+using Fixture = SE.Physics.Fixture;
+using MonoGameVector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core
 {
@@ -26,10 +25,10 @@ namespace SE.Core
 
         internal static object PhysicsLock = new object();
 
-        internal static QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)> CollisionEvents 
+        internal static QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)> CollisionEvents
             = new QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)>();
 
-        internal static QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)> SeparationEvents 
+        internal static QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)> SeparationEvents
             = new QuickList<(PhysicsBody, AetherFixture, AetherFixture, AetherContact)>();
 
         public static int VelocityConstraintsMultithreadThreshold {
@@ -81,14 +80,14 @@ namespace SE.Core
         {
             foreach ((PhysicsBody body, AetherFixture sender, AetherFixture other, AetherContact contact) in CollisionEvents) {
                 body.OnCollisionEventHandler?.Invoke(
-                    sender.DependencyFixture as Fixture, 
-                    other.DependencyFixture as Fixture, 
+                    sender.DependencyFixture as Fixture,
+                    other.DependencyFixture as Fixture,
                     new Contact(contact));
             }
             foreach ((PhysicsBody body, AetherFixture sender, AetherFixture other, AetherContact contact) in SeparationEvents) {
                 body.OnCollisionEventHandler?.Invoke(
-                    sender.DependencyFixture as Fixture, 
-                    other.DependencyFixture as Fixture, 
+                    sender.DependencyFixture as Fixture,
+                    other.DependencyFixture as Fixture,
                     new Contact(contact));
             }
 
@@ -168,7 +167,7 @@ namespace SE.Core
 
         internal static void Add(PhysicsBody obj)
         {
-            if(obj.AddedToPhysics || obj.PendingCreate)
+            if (obj.AddedToPhysics || obj.PendingCreate)
                 return;
 
             pendingCreateList.Add(obj);
@@ -179,28 +178,28 @@ namespace SE.Core
 
         internal static void Remove(PhysicsBody obj)
         {
-            if(!obj.AddedToPhysics || obj.PendingRemove)
+            if (!obj.AddedToPhysics || obj.PendingRemove)
                 return;
 
-            pendingRemoveList.Add(obj); 
+            pendingRemoveList.Add(obj);
             obj.PendingRemove = true;
             pendingCreateList.Remove(obj);
             obj.PendingCreate = false;
         }
 
-        public static float ToMeters(float pixel) 
+        public static float ToMeters(float pixel)
             => pixel / PixelsPerMeter;
 
-        public static MonoGameVector2 ToMeters(Vector2 pixelCoordinates) 
+        public static MonoGameVector2 ToMeters(Vector2 pixelCoordinates)
             => new MonoGameVector2(pixelCoordinates.X / PixelsPerMeter, pixelCoordinates.Y / PixelsPerMeter);
 
         public static MonoGameVector2 ToMeters(MonoGameVector2 pixelCoordinates)
             => new MonoGameVector2(pixelCoordinates.X / PixelsPerMeter, pixelCoordinates.Y / PixelsPerMeter);
 
-        public static RectangleF ToMeters(RectangleF pixelRect) 
+        public static RectangleF ToMeters(RectangleF pixelRect)
             => new RectangleF(pixelRect.X / PixelsPerMeter, pixelRect.Y / PixelsPerMeter, pixelRect.Width / PixelsPerMeter, pixelRect.Height / PixelsPerMeter);
 
-        public static Vector2 ToPixels(Vector2 meterCoordinates) 
+        public static Vector2 ToPixels(Vector2 meterCoordinates)
             => new Vector2(meterCoordinates.X * PixelsPerMeter, meterCoordinates.Y * PixelsPerMeter);
 
         public static Vector2 ToPixels(MonoGameVector2 meterCoordinates)
@@ -209,7 +208,7 @@ namespace SE.Core
         public static RectangleF ToPixels(RectangleF metersRect)
             => new RectangleF(metersRect.X * PixelsPerMeter, metersRect.Y * PixelsPerMeter, metersRect.Width * PixelsPerMeter, metersRect.Height * PixelsPerMeter);
 
-        public static float ToPixels(float meter) 
+        public static float ToPixels(float meter)
             => meter * PixelsPerMeter;
 
         public static PhysicsBody CreateBody(float rotation = 0, BodyType bodyType = BodyType.Static)
@@ -235,10 +234,10 @@ namespace SE.Core
         public static PhysicsBody CreateRectangle(float width, float height, float density = 1.0f, Vector2 offset = default, BodyType bodyType = BodyType.Static)
             => CreateRectangle(width, height, 0f, density, offset, bodyType);
 
-        public static PhysicsBody CreateRectangle(Rectangle rectangle, float density = 1.0f, BodyType bodyType = BodyType.Static) 
+        public static PhysicsBody CreateRectangle(Rectangle rectangle, float density = 1.0f, BodyType bodyType = BodyType.Static)
             => CreateRectangle(rectangle.Width, -rectangle.Height, 0f, density, new Vector2(rectangle.X, rectangle.Y), bodyType);
 
-        public static PhysicsBody CreateRectangle(float width, float height, float rotation, float density, 
+        public static PhysicsBody CreateRectangle(float width, float height, float rotation, float density,
             Vector2 offset = default, BodyType bodyType = BodyType.Static)
         {
             PhysicsBody b = new PhysicsBody(new Body {

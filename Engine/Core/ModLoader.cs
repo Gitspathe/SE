@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using SE.Modding;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using SE.Modding;
-using SE.Core.Extensions;
 
 namespace SE.Core
 {
@@ -19,7 +18,7 @@ namespace SE.Core
             }
 
             mods = mods.OrderBy(x => x.LoadOrder).ToList();
-            
+
             // First, load all mod assemblies into memory.
             foreach (Mod mod in mods) {
                 mod.LoadAssembly();

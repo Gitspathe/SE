@@ -1,7 +1,7 @@
 ﻿#if EDITOR
-using System;
 using SE.Core;
 using SE.Debug.Commands;
+using System;
 
 namespace SE.Editor.Debug.Commands.LevelEdit
 {
@@ -14,14 +14,14 @@ namespace SE.Editor.Debug.Commands.LevelEdit
 
             string nameSpace, name;
             //try {
-                nameSpace = parameters[0];
-                name = parameters[1];
-                if (!SceneManager.SceneExists(nameSpace, name)) {
-                    return "Level '" + name + "' does not exist.";
-                } else {
-                    SceneManager.SetCurrentScene(nameSpace+"\\"+name);
-                    return "Loaded level: " + name + ".dat.";
-                }
+            nameSpace = parameters[0];
+            name = parameters[1];
+            if (!SceneManager.SceneExists(nameSpace, name)) {
+                return "Level '" + name + "' does not exist.";
+            } else {
+                SceneManager.SetCurrentScene(nameSpace + "\\" + name);
+                return "Loaded level: " + name + ".dat.";
+            }
             //} catch (Exception e) {
             //    return GetError(e, parameters);
             //}

@@ -1,6 +1,6 @@
 ﻿#if EDITOR
-using System;
 using SE.Debug.Commands;
+using System;
 
 namespace SE.Editor.Debug.Commands
 {

@@ -1,7 +1,5 @@
-﻿using System;
+﻿using SE.Core;
 using System.Collections.Generic;
-using SE.Core;
-using Console = SE.Core.Console;
 
 namespace SE.GameLoop
 {
@@ -62,11 +60,11 @@ namespace SE.GameLoop
         /// </summary>
         public UpdateLoop()
         {
-        #if EDITOR
+#if EDITOR
             if (GameEngine.Engine.LevelEditMode && !Screen.IsFullHeadless) {
                 //Add(DefaultEnum.LevelEditor, LevelEditor.Update);
             }
-        #endif
+#endif
 
             Add(DefaultEnum.Time, new LoopTime());
             Add(DefaultEnum.Physics, new LoopPhysics());
@@ -80,7 +78,7 @@ namespace SE.GameLoop
             if (!Screen.IsFullHeadless) {
                 Add(DefaultEnum.StartNewParticles, new LoopBeginAsyncParticles());
                 Add(DefaultEnum.InputManager, new LoopInputManager());
-;               Add(DefaultEnum.UIManager, new LoopUIManager());
+                ; Add(DefaultEnum.UIManager, new LoopUIManager());
                 Add(DefaultEnum.Screen, new LoopScreen());
             }
         }

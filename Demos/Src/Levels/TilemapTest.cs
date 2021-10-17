@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.Common;
@@ -7,9 +7,7 @@ using SE.Rendering;
 using SE.World;
 using SEDemos.GameObjects;
 using SEDemos.GameObjects.UI;
-using Microsoft.Xna.Framework;
 using Vector2 = System.Numerics.Vector2;
-using Vector3 = System.Numerics.Vector3;
 
 namespace SEDemos.Levels
 {

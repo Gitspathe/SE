@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.Components;
 using SE.Core;
 using SE.Rendering;
+using System;
+using System.Collections.Generic;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Physics
@@ -35,7 +35,7 @@ namespace SE.Physics
                         continue;
 
                     batch.Draw(st.Texture, new Microsoft.Xna.Framework.Vector2((x * NodeSize) - camera.Position.X, (y * NodeSize) - camera.Position.Y), st.SourceRectangle,
-                        new Color(255, 0, 0, 70), 0, Microsoft.Xna.Framework.Vector2.Zero, Microsoft.Xna.Framework.Vector2.One, SpriteEffects.None, 1.0f);    
+                        new Color(255, 0, 0, 70), 0, Microsoft.Xna.Framework.Vector2.Zero, Microsoft.Xna.Framework.Vector2.One, SpriteEffects.None, 1.0f);
                 }
             }
         }
@@ -54,7 +54,7 @@ namespace SE.Physics
             for (int x = 0; x < NodesX; x++) {
                 nodes[x] = new Node[NodesY];
                 for (int y = 0; y < NodesY; y++) {
-                    nodes[x][y] = new Node(x,y,0);
+                    nodes[x][y] = new Node(x, y, 0);
                 }
             }
         }
@@ -70,8 +70,8 @@ namespace SE.Physics
             if (rect == Rectangle.Empty)
                 return;
 
-            for (int xLoop = rect.X; xLoop < rect.X+rect.Width; xLoop++) {
-                for (int yLoop = rect.Y; yLoop < rect.Y+rect.Height; yLoop++) {
+            for (int xLoop = rect.X; xLoop < rect.X + rect.Width; xLoop++) {
+                for (int yLoop = rect.Y; yLoop < rect.Y + rect.Height; yLoop++) {
                     nodes[xLoop][yLoop].Cost = cost;
                 }
             }
@@ -87,8 +87,8 @@ namespace SE.Physics
             if (rect == Rectangle.Empty)
                 return;
 
-            for (int xLoop = rect.X; xLoop < rect.X+rect.Width; xLoop++) {
-                for (int yLoop = rect.Y; yLoop < rect.Y+rect.Height; yLoop++) {
+            for (int xLoop = rect.X; xLoop < rect.X + rect.Width; xLoop++) {
+                for (int yLoop = rect.Y; yLoop < rect.Y + rect.Height; yLoop++) {
                     nodes[xLoop][yLoop].Cost = 0;
                 }
             }
@@ -107,7 +107,7 @@ namespace SE.Physics
             if (x + w > NodesX || x + h > NodesY) {
                 return Rectangle.Empty;
             }
-            return new Rectangle(x,y,w,h);
+            return new Rectangle(x, y, w, h);
         }
 
         private Vector2 WorldToGridSpace(Vector2 pos)
@@ -116,14 +116,14 @@ namespace SE.Physics
             if (pos.Y < 1) pos.Y = 1;
             float x = pos.X / NodeSize;
             float y = pos.Y / NodeSize;
-            return new Vector2(x,y);
+            return new Vector2(x, y);
         }
 
         private Vector2 GridToWorldSpace(Vector2 pos)
         {
             float x = pos.X * NodeSize;
             float y = pos.Y * NodeSize;
-            return new Vector2(x,y);
+            return new Vector2(x, y);
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace SE.Physics
         /// <returns>World position of node.</returns>
         public Vector2 GetPosition(Node n)
         {
-            return new Vector2((n.X * NodeSize)+(NodeSize/2), (n.Y * NodeSize)+(NodeSize/2));
+            return new Vector2((n.X * NodeSize) + (NodeSize / 2), (n.Y * NodeSize) + (NodeSize / 2));
         }
 
         /// <summary>

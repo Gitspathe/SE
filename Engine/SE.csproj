@@ -8,7 +8,7 @@
     <StartupObject />
     <Copyright>Gitspathe</Copyright>
     <TieredCompilation>false</TieredCompilation>
-    <Platforms>AnyCPU</Platforms>
+    <Platforms>x64</Platforms>
     <Configurations>Debug;Release</Configurations>
     <RootNamespace>SE</RootNamespace>
     <NeutralLanguage>en</NeutralLanguage>
@@ -24,19 +24,14 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OutputPath>bin\</OutputPath>
-    <DefineConstants>EDITOR;</DefineConstants>
-    <PlatformTarget>x64</PlatformTarget>
+    <DefineConstants>$(DefineConstants);EDITOR</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OutputPath>bin\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;EDITOR;</DefineConstants>
-    <DocumentationFile>bin\SE.xml</DocumentationFile>
-    <PlatformTarget>x64</PlatformTarget>
+    <DefineConstants>$(DefineConstants);EDITOR</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -63,9 +58,6 @@
     </Reference>
     <Reference Include="MonoGame.Penumbra">
       <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\$(Configuration)\DesktopGL\MonoGame.Penumbra.dll</HintPath>
-    </Reference>
-    <Reference Include="Aether.Physics2D.NETSTANDARD.MG">
-      <HintPath>..\_DEPENDENCIES\Aether.Physics2D\bin\$(Configuration)\netstandard2.1\Aether.Physics2D.NETSTANDARD.MG.dll</HintPath>
     </Reference>
   </ItemGroup>
 
@@ -135,6 +127,7 @@
     <ProjectReference Include="..\SE.Serializer.Ini\SE.Serializer.Ini.csproj" />
     <ProjectReference Include="..\SE.Serializer\SE.Serializer\SE.Serializer.csproj" />
     <ProjectReference Include="..\SE.Utility\SE.Utility.csproj" />
+    <ProjectReference Include="..\_DEPENDENCIES\Aether.Physics2D\Physics2D\Aether.Physics2D.NETSTANDARD.MG.csproj" />
   </ItemGroup>
 
 </Project>

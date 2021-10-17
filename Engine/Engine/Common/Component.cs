@@ -1,13 +1,9 @@
-﻿using System.Collections.Generic;
-using SE.AssetManagement;
-using SE.Attributes;
+﻿using SE.Attributes;
 using SE.Core;
+using SE.Core.Internal;
 using SE.Serialization;
 using SE.World.Partitioning;
-using SE.Core.Extensions;
 using System;
-using SE.Core.Internal;
-using Microsoft.Xna.Framework;
 
 namespace SE.Common
 {
@@ -18,7 +14,7 @@ namespace SE.Common
     public class Component : SEObject, IDisposable
     {
         public bool Serialized => !NeverSerialize && InstantiatedFromAttribute;
-        
+
         /// <summary>If true, Component will be able to be serialized.</summary>
         internal bool InstantiatedFromAttribute = false;
 
@@ -31,10 +27,11 @@ namespace SE.Common
         public virtual int Queue { get; } = 0;
 
         /// <summary>The component's enabled state.</summary>
-        [NoSerialize] public bool Enabled {
+        [NoSerialize]
+        public bool Enabled {
             get => enabled;
             set {
-                if(enabled == value)
+                if (enabled == value)
                     return;
 
                 enabled = value;
@@ -118,7 +115,7 @@ namespace SE.Common
 
         internal void Awake()
         {
-            if(AwakeCalled)
+            if (AwakeCalled)
                 return;
 
             OnAwake();
@@ -224,13 +221,13 @@ namespace SE.Common
             ComponentData data = new ComponentData {
                 Type = GetType()
             };
-            
+
             // If serializer is null, initialize it.
             if (Serializer == null) {
                 GenerateSerializer();
             }
             data.AdditionalData = new EngineSerializerData(Serializer.ValueWrappers);
-            
+
             // Clear the serializer if the engine is not in editor mode.
             if (!GameEngine.IsEditor) {
                 Serializer = null;
@@ -251,7 +248,7 @@ namespace SE.Common
                 Serializer.Restore(data.AdditionalData);
             }
             data.Dispose();
-            
+
             // Clear the serializer if the engine is not in editor mode.
             if (!GameEngine.IsEditor) {
                 Serializer = null;

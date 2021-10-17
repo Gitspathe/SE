@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework.Audio;
 using SE.Audio;
 using SE.Common;
+using System.Collections.Generic;
 
 namespace SE.Components
 {
@@ -46,7 +46,7 @@ namespace SE.Components
         /// <param name="sound">Name of the clip to play.</param>
         public void Play(string sound)
         {
-            if(audioClips.TryGetValue(sound, out AudioClip clip)) {
+            if (audioClips.TryGetValue(sound, out AudioClip clip)) {
                 audioInstances.Add(clip.CreateInstance(Owner.Transform.GlobalPositionInternal));
             }
         }

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE.Common;
 using SE.Core;
 using SE.UI.Events;
 using SE.Utility;
+using System;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.UI
@@ -79,13 +78,13 @@ namespace SE.UI
 
         private void ProcessHidden()
         {
-            if(!DisableHidden)
+            if (!DisableHidden)
                 return;
 
             QuickList<Transform> children = Transform.Children;
             for (int i = 0; i < children.Count; i++) {
                 UITransform child = children.Array[i] as UITransform;
-                if(child == null)
+                if (child == null)
                     continue;
 
                 if (child.GameObject.Enabled) {

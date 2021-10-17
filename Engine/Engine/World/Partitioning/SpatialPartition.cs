@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using SE.Components;
 using SE.Core;
 using SE.Pooling;
 using SE.Utility;
-using Random = System.Random;
+using System;
+using System.Collections.Generic;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.World.Partitioning
@@ -83,7 +81,7 @@ namespace SE.World.Partitioning
             if (value > 0 && result == 0) {
                 result = 1;
             }
-            return (int)(result * PartitionTileSize)+PartitionTileSize;
+            return (int)(result * PartitionTileSize) + PartitionTileSize;
         }
 
         /// <summary>
@@ -93,9 +91,9 @@ namespace SE.World.Partitioning
         /// <returns>PartitionTile from the position.</returns>
         internal PartitionTile<T> GetTile(Vector2 position)
         {
-            Point point = new Point((int) MathF.Floor(position.X / PartitionTileSize), (int) MathF.Floor(position.Y / PartitionTileSize));
-            return PartitionTiles.TryGetValue(point, out PartitionTile<T> tile) 
-                ? tile 
+            Point point = new Point((int)MathF.Floor(position.X / PartitionTileSize), (int)MathF.Floor(position.Y / PartitionTileSize));
+            return PartitionTiles.TryGetValue(point, out PartitionTile<T> tile)
+                ? tile
                 : AddNewTile(point);
         }
 
@@ -106,8 +104,8 @@ namespace SE.World.Partitioning
         /// <returns>PartitionTile at specified index.</returns>
         internal PartitionTile<T> GetTile(Point index)
         {
-            return PartitionTiles.TryGetValue(index, out PartitionTile<T> tile) 
-                ? tile 
+            return PartitionTiles.TryGetValue(index, out PartitionTile<T> tile)
+                ? tile
                 : AddNewTile(index);
         }
 

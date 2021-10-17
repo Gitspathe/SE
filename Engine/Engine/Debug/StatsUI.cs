@@ -1,10 +1,10 @@
-﻿using System.Text;
-using LiteNetLib;
+﻿using LiteNetLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Core;
 using SE.Editor.UI;
 using SE.UI;
+using System.Text;
 using Console = SE.Core.Console;
 using Vector2 = System.Numerics.Vector2;
 

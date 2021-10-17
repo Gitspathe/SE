@@ -19,10 +19,10 @@ namespace SE.Engine.Networking.Packets
             curIndex++;
         }
 
-        public static PacketProcessor GetProcessor(Type type) 
+        public static PacketProcessor GetProcessor(Type type)
             => packetProcessorsType.TryGetValue(type, out PacketProcessor processor) ? processor : null;
 
-        public static PacketProcessor GetProcessor(ushort val) 
+        public static PacketProcessor GetProcessor(ushort val)
             => packetProcessorsVal.TryGetValue(val, out PacketProcessor processor) ? processor : null;
 
         public static bool GetVal(Type type, out ushort s)

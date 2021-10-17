@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SE.Common;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
-using SE.Common;
 
 namespace SE.AssetManagement.Processors
 {

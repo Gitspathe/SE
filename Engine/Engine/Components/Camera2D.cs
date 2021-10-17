@@ -1,14 +1,11 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Common;
 using SE.Core;
 using SE.Utility;
-using Vector2 = System.Numerics.Vector2;
-using System.Collections.Generic;
-using SE.Core.Extensions;
+using System;
 using MGVector2 = Microsoft.Xna.Framework.Vector2;
-using MGVector3 = Microsoft.Xna.Framework.Vector3;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Components
 {
@@ -122,7 +119,7 @@ namespace SE.Components
             VisibleArea = new Rectangle((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
         }
 
-        public Vector2? MouseToWorldPoint() 
+        public Vector2? MouseToWorldPoint()
             => ScreenToWorldPoint(Screen.MousePoint);
 
         public Vector2? ScreenToWorldPoint(Vector2? screenPoint)

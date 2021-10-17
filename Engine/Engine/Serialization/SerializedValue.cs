@@ -1,5 +1,5 @@
-﻿using System;
-using FastMember;
+﻿using FastMember;
+using System;
 
 namespace SE.Serialization
 {
@@ -31,7 +31,7 @@ namespace SE.Serialization
             if (serializedData.ValueConverter != null) {
                 SerializerReflection.TypeTable.TryGetValue(serializedData.ValueConverter.Value, out Type t);
                 serializedData.Type = t;
-                if (SerializerReflection.RestoreTable.TryGetValue(serializedData.Type, out Action<SerializedValueData, SerializedValue> func)) { 
+                if (SerializerReflection.RestoreTable.TryGetValue(serializedData.Type, out Action<SerializedValueData, SerializedValue> func)) {
                     func.Invoke(serializedData, this);
                     return;
                 }

@@ -26,7 +26,7 @@ namespace SE.UI
                     sprite.Text = textString;
                     size = sprite.SpriteFont.MeasureString(textString);
                 } else {
-                    sprite.Text = prefix + textString; 
+                    sprite.Text = prefix + textString;
                     size = sprite.SpriteFont.MeasureString(textString + prefix);
                 }
                 sprite.UnscaledSize = size.ToPoint();

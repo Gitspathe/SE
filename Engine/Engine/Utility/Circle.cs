@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Utility

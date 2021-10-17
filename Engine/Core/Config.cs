@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using SE.Core.Extensions;
 
 namespace SE.Core
 {
@@ -35,7 +34,7 @@ namespace SE.Core
 
         public static void Update()
         {
-            if (!RequireSave) 
+            if (!RequireSave)
                 return;
 
             Save();
@@ -44,14 +43,14 @@ namespace SE.Core
 
         private static void SettingChanged(bool requireRestart = false)
         {
-            if(!Initialized)
+            if (!Initialized)
                 return;
 
             RequireRestart = requireRestart;
             RequireSave = true;
         }
 
-        public static void Save() 
+        public static void Save()
             => FileIO.SaveFile(configData.Serialize(options: settings), _CONFIG_FILE_NAME);
 
         public static void Load()

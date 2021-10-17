@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using Console = SE.Core.Console;
 using Random = SE.Utility.Random;
 
@@ -58,25 +57,25 @@ namespace SE
 
             string crashFile = crashLogDirectory + sep + date + ".txt";
             Console.WriteLine($"\n\nFatal error caused the application to crash. Check \"{crashFile}\" for more information.");
-            using (StreamWriter sw = new StreamWriter(crashFile, false)) {
-                sw.WriteLine("---------------CRASH LOG---------------");
-                try {
-                    sw.WriteLine($"Framework:            {RuntimeInformation.FrameworkDescription}");
-                    sw.WriteLine($"Operating System:     {RuntimeInformation.OSDescription}");
-                    sw.WriteLine($"OS Architecture:      {RuntimeInformation.OSArchitecture}");
-                    sw.WriteLine($"Process Architecture: {RuntimeInformation.ProcessArchitecture}");
-                } catch (Exception) {
-                    sw.WriteLine("Failed to retrieve system information.");
-                }
 
-                sw.WriteLine("\nUnhandled exception:");
-                sw.WriteLine(exception.ToString());
-                sw.WriteLine("---------------------------------------");
-                if (crashMessages != null && crashMessages.Count > 0) {
-                    sw.WriteLine(crashMessages[Random.Next(0, crashMessages.Count-1)]);
-                }
-                sw.Close();
+            using StreamWriter sw = new StreamWriter(crashFile, false);
+            sw.WriteLine("---------------CRASH LOG---------------");
+            try {
+                sw.WriteLine($"Framework:            {RuntimeInformation.FrameworkDescription}");
+                sw.WriteLine($"Operating System:     {RuntimeInformation.OSDescription}");
+                sw.WriteLine($"OS Architecture:      {RuntimeInformation.OSArchitecture}");
+                sw.WriteLine($"Process Architecture: {RuntimeInformation.ProcessArchitecture}");
+            } catch (Exception) {
+                sw.WriteLine("Failed to retrieve system information.");
             }
+
+            sw.WriteLine("\nUnhandled exception:");
+            sw.WriteLine(exception.ToString());
+            sw.WriteLine("---------------------------------------");
+            if (crashMessages != null && crashMessages.Count > 0) {
+                sw.WriteLine(crashMessages[Random.Next(0, crashMessages.Count - 1)]);
+            }
+            sw.Close();
         }
 
     }

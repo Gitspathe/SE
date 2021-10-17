@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace SE.AssetManagement
 {
@@ -11,7 +10,7 @@ namespace SE.AssetManagement
 
         internal void ReferenceAssets()
         {
-            if(ReferencedAssets == null)
+            if (ReferencedAssets == null)
                 return;
 
             HashSet<Asset> tmp = new HashSet<Asset>(ReferencedAssets);

@@ -1,5 +1,5 @@
-﻿using System.Numerics;
-using SE.Core.Extensions;
+﻿using SE.Core.Extensions;
+using System.Numerics;
 
 namespace SE.Physics
 {

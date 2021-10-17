@@ -1,9 +1,8 @@
 ﻿#if EDITOR
-using System;
-using System.IO;
 using SE.Core;
 using SE.Debug.Commands;
-using SE.Core.Extensions;
+using System;
+using System.IO;
 using static SE.Core.FileIO;
 
 namespace SE.Editor.Debug.Commands.LevelEdit
@@ -18,7 +17,7 @@ namespace SE.Editor.Debug.Commands.LevelEdit
                 name = SceneManager.CurrentScene.LevelName;
                 data = SceneManager.CurrentScene.MakeData().Serialize();
                 SaveFile(data, Path.Combine(nameSpace, "Levels", name + ".semap"));
-            } catch(Exception e) {
+            } catch (Exception e) {
                 return GetError(e, parameters);
             }
             return "Saved level to " + Path.Combine(DataDirectory, nameSpace, "Levels", name + ".semap") + ".";

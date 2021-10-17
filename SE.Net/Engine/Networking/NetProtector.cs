@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using LiteNetLib;
+﻿using LiteNetLib;
 using LiteNetLib.Utils;
-using SE.Core;
+using System;
+using System.Collections.Generic;
 using static SE.Core.Network;
 
 namespace SE.Engine.Networking
@@ -26,7 +25,7 @@ namespace SE.Engine.Networking
 
         public static void Update(float deltaTime)
         {
-            if(!IsServer)
+            if (!IsServer)
                 return;
 
             foreach (PeerRecord peer in peerRecords.Values) {

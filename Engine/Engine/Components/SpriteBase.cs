@@ -1,16 +1,8 @@
-﻿using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using SE.AssetManagement;
+﻿using Microsoft.Xna.Framework;
 using SE.Attributes;
 using SE.Common;
-using SE.Core;
 using SE.Rendering;
-using SE.World.Partitioning;
-using SE.Core.Extensions;
 using Vector2 = System.Numerics.Vector2;
-using SE.Lighting;
-using SE.Components.UI;
 // ReSharper disable InconsistentNaming
 
 namespace SE.Components
@@ -84,7 +76,7 @@ namespace SE.Components
 
         private protected Rectangle bounds;
         public Rectangle Bounds {
-            get => bounds; 
+            get => bounds;
             set => bounds = value;
         }
 
@@ -99,13 +91,13 @@ namespace SE.Components
 
         private protected Color color;
         public Color Color {
-            get => color; 
+            get => color;
             set => color = value;
         }
 
         private protected float layerDepth;
         public float LayerDepth {
-            get => layerDepth; 
+            get => layerDepth;
             set => layerDepth = value;
         }
 

@@ -1,18 +1,16 @@
-﻿using System;
+﻿using SE.Core;
+using System;
 using System.Collections.Generic;
-using SE.Components;
-using SE.Core;
 using tainicom.Aether.Physics2D.Collision.Shapes;
 using tainicom.Aether.Physics2D.Dynamics;
 using tainicom.Aether.Physics2D.Dynamics.Contacts;
 using tainicom.Aether.Physics2D.Dynamics.Joints;
-using Vector2 = System.Numerics.Vector2;
-using MonoGameVector2 = Microsoft.Xna.Framework.Vector2;
-using AetherBodyType = tainicom.Aether.Physics2D.Dynamics.BodyType;
 using static SE.Core.Physics;
-
+using AetherBodyType = tainicom.Aether.Physics2D.Dynamics.BodyType;
 using AetherContact = tainicom.Aether.Physics2D.Dynamics.Contacts.Contact;
 using AetherFixture = tainicom.Aether.Physics2D.Dynamics.Fixture;
+using MonoGameVector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Physics
 {
@@ -141,62 +139,62 @@ namespace SE.Physics
             set => Body.IgnoreCCD = value;
         }
 
-        public void ApplyForce(Vector2 force) 
+        public void ApplyForce(Vector2 force)
             => Body.ApplyForce(force.ToMonoGameVector2());
 
-        public void ApplyForce(Vector2 force, Vector2 point) 
+        public void ApplyForce(Vector2 force, Vector2 point)
             => Body.ApplyForce(force.ToMonoGameVector2(), point.ToMonoGameVector2());
 
         public void ApplyTorque(float torque)
             => Body.ApplyTorque(torque);
 
-        public void ApplyLinearImpulse(Vector2 impulse) 
+        public void ApplyLinearImpulse(Vector2 impulse)
             => Body.ApplyLinearImpulse(impulse.ToMonoGameVector2());
 
-        public void ApplyLinearImpulse(Vector2 impulse, Vector2 point) 
+        public void ApplyLinearImpulse(Vector2 impulse, Vector2 point)
             => Body.ApplyLinearImpulse(impulse.ToMonoGameVector2(), point.ToMonoGameVector2());
 
-        public void ApplyAngularImpulse(float impulse) 
+        public void ApplyAngularImpulse(float impulse)
             => Body.ApplyAngularImpulse(impulse);
 
-        public void ResetMassData() 
+        public void ResetMassData()
             => Body.ResetMassData();
 
-        public void ResetDynamics() 
+        public void ResetDynamics()
             => Body.ResetDynamics();
 
-        public Vector2 GetWorldPoint(Vector2 localPoint) 
+        public Vector2 GetWorldPoint(Vector2 localPoint)
             => ToPixels(Body.GetWorldPoint(ToMeters(localPoint)));
 
-        public Vector2 GetWorldVector(Vector2 localVector) 
+        public Vector2 GetWorldVector(Vector2 localVector)
             => ToPixels(Body.GetWorldVector(ToMeters(localVector)));
 
         public Vector2 GetLocalPoint(Vector2 worldPoint)
             => ToPixels(Body.GetLocalPoint(ToMeters(worldPoint)));
 
-        public Vector2 GetLocalVector(Vector2 worldVector) 
+        public Vector2 GetLocalVector(Vector2 worldVector)
             => ToPixels(Body.GetLocalVector(ToMeters(worldVector)));
 
-        public Vector2 GetLinearVelocityFromWorldPoint(Vector2 worldPoint) 
+        public Vector2 GetLinearVelocityFromWorldPoint(Vector2 worldPoint)
             => ToPixels(Body.GetLinearVelocityFromWorldPoint(ToMeters(worldPoint)));
 
-        public Vector2 GetLinearVelocityFromLocalPoint(Vector2 localPoint) 
+        public Vector2 GetLinearVelocityFromLocalPoint(Vector2 localPoint)
             => ToPixels(Body.GetLinearVelocityFromLocalPoint(ToMeters(localPoint)));
 
-        public void SetRestitution(float restitution) 
+        public void SetRestitution(float restitution)
             => Body.SetRestitution(restitution);
 
-        public void SetFriction(float friction) 
+        public void SetFriction(float friction)
             => Body.SetFriction(friction);
 
-        public void SetIsSensor(bool isSensor) 
+        public void SetIsSensor(bool isSensor)
             => Body.SetIsSensor(isSensor);
 
         private bool isDisposed;
 
-        internal void OverridePosition(Vector2 pos) 
+        internal void OverridePosition(Vector2 pos)
         {
-            if(!AddedToPhysics || PendingRemove)
+            if (!AddedToPhysics || PendingRemove)
                 return;
 
             Body.Position = ToMeters(pos);
@@ -275,7 +273,7 @@ namespace SE.Physics
 
         protected virtual void Dispose(bool disposing = true)
         {
-            if(isDisposed)
+            if (isDisposed)
                 return;
 
             Remove(this);

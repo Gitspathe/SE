@@ -1,8 +1,5 @@
-﻿using System;
+﻿using SE.Utility;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using SE.Components;
-using SE.Utility;
 
 namespace SE.Rendering
 {
@@ -13,7 +10,7 @@ namespace SE.Rendering
         // Note: ^^^ WTF is this supposed to mean?
         public QuickList<RenderList> RenderLists = new QuickList<RenderList>();
         public QuickList<UnorderedRenderList> UnorderedRenderLists = new QuickList<UnorderedRenderList>();
-        
+
         private Dictionary<uint, IRenderLoopAction> renderActions = new Dictionary<uint, IRenderLoopAction>();
         private Dictionary<uint, IRenderLoopAction> unorderedRenderActions = new Dictionary<uint, IRenderLoopAction>();
         private bool isDirty;
@@ -41,7 +38,7 @@ namespace SE.Rendering
             Material material = renderObj.Material;
 
             // Index of the specific RenderList the sprite should be added to.
-            int renderIndex = (int) material.RenderQueueInternal;
+            int renderIndex = (int)material.RenderQueueInternal;
 
             // Add the sprite to the correct RenderList.
             if (!material.RequiresUnorderedInternal) {
@@ -73,7 +70,7 @@ namespace SE.Rendering
 
         public void RegisterToRenderLoop()
         {
-            if(!isDirty)
+            if (!isDirty)
                 return;
 
             Renderer renderer = RenderLoop.Render;

@@ -6,7 +6,7 @@ namespace SE.World
     {
         public TileChunk Chunk { get; private set; }
         public Tile[][] TileTemplates { get; private set; }
-        
+
         public bool IsActive { get; private set; } = false;
 
         public void Initialize(TileChunk chunk)

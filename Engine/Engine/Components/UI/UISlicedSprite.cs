@@ -165,11 +165,11 @@ namespace SE.Components.UI
                 }
                 Core.Rendering.SpriteBatch.Draw(
                     Material.Texture,
-                    destRects[i], 
-                    srcRects[i], 
-                    Color, 
-                    0f, 
-                    Origin, 
+                    destRects[i],
+                    srcRects[i],
+                    Color,
+                    0f,
+                    Origin,
                     SpriteEffects.None,
                     LayerDepth);
             }

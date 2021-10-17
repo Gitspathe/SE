@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using SE.Utility;
+using System;
+using System.Collections.Generic;
 
 namespace SE.Rendering
 {
@@ -35,7 +35,7 @@ namespace SE.Rendering
                 case Texture2D texture: {
                     for (int i = 0; i < LookupArray.Count; i++) {
                         Texture2D existingTexture = LookupArray.Array[i].Texture;
-                        if(existingTexture == null)
+                        if (existingTexture == null)
                             return;
 
                         // Compare name and ContentManager to check for equality.
@@ -49,7 +49,7 @@ namespace SE.Rendering
                 case Effect effect: {
                     for (int i = 0; i < LookupArray.Count; i++) {
                         Effect existingEffect = LookupArray.Array[i].Effect;
-                        if(existingEffect == null)
+                        if (existingEffect == null)
                             return;
 
                         // Compare name and ContentManager to check for equality.

@@ -1,6 +1,6 @@
-﻿using System;
+﻿using SE.Core;
+using System;
 using System.Collections.Generic;
-using SE.Core;
 
 namespace SE.Debug
 {

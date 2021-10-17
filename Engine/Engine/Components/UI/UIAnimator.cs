@@ -16,7 +16,7 @@ namespace SE.Components.UI
         public override void OnSelected()
         {
             base.OnSelected();
-            if(!Configured || AnimatorComponent.IsPlaying("toggle"))
+            if (!Configured || AnimatorComponent.IsPlaying("toggle"))
                 return;
 
             AnimatorComponent.Play("highlight");

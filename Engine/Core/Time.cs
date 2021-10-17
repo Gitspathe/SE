@@ -14,7 +14,7 @@ namespace SE.Core
         /// <summary>Fixed amount of time passed for each FixedUpdate iteration.
         ///          Should be used in place of DeltaTime inside of FixedUpdate methods.</summary>
         public static float FixedTimestep { get; set; } = 1.0f / 60.0f;
-        
+
         internal static int FixedTimeStepIterations { get; private set; }
         private static float fixedTimer;
 
@@ -37,7 +37,7 @@ namespace SE.Core
             DeltaTime = (float)(timeSec * TimeScale);
 
             fixedTimer += DeltaTime;
-            if(fixedTimer > MaxFixedTimestep)
+            if (fixedTimer > MaxFixedTimestep)
                 fixedTimer = MaxFixedTimestep;
 
             while (fixedTimer >= FixedTimestep) {

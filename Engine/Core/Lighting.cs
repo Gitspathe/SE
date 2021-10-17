@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Penumbra;
 using SE.Components;
 using SE.Core.Exceptions;
@@ -7,8 +6,8 @@ using SE.Core.Extensions;
 using SE.Lighting;
 using SE.Utility;
 using Light = SE.Lighting.Light;
-using Vector2 = System.Numerics.Vector2;
 using MGVector2 = Microsoft.Xna.Framework.Vector2;
+using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Core
 {
@@ -24,8 +23,7 @@ namespace SE.Core
         private static float cleanUpTimer = 10.0f;
 
         private static bool enabled;
-        public static bool Enabled
-        {
+        public static bool Enabled {
             get => enabled;
             set {
                 if (value && Screen.IsFullHeadless)
@@ -60,8 +58,8 @@ namespace SE.Core
             }
             set {
                 if (Screen.IsFullHeadless)
-                    throw new HeadlessNotSupportedException("Cannot set lighting value in fully headless display mode."); 
-                
+                    throw new HeadlessNotSupportedException("Cannot set lighting value in fully headless display mode.");
+
                 Penumbra.Debug = value;
             }
         }
@@ -161,7 +159,7 @@ namespace SE.Core
 
         public static void RemoveLight(Light pointLight)
         {
-            if(Screen.IsFullHeadless)
+            if (Screen.IsFullHeadless)
                 return;
 
             lock (lightManagerLock) {

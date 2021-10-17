@@ -1,7 +1,4 @@
-﻿using System.Numerics;
-using SE.Common;
-using SE.World;
-using SEDemos.GameObjects;
+﻿using SE.World;
 using SEDemos.GameObjects.UI;
 
 namespace SEDemos.Levels
