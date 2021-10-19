@@ -127,13 +127,6 @@ namespace SE
                 ModLoader.Initialize();
                 UpdateLoop = new UpdateLoop();
 
-                ParticleEngine.UpdateMode = UpdateMode.ParallelAsynchronous;
-                ParticleEngine.UseParticleRenderer = Config.Performance.UseParticleInstancing;
-                ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolParticles
-                    ? ParticleAllocationMode.ArrayPool
-                    : ParticleAllocationMode.Array;
-                ParticleEngine.Initialize(GraphicsDevice);
-
                 UIManager.Initialize();
                 if (!Screen.IsFullHeadless)
                     Core.Lighting.Initialize();
@@ -158,6 +151,13 @@ namespace SE
                 if (!Screen.IsFullHeadless) {
                     Core.Rendering.Initialize(GraphicsDeviceManager, GraphicsDevice);
                     Console.InitializeStats(Core.Rendering.SpriteBatch);
+
+                    ParticleEngine.UpdateMode = UpdateMode.ParallelAsynchronous;
+                    ParticleEngine.UseParticleRenderer = Config.Performance.UseParticleInstancing;
+                    ParticleEngine.AllocationMode = Config.Performance.UseArrayPoolParticles
+                        ? ParticleAllocationMode.ArrayPool
+                        : ParticleAllocationMode.Array;
+                    ParticleEngine.Initialize(GraphicsDevice);
                 }
 
                 // After core initialization. Console will work here.

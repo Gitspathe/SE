@@ -48,7 +48,6 @@ namespace SEDemos.GameObjects
                 myPhysics.Body.SetRestitution(0.5f);
                 myPhysics.Body.SetFriction(0.0f);
 
-                //myPhysics.Body.OnCollision += Body_OnCollision; // Test event code.
                 SetV(new Vector2(Random.Next(256, 512), Random.Next(256, 512)));
                 c = new Color(Random.Next(100, 255), Random.Next(100, 255), Random.Next(100, 255));
             } else {
@@ -90,18 +89,16 @@ namespace SEDemos.GameObjects
             base.OnInitialize();
         }
 
-        // TODO: Test event code. Remove when done.
-        private bool Body_OnCollision(Fixture sender, Fixture other, Contact contact)
-        {
-            if (other.GameObject is WallDown) {
-                //NetHelper.Instantiate("bouncy", position: new Vector2(Transform.Position.X, Transform.Position.Y - 24));
-                Destroy();
-            }
-            return true;
-        }
+        private float timer = 5.0f;
 
         protected override void OnUpdate()
         {
+            timer -= Time.DeltaTime;
+            if(timer <= 0.0f) {
+                Destroy();
+                return;
+            }
+
             base.OnUpdate();
             if (Network.InstanceType == NetInstanceType.Server) {
                 Transform.Rotation = myPhysics.Body.LinearVelocity.ToRotation();
