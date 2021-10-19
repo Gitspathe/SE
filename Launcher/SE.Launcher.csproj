@@ -10,7 +10,7 @@
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
     <PublishTrimmed>false</PublishTrimmed>
     <TieredCompilation>false</TieredCompilation>
-    <Platforms>x64</Platforms>
+    <Platforms>AnyCPU</Platforms>
     <Configurations>Debug;Release</Configurations>
     <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -23,11 +23,11 @@
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
@@ -59,6 +59,7 @@
     <ProjectReference Include="..\SE.Serializer.Ini\SE.Serializer.Ini.csproj" />
     <ProjectReference Include="..\SE.Serializer\SE.Serializer\SE.Serializer.csproj" />
     <ProjectReference Include="..\SE.Utility\SE.Utility.csproj" />
+    <ProjectReference Include="..\_DEPENDENCIES\MonoGame\MonoGame.Framework\MonoGame.Framework.DesktopGL.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -73,16 +74,6 @@
     </Reference>
     <Reference Include="Aether.Physics2D.NETSTANDARD.MG">
       <HintPath>..\_DEPENDENCIES\Aether.Physics2D\bin\$(Configuration)\netstandard2.1\Aether.Physics2D.NETSTANDARD.MG.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="StbImageSharp">
-      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\StbImageSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoGame">
-      <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
-      <SpecificVersion>false</SpecificVersion>
     </Reference>
   </ItemGroup>
 

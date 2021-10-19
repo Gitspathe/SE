@@ -8,7 +8,7 @@
     <StartupObject />
     <Copyright>Gitspathe</Copyright>
     <TieredCompilation>false</TieredCompilation>
-    <Platforms>x64</Platforms>
+    <Platforms>AnyCPU</Platforms>
     <Configurations>Debug;Release</Configurations>
     <RootNamespace>SE</RootNamespace>
     <NeutralLanguage>en</NeutralLanguage>
