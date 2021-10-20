@@ -101,6 +101,8 @@ namespace SE.Serialization.Converters
             return task.Settings.Resolver.GetConverter(TypeArguments[typeArgumentIndex]);
         }
 
+        internal protected virtual void OnCreate() { }
+
         public GenericConverter() { /* Empty constructor for reflection. */ }
     }
 }

@@ -65,6 +65,33 @@ namespace SE.Serialization
             ArrayPool<byte>.Shared.Return(arr);
         }
 
+        public static string EscapeString(string str)
+        {
+            strBuilder.Clear();
+            for(int i = 0; i < str.Length; i++) {
+                char c = str[i];
+                switch (c) {
+                    case '\\':
+                        strBuilder.Append("\\");
+                        break;
+                    case '\n':
+                        strBuilder.Append("\\n");
+                        break;
+                    case '\r':
+                        strBuilder.Append("\\r");
+                        break;
+                    case '"':
+                        strBuilder.Append("\\\"");
+                        break;
+
+                    default:
+                        strBuilder.Append(c);
+                        break;
+                }
+            }
+            return strBuilder.ToString();
+        }
+
         internal static int GetUtf8Bytes(byte[] arr, string str)
             => Serializer.UTF8.GetBytes(str, 0, str.Length, arr, 0);
 
@@ -79,13 +106,22 @@ namespace SE.Serialization
             while (true) {
                 if (baseStream.Position + 1 > baseStream.Length)
                     return false;
-                if (reader.ReadByte() != _STRING_IDENTIFIER)
-                    continue;
+                
+                byte b = reader.ReadByte();
+                switch (b) {
 
-                if (inQuote) {
-                    return true;
+                    // Skip escape and control characters.
+                    case _ESCAPE:
+                        reader.ReadByte();
+                        break;
+
+                    case _STRING_IDENTIFIER:
+                        if (inQuote) {
+                            return true;
+                        }
+                        inQuote = true;
+                        break;
                 }
-                inQuote = true;
             }
         }
 
@@ -171,6 +207,37 @@ namespace SE.Serialization
             }
         }
 
+        public static bool IsControlCharOrWhitespace(byte b)
+        {
+            switch (b) {
+                case _ARRAY_SEPARATOR:
+                case _BEGIN_ARRAY:
+                case _BEGIN_CLASS:
+                case _BEGIN_META:
+                case _BEGIN_VALUE:
+                case _END_ARRAY:
+                case _END_CLASS:
+                case _END_META:
+                case _NEW_LINE:
+                case _STRING_IDENTIFIER:
+                case _TAB:
+                    return true;
+            }
+            return false;
+        }
+
+        public static bool IsEscapableChar(byte b)
+        {
+            switch (b) {
+                case _STRING_IDENTIFIER:
+                case _ESCAPE:
+                case (byte)'n':
+                case (byte)'r':
+                    return true;
+            }
+            return false;
+        }
+
         public static bool IsNumber(byte b)
         {
             switch (b) {
@@ -239,8 +306,12 @@ namespace SE.Serialization
             return false;
         }
 
-
         // TODO: ReadArray<T>, to read array entries separated with ','.
+
+        public static T[] ReadArrayTextUtf8<T>()
+        {
+            throw new NotImplementedException();
+        }
 
     }
 }

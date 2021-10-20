@@ -104,6 +104,7 @@ namespace SE.Engine.Networking.Packets
             func.Reset(netLogic.ID, reader);
             NetworkRPCManager.InvokeRPC(func);
 
+            // This is only called from client -> server RPCs. becomes: client -> server (validation) -> clients
             if (Network.IsServer) {
                 // If the options has CallClientRPC flag, invoke the RPC on all clients.
                 NetworkRPCManager.ServerRPCLookupTable.TryGetRPCInfo(NetworkRPCManager.CacheRPCFunc.MethodID, out RPCServerInfo info);

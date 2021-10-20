@@ -324,7 +324,7 @@ namespace SE.Serialization.Converters
                     continue;
                 } catch (Exception) { /* ignored */ }
 
-            // Step 2: Attempt to deserialize based on declaration order.
+                // Step 2: Attempt to deserialize based on declaration order.
             Step2:
                 try {
                     stream.Position = startIndex;
@@ -337,8 +337,8 @@ namespace SE.Serialization.Converters
                     break;
                 } catch (Exception) { /* ignored */ }
 
-            // Step 3: Failed. Skip to next node.
-            // Note that binary error handling is unstable due to limitations.
+                // Step 3: Failed. Skip to next node.
+                // Note that binary error handling is unstable due to limitations.
             failed:
                 try {
                     stream.Position = startIndex;
@@ -400,7 +400,7 @@ namespace SE.Serialization.Converters
 
                     // Index meta parsing.
                     SkipToNextSymbol(reader, _BEGIN_META);
-                    uint index = uint.Parse(reader.ReadUntil(_END_META));
+                    uint index = uint.Parse(reader.ReadTo(_END_META));
 
                     // Read node value.
                     SkipToNextSymbol(reader, _BEGIN_VALUE);
@@ -444,7 +444,7 @@ namespace SE.Serialization.Converters
 
                     // Grab name, and attempt to get the node based on it. If no node is found, goto Failed.
                     reader.SkipWhiteSpace();
-                    string name = reader.ReadUntil(_BEGIN_VALUE);
+                    string name = reader.ReadTo(_BEGIN_VALUE);
                     reader.SkipWhiteSpace();
                     if (!nodesDictionary.TryGetValue(name, out Node node))
                         goto Failed;
@@ -493,23 +493,23 @@ namespace SE.Serialization.Converters
 
                     // Find the index.
                     SkipToNextSymbol(reader, _BEGIN_META);
-                    readIndex = uint.Parse(reader.ReadUntil(_END_META));
+                    readIndex = uint.Parse(reader.ReadTo(_END_META));
 
                     // Grab name, and attempt to get the node based on it. If no node is found, goto Failed.
                     reader.SkipWhiteSpace();
-                    string name = reader.ReadUntil(_BEGIN_VALUE);
+                    string name = reader.ReadTo(_BEGIN_VALUE);
                     if (!nodesDictionary.TryGetValue(name, out Node node))
                         goto Step2;
 
                     // Parse the node.
-                    SkipToNextSymbol(reader, _BEGIN_VALUE);
                     reader.SkipWhiteSpace();
                     node.ReadText(obj, reader, ref task);
+                    continue;
                 } catch (EndOfStreamException) {
                     break;
                 } catch (Exception) { /* ignored */ }
 
-            // Step 2: Failed, try to parse via index.
+                // Step 2: Failed, try to parse via index.
             Step2:
                 if (readIndex == null)
                     goto Failed;
@@ -547,7 +547,7 @@ namespace SE.Serialization.Converters
                 if (stream.Position + 1 > stream.Length)
                     return false;
 
-                // TODO: I probably need to fully break out of the GeneratedConverter loop if _END_CLASS is encountered.
+                // Attempt to skip to the next node, usually as a result of an error.
                 switch (reader.ReadByte()) {
                     case _BEGIN_ARRAY:
                         stream.Position -= 1;
@@ -558,8 +558,7 @@ namespace SE.Serialization.Converters
                         SkipClass(reader);
                         break;
                     case _END_CLASS:
-                        // TODO: Break out of this generatedconverter.
-                        break;
+                        return false;
                     case _STRING_IDENTIFIER:
                         stream.Position -= 1;
                         SkipQuotedString(reader);
@@ -596,7 +595,6 @@ namespace SE.Serialization.Converters
                 // Meta tokens are before each node. Therefore, the reader needs to read until a begin meta token,
                 // and then check if the next byte is a UTF8 number character. If both conditions are true,
                 // the next node has been found.
-                // TODO: I probably need to fully break out of the GeneratedConverter loop if _END_CLASS is encountered.
                 while (true) {
                     if (stream.Position + 1 > stream.Length)
                         return false;
@@ -611,8 +609,7 @@ namespace SE.Serialization.Converters
                             SkipClass(reader);
                             break;
                         case _END_CLASS:
-                            // TODO: Break out of this generatedconverter.
-                            break;
+                            return false;
                         case _STRING_IDENTIFIER:
                             stream.Position -= 1;
                             SkipQuotedString(reader);
@@ -638,7 +635,6 @@ namespace SE.Serialization.Converters
 
                     }
                 }
-
             }
 
             // There is NO meta token used to identify new nodes. Therefore, a begin value token must be found,
@@ -659,8 +655,7 @@ namespace SE.Serialization.Converters
                         SkipClass(reader);
                         break;
                     case _END_CLASS:
-                        // TODO: Break out of this generatedconverter.
-                        break;
+                        return false;
                     case _STRING_IDENTIFIER:
                         stream.Position -= 1;
                         SkipQuotedString(reader);
@@ -699,14 +694,12 @@ namespace SE.Serialization.Converters
                 stream.Position -= 1;
                 byte b = reader.ReadByte();
                 stream.Position -= 1;
-                switch (b) {
-                    case _TAB:
-                    case _NEW_LINE:
-                        stream.Position += 1;
-                        return true;
-                    default:
-                        continue;
+
+                if(IsControlCharOrWhitespace(b)) {
+                    stream.Position += 1;
+                    return true;
                 }
+                continue;
             }
         }
 

@@ -18,6 +18,7 @@ using SE.Serialization.Attributes;
 using SEDemos.GameObjects;
 using SEDemos.GameObjects.UI;
 using System;
+using System.Diagnostics;
 using DisplayMode = SE.DisplayMode;
 using MemberSerialization = Newtonsoft.Json.MemberSerialization;
 using Vector2 = System.Numerics.Vector2;
@@ -142,39 +143,36 @@ namespace SEDemos
             //    Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
             //}
 
-            // Text serialization test.
-            //int textIterations = 200_000;
-            //int innerTextIterations = 3;
+            //Text serialization test.
+            int textIterations = 200_000;
+            int innerTextIterations = 3;
 
-            //for (int i = 0; i < innerTextIterations; i++)
-            //{
-            //    TestTextClass textClass = new TestTextClass();
+            for (int i = 0; i < innerTextIterations; i++) {
+                TestTextClass textClass = new TestTextClass();
 
-            //    Stopwatch s = new Stopwatch();
+                Stopwatch s = new Stopwatch();
 
-            //    //New serializer.
-            //    s.Start();
-            //    for (int z = 0; z < textIterations; z++)
-            //    {
-            //        byte[] bytes = Serializer.Serialize(textClass);
-            //    }
-            //    s.Stop();
-            //    long s1 = s.ElapsedMilliseconds;
+                //New serializer.
+                s.Start();
+                for (int z = 0; z < textIterations; z++) {
+                    byte[] bytes = Serializer.Serialize(textClass);
+                }
+                s.Stop();
+                long s1 = s.ElapsedMilliseconds;
 
-            //    // JSON serializer.
-            //    s = new Stopwatch();
-            //    s.Start();
-            //    for (int z = 0; z < textIterations; z++)
-            //    {
-            //        string bytes = System.Text.Json.JsonSerializer.Serialize(textClass, textJsonOptions);
-            //    }
-            //    s.Stop();
-            //    long s2 = s.ElapsedMilliseconds;
+                // JSON serializer.
+                s = new Stopwatch();
+                s.Start();
+                for (int z = 0; z < textIterations; z++) {
+                    string bytes = System.Text.Json.JsonSerializer.Serialize(textClass, textJsonOptions);
+                }
+                s.Stop();
+                long s2 = s.ElapsedMilliseconds;
 
-            //    string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
-            //    Console.WriteLine($"Serializer benchmark ({textIterations} iterations, measured in ms):");
-            //    Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
-            //}
+                string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
+                SE.Core.Console.WriteLine($"Serializer benchmark ({textIterations} iterations, measured in ms):");
+                SE.Core.Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
+            }
 
             //long bytesBefore = GC.GetTotalMemory(true);
             //new GameObject();
@@ -188,7 +186,8 @@ namespace SEDemos
             //    pizza5 = 0,
             //    //pizza3 = { [1] = 59.0f },
             //    ObjTest = new TestClass2(),
-            //    TestString = "NEW STR"
+            //    TestString = "NEW STR",
+            //    PizzasEnum = TestClass.PizzaEnum.MeatLovers
             //};
             //lel.testClass1.test1.lol = 64;
 
@@ -204,6 +203,8 @@ namespace SEDemos
         public class TestTextClass
         {
             public int exampleInteger { get; set; } = 5;
+
+            public Lelz exampleEnum { get; set; } = Lelz.EnumValue1;
 
             public Inner[] inner { get; set; } = { new Inner(), new Inner(), new Inner() };
 
@@ -225,6 +226,13 @@ namespace SEDemos
                     public string testString { get; set; } = "This is a string.";
                     public bool testBool { get; set; } = true;
                 }
+            }
+
+            public enum Lelz
+            {
+                EnumValue1,
+                EnumValue2,
+                AnotherEnum
             }
         }
 
@@ -250,6 +258,7 @@ namespace SEDemos
             public int pizza10 { get; set; } = 44;
             public int pizza11 { get; set; } = 9;
             public byte pizza12 { get; set; } = 3;
+            public PizzaEnum PizzasEnum { get; set; } = PizzaEnum.Pepperoni;
             public TestClass2 testClass1 { get; set; } = new TestClass2();
             public TestClass2 test2 { get; set; } = new TestClass2();
             public TestClass2 test3 { get; set; } = new TestClass2();
@@ -260,6 +269,13 @@ namespace SEDemos
                 pizza2 = pizzas;
             }
             public TestClass() : this(99) { }
+
+            public enum PizzaEnum
+            {
+                Pepperoni,
+                Onions,
+                MeatLovers
+            }
         }
 
         [JsonObject(MemberSerialization.OptOut)]

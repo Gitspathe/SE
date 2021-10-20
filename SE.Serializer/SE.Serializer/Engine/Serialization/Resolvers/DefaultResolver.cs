@@ -63,8 +63,12 @@ namespace SE.Serialization.Resolvers
                 Type[] typeArgs = { objType.GetElementType() };
                 return CreateGenericTypeConverter(objType, typeof(Array), typeArgs);
             }
-
             // B) TODO: Multidimensional array. NOTE: Jagged array seems to already work!!
+            // C) Enums.
+            if (objType.IsEnum) {
+                Type[] typeArgs = { objType };
+                return CreateGenericTypeConverter(objType, typeof(Enum), typeArgs);
+            }
 
             // Step 4: Check if the type implements an interface within the ValueSerializersType dictionary.
             foreach (Type intType in objType.GetInterfaces()) {
@@ -115,6 +119,7 @@ namespace SE.Serialization.Resolvers
             if (genericTypeConverterTypes.TryGetValue(genericType, out Type serializerType)) {
                 GenericConverter newSerializer = (GenericConverter)Activator.CreateInstance(serializerType);
                 newSerializer.TypeArguments = typeArgs;
+                newSerializer.OnCreate();
                 RegisterConverter(concreteType, newSerializer);
                 return newSerializer;
             }

@@ -2,8 +2,6 @@
 {
     public static class Constants
     {
-        // TODO: Escape characters to prevent corruption when reading. https://www.tutorialspoint.com/json_simple/json_simple_escape_characters.htm
-        // Remember that "\n" (two characters) is ecaped to become '\n' (one character), etc. See EscapedNewLine.
         public const byte _ESCAPE = (byte)'\\';
 
         public const byte _BEGIN_VALUE = (byte)':';
@@ -15,6 +13,7 @@
         public const byte _END_META = (byte)')';
         public const byte _ARRAY_SEPARATOR = (byte)',';
         public const byte _NEW_LINE = (byte)'\n';
+        public const byte _CARRIDGE_RETURN = (byte)'\r';
         public const byte _TAB = (byte)' ';
         public const byte _STRING_IDENTIFIER = (byte)'"';
 

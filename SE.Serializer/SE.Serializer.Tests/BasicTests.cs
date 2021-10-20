@@ -1,7 +1,8 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SE.Serialization.Attributes;
 using SE.Serializer;
 using SE.Core;
+using System.IO;
 
 namespace SE.Serializer.Tests
 {
@@ -14,6 +15,9 @@ namespace SE.Serializer.Tests
             // Warmup serializer - in other words - put classes we will use into the serializers' internal caches.
             BasicTestClass testClass = new BasicTestClass();
             byte[] bytes = Core.Serializer.Serialize(testClass);
+
+            File.WriteAllBytes("C:\\Users\\admin\\Desktop\\test.txt", bytes);
+
             BasicTestClass newClass = Core.Serializer.Deserialize<BasicTestClass>(bytes);
         }
 
@@ -46,7 +50,7 @@ namespace SE.Serializer.Tests
                 float1 = 42.0f,
                 double1 = 69.5f,
                 bool1 = true,
-                str = "LMAO"
+                str = "ドナルド・\n \" fff \"トランプ"
             };
 
             byte[] bytes = Core.Serializer.Serialize(testClass);
@@ -60,7 +64,7 @@ namespace SE.Serializer.Tests
             Assert.IsTrue(newClass.float1 == 42.0f, $"Should be 42.0f, but is {newClass.float1}");
             Assert.IsTrue(newClass.double1 == 69.5f, $"Should be 69.5f, but is {newClass.double1}");
             Assert.IsTrue(newClass.bool1 == true, $"Should be true, but is {newClass.bool1}");
-            Assert.IsTrue(newClass.str == "LMAO", $"Should be \"LMAO\", but is {newClass.str}");
+            Assert.IsTrue(newClass.str == "ドナルド・\n \" fff \"トランプ", $"Should be, but is {newClass.str}");
         }
 
         // TODO: Testing null/default values, advanced classes, polymorphic classes, etc.
@@ -75,7 +79,7 @@ namespace SE.Serializer.Tests
             public float float1 = 5.0f;
             public double double1 = 99.0f;
             public bool bool1 = false;
-            public string str = "STRING VALUE";
+            public string str = "STRING \"lol\" \nVALUE";
         }
     }
 }

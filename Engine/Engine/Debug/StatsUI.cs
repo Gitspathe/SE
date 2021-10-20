@@ -70,12 +70,12 @@ namespace SE.Debug
                 networkBuilder.Append("No connection.");
             } else {
                 sec -= Time.DeltaTime;
-                if (sec <= 0) {
+                if (sec == 0.0f) {
                     bytesDownStart = stats.BytesReceived;
                     bytesDownLastSec = bytesDownThisSec;
                     bytesUpStart = stats.BytesSent;
                     bytesUpLastSec = bytesUpThisSec;
-                    sec = 1.0f;
+                    sec += 1.0f;
                 }
                 bytesDownThisSec = stats.BytesReceived - bytesDownStart;
                 bytesUpThisSec = stats.BytesSent - bytesUpStart;

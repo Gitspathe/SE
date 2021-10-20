@@ -78,7 +78,39 @@ namespace SE.Serialization
             if (ReadByte() != _STRING_IDENTIFIER)
                 throw new Exception("Not a quoted string!");
 
-            return ReadUntil(_STRING_IDENTIFIER);
+            while (true) {
+                byte b = ReadByte();
+
+                // Handle escaped character if '\' is encountered.
+                // And break if '"' is encountered.
+                if(b == _ESCAPE) {
+                    byte escapeChar = ReadByte();
+                    if (SerializerUtil.IsEscapableChar(escapeChar)) {
+                        EnsureCapacity();
+                        buffer[position++] = ConvertEscapeToControl(escapeChar);
+                        continue;
+                    }
+                } else if(b == _STRING_IDENTIFIER) {
+                    break;
+                }
+
+                EnsureCapacity();
+                buffer[position++] = b;
+            }
+            return memory.Span.Slice(0, position);
+        }
+
+        private byte ConvertEscapeToControl(byte escapeChar)
+        {
+            switch(escapeChar) {
+                case (byte)'n':
+                    return _NEW_LINE;
+                case (byte)'r':
+                    return _CARRIDGE_RETURN;
+                case (byte)'"':
+                    return _STRING_IDENTIFIER;
+            }
+            return 0;
         }
 
         private ReadOnlySpan<byte> ReadUntil(byte identifier)
@@ -95,7 +127,7 @@ namespace SE.Serialization
             return memory.Span.Slice(0, position);
         }
 
-        public string ReadUntil(byte symbol, bool skipPast = true)
+        public string ReadTo(byte symbol, bool skipPast = true)
         {
             while (true) {
                 try {
@@ -164,6 +196,31 @@ namespace SE.Serialization
             byte[] numArray = new byte[ReadInt32()];
             Read(numArray, 0, numArray.Length);
             return Serializer.UTF8.GetString(numArray);
+        }
+
+        public bool ReadBooleanString()
+        {
+            char[] bytes = ArrayPool<char>.Shared.Rent(4);
+            ReadOnlySpan<char> span = new ReadOnlySpan<char>(bytes, 0, 4);
+
+            int index = 0;
+            while (true) {
+                byte b = ReadByte();
+                if (SerializerUtil.IsControlCharOrWhitespace(b)) {
+                    stream.Position -= 1;
+                    break;
+                }
+                
+                bytes[index++] = (char)b;
+                
+                if (index > 3)
+                    break;
+            }
+
+            bool val;
+            bool.TryParse(span, out val);
+            ArrayPool<char>.Shared.Return(bytes);
+            return val;
         }
 
         public string ReadQuotedString()

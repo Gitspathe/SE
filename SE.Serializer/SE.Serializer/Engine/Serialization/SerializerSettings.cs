@@ -15,7 +15,7 @@ namespace SE.Serialization
         /// <summary>How the serializer handles default values.</summary>
         public DefaultValueHandling DefaultValueHandling = DefaultValueHandling.Serialize;
         /// <summary>How the serializer converts data. Determines performance and parsing error resilience.</summary>
-        public ConvertBehaviour ConvertBehaviour = ConvertBehaviour.Configuration;
+        public ConvertBehaviour ConvertBehaviour = ConvertBehaviour.NameAndOrder;
         /// <summary>How the serializer handles types.</summary>
         public TypeHandling TypeHandling = TypeHandling.Auto;
         /// <summary>How verbose the serialized Type information is.</summary>
