@@ -56,37 +56,49 @@ namespace SE.Serialization
 
         public static void WriteQuotedTextUtf8(this Utf8Writer writer, string str)
         {
-            byte[] arr = ArrayPool<byte>.Shared.Rent(Encoding.UTF8.GetByteCount(str));
+            byte[] poolArr = null;
+
+            int bytesNum = Encoding.UTF8.GetByteCount(str);
+            Span<byte> arr = bytesNum <= _STACK_ALLOC_THRESHOLD
+                ? stackalloc byte[bytesNum] 
+                : (poolArr = ArrayPool<byte>.Shared.Rent(bytesNum));
+
             int bufferLength = GetUtf8Bytes(arr, str);
 
             writer.Write(_STRING_IDENTIFIER);
             writer.Write(arr, bufferLength);
             writer.Write(_STRING_IDENTIFIER);
-            ArrayPool<byte>.Shared.Return(arr);
+
+            if(poolArr != null) {
+                ArrayPool<byte>.Shared.Return(poolArr);
+            }
         }
 
-        public static string EscapeString(string str)
+        public unsafe static string EscapeString(string str)
         {
             strBuilder.Clear();
-            for (int i = 0; i < str.Length; i++) {
-                char c = str[i];
-                switch (c) {
-                    case '\\':
-                        strBuilder.Append("\\");
-                        break;
-                    case '\n':
-                        strBuilder.Append("\\n");
-                        break;
-                    case '\r':
-                        strBuilder.Append("\\r");
-                        break;
-                    case '"':
-                        strBuilder.Append("\\\"");
-                        break;
 
-                    default:
-                        strBuilder.Append(c);
-                        break;
+            fixed(char* strPtr = str) {
+                for (int i = 0; i < str.Length; i++) {
+                    char c = strPtr[i];
+                    switch (c) {
+                        case '\\':
+                            strBuilder.Append('\\');
+                            break;
+                        case '\n':
+                            strBuilder.Append("\\n");
+                            break;
+                        case '\r':
+                            strBuilder.Append("\\r");
+                            break;
+                        case '"':
+                            strBuilder.Append("\\\"");
+                            break;
+
+                        default:
+                            strBuilder.Append(c);
+                            break;
+                    }
                 }
             }
             return strBuilder.ToString();
@@ -94,6 +106,9 @@ namespace SE.Serialization
 
         internal static int GetUtf8Bytes(byte[] arr, string str)
             => Serializer.UTF8.GetBytes(str, 0, str.Length, arr, 0);
+
+        internal static int GetUtf8Bytes(Span<byte> arr, string str)
+            => Serializer.UTF8.GetBytes(str, arr);
 
         private static string GetPublicKeyTokenHexString(byte[] token)
             => (token == null || token.Length < 1)

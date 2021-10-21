@@ -18,13 +18,13 @@ namespace SE.Core
 
         public static UTF8Encoding UTF8 = new UTF8Encoding(false, false);
 
-        public static byte[] Serialize(object obj)
+        public static ReadOnlySpan<byte> Serialize(object obj)
             => Serialize(obj, DefaultSettings);
 
-        public static byte[] Serialize<T>(T obj)
+        public static ReadOnlySpan<byte> Serialize<T>(T obj)
             => Serialize(obj, DefaultSettings);
 
-        public static byte[] Serialize(object obj, SerializerSettings settings)
+        public static ReadOnlySpan<byte> Serialize(object obj, SerializerSettings settings)
         {
             if (obj == null)
                 return null;
@@ -38,7 +38,7 @@ namespace SE.Core
                     return null;
 
                 SerializeWriter(writer, obj, converter, ref task);
-                return writer.ToArray();
+                return writer.ToSpan();
             }
         }
 
@@ -78,7 +78,7 @@ namespace SE.Core
             }
         }
 
-        public static byte[] Serialize<T>(T obj, SerializerSettings settings)
+        public static ReadOnlySpan<byte> Serialize<T>(T obj, SerializerSettings settings)
         {
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
@@ -88,7 +88,7 @@ namespace SE.Core
             using (Utf8Writer writer = new Utf8Writer()) {
                 if (converterT != null) {
                     SerializeWriter(writer, obj, converterT, ref task);
-                    return writer.ToArray();
+                    return writer.ToSpan();
                 }
 
                 // Get non-generic converter if above fails.
@@ -97,7 +97,7 @@ namespace SE.Core
                     return null;
 
                 SerializeWriter(writer, obj, converter, ref task);
-                return writer.ToArray();
+                return writer.ToSpan();
             }
         }
 

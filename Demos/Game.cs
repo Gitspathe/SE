@@ -155,7 +155,8 @@ namespace SEDemos
                 //New serializer.
                 s.Start();
                 for (int z = 0; z < textIterations; z++) {
-                    byte[] bytes = Serializer.Serialize(textClass);
+                    ReadOnlySpan<byte> bytes2 = Serializer.Serialize(textClass);
+                    //FileIO.SaveFile(bytes2.ToArray(), "testNew.txt");
                 }
                 s.Stop();
                 long s1 = s.ElapsedMilliseconds;

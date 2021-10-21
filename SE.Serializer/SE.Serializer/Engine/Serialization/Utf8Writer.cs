@@ -43,6 +43,11 @@ namespace SE.Serialization
             return numArray;
         }
 
+        public ReadOnlySpan<byte> ToSpan()
+        {
+            return new ReadOnlySpan<byte>(buffer, 0, position);
+        }
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void SetLengthInternal(int newSize)
         {
@@ -159,11 +164,21 @@ namespace SE.Serialization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(string value)
         {
-            byte[] arr = ArrayPool<byte>.Shared.Rent(Encoding.UTF8.GetByteCount(value));
-            int bufferLength = SerializerUtil.GetUtf8Bytes(arr, value);
-            Write(bufferLength);
-            Write(arr, bufferLength);
-            ArrayPool<byte>.Shared.Return(arr);
+            byte[] poolArr = null;
+
+            int bytesCount = Encoding.UTF8.GetByteCount(value);
+            Span<byte> arr = bytesCount <= _STACK_ALLOC_THRESHOLD
+                ? stackalloc byte[bytesCount]
+                : ArrayPool<byte>.Shared.Rent(Encoding.UTF8.GetByteCount(value));
+            
+            int utf8BytesLength = SerializerUtil.GetUtf8Bytes(arr, value);
+
+            Write(utf8BytesLength);
+            Write(arr, utf8BytesLength);
+
+            if(poolArr != null) {
+                ArrayPool<byte>.Shared.Return(poolArr);
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -246,22 +261,10 @@ namespace SE.Serialization
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Write(byte[] value)
-        {
-            Write(value, 0, value.Length);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Write(byte[] value, int len)
-        {
-            Write(value, 0, len);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void WriteByteArray(byte[] value)
+        public void WriteByteArray(ReadOnlySpan<byte> value)
         {
             Write(value.Length);
-            Write(value, 0, value.Length);
+            Write(value, value.Length);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -342,6 +345,33 @@ namespace SE.Serialization
         {
             EnsureCapacity(count);
             Buffer.BlockCopy(buffer, offset, this.buffer, position, count);
+            position += count;
+        }
+
+        public void Write(ReadOnlySpan<byte> buffer, int offset, int count)
+        {
+            EnsureCapacity(count);
+            ReadOnlySpan<byte> source = buffer.Slice(offset, count);
+            Span<byte> dest = new Span<byte>(this.buffer, position, count);
+            source.CopyTo(dest);
+            position += count;
+        }
+
+        public void Write(ReadOnlySpan<byte> buffer, int count)
+        {
+            EnsureCapacity(count);
+            ReadOnlySpan<byte> source = buffer.Slice(0, count);
+            Span<byte> dest = new Span<byte>(this.buffer, position, count);
+            source.CopyTo(dest);
+            position += count;
+        }
+
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            int count = buffer.Length;
+            EnsureCapacity(count);
+            Span<byte> dest = new Span<byte>(this.buffer, position, count);
+            buffer.CopyTo(dest);
             position += count;
         }
 

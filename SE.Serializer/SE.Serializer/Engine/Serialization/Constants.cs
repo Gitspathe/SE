@@ -17,6 +17,8 @@ namespace SE.Serialization
         public const byte _TAB = (byte)' ';
         public const byte _STRING_IDENTIFIER = (byte)'"';
 
+        public const int _STACK_ALLOC_THRESHOLD = 256;
+
         public static readonly byte[] Tabs = { _TAB, _TAB };
         public static readonly byte[] NullValue = { (byte)'n', (byte)'u', (byte)'l', (byte)'l' };
         public static readonly byte[] NaN = { (byte)'N', (byte)'a', (byte)'N' };

@@ -1,5 +1,6 @@
 using SE.Core;
 using SE.Serialization.Resolvers;
+using SE.Serialization.Attributes;
 
 namespace SE.Serialization
 {
@@ -50,16 +51,16 @@ namespace SE.Serialization
     /// </summary>
     public enum ConvertBehaviour
     {
-        /// <summary>Only declaration order is stored with the data. This options is very fast but has lower resilience to parsing errors.
-        ///          It's recommended to use SerializeOrder attributes on variables with this setting.</summary>
+        /// <summary>Only declaration order is stored with the data. This options is fast but has lower resilience to parsing errors.
+        ///          It's recommended to use <see cref="SerializeAttribute"/> on variables with this setting.</summary>
         Order,
 
         /// <summary>Declaration order and name is stored with the data. Both are used during deserialization.
         ///          This option is the slowest, but has the highest resilience to parsing errors.</summary>
         NameAndOrder,
 
-        /// <summary>Intended for human-readable configuration files - ONLY the name is stored with the data. Cannot be used with binary.
-        ///          Unlike other conversion behaviors, this option can cause loss of data, as the order is not preserved.</summary>
+        /// <summary>Intended for human-readable configuration files - ONLY the name is stored with the data. 
+        ///          Cannot be used with binary. Has a low resilience to errors, as the order may not be preserved.</summary>
         Configuration
     }
 
@@ -84,9 +85,9 @@ namespace SE.Serialization
         ///          field/property type when possible. Faster and uses less space.</summary>
         Ignore,
 
-        /// <summary>Types are serialized into strings when an object's type does not exactly match it's field.
-        ///          Instantiated object types are inferred from the original field/property type OR
-        ///          serialized Type strings. Slower and uses more space, but almost always faster than <see cref="Always"/></summary>
+        /// <summary>Types are serialized into strings when an object's type does not match it's field, 
+        ///          such as when the object is polymorphic. Instantiated object types are inferred from the original 
+        ///          field/property type OR serialized Type strings. Slower and uses more space.</summary>
         Auto,
 
         /// <summary>Types are always serialized into strings. Instantiated object types are restored from serialized
@@ -118,9 +119,15 @@ namespace SE.Serialization
         Text
     }
 
+    /// <summary>
+    /// How much information the serializer includes when writing Type information.
+    /// </summary>
     public enum TypeNaming
     {
+        /// <summary>Minimum info - type and assembly name.</summary>
         Minimal,
+
+        /// <summary>Full info - type and assembly name, public key token.</summary>
         Full
     }
 }
