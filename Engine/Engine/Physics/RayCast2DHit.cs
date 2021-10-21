@@ -1,4 +1,4 @@
-﻿using SE.Common;
+using SE.Common;
 using SE.Components;
 using System;
 using System.Numerics;

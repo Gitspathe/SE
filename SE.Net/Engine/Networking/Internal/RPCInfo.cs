@@ -1,4 +1,4 @@
-﻿using SE.Engine.Networking.Attributes;
+using SE.Engine.Networking.Attributes;
 using System;
 
 namespace SE.Engine.Networking.Internal

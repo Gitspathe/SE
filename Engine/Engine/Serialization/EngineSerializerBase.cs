@@ -1,4 +1,4 @@
-﻿using FastMember;
+using FastMember;
 using SE.Core;
 using SE.Utility;
 using System;

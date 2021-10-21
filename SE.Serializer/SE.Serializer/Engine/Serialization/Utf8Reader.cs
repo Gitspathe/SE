@@ -1,4 +1,4 @@
-﻿using SE.Core;
+using SE.Core;
 using System;
 using System.Buffers;
 using System.Buffers.Text;
@@ -83,14 +83,14 @@ namespace SE.Serialization
 
                 // Handle escaped character if '\' is encountered.
                 // And break if '"' is encountered.
-                if(b == _ESCAPE) {
+                if (b == _ESCAPE) {
                     byte escapeChar = ReadByte();
                     if (SerializerUtil.IsEscapableChar(escapeChar)) {
                         EnsureCapacity();
                         buffer[position++] = ConvertEscapeToControl(escapeChar);
                         continue;
                     }
-                } else if(b == _STRING_IDENTIFIER) {
+                } else if (b == _STRING_IDENTIFIER) {
                     break;
                 }
 
@@ -102,7 +102,7 @@ namespace SE.Serialization
 
         private byte ConvertEscapeToControl(byte escapeChar)
         {
-            switch(escapeChar) {
+            switch (escapeChar) {
                 case (byte)'n':
                     return _NEW_LINE;
                 case (byte)'r':
@@ -210,9 +210,9 @@ namespace SE.Serialization
                     stream.Position -= 1;
                     break;
                 }
-                
+
                 bytes[index++] = (char)b;
-                
+
                 if (index > 3)
                     break;
             }

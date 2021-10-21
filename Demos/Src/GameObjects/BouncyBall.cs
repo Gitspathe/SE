@@ -1,4 +1,4 @@
-﻿using LiteNetLib.Utils;
+using LiteNetLib.Utils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
@@ -94,7 +94,7 @@ namespace SEDemos.GameObjects
         protected override void OnUpdate()
         {
             timer -= Time.DeltaTime;
-            if(timer <= 0.0f) {
+            if (timer <= 0.0f) {
                 Destroy();
                 return;
             }

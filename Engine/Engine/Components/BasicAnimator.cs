@@ -1,4 +1,4 @@
-﻿using SE.Animating;
+using SE.Animating;
 using SE.Common;
 using SE.Core;
 using System;

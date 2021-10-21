@@ -1,4 +1,4 @@
-﻿using SE.Serialization;
+using SE.Serialization;
 using SE.Serialization.Attributes;
 using SE.Serialization.Converters;
 using SE.Serialization.Resolvers;

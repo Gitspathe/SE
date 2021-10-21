@@ -1,4 +1,4 @@
-﻿using SE.AssetManagement.Processors;
+using SE.AssetManagement.Processors;
 using SE.Common;
 using SE.Core;
 using SE.Rendering;

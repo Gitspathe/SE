@@ -1,4 +1,4 @@
-﻿using ImGuiNET;
+using ImGuiNET;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace SE.Editor.ImGUI

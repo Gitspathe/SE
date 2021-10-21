@@ -1,4 +1,4 @@
-﻿using LiteNetLib.Utils;
+using LiteNetLib.Utils;
 using SE.Engine.Networking;
 using SE.Networking.Internal;
 using SE.Networking.Types;

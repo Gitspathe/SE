@@ -1,4 +1,4 @@
-﻿using SE.Common;
+using SE.Common;
 using SE.Components;
 using tainicom.Aether.Physics2D.Collision.Shapes;
 using tainicom.Aether.Physics2D.Dynamics;

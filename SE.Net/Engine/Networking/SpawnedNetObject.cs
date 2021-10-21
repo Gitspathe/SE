@@ -1,4 +1,4 @@
-﻿namespace SE.Engine.Networking
+namespace SE.Engine.Networking
 {
     public class SpawnedNetObject
     {

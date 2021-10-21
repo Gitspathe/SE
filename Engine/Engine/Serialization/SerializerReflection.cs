@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using SE.Attributes;
 using SE.Core.Extensions;
 using SE.Core.Internal;

@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using static SE.Core.Physics;
 using AetherVelocityConstraint = tainicom.Aether.Physics2D.Dynamics.Contacts.ContactVelocityConstraint;
 

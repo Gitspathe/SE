@@ -1,4 +1,4 @@
-﻿namespace SE.World
+namespace SE.World
 {
     /// <summary>
     /// IMPORTANT: SceneScripts must contain the default constructor (or no constructor).

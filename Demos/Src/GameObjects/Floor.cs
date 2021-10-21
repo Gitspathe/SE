@@ -1,4 +1,4 @@
-﻿using SE.Attributes;
+using SE.Attributes;
 using SE.Common;
 using SE.Components;
 using SE.Core;

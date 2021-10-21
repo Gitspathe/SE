@@ -1,4 +1,4 @@
-﻿using SE.Core;
+using SE.Core;
 using SE.Engine.Serialization;
 using System;
 using System.Collections.Generic;
@@ -57,7 +57,7 @@ namespace SE.Serialization.Converters
 
         public override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task)
         {
-            writer.Write((byte) enumDataType);
+            writer.Write((byte)enumDataType);
             switch (enumDataType) {
                 case EnumDataType.SByte:
                     writer.Write((sbyte)obj);
@@ -96,14 +96,15 @@ namespace SE.Serialization.Converters
             writer.WriteQuotedTextUtf8(Enum.GetName(TypeArguments[0], obj));
         }
 
-        public enum EnumDataType : byte {
-            SByte, 
-            Byte, 
-            Short, 
-            UShort, 
-            Int, 
-            UInt, 
-            Long, 
+        public enum EnumDataType : byte
+        {
+            SByte,
+            Byte,
+            Short,
+            UShort,
+            Int,
+            UInt,
+            Long,
             ULong
         }
     }
@@ -164,7 +165,7 @@ namespace SE.Serialization.Converters
 
                     case _END_ARRAY:
                         return SerializerArrayPool.Return(rentedArray);
-                    
+
                     default:
                         reader.BaseStream.Position -= 1;
                         rentedArray.Add(Serializer.DeserializeReader(reader, serializer, ref task));

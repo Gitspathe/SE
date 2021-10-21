@@ -1,4 +1,4 @@
-﻿//#if EDITOR
+//#if EDITOR
 //using Button = DeeZ.Engine.UI.Button;
 //using System;
 //using System.Collections.Generic;

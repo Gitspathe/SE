@@ -1,4 +1,4 @@
-﻿using SE.Lighting;
+using SE.Lighting;
 
 namespace SE.Rendering
 {

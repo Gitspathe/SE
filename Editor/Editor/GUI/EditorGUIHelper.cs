@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SE.Editor.GUI.ValueDrawers;
 using SE.Serialization;

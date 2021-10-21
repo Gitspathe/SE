@@ -1,4 +1,4 @@
-﻿using FastMember;
+using FastMember;
 using SE.Core;
 using SE.Serialization.Attributes;
 using SE.Serialization.Exceptions;
@@ -324,7 +324,7 @@ namespace SE.Serialization.Converters
                     continue;
                 } catch (Exception) { /* ignored */ }
 
-                // Step 2: Attempt to deserialize based on declaration order.
+            // Step 2: Attempt to deserialize based on declaration order.
             Step2:
                 try {
                     stream.Position = startIndex;
@@ -337,8 +337,8 @@ namespace SE.Serialization.Converters
                     break;
                 } catch (Exception) { /* ignored */ }
 
-                // Step 3: Failed. Skip to next node.
-                // Note that binary error handling is unstable due to limitations.
+            // Step 3: Failed. Skip to next node.
+            // Note that binary error handling is unstable due to limitations.
             failed:
                 try {
                     stream.Position = startIndex;
@@ -509,7 +509,7 @@ namespace SE.Serialization.Converters
                     break;
                 } catch (Exception) { /* ignored */ }
 
-                // Step 2: Failed, try to parse via index.
+            // Step 2: Failed, try to parse via index.
             Step2:
                 if (readIndex == null)
                     goto Failed;
@@ -695,7 +695,7 @@ namespace SE.Serialization.Converters
                 byte b = reader.ReadByte();
                 stream.Position -= 1;
 
-                if(IsControlCharOrWhitespace(b)) {
+                if (IsControlCharOrWhitespace(b)) {
                     stream.Position += 1;
                     return true;
                 }

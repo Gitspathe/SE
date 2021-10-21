@@ -1,4 +1,4 @@
-﻿using SE.Components;
+using SE.Components;
 using SE.World.Partitioning;
 
 namespace SE.Rendering

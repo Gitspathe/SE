@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using SE.AssetManagement;
 using SE.Common;
 using SE.Components;

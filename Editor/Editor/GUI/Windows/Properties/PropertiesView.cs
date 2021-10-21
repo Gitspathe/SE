@@ -1,4 +1,4 @@
-﻿namespace SE.Editor.GUI.Windows.Properties
+namespace SE.Editor.GUI.Windows.Properties
 {
     public abstract class PropertiesView<T> : GUIObject, IPropertiesView
     {

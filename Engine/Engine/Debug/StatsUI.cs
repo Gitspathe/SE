@@ -1,4 +1,4 @@
-﻿using LiteNetLib;
+using LiteNetLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SE.Core;

@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.Core.Exceptions;
 using System;

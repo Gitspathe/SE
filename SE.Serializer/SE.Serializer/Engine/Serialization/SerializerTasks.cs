@@ -1,4 +1,4 @@
-﻿namespace SE.Serialization
+namespace SE.Serialization
 {
     // TODO: Reference loop handling.
     public ref struct SerializeTask

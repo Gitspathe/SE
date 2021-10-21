@@ -1,4 +1,4 @@
-﻿//#if EDITOR
+//#if EDITOR
 //using DeeZ.Core;
 //using DeeZ.Editor.Debug.GameObjects;
 //using DeeZ.Editor.UI;

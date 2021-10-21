@@ -1,4 +1,4 @@
-﻿using SE.Common;
+using SE.Common;
 using SE.Components;
 using AetherContact = tainicom.Aether.Physics2D.Dynamics.Contacts.Contact;
 

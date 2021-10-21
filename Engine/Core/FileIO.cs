@@ -1,4 +1,4 @@
-﻿using SE.Utility;
+using SE.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;

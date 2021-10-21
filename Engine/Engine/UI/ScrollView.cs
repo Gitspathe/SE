@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using SE.Common;
 using SE.Core;
 using SE.UI.Events;

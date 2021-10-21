@@ -1,4 +1,4 @@
-﻿using SE.Components;
+using SE.Components;
 using System.Collections.Generic;
 
 namespace SE.World

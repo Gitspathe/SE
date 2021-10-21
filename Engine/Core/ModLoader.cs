@@ -1,4 +1,4 @@
-﻿using SE.Modding;
+using SE.Modding;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

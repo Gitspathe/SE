@@ -1,4 +1,4 @@
-﻿using SE.World;
+using SE.World;
 using SEDemos.GameObjects.UI;
 
 namespace SEDemos.Levels

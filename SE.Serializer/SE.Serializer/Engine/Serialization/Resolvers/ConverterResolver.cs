@@ -1,4 +1,4 @@
-﻿using SE.Serialization.Converters;
+using SE.Serialization.Converters;
 using System;
 using System.Collections.Generic;
 

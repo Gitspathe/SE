@@ -1,4 +1,4 @@
-﻿using SE.Utility;
+using SE.Utility;
 using System.Collections.Generic;
 
 namespace SE.Serialization.Ini.Parser

@@ -1,4 +1,4 @@
-﻿using SE.Engine.Networking.Packets;
+using SE.Engine.Networking.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;

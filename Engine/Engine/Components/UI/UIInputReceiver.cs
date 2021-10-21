@@ -1,4 +1,4 @@
-﻿using SE.Core;
+using SE.Core;
 using System;
 
 namespace SE.Components.UI

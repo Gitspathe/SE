@@ -1,7 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SE.Serialization.Attributes;
-using SE.Serializer;
-using SE.Core;
 using System.IO;
 
 namespace SE.Serializer.Tests

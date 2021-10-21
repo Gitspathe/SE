@@ -1,4 +1,4 @@
-﻿using SE.Attributes;
+using SE.Attributes;
 using SE.Core;
 using SE.Core.Internal;
 using SE.Serialization;

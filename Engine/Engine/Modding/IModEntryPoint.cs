@@ -1,4 +1,4 @@
-﻿namespace SE.Modding
+namespace SE.Modding
 {
     /// <summary>
     /// Represents the entry point for a modification.

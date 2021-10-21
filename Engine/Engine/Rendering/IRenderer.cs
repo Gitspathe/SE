@@ -1,4 +1,4 @@
-﻿namespace SE.Rendering
+namespace SE.Rendering
 {
     public interface IRenderer
     {

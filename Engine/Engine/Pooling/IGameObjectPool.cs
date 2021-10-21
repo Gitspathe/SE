@@ -1,4 +1,4 @@
-﻿using SE.Common;
+using SE.Common;
 
 namespace SE.Pooling
 {

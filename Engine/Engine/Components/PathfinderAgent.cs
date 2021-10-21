@@ -1,4 +1,4 @@
-﻿using SE.Common;
+using SE.Common;
 using SE.Core;
 using SE.Core.Extensions;
 using SE.Physics;

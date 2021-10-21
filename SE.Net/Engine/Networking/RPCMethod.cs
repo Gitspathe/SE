@@ -1,4 +1,4 @@
-﻿using LiteNetLib;
+using LiteNetLib;
 
 namespace SE.Engine.Networking
 {

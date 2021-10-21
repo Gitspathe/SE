@@ -1,4 +1,4 @@
-﻿using LiteNetLib.Utils;
+using LiteNetLib.Utils;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Engine.Networking

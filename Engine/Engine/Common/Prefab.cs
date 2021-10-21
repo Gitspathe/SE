@@ -1,4 +1,4 @@
-﻿using SE.AssetManagement;
+using SE.AssetManagement;
 using SE.AssetManagement.Processors;
 
 namespace SE.Common

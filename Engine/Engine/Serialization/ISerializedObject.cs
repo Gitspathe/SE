@@ -1,4 +1,4 @@
-﻿namespace SE.Serialization
+namespace SE.Serialization
 {
     public interface ISerializedObject { }
 }

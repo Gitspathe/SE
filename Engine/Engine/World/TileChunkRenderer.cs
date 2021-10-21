@@ -1,4 +1,4 @@
-﻿using SE.Rendering;
+using SE.Rendering;
 
 namespace SE.World
 {

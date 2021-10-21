@@ -1,4 +1,4 @@
-﻿namespace SE.Serialization.Exceptions
+namespace SE.Serialization.Exceptions
 {
     public class ReferenceLoopException : SerializerException
     {

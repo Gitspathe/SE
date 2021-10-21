@@ -1,4 +1,4 @@
-﻿#if EDITOR
+#if EDITOR
 using SE.Debug.Commands;
 using System;
 

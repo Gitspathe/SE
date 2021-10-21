@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Audio;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Audio

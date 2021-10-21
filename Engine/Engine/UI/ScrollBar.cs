@@ -1,4 +1,4 @@
-﻿#if EDITOR
+#if EDITOR
 #endif
 using Microsoft.Xna.Framework;
 using SE.AssetManagement;

@@ -1,4 +1,4 @@
-﻿using SE.Core;
+using SE.Core;
 using tainicom.Aether.Physics2D;
 using tainicom.Aether.Physics2D.Common;
 using static SE.Core.Physics;

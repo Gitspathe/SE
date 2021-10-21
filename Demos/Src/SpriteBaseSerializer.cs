@@ -1,4 +1,4 @@
-﻿using SE.Components;
+using SE.Components;
 using SE.Serialization;
 
 namespace SEDemos

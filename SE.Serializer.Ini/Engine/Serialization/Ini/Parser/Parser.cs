@@ -1,4 +1,4 @@
-﻿namespace SE.Serialization.Ini.Parser
+namespace SE.Serialization.Ini.Parser
 {
     public interface IIniParser
     {

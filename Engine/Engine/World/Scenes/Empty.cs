@@ -1,4 +1,4 @@
-﻿namespace SE.World.Scenes
+namespace SE.World.Scenes
 {
     public class Empty : SceneScript
     {

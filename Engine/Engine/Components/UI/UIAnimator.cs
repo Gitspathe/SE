@@ -1,4 +1,4 @@
-﻿using SE.Animating;
+using SE.Animating;
 
 namespace SE.Components.UI
 {

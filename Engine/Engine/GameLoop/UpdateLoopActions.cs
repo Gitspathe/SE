@@ -1,4 +1,4 @@
-﻿using SE.Common;
+using SE.Common;
 using SE.Core;
 using System.Buffers;
 

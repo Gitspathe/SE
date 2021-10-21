@@ -1,4 +1,4 @@
-﻿#if EDITOR
+#if EDITOR
 using SE.Components.UI;
 
 namespace SE.Editor.Components.UI

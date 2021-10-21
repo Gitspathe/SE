@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Audio;
 using SE.Audio;
 using SE.Common;
 using System.Collections.Generic;

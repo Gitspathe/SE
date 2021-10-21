@@ -1,4 +1,4 @@
-﻿using SE.Core;
+using SE.Core;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -68,7 +68,7 @@ namespace SE.Serialization
         public static string EscapeString(string str)
         {
             strBuilder.Clear();
-            for(int i = 0; i < str.Length; i++) {
+            for (int i = 0; i < str.Length; i++) {
                 char c = str[i];
                 switch (c) {
                     case '\\':
@@ -106,7 +106,7 @@ namespace SE.Serialization
             while (true) {
                 if (baseStream.Position + 1 > baseStream.Length)
                     return false;
-                
+
                 byte b = reader.ReadByte();
                 switch (b) {
 

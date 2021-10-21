@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SE.Common;
 using SE.Serialization;
 using SE.Utility;

@@ -1,4 +1,4 @@
-﻿using SE.Components;
+using SE.Components;
 using SE.Components.Network;
 using SE.Core;
 using SE.Core.Internal;

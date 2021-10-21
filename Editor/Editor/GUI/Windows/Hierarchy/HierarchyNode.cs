@@ -1,4 +1,4 @@
-﻿using ImGuiNET;
+using ImGuiNET;
 using SE.Common;
 using SE.Core;
 using SE.Core.Extensions;

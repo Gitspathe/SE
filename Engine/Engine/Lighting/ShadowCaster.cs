@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Penumbra;
 using SE.Core;
 using SE.World.Partitioning;

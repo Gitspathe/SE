@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using static SE.Core.Physics;
 using AetherRaycastInput = tainicom.Aether.Physics2D.Collision.RayCastInput;
 

@@ -1,4 +1,4 @@
-﻿namespace SE.Modding
+namespace SE.Modding
 {
     /// <summary>
     /// Contains metadata for modifications.

@@ -1,4 +1,4 @@
-﻿#if EDITOR
+#if EDITOR
 using Microsoft.Xna.Framework;
 using SE.Core;
 using SE.Debug.Commands;

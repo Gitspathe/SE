@@ -1,4 +1,4 @@
-﻿using SE.Serialization.Ini.Parser;
+using SE.Serialization.Ini.Parser;
 
 namespace SE.Core
 {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SE.Debug.Commands

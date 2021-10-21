@@ -1,4 +1,4 @@
-﻿namespace SE
+namespace SE
 {
     internal static class EngineUtility
     {

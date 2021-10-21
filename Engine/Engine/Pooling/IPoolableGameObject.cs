@@ -1,4 +1,4 @@
-﻿namespace SE.Pooling
+namespace SE.Pooling
 {
     public interface IPoolableGameObject : IPoolable
     {

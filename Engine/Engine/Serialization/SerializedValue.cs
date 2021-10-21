@@ -1,4 +1,4 @@
-﻿using FastMember;
+using FastMember;
 using System;
 
 namespace SE.Serialization

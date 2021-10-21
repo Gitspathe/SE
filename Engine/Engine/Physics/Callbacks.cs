@@ -1,4 +1,4 @@
-﻿namespace SE.Physics
+namespace SE.Physics
 {
 
     public delegate bool OnCollisionEventHandler(Fixture sender, Fixture other, Contact contact);

@@ -1,4 +1,4 @@
-﻿using SE.Utility;
+using SE.Utility;
 
 namespace SE.AssetManagement.SpritePacking
 {

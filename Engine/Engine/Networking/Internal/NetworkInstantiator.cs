@@ -1,4 +1,4 @@
-﻿using SE.Engine.Networking;
+using SE.Engine.Networking;
 using System;
 using static SE.Core.Network;
 using Vector2 = System.Numerics.Vector2;

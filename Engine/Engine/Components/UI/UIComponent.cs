@@ -1,4 +1,4 @@
-﻿using SE.Common;
+using SE.Common;
 using SE.UI;
 
 namespace SE.Components.UI

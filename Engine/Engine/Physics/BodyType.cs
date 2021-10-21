@@ -1,4 +1,4 @@
-﻿namespace SE.Physics
+namespace SE.Physics
 {
     /// <summary>
     /// The body type.

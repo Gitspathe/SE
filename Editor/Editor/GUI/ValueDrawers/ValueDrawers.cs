@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Xna.Framework;
 using SE.Utility;
 using Vector2 = System.Numerics.Vector2;

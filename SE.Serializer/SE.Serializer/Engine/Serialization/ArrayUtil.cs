@@ -1,8 +1,6 @@
-﻿using SE.Utility;
+using SE.Utility;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SE.Engine.Serialization
 {
@@ -12,12 +10,12 @@ namespace SE.Engine.Serialization
 
         public static RentableArray Rent(Type arrayType, int minSize)
         {
-            if(!arrays.TryGetValue(arrayType, out QuickList<RentableArray> list)) {
+            if (!arrays.TryGetValue(arrayType, out QuickList<RentableArray> list)) {
                 list = new QuickList<RentableArray>();
                 arrays.Add(arrayType, list);
             }
 
-            if(list.Count == 0) {
+            if (list.Count == 0) {
                 list.Add(new RentableArray(arrayType, minSize));
             }
 
@@ -28,7 +26,7 @@ namespace SE.Engine.Serialization
 
         public static Array Return(RentableArray array)
         {
-            if(!arrays.TryGetValue(array.ArrayType, out QuickList<RentableArray> val)) {
+            if (!arrays.TryGetValue(array.ArrayType, out QuickList<RentableArray> val)) {
                 throw new Exception("Array not found in pool.");
             }
 
@@ -59,7 +57,7 @@ namespace SE.Engine.Serialization
 
         public void Clear()
         {
-            for(int i = 0; i < Count; i++) { 
+            for (int i = 0; i < Count; i++) {
                 array.SetValue(null, i);
             }
         }
@@ -73,7 +71,7 @@ namespace SE.Engine.Serialization
 
         private void EnsureCapacity()
         {
-            if(Count + 1 > array.Length) {
+            if (Count + 1 > array.Length) {
                 Resize();
             }
         }

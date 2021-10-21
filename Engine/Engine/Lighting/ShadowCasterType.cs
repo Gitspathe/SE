@@ -1,4 +1,4 @@
-﻿namespace SE.Lighting
+namespace SE.Lighting
 {
 
     public enum ShadowCasterType

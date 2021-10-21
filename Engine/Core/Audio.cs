@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using SE.Audio;
 using Vector2 = System.Numerics.Vector2;
 

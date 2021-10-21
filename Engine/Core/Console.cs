@@ -1,4 +1,4 @@
-﻿#if EDITOR
+#if EDITOR
 using SE.Editor.Debug.Commands;
 using SE.Editor.Debug.Commands.LevelEdit;
 #endif

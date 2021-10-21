@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Console = SE.Core.Console;
 
 namespace SE.Debug.Commands

@@ -1,4 +1,4 @@
-﻿using SE.Core;
+using SE.Core;
 using System.Collections.Generic;
 
 namespace SE.GameLoop

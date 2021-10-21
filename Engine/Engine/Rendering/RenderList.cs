@@ -1,4 +1,4 @@
-﻿using SE.Utility;
+using SE.Utility;
 using System.Runtime.CompilerServices;
 
 namespace SE.Rendering
