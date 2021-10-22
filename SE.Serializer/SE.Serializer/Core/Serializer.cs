@@ -187,15 +187,15 @@ namespace SE.Core
             return settings.TypeHandling != TypeHandling.Auto || objType != defaultType;
         }
 
-        internal static void WriteMetaText(Utf8Writer writer, SerializerSettings settings, string objTypeName, int? id)
+        internal static void WriteMetaText(Utf8Writer writer, SerializerSettings settings, string objTypeName, int? id, int? reference)
         {
-            if (objTypeName == null && id == null)
+            if (objTypeName == null && id == null && reference == null)
                 return;
 
             writer.Write(_BEGIN_META);
             bool writeComma = false;
             if (objTypeName != null) {
-                writer.WriteQuotedTextUtf8("$type");
+                writer.WriteQuotedTextUtf8("type");
                 writer.Write(_BEGIN_VALUE);
                 writer.WriteQuotedTextUtf8(objTypeName);
                 writeComma = true;
@@ -204,16 +204,24 @@ namespace SE.Core
                 if (writeComma) {
                     writer.Write((byte)',');
                 }
-                writer.WriteQuotedTextUtf8("$id");
+                writer.WriteQuotedTextUtf8("id");
                 writer.Write(_BEGIN_VALUE);
                 writer.WriteUtf8(id.Value);
+            }
+            if(reference != null) {
+                if (writeComma) {
+                    writer.Write((byte)',');
+                }
+                writer.WriteQuotedTextUtf8("ref");
+                writer.Write(_BEGIN_VALUE);
+                writer.WriteUtf8(reference.Value);
             }
             writer.Write(_END_META);
         }
 
-        internal static void WriteMetaBinary(Utf8Writer writer, SerializerSettings settings, string objTypeName, int? id)
+        internal static void WriteMetaBinary(Utf8Writer writer, SerializerSettings settings, string objTypeName, int? id, int? reference)
         {
-            if (objTypeName == null && id == null)
+            if (objTypeName == null && id == null && reference == null)
                 return;
 
             writer.Write(_BEGIN_META);
@@ -225,13 +233,18 @@ namespace SE.Core
                 writer.Write((byte)MetaBinaryIDs.ID);
                 writer.Write(id.Value);
             }
+            if(reference != null) {
+                writer.Write((byte)MetaBinaryIDs.Ref);
+                writer.Write(reference.Value);
+            }
             writer.Write(_END_META);
         }
 
-        internal static bool TryReadMetaBinary(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id)
+        internal static bool TryReadMetaBinary(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id, out int? reference)
         {
             valueType = null;
             id = null;
+            reference = null;
 
             while (true) {
                 byte b = reader.ReadByte();
@@ -258,6 +271,10 @@ namespace SE.Core
                         id = reader.ReadInt32();
                     }
                     break;
+                    case (byte)MetaBinaryIDs.Ref: {
+                        reference = reader.ReadInt32();
+                    }
+                    break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -268,10 +285,11 @@ namespace SE.Core
             }
         }
 
-        internal static bool TryReadMetaText(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id)
+        internal static bool TryReadMetaText(Utf8Reader reader, SerializerSettings settings, out string valueType, out int? id, out int? reference)
         {
             valueType = null;
             id = null;
+            reference = null;
 
             while (true) {
                 byte b = reader.ReadByte();
@@ -290,16 +308,22 @@ namespace SE.Core
             while (true) {
                 string str = reader.ReadQuotedString();
                 switch (str) {
-                    case "$type": {
+                    case "type": {
                         reader.BaseStream.Position += 1;
                         reader.SkipWhiteSpace();
                         valueType = reader.ReadQuotedString();
                     }
                     break;
-                    case "$id": {
+                    case "id": {
                         reader.BaseStream.Position += 1;
                         reader.SkipWhiteSpace();
                         id = reader.ReadIntUtf8();
+                    }
+                    break;
+                    case "ref": {
+                        reader.BaseStream.Position += 1;
+                        reader.SkipWhiteSpace();
+                        reference = reader.ReadIntUtf8();
                     }
                     break;
                     default:
@@ -329,6 +353,7 @@ namespace SE.Core
     public enum MetaBinaryIDs : byte
     {
         ValueType = 1,
-        ID = 2
+        ID = 2,
+        Ref = 3
     }
 }

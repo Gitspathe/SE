@@ -169,7 +169,7 @@ namespace SE.Serialization
             int bytesCount = Encoding.UTF8.GetByteCount(value);
             Span<byte> arr = bytesCount <= _STACK_ALLOC_THRESHOLD
                 ? stackalloc byte[bytesCount]
-                : ArrayPool<byte>.Shared.Rent(Encoding.UTF8.GetByteCount(value));
+                : (poolArr = ArrayPool<byte>.Shared.Rent(Encoding.UTF8.GetByteCount(value)));
             
             int utf8BytesLength = SerializerUtil.GetUtf8Bytes(arr, value);
 

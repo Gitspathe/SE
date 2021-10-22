@@ -23,6 +23,8 @@ namespace SE.Serialization
         public TypeNaming TypeNaming = TypeNaming.Minimal;
         /// <summary>How the serializer behaves when encountering a recursive loop of references.</summary>
         public ReferenceLoopHandling ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        /// <summary>TODO comment</summary>
+        public ReferenceHandling ReferenceHandling = ReferenceHandling.Preserve;
         /// <summary>How many levels deep the serializer will process.</summary>
         public int MaxDepth = 10;
 
@@ -105,6 +107,13 @@ namespace SE.Serialization
 
         /// <summary>Reference loops will throw an error when detected.</summary>
         Error
+    }
+
+    public enum ReferenceHandling
+    {
+        Ignore,
+
+        Preserve
     }
 
     /// <summary>

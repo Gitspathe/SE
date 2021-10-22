@@ -149,15 +149,44 @@ namespace SEDemos
 
             for (int i = 0; i < innerTextIterations; i++) {
                 TestTextClass textClass = new TestTextClass();
+                TestTextClass.Inner.InnerInner.InnerInnerInner test = new TestTextClass.Inner.InnerInner.InnerInnerInner();
+                var inner = new TestTextClass.Inner();
+                var inner2 = new TestTextClass.Inner();
+                var inner3 = new TestTextClass.Inner();
+                var inner4 = new TestTextClass.Inner();
+
+                inner.innerInner.inner1 = test;
+                inner.innerInner.inner2 = test;
+                inner.innerInner.inner3 = test;
+                inner.innerInner.inner4 = test;
+
+                inner2.innerInner.inner1 = test;
+                inner2.innerInner.inner2 = test;
+                inner2.innerInner.inner3 = test;
+                inner2.innerInner.inner4 = test;
+
+                inner3.innerInner.inner1 = test;
+                inner3.innerInner.inner2 = test;
+                inner3.innerInner.inner3 = test;
+                inner3.innerInner.inner4 = test;
+
+                inner4.innerInner.inner1 = test;
+                inner4.innerInner.inner2 = test;
+                inner4.innerInner.inner3 = test;
+                inner4.innerInner.inner4 = test;
+
+                var innerInner = new[] { inner, inner2, inner3, inner4 };
+
+                textClass.inner = innerInner;
 
                 Stopwatch s = new Stopwatch();
 
                 //New serializer.
                 s.Start();
-                for (int z = 0; z < textIterations; z++) {
+                //for (int z = 0; z < textIterations; z++) {
                     ReadOnlySpan<byte> bytes2 = Serializer.Serialize(textClass);
-                    //FileIO.SaveFile(bytes2.ToArray(), "testNew.txt");
-                }
+                    FileIO.SaveFile(bytes2.ToArray(), "testNew.txt");
+                //}
                 s.Stop();
                 long s1 = s.ElapsedMilliseconds;
 
@@ -171,8 +200,8 @@ namespace SEDemos
                 long s2 = s.ElapsedMilliseconds;
 
                 string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
-                SE.Core.Console.WriteLine($"Serializer benchmark ({textIterations} iterations, measured in ms):");
-                SE.Core.Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
+                //SE.Core.Console.WriteLine($"Serializer benchmark ({textIterations} iterations, measured in ms):");
+                //SE.Core.Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
             }
 
             //long bytesBefore = GC.GetTotalMemory(true);
@@ -207,7 +236,7 @@ namespace SEDemos
 
             public Lelz exampleEnum { get; set; } = Lelz.EnumValue1;
 
-            public Inner[] inner { get; set; } = { new Inner(), new Inner(), new Inner() };
+            public Inner[] inner { get; set; }
 
             [JsonObject(MemberSerialization.OptOut)]
             [SerializeObject(ObjectSerialization.Fields)]
@@ -222,10 +251,17 @@ namespace SEDemos
                 [SerializeObject(ObjectSerialization.Fields)]
                 public class InnerInner
                 {
-                    public int innerExample { get; set; } = 20;
-                    public int innerExample2 { get; set; } = 25;
-                    public string testString { get; set; } = "This is a string.";
-                    public bool testBool { get; set; } = true;
+                    public InnerInnerInner inner1 { get; set; } = new InnerInnerInner();
+                    public InnerInnerInner inner2 { get; set; } = new InnerInnerInner();
+                    public InnerInnerInner inner3 { get; set; } = new InnerInnerInner();
+                    public InnerInnerInner inner4 { get; set; } = new InnerInnerInner();
+
+                    [JsonObject(MemberSerialization.OptOut)]
+                    [SerializeObject(ObjectSerialization.Fields)]
+                    public class InnerInnerInner
+                    {
+                        public int x = 5;
+                    }
                 }
             }
 
