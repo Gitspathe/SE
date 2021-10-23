@@ -36,8 +36,7 @@ namespace SE.Serialization
                    .Append(type.FullName)
                    .Append(", ")
                    .Append(assemblyName.Name)
-                   .Append(", ")
-                   .Append("PublicKeyToken=")
+                   .Append(", PublicKeyToken=")
                    .Append(publicKeyTokenStr);
             }
 

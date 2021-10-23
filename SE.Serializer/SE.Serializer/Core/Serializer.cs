@@ -65,16 +65,22 @@ namespace SE.Core
             if (increment && task.CurrentDepth > task.Settings.MaxDepth)
                 return;
 
-            SerializeTask clone = task.Clone(increment ? 1 : 0);
+            task.CurrentParameterIndex = 0;
+            if (increment) {
+                task.CurrentDepth++;
+            }
             switch (task.Settings.Formatting) {
                 case Formatting.Binary:
-                    converter.SerializeBinary(obj, writer, ref clone);
+                    converter.SerializeBinary(obj, writer, ref task);
                     break;
                 case Formatting.Text:
-                    converter.SerializeText(obj, writer, ref clone);
+                    converter.SerializeText(obj, writer, ref task);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+            if (increment) {
+                task.CurrentDepth--;
             }
         }
 
@@ -106,16 +112,22 @@ namespace SE.Core
             if (increment && task.CurrentDepth > task.Settings.MaxDepth)
                 return;
 
-            SerializeTask clone = task.Clone(increment ? 1 : 0);
+            task.CurrentParameterIndex = 0;
+            if (increment) {
+                task.CurrentDepth++;
+            }
             switch (task.Settings.Formatting) {
                 case Formatting.Binary:
-                    serializer.SerializeBinary(obj, writer, ref clone);
+                    serializer.SerializeBinary(obj, writer, ref task);
                     break;
                 case Formatting.Text:
-                    serializer.SerializeText(obj, writer, ref clone);
+                    serializer.SerializeText(obj, writer, ref task);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+            if (increment) {
+                task.CurrentDepth--;
             }
         }
 
@@ -329,6 +341,7 @@ namespace SE.Core
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+                reader.BackOne();
                 if (reader.ReadByte() == _END_META) {
                     return true;
                 }

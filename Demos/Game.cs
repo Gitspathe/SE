@@ -19,6 +19,7 @@ using SEDemos.GameObjects;
 using SEDemos.GameObjects.UI;
 using System;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 using DisplayMode = SE.DisplayMode;
 using MemberSerialization = Newtonsoft.Json.MemberSerialization;
 using Vector2 = System.Numerics.Vector2;
@@ -90,7 +91,9 @@ namespace SEDemos
             }
 
             System.Text.Json.JsonSerializerOptions textJsonOptions = new System.Text.Json.JsonSerializerOptions() {
-                WriteIndented = true
+                WriteIndented = true,
+                ReferenceHandler = ReferenceHandler.Preserve, 
+                DefaultIgnoreCondition = JsonIgnoreCondition.Never
             };
 
             //string test = FileIO.ReadFileString("testIni.ini");
@@ -183,10 +186,10 @@ namespace SEDemos
 
                 //New serializer.
                 s.Start();
-                //for (int z = 0; z < textIterations; z++) {
+                for (int z = 0; z < textIterations; z++) {
                     ReadOnlySpan<byte> bytes2 = Serializer.Serialize(textClass);
-                    FileIO.SaveFile(bytes2.ToArray(), "testNew.txt");
-                //}
+                    //FileIO.SaveFile(bytes2.ToArray(), "testNew.txt");
+                }
                 s.Stop();
                 long s1 = s.ElapsedMilliseconds;
 
@@ -195,13 +198,14 @@ namespace SEDemos
                 s.Start();
                 for (int z = 0; z < textIterations; z++) {
                     string bytes = System.Text.Json.JsonSerializer.Serialize(textClass, textJsonOptions);
+                    //FileIO.SaveFile(bytes, "testNewSystemJson.txt");
                 }
                 s.Stop();
                 long s2 = s.ElapsedMilliseconds;
 
                 string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
-                //SE.Core.Console.WriteLine($"Serializer benchmark ({textIterations} iterations, measured in ms):");
-                //SE.Core.Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
+                SE.Core.Console.WriteLine($"Serializer benchmark ({textIterations} iterations, measured in ms):");
+                SE.Core.Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
             }
 
             //long bytesBefore = GC.GetTotalMemory(true);
@@ -260,7 +264,7 @@ namespace SEDemos
                     [SerializeObject(ObjectSerialization.Fields)]
                     public class InnerInnerInner
                     {
-                        public int x = 5;
+                        public int x { get; set; } = 5;
                     }
                 }
             }

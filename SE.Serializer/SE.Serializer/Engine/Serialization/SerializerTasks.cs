@@ -1,37 +1,29 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace SE.Serialization
 {
-
-    internal class SharedSerializeTaskData
-    {
-        // TODO: Object reference handling.
-        public Dictionary<object, ObjectRef> ObjectRefs;
-        public int curReference;
-    }
-
-    // TODO: Reference loop handling.
     public ref struct SerializeTask
     {
         public SerializerSettings Settings;
+        public int CurrentDepth;
+        public int CurrentParameterIndex;
 
-        internal int CurrentDepth;
-        internal int CurrentParameterIndex;
-
-        internal SharedSerializeTaskData Data;
+        public Dictionary<object, ObjectRef> ObjectRefs;
+        public int curReference;
 
         internal bool TryGetObjectRef(object obj, out ObjectRef id)
         {
-            return Data.ObjectRefs.TryGetValue(obj, out id);
+            return ObjectRefs.TryGetValue(obj, out id);
         }
 
         internal bool AddReference(object obj, ObjectRef objRef)
         {
-            if (Data.ObjectRefs.ContainsKey(obj)) {
+            if (ObjectRefs.ContainsKey(obj)) {
                 return false;
             }
 
-            Data.ObjectRefs.Add(obj, objRef);
+            ObjectRefs.Add(obj, objRef);
             return true;
         }
 
@@ -40,22 +32,11 @@ namespace SE.Serialization
             CurrentDepth = 0;
             CurrentParameterIndex = 0;
             Settings = settings;
-            Data = new SharedSerializeTaskData();
-            Data.curReference = 0;
-            Data.ObjectRefs = null;
+            curReference = 0;
+            ObjectRefs = null;
             if(settings.ReferenceHandling == ReferenceHandling.Preserve) {
-                Data.ObjectRefs = new Dictionary<object, ObjectRef>();
+                ObjectRefs = new Dictionary<object, ObjectRef>();
             }
-        }
-
-        public SerializeTask Clone(int incrementDepth = 1)
-        {
-            SerializeTask copy = new SerializeTask {
-                CurrentDepth = CurrentDepth + incrementDepth,
-                Settings = Settings,
-                Data = Data
-            };
-            return copy;
         }
     }
 

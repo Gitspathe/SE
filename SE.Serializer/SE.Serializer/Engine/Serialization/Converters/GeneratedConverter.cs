@@ -444,7 +444,8 @@ namespace SE.Serialization.Converters
 
                     // Grab name, and attempt to get the node based on it. If no node is found, goto Failed.
                     reader.SkipWhiteSpace();
-                    string name = reader.ReadTo(_BEGIN_VALUE);
+                    string name = reader.ReadQuotedString();
+                    reader.BaseStream.Position += 1;
                     reader.SkipWhiteSpace();
                     if (!nodesDictionary.TryGetValue(name, out Node node))
                         goto Failed;
@@ -497,7 +498,8 @@ namespace SE.Serialization.Converters
 
                     // Grab name, and attempt to get the node based on it. If no node is found, goto Failed.
                     reader.SkipWhiteSpace();
-                    string name = reader.ReadTo(_BEGIN_VALUE);
+                    string name = reader.ReadQuotedString();
+                    reader.BaseStream.Position += 1;
                     if (!nodesDictionary.TryGetValue(name, out Node node))
                         goto Step2;
 
@@ -754,19 +756,23 @@ namespace SE.Serialization.Converters
                 Type = type;
                 isValueType = type.IsValueType;
                 Default = defaultVal;
-                precompiledName = Serializer.UTF8.GetBytes(Name + (char)_BEGIN_VALUE + ' ');
+                precompiledName = Serializer.UTF8.GetBytes((char)_STRING_IDENTIFIER + Name + (char)_STRING_IDENTIFIER + (char)_BEGIN_VALUE + ' ');
 
-                // Precompiled name with meta index.
+                // Precompiled names with meta index.
                 byte[] tmpByteArr = ArrayPool<byte>.Shared.Rent(5);
                 Span<byte> indexSpan = new Span<byte>(tmpByteArr);
                 Utf8Formatter.TryFormat(Index, indexSpan, out int bytesWritten);
                 string indexStr = Serializer.UTF8.GetString(indexSpan.Slice(0, bytesWritten));
+                
                 precompiledNameWithIndex = Serializer.UTF8.GetBytes(
                     (char)_BEGIN_META
                     + indexStr
                     + (char)_END_META
+                    + (char)_STRING_IDENTIFIER
                     + Name
+                    + (char)_STRING_IDENTIFIER
                     + (char)_BEGIN_VALUE + ' ');
+
                 ArrayPool<byte>.Shared.Return(tmpByteArr);
 
                 if (accessor is TypeAccessor.DelegateAccessor delAccessor) {
@@ -820,6 +826,7 @@ namespace SE.Serialization.Converters
                 Converter typeConverter = converter;
                 SerializerSettings settings = task.Settings;
                 bool serializeType = settings.TypeHandling != TypeHandling.Ignore && allowPolymorphism;
+                bool checkReference = !isValueType && settings.ReferenceHandling == ReferenceHandling.Preserve;
 
                 // Resolve true type converter (in case of polymorphism).
                 if (serializeType && val != null) {
@@ -853,16 +860,34 @@ namespace SE.Serialization.Converters
                         return;
                 }
 
-                // Write meta-info.
+                // Prepare meta info.
+                // Type.
                 bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Type, settings);
                 string metaType = null;
                 if (shouldWriteType && valType != null) {
                     metaType = GetQualifiedTypeName(valType, settings);
                 }
-                Serializer.WriteMetaBinary(writer, settings, metaType, null, null);
 
-                // Serialize value.
-                Serializer.SerializeWriter(writer, val, typeConverter, ref task);
+                // Reference.
+                int? id = null;
+                int? reference = null;
+                if (checkReference) {
+                    if (task.TryGetObjectRef(val, out ObjectRef existingRef)) {
+                        reference = existingRef.Reference;
+                        existingRef.RefCount++;
+                    } else {
+                        id = task.curReference++;
+                        task.AddReference(val, new ObjectRef(target, id.Value));
+                    }
+                }
+
+                // Write meta-data.
+                Serializer.WriteMetaBinary(writer, settings, metaType, id, reference);
+
+                // Serialize the value if it isn't a reference.
+                if (!reference.HasValue) {
+                    Serializer.SerializeWriter(writer, val, typeConverter, ref task);
+                }
             }
 
             public bool WriteText(object target, Utf8Writer writer, ref SerializeTask task)
@@ -913,7 +938,6 @@ namespace SE.Serialization.Converters
                 }
 
                 // Reference.
-                // TODO: BROKEN DOESN'T WORK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 int? id = null;
                 int? reference = null;
                 if (checkReference) {
@@ -921,7 +945,7 @@ namespace SE.Serialization.Converters
                         reference = existingRef.Reference;
                         existingRef.RefCount++;
                     } else {
-                        id = task.Data.curReference++;
+                        id = task.curReference++;
                         task.AddReference(val, new ObjectRef(target, id.Value));
                     }
                 }
@@ -929,8 +953,8 @@ namespace SE.Serialization.Converters
                 // Write meta-data.
                 Serializer.WriteMetaText(writer, settings, metaType, id, reference);
 
+                // Serialize the value if it isn't a reference.
                 if (!reference.HasValue) {
-                    // Serialize the actual value.
                     Serializer.SerializeWriter(writer, val, typeConverter, ref task);
                 }
                 return true;

@@ -1,6 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SE.Serialization.Attributes;
 using System.IO;
+using SE.Serialization;
+
+using static SE.Serializer.Tests.TestHelper;
 
 namespace SE.Serializer.Tests
 {
@@ -12,33 +15,91 @@ namespace SE.Serializer.Tests
         {
             // Warmup serializer - in other words - put classes we will use into the serializers' internal caches.
             BasicTestClass testClass = new BasicTestClass();
-            byte[] bytes = Core.Serializer.Serialize(testClass);
+            byte[] bytes = Core.Serializer.Serialize(testClass).ToArray();
 
-            File.WriteAllBytes("C:\\Users\\admin\\Desktop\\test.txt", bytes);
+            //File.WriteAllBytes("C:\\Users\\admin\\Desktop\\test.txt", bytes);
 
             BasicTestClass newClass = Core.Serializer.Deserialize<BasicTestClass>(bytes);
         }
 
         [TestMethod]
-        public void BasicSerializeDeserialize_ShouldBeCorrectData()
+        public void SerializeDeserialize_BinaryOrder_ShouldBeCorrectData()
+        {
+            RunMethod1(Configs.BinaryOrder);
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_BinaryNameOrder_ShouldBeCorrectData()
+        {
+            RunMethod1(Configs.BinaryNameAndOrder);
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_TextOrder_ShouldBeCorrectData()
+        {
+            RunMethod1(Configs.TextOrder);
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_TextName_ShouldBeCorrectData()
+        {
+            RunMethod1(Configs.TextName);
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_TextNameOrder_ShouldBeCorrectData()
+        {
+            RunMethod1(Configs.TextNameAndOrder);
+        }
+
+        [TestMethod]
+        public void ModifySerializeDeserialize_BinaryOrder_ShouldBeCorrectData()
+        {
+            RunMethod2(Configs.BinaryOrder);
+        }
+
+        [TestMethod]
+        public void ModifySerializeDeserialize_BinaryNameOrder_ShouldBeCorrectData()
+        {
+            RunMethod2(Configs.BinaryNameAndOrder);
+        }
+
+        [TestMethod]
+        public void ModifySerializeDeserialize_TextOrder_ShouldBeCorrectData()
+        {
+            RunMethod2(Configs.TextOrder);
+        }
+
+        [TestMethod]
+        public void ModifySerializeDeserialize_TextName_ShouldBeCorrectData()
+        {
+            RunMethod2(Configs.TextName);
+        }
+
+        [TestMethod]
+        public void ModifySerializeDeserialize_TextNameOrder_ShouldBeCorrectData()
+        {
+            RunMethod2(Configs.TextNameAndOrder);
+        }
+
+        public void RunMethod1(SerializerSettings settings)
         {
             BasicTestClass testClass = new BasicTestClass();
-            byte[] bytes = Core.Serializer.Serialize(testClass);
+            byte[] bytes = Core.Serializer.Serialize(testClass, settings).ToArray();
 
-            BasicTestClass newClass = Core.Serializer.Deserialize<BasicTestClass>(bytes);
+            BasicTestClass newClass = Core.Serializer.Deserialize<BasicTestClass>(bytes, settings);
 
-            Assert.IsTrue(newClass.byte1 == 55, $"Should be 55, but is {newClass.byte1}");
-            Assert.IsTrue(newClass.ushort1 == 1, $"Should be 1, but is {newClass.ushort1}");
-            Assert.IsTrue(newClass.int1 == 2, $"Should be 2, but is {newClass.int1}");
-            Assert.IsTrue(newClass.ulong1 == 10, $"Should be 10, but is {newClass.ulong1}");
-            Assert.IsTrue(newClass.float1 == 5.0f, $"Should be 5.0f, but is {newClass.float1}");
-            Assert.IsTrue(newClass.double1 == 99.0f, $"Should be 99.0f, but is {newClass.double1}");
-            Assert.IsTrue(newClass.bool1 == false, $"Should be false, but is {newClass.bool1}");
-            Assert.IsTrue(newClass.str == "STRING VALUE", $"Should be \"STRING VALUE\", but is {newClass.str}");
+            Assert.IsTrue(newClass.byte1 == 55, GetFailMessage("55", newClass.byte1));
+            Assert.IsTrue(newClass.ushort1 == 1, GetFailMessage("55", newClass.ushort1));
+            Assert.IsTrue(newClass.int1 == 2, GetFailMessage("2", newClass.int1));
+            Assert.IsTrue(newClass.ulong1 == 10, GetFailMessage("10", newClass.ulong1));
+            Assert.IsTrue(newClass.float1 == 5.0f, GetFailMessage("5.0f", newClass.float1));
+            Assert.IsTrue(newClass.double1 == 99.0f, GetFailMessage("99.0", newClass.double1));
+            Assert.IsTrue(newClass.bool1 == false, GetFailMessage("false", newClass.bool1));
+            Assert.IsTrue(newClass.str == "STRING VALUE", GetFailMessage("STRING VALUE", newClass.str));
         }
 
-        [TestMethod]
-        public void ModifySerializeDeserialize_ShouldBeCorrectData()
+        public void RunMethod2(SerializerSettings settings)
         {
             BasicTestClass testClass = new BasicTestClass {
                 byte1 = 10,
@@ -51,18 +112,18 @@ namespace SE.Serializer.Tests
                 str = "ドナルド・\n \" fff \"トランプ"
             };
 
-            byte[] bytes = Core.Serializer.Serialize(testClass);
+            byte[] bytes = Core.Serializer.Serialize(testClass, settings).ToArray();
 
-            BasicTestClass newClass = Core.Serializer.Deserialize<BasicTestClass>(bytes);
+            BasicTestClass newClass = Core.Serializer.Deserialize<BasicTestClass>(bytes, settings);
 
-            Assert.IsTrue(newClass.byte1 == 10, $"Should be 10, but is {newClass.byte1}");
-            Assert.IsTrue(newClass.ushort1 == 99, $"Should be 99, but is {newClass.ushort1}");
-            Assert.IsTrue(newClass.int1 == 5, $"Should be 5, but is {newClass.int1}");
-            Assert.IsTrue(newClass.ulong1 == 20, $"Should be 20, but is {newClass.ulong1}");
-            Assert.IsTrue(newClass.float1 == 42.0f, $"Should be 42.0f, but is {newClass.float1}");
-            Assert.IsTrue(newClass.double1 == 69.5f, $"Should be 69.5f, but is {newClass.double1}");
-            Assert.IsTrue(newClass.bool1 == true, $"Should be true, but is {newClass.bool1}");
-            Assert.IsTrue(newClass.str == "ドナルド・\n \" fff \"トランプ", $"Should be, but is {newClass.str}");
+            Assert.IsTrue(newClass.byte1 == 10, GetFailMessage("10", newClass.byte1));
+            Assert.IsTrue(newClass.ushort1 == 99, GetFailMessage("99", newClass.ushort1));
+            Assert.IsTrue(newClass.int1 == 5, GetFailMessage("5", newClass.int1));
+            Assert.IsTrue(newClass.ulong1 == 20, GetFailMessage("20", newClass.ulong1));
+            Assert.IsTrue(newClass.float1 == 42.0f, GetFailMessage("42.0f", newClass.float1));
+            Assert.IsTrue(newClass.double1 == 69.5f, GetFailMessage("69.5", newClass.double1));
+            Assert.IsTrue(newClass.bool1 == true, GetFailMessage("true", newClass.bool1));
+            Assert.IsTrue(newClass.str == "ドナルド・\n \" fff \"トランプ", GetFailMessage("ドナルド・\n \" fff \"トランプ", newClass.str));
         }
 
         // TODO: Testing null/default values, advanced classes, polymorphic classes, etc.
@@ -77,7 +138,7 @@ namespace SE.Serializer.Tests
             public float float1 = 5.0f;
             public double double1 = 99.0f;
             public bool bool1 = false;
-            public string str = "STRING \"lol\" \nVALUE";
+            public string str = "STRING VALUE";
         }
     }
 }

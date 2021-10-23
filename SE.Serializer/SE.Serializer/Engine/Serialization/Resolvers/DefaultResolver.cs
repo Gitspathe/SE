@@ -138,6 +138,7 @@ namespace SE.Serialization.Resolvers
         private void Reset()
         {
             typeConverters.Clear();
+            genericTypeConverterTypes.Clear();
 
             IEnumerable<Converter> enumerable = GetTypeInstances<Converter>(converterPredicate);
             foreach (Converter valSerializer in enumerable) {
