@@ -24,9 +24,9 @@ namespace SE.Serialization.Converters
 
         private EnumDataType enumDataType;
 
-        protected internal override void OnCreate()
+        protected internal override void PostConstructor()
         {
-            base.OnCreate();
+            base.PostConstructor();
             Type enumType = Enum.GetUnderlyingType(TypeArguments[0]);
             enumDataType = enumDataTypeLookup[enumType];
         }

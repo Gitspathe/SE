@@ -13,6 +13,17 @@ namespace SE.Serialization
     {
         private static StringBuilder strBuilder = new StringBuilder(255);
         private static Dictionary<Type, string> minimalAssemblyQualifiedTypeNames = new Dictionary<Type, string>();
+        private static Dictionary<Type, SerializerTypeInfo> serializerTypeLookup = new Dictionary<Type, SerializerTypeInfo>();
+
+        public static SerializerTypeInfo GetSerializerTypeInfo(Type type)
+        {
+            if(serializerTypeLookup.TryGetValue(type, out SerializerTypeInfo typeInfo)) {
+                return typeInfo;
+            }
+            typeInfo = new SerializerTypeInfo(type);
+            serializerTypeLookup.Add(type, typeInfo);
+            return typeInfo;
+        }
 
         public static string GetQualifiedTypeName(Type type, SerializerSettings settings)
         {

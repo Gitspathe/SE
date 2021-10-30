@@ -4,14 +4,15 @@ using System.IO;
 using SE.Serialization;
 
 using static SE.Serializer.Tests.TestHelper;
+using System.Threading.Tasks;
 
 namespace SE.Serializer.Tests
 {
     [TestClass]
     public class BasicTests
     {
-        [AssemblyInitialize()]
-        public static void MyTestInitialize(TestContext testContext)
+        [TestInitialize]
+        public void Initialize()
         {
             // Warmup serializer - in other words - put classes we will use into the serializers' internal caches.
             BasicTestClass testClass = new BasicTestClass();

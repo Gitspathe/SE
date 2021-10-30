@@ -33,7 +33,7 @@ namespace SE.Serialization.Converters
         {
             // Throw error if this generated converter is for a type which isn't whitelisted.
             // This is performed to mitigate possibly dangerous exploits (remote code execution).
-            if (!Serializer.Whitelist.PolymorphicWhitelist.Contains(type))
+            if (!Serializer.Whitelist.TypeIsWhiteListed(type))
                 throw new SerializerWhitelistException(Type);
 
             Type = type;
@@ -165,6 +165,7 @@ namespace SE.Serialization.Converters
         internal static GeneratedConverter Create(Type type, ConverterResolver resolver)
         {
             GeneratedConverter gen = new GeneratedConverter(type, resolver);
+            //gen.PostConstructor();
             return gen.nodesDictionary.Count > 0 ? gen : null;
         }
 
@@ -723,19 +724,15 @@ namespace SE.Serialization.Converters
 
         private sealed class Node
         {
+            public SerializerTypeInfo Info;
             public string Name;
             public string RealName;
             public ushort Index;
-            public Type Type;
-            public object Default;
+            public object NodeDefault;
 
             private Converter converter;
             private TypeAccessor accessor;
             private bool recursive;
-
-            private bool isValueType;
-            private bool isNullable;
-            private bool allowPolymorphism;
 
             // Faster access for delegate accessors.
             private TypeAccessor.DelegateAccessor delegateAccessor;
@@ -745,7 +742,7 @@ namespace SE.Serialization.Converters
             private byte[] precompiledName;
             private byte[] precompiledNameWithIndex;
 
-            public Node(Converter converter, TypeAccessor accessor, Type type, object defaultVal, string name, string realName, ushort index, bool recursive)
+            public Node(Converter converter, TypeAccessor accessor, Type type, object nodeDefault, string name, string realName, ushort index, bool recursive)
             {
                 this.converter = converter;
                 this.accessor = accessor;
@@ -753,9 +750,8 @@ namespace SE.Serialization.Converters
                 Index = index;
                 Name = name;
                 RealName = realName;
-                Type = type;
-                isValueType = type.IsValueType;
-                Default = defaultVal;
+                Info = GetSerializerTypeInfo(type);
+                NodeDefault = nodeDefault;
                 precompiledName = Serializer.UTF8.GetBytes((char)_STRING_IDENTIFIER + Name + (char)_STRING_IDENTIFIER + (char)_BEGIN_VALUE + ' ');
 
                 // Precompiled names with meta index.
@@ -779,9 +775,6 @@ namespace SE.Serialization.Converters
                     delegateAccessor = delAccessor;
                     accessorIndex = delAccessor.GetIndex(RealName) ?? throw new IndexOutOfRangeException();
                 }
-
-                isNullable = Nullable.GetUnderlyingType(Type) != null;
-                allowPolymorphism = !Type.IsValueType && !isNullable;
             }
 
             public void ReadBinary(object target, Utf8Reader reader, ref DeserializeTask task)
@@ -797,22 +790,48 @@ namespace SE.Serialization.Converters
                 // If value shouldn't be set, set it to default.
                 // TODO: ^^^ How do I handle NULL vs default??
                 if (!shouldSetValue) {
-                    if (Default == null)
+                    if (NodeDefault == null)
                         return; // Fix dumb FastMember bug where setting null causes exception.
 
-                    SetValue(target, Default);
+                    SetValue(target, NodeDefault);
                     return;
                 }
 
                 // Otherwise, set the value.
+
+                // Handle meta-data.
+                // Type.
                 Converter typeConverter = converter;
-                if (allowPolymorphism) {
-                    Serializer.TryReadMetaBinary(reader, task.Settings, out string valueType, out int? id, out int? reference);
+                Serializer.TryReadMetaBinary(reader, task.Settings, out string valueType, out int? id, out int? reference);
+                if (Info.PossiblePolymorphism) {
                     if (valueType != null) {
-                        typeConverter = Serializer.GetConverterForTypeString(valueType, task.Settings);
+                        typeConverter = Serializer.GetConverterFromTypeString(valueType, task.Settings);
                     }
                 }
+
+                // Reference.
+                // If 'id' is set, the object is not a reference, so it's added to a
+                // temporary lookup table in the case that another object references it.
+                // Otherwise, if 'ref' is set, the object is a reference.
+                bool pendingRecordReference = false;
+                if (task.Settings.ReferenceHandling == ReferenceHandling.Preserve) {
+                    if (id != null) {
+                        pendingRecordReference = true;
+                    } else if (reference != null) {
+                        if (task.TryGetObjectRefByKey(reference.Value, out ObjectRef objRef)) {
+                            SetValue(target, objRef.Obj);
+                            return;
+                        }
+                    }
+                }
+
+                // Set the value.
                 SetValue(target, Serializer.DeserializeReader(reader, typeConverter, ref task));
+
+                // If the object isn't a reference, record it for possible future use.
+                if (pendingRecordReference) {
+                    task.AddReference(target, new ObjectRef(target, id.Value));
+                }
             }
 
             public void WriteBinary(object target, Utf8Writer writer, bool writeName, ref SerializeTask task)
@@ -825,13 +844,13 @@ namespace SE.Serialization.Converters
                 Type valType = null;
                 Converter typeConverter = converter;
                 SerializerSettings settings = task.Settings;
-                bool serializeType = settings.TypeHandling != TypeHandling.Ignore && allowPolymorphism;
-                bool checkReference = !isValueType && settings.ReferenceHandling == ReferenceHandling.Preserve;
+                bool serializeType = Info.PossiblePolymorphism && settings.TypeHandling != TypeHandling.Ignore;
+                bool checkReference = !Info.IsValueType && settings.ReferenceHandling == ReferenceHandling.Preserve;
 
                 // Resolve true type converter (in case of polymorphism).
                 if (serializeType && val != null) {
                     valType = val.GetType();
-                    if (valType != Type) {
+                    if (valType != Info.Type) {
                         typeConverter = settings.Resolver.GetConverter(valType);
                     }
                 }
@@ -862,7 +881,7 @@ namespace SE.Serialization.Converters
 
                 // Prepare meta info.
                 // Type.
-                bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Type, settings);
+                bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Info.Type, settings);
                 string metaType = null;
                 if (shouldWriteType && valType != null) {
                     metaType = GetQualifiedTypeName(valType, settings);
@@ -899,8 +918,8 @@ namespace SE.Serialization.Converters
                 Type valType = null;
                 Converter typeConverter = converter;
                 SerializerSettings settings = task.Settings;
-                bool serializeType = settings.TypeHandling != TypeHandling.Ignore && allowPolymorphism;
-                bool checkReference = !isValueType && settings.ReferenceHandling == ReferenceHandling.Preserve;
+                bool serializeType = Info.PossiblePolymorphism && settings.TypeHandling != TypeHandling.Ignore;
+                bool checkReference = !Info.IsValueType && settings.ReferenceHandling == ReferenceHandling.Preserve;
 
                 byte[] nameToWrite = settings.ConvertBehaviour == ConvertBehaviour.Configuration
                     ? precompiledName
@@ -909,7 +928,7 @@ namespace SE.Serialization.Converters
                 // Resolve true type converter (in case of polymorphism).
                 if (serializeType && val != null) {
                     valType = val.GetType();
-                    if (valType != Type) {
+                    if (valType != Info.Type) {
                         typeConverter = settings.Resolver.GetConverter(valType);
                     }
                 }
@@ -931,7 +950,7 @@ namespace SE.Serialization.Converters
 
                 // Prepare the meta-data.
                 // Type name.
-                bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Type, settings);
+                bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Info.Type, settings);
                 string metaType = null;
                 if (shouldWriteType && valType != null) {
                     metaType = GetQualifiedTypeName(valType, settings);
@@ -965,23 +984,25 @@ namespace SE.Serialization.Converters
                 if (recursive && task.Settings.ReferenceLoopHandling == ReferenceLoopHandling.Error)
                     throw new ReferenceLoopException();
 
+                // Read the meta data.
+                // Type.
                 Converter typeConverter = converter;
                 Serializer.TryReadMetaText(reader, task.Settings, out string valueType, out int? id, out int? reference);
-                if (allowPolymorphism) {
+                if (Info.PossiblePolymorphism) {
                     if (valueType != null) {
-                        typeConverter = Serializer.GetConverterForTypeString(valueType, task.Settings);
+                        typeConverter = Serializer.GetConverterFromTypeString(valueType, task.Settings);
                     }
                 }
 
+                // Reference.
+                // If 'id' is set, the object is not a reference, so it's added to a
+                // temporary lookup table in the case that another object references it.
+                // Otherwise, if 'ref' is set, the object is a reference.
                 bool pendingRecordReference = false;
                 if(task.Settings.ReferenceHandling == ReferenceHandling.Preserve) {
                     if(id != null) {
-                        // Object is NOT a reference to another object.
-                        // So mark it as pending reference.
                         pendingRecordReference = true;
                     } else if (reference != null) {
-                        // Object IS a reference to another object.
-                        // So set it's value to the existing reference, and return.
                         if (task.TryGetObjectRefByKey(reference.Value, out ObjectRef objRef)) {
                             SetValue(target, objRef.Obj);
                             return;
@@ -989,9 +1010,11 @@ namespace SE.Serialization.Converters
                     }
                 }
 
+                // Set the value.
                 SetValue(target, Serializer.DeserializeReader(reader, typeConverter, ref task));
-                
-                if(pendingRecordReference) {
+
+                // If the object isn't a reference, record it for possible future use.
+                if (pendingRecordReference) {
                     task.AddReference(target, new ObjectRef(target, id.Value));
                 }
             }
@@ -1014,10 +1037,10 @@ namespace SE.Serialization.Converters
 
             private bool IsDefault(object value)
             {
-                if (Default == null && value == null)
+                if (NodeDefault == null && value == null)
                     return true;
 
-                return value.Equals(Default);
+                return value.Equals(NodeDefault);
             }
         }
 

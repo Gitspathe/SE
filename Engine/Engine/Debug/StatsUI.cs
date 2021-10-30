@@ -70,7 +70,7 @@ namespace SE.Debug
                 networkBuilder.Append("No connection.");
             } else {
                 sec -= Time.DeltaTime;
-                if (sec == 0.0f) {
+                if (sec <= 0.0f) {
                     bytesDownStart = stats.BytesReceived;
                     bytesDownLastSec = bytesDownThisSec;
                     bytesUpStart = stats.BytesSent;
@@ -83,8 +83,8 @@ namespace SE.Debug
                    .Append("  Sent: ").Append(stats.PacketsSent).Append("\n")
                    .Append("  Recieved: ").Append(stats.PacketsReceived).Append("\n")
                    .Append("BYTES:\n")
-                   .Append("  Sent: ").Append(stats.BytesSent).Append(" (").Append(bytesUpLastSec / 1000).Append("KB/s) \n")
-                   .Append("  Recieved: ").Append(stats.BytesReceived).Append(" (").Append(bytesDownLastSec / 1000).Append("KB/s) \n")
+                   .Append("  Sent: ").Append(stats.BytesSent).Append(" (").Append(bytesUpLastSec / 1000.0f).Append("KB/s) \n")
+                   .Append("  Recieved: ").Append(stats.BytesReceived).Append(" (").Append(bytesDownLastSec / 1000.0f).Append("KB/s) \n")
                    .Append("RTT: ").Append(Network.AverageRTT).Append("\n")
                    .Append("IP: ").Append(Network.CurrentIPAddress);
             }

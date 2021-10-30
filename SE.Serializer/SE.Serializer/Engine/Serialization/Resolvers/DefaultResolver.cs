@@ -119,7 +119,7 @@ namespace SE.Serialization.Resolvers
             if (genericTypeConverterTypes.TryGetValue(genericType, out Type serializerType)) {
                 GenericConverter newSerializer = (GenericConverter)Activator.CreateInstance(serializerType);
                 newSerializer.TypeArguments = typeArgs;
-                newSerializer.OnCreate();
+                newSerializer.PostConstructor();
                 RegisterConverter(concreteType, newSerializer);
                 return newSerializer;
             }
@@ -142,14 +142,16 @@ namespace SE.Serialization.Resolvers
 
             IEnumerable<Converter> enumerable = GetTypeInstances<Converter>(converterPredicate);
             foreach (Converter valSerializer in enumerable) {
-                if (valSerializer.StoreAtRuntime)
+                if (valSerializer.StoreAtRuntime) {
                     typeConverters.Add(valSerializer.Type, valSerializer);
+                }
             }
 
             IEnumerable<GenericConverter> genericEnumerable = GetTypeInstances<GenericConverter>(genericConverterPredicate);
             foreach (GenericConverter genericTypeSerializer in genericEnumerable) {
-                if (genericTypeSerializer.StoreAtRuntime)
+                if (genericTypeSerializer.StoreAtRuntime) {
                     genericTypeConverterTypes.Add(genericTypeSerializer.Type, genericTypeSerializer.GetType());
+                }
             }
 
             isDirty = false;

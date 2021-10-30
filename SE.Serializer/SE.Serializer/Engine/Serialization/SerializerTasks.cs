@@ -80,7 +80,7 @@ namespace SE.Serialization
         }
     }
 
-    public struct ObjectRef
+    public class ObjectRef
     {
         public object Obj;
         public int Reference;

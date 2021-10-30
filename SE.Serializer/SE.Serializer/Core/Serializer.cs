@@ -179,7 +179,7 @@ namespace SE.Core
             }
         }
 
-        internal static Converter GetConverterForTypeString(string typeString, SerializerSettings settings)
+        internal static Converter GetConverterFromTypeString(string typeString, SerializerSettings settings)
         {
             ConverterResolver resolver = settings.Resolver;
             if (resolver.TypeCache.TryGetValue(typeString, out Converter converter))
@@ -351,6 +351,14 @@ namespace SE.Core
         public static class Whitelist
         {
             internal static HashSet<Type> PolymorphicWhitelist = new HashSet<Type>();
+
+            public static bool TypeIsWhiteListed(Type type)
+            {
+                if(PolymorphicWhitelist.Contains(type))
+                    return true;
+
+                return false;
+            }
 
             static Whitelist()
             {

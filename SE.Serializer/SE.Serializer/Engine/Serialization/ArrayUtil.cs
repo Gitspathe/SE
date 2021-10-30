@@ -30,8 +30,10 @@ namespace SE.Engine.Serialization
                 throw new Exception("Array not found in pool.");
             }
 
+            Array arr = array.ToArray();
+            array.Clear();
             val.Add(array);
-            return array.ToArray();
+            return arr;
         }
     }
 
@@ -45,7 +47,7 @@ namespace SE.Engine.Serialization
         internal RentableArray(Type arrayType, int count)
         {
             ArrayType = arrayType;
-            Count = count;
+            Count = 0;
             array = Array.CreateInstance(arrayType, count);
         }
 
@@ -60,6 +62,7 @@ namespace SE.Engine.Serialization
             for (int i = 0; i < Count; i++) {
                 array.SetValue(null, i);
             }
+            Count = 0;
         }
 
         internal Array ToArray()
@@ -80,6 +83,7 @@ namespace SE.Engine.Serialization
         {
             Array newArray = Array.CreateInstance(ArrayType, array.Length * 2);
             Array.Copy(array, newArray, array.Length);
+            Count = array.Length;
             array = newArray;
         }
     }

@@ -12,16 +12,18 @@ namespace SE.Serialization.Converters
         /// <summary>If true, the TypeSerializer is generated and stored at runtime using reflection.</summary>
         internal virtual bool StoreAtRuntime => true;
 
-        private object defaultInstance;
-        private bool defaultCreated;
-        private bool isObject;
-
+        public SerializerTypeInfo TypeInfo { get; private set; }
         public abstract Type Type { get; }
 
         public abstract void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task);
         public abstract object DeserializeBinary(Utf8Reader reader, ref DeserializeTask task);
         public virtual void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task) { throw new NotImplementedException(); }
         public virtual object DeserializeText(Utf8Reader reader, ref DeserializeTask task) { throw new NotImplementedException(); }
+
+        internal protected virtual void PostConstructor() 
+        {
+            TypeInfo = SerializerUtil.GetSerializerTypeInfo(Type);
+        }
 
         internal void WhiteList()
         {
@@ -33,34 +35,10 @@ namespace SE.Serialization.Converters
 
         public virtual bool IsDefault(object obj)
         {
-            if (!defaultCreated)
-                GenerateDefaultValue();
-
-            if (isObject) {
-                return obj == null;
-            }
-            return obj.Equals(defaultInstance);
+            return TypeInfo.IsDefault(obj);
         }
 
-        internal void GenerateDefaultValue()
-        {
-            try {
-                if (Type == typeof(object)) {
-                    isObject = true;
-                } else if (Type != null) {
-                    defaultInstance = Type.IsValueType ? Activator.CreateInstance(Type) : null;
-                }
-            } catch (Exception) {
-                defaultInstance = null; // Catch nullable error here. Bit of a hack!
-            } finally {
-                defaultCreated = true;
-            }
-        }
-
-        protected Converter()
-        {
-            WhiteList();
-        }
+        protected Converter() { WhiteList(); }
     }
 
     public abstract class Converter<T> : Converter
@@ -101,8 +79,6 @@ namespace SE.Serialization.Converters
             return task.Settings.Resolver.GetConverter(TypeArguments[typeArgumentIndex]);
         }
 
-        internal protected virtual void OnCreate() { }
-
-        public GenericConverter() { /* Empty constructor for reflection. */ }
+        public GenericConverter() : base() { /* Empty constructor for reflection. */ }
     }
 }
