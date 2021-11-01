@@ -1,4 +1,5 @@
 using SE.Core;
+using SE.Engine.Serialization;
 using System;
 using System.Buffers;
 using System.Buffers.Text;
@@ -343,6 +344,39 @@ namespace SE.Serialization
         {
             ReadOnlySpan<byte> numberBytes = ReadNumber();
             Utf8Parser.TryParse(numberBytes, out double val, out int bytesConsumed);
+            return val;
+        }
+
+        public Array ReadArrayTextUtf8(Converters.Converter converter, ref DeserializeTask task)
+        {
+            RentableArray rentedArray = SerializerArrayPool.Rent(converter.TypeInfo, 16);
+            while (true) {
+                byte b = ReadByte();
+                switch (b) {
+                    case _ARRAY_SEPARATOR:
+                    case _CARRIDGE_RETURN:
+                    case _NEW_LINE:
+                    case _TAB:
+                        continue;
+
+                    case _END_ARRAY:
+                        return SerializerArrayPool.Return(rentedArray);
+
+                    default:
+                        BaseStream.Position -= 1;
+                        rentedArray.Add(Serializer.DeserializeReader(this, converter, ref task));
+                        break;
+                }
+            }
+        }
+
+        public Array ReadArrayBinaryUtf8(Converters.Converter converter, ref DeserializeTask task)
+        {
+            int arrLength = ReadInt32();
+            Array val = Array.CreateInstance(converter.TypeInfo, arrLength);
+            for (int i = 0; i < arrLength; i++) {
+                val.SetValue(Serializer.DeserializeReader(this, converter, ref task), i);
+            }
             return val;
         }
 

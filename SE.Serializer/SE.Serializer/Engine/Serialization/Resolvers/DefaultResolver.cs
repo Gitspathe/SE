@@ -1,4 +1,5 @@
 using SE.Serialization.Converters;
+using SE.Utility;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -14,17 +15,17 @@ namespace SE.Serialization.Resolvers
         private Dictionary<Type, GeneratedConverter> generatedConverters = new Dictionary<Type, GeneratedConverter>();
         private Dictionary<Type, Type> genericTypeConverterTypes = new Dictionary<Type, Type>();
 
-        private Func<Type, bool> converterPredicate = myType
-            => typeof(Converter).IsAssignableFrom(myType)
-               && myType != typeof(GeneratedConverter)
-               && myType.IsClass
-               && !myType.IsAbstract;
+        private Func<Type, bool> converterPredicate = type
+            => typeof(Converter).IsAssignableFrom(type)
+               && type != typeof(GeneratedConverter)
+               && type.IsClass
+               && !type.IsAbstract;
 
-        private Func<Type, bool> genericConverterPredicate = myType
-            => typeof(GenericConverter).IsAssignableFrom(myType)
-               && myType != typeof(GeneratedConverter)
-               && myType.IsClass
-               && !myType.IsAbstract;
+        private Func<Type, bool> genericConverterPredicate = type
+            => typeof(GenericConverter).IsAssignableFrom(type)
+               && type != typeof(GeneratedConverter)
+               && type.IsClass
+               && !type.IsAbstract;
 
         private bool isDirty = true;
 
@@ -118,7 +119,7 @@ namespace SE.Serialization.Resolvers
         {
             if (genericTypeConverterTypes.TryGetValue(genericType, out Type serializerType)) {
                 GenericConverter newSerializer = (GenericConverter)Activator.CreateInstance(serializerType);
-                newSerializer.TypeArguments = typeArgs;
+                newSerializer.SetTypeArguments(typeArgs);
                 newSerializer.PostConstructor();
                 RegisterConverter(concreteType, newSerializer);
                 return newSerializer;
@@ -140,14 +141,14 @@ namespace SE.Serialization.Resolvers
             typeConverters.Clear();
             genericTypeConverterTypes.Clear();
 
-            IEnumerable<Converter> enumerable = GetTypeInstances<Converter>(converterPredicate);
+            QuickList<Converter> enumerable = GetCachedTypeInstances<Converter>(converterPredicate);
             foreach (Converter valSerializer in enumerable) {
                 if (valSerializer.StoreAtRuntime) {
                     typeConverters.Add(valSerializer.Type, valSerializer);
                 }
             }
 
-            IEnumerable<GenericConverter> genericEnumerable = GetTypeInstances<GenericConverter>(genericConverterPredicate);
+            QuickList<GenericConverter> genericEnumerable = GetCachedTypeInstances<GenericConverter>(genericConverterPredicate);
             foreach (GenericConverter genericTypeSerializer in genericEnumerable) {
                 if (genericTypeSerializer.StoreAtRuntime) {
                     genericTypeConverterTypes.Add(genericTypeSerializer.Type, genericTypeSerializer.GetType());

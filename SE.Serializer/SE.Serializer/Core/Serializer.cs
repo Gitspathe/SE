@@ -2,6 +2,7 @@ using SE.Serialization;
 using SE.Serialization.Attributes;
 using SE.Serialization.Converters;
 using SE.Serialization.Resolvers;
+using SE.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -354,16 +355,13 @@ namespace SE.Core
 
             public static bool TypeIsWhiteListed(Type type)
             {
-                if(PolymorphicWhitelist.Contains(type))
-                    return true;
-
-                return false;
+                return PolymorphicWhitelist.Contains(type);
             }
 
             static Whitelist()
             {
                 // Add user-defined types (GeneratedConverters).
-                List<Type> customTypes = ReflectionUtil.GetTypes((z => z.GetCustomAttributes(typeof(SerializeObjectAttribute), true).Length > 0)).ToList();
+                QuickList<Type> customTypes = ReflectionUtil.GetTypes((z => z.GetCustomAttributes(typeof(SerializeObjectAttribute), true).Length > 0));
                 foreach (Type t in customTypes) {
                     PolymorphicWhitelist.Add(t);
                 }

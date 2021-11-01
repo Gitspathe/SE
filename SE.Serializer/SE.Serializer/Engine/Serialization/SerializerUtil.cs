@@ -1,4 +1,5 @@
 using SE.Core;
+using SE.Engine.Serialization;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -13,14 +14,14 @@ namespace SE.Serialization
     {
         private static StringBuilder strBuilder = new StringBuilder(255);
         private static Dictionary<Type, string> minimalAssemblyQualifiedTypeNames = new Dictionary<Type, string>();
-        private static Dictionary<Type, SerializerTypeInfo> serializerTypeLookup = new Dictionary<Type, SerializerTypeInfo>();
+        private static Dictionary<Type, SerializableType> serializerTypeLookup = new Dictionary<Type, SerializableType>();
 
-        public static SerializerTypeInfo GetSerializerTypeInfo(Type type)
+        public static SerializableType GetSerializerTypeInfo(Type type)
         {
-            if(serializerTypeLookup.TryGetValue(type, out SerializerTypeInfo typeInfo)) {
+            if(serializerTypeLookup.TryGetValue(type, out SerializableType typeInfo)) {
                 return typeInfo;
             }
-            typeInfo = new SerializerTypeInfo(type);
+            typeInfo = new SerializableType(type);
             serializerTypeLookup.Add(type, typeInfo);
             return typeInfo;
         }
@@ -329,13 +330,6 @@ namespace SE.Serialization
                 return true;
             }
             return false;
-        }
-
-        // TODO: ReadArray<T>, to read array entries separated with ','.
-
-        public static T[] ReadArrayTextUtf8<T>()
-        {
-            throw new NotImplementedException();
         }
 
     }

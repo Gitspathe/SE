@@ -1,3 +1,4 @@
+using SE.Core;
 using System;
 using System.Buffers;
 using System.Buffers.Text;
@@ -373,6 +374,26 @@ namespace SE.Serialization
             Span<byte> dest = new Span<byte>(this.buffer, position, count);
             buffer.CopyTo(dest);
             position += count;
+        }
+
+        public void WriteArrayText(Array array, Converters.Converter converter, ref SerializeTask task)
+        {
+            Write(_BEGIN_ARRAY);
+            for (int i = 0; i < array.Length; i++) {
+                Serializer.SerializeWriter(this, array.GetValue(i), converter, ref task, false);
+                if (i + 1 < array.Length) {
+                    Write(_ARRAY_SEPARATOR);
+                }
+            }
+            Write(_END_ARRAY);
+        }
+
+        public void WriteArrayBinary(Array array, Converters.Converter converter, ref SerializeTask task)
+        {
+            Write(array.Length);
+            for (int i = 0; i < array.Length; i++) {
+                Serializer.SerializeWriter(this, array.GetValue(i), converter, ref task, false);
+            }
         }
 
         protected override void Dispose(bool disposing)

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
+using SE.Core;
 using SE.Serialization.Exceptions;
 
 namespace SE.Serialization
 {
-    public class SerializerTypeInfo
+    public sealed class SerializableType
     {
         public Type Type { get; }
         public bool IsObject { get; }
@@ -16,24 +17,27 @@ namespace SE.Serialization
         public bool PossibleReferencing { get; }
         public object DefaultInstance { get;}
 
-        internal SerializerTypeInfo(Type type)
+        public static implicit operator Type(SerializableType typeInfo) => typeInfo.Type;
+        public static implicit operator SerializableType(Type type) => SerializerUtil.GetSerializerTypeInfo(type);
+
+        internal SerializableType(Type type)
         {
             Type = type;
-
-            if (!IsPermittedType()) {
-                throw new SerializerWhitelistException(type);
-            }
-
             IsValueType = type.IsValueType;
             IsNullable = Nullable.GetUnderlyingType(type) != null;
             PossiblePolymorphism = !IsValueType && !IsNullable;
             PossibleReferencing = !IsValueType;
 
+            if (!IsPermittedType()) {
+                throw new SerializerWhitelistException(type);
+            }
+
+            // TODO: Support non-empty constructor.
             try {
                 if (Type == typeof(object)) {
                     IsObject = true;
                 } else if (Type != null) {
-                    DefaultInstance = Type.IsValueType ? Activator.CreateInstance(Type) : null;
+                    DefaultInstance = IsValueType ? Activator.CreateInstance(Type) : null;
                 }
             } catch (Exception) {
                 DefaultInstance = null; // Catch nullable error here. Bit of a hack!
@@ -53,7 +57,7 @@ namespace SE.Serialization
 
         private bool IsPermittedType()
         {
-            if (Core.Serializer.Whitelist.TypeIsWhiteListed(Type))
+            if (Serializer.Whitelist.TypeIsWhiteListed(Type))
                 return true;
             if (Type.IsEnum)
                 return true;
@@ -65,7 +69,7 @@ namespace SE.Serialization
                 genericDefinition = Type.GetGenericTypeDefinition();
             }
 
-            if (genericDefinition != null && Core.Serializer.Whitelist.TypeIsWhiteListed(genericDefinition))
+            if (genericDefinition != null && Serializer.Whitelist.TypeIsWhiteListed(genericDefinition))
                 return true;
 
             return false;

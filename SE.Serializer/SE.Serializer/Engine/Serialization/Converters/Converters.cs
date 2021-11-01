@@ -1,4 +1,5 @@
 using SE.Core;
+using SE.Attributes;
 using System;
 
 namespace SE.Serialization.Converters
@@ -7,13 +8,15 @@ namespace SE.Serialization.Converters
     /// Serializes non-generic (or generic with known types) objects of a specified type.
     /// Only one instance of each TypeSerializer is generated at runtime.
     /// </summary>
+    [ReflectionCachedType(typeof(Converter), false)]
     public abstract class Converter
     {
         /// <summary>If true, the TypeSerializer is generated and stored at runtime using reflection.</summary>
         internal virtual bool StoreAtRuntime => true;
 
-        public SerializerTypeInfo TypeInfo { get; private set; }
         public abstract Type Type { get; }
+
+        public SerializableType TypeInfo { get; private set; }
 
         public abstract void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task);
         public abstract object DeserializeBinary(Utf8Reader reader, ref DeserializeTask task);
@@ -62,18 +65,26 @@ namespace SE.Serialization.Converters
     /// Serializes generic objects of a specified underlying generic type.
     /// One GenericTypeSerializer instance for EACH inner type combination is generated at runtime.
     /// </summary>
+    [ReflectionCachedType(typeof(GenericConverter), false)]
     public abstract class GenericConverter : Converter
     {
-        /// <summary>Generic type arguments.</summary>
-        protected internal Type[] TypeArguments;
+        protected internal SerializableType[] TypeArguments;
 
-        protected Converter GetSerializer(int typeArgumentIndex, ref SerializeTask task)
+        internal void SetTypeArguments(Type[] typeArgs)
+        {
+            TypeArguments = new SerializableType[typeArgs.Length];
+            for(int i = 0; i < typeArgs.Length; i++) {
+                TypeArguments[i] = typeArgs[i];
+            }
+        }
+
+        protected Converter GetConverter(int typeArgumentIndex, ref SerializeTask task)
         {
             // TODO: Handle TypeHandling settings.
             return task.Settings.Resolver.GetConverter(TypeArguments[typeArgumentIndex]);
         }
 
-        protected Converter GetSerializer(int typeArgumentIndex, ref DeserializeTask task)
+        protected Converter GetConverter(int typeArgumentIndex, ref DeserializeTask task)
         {
             // TODO: Handle TypeHandling settings.
             return task.Settings.Resolver.GetConverter(TypeArguments[typeArgumentIndex]);

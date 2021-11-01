@@ -115,78 +115,22 @@ namespace SE.Serialization.Converters
 
         public override object DeserializeBinary(Utf8Reader reader, ref DeserializeTask task)
         {
-            int arrLength = reader.ReadInt32();
-            Array val = Array.CreateInstance(TypeArguments[0], arrLength);
-            Converter serializer = GetSerializer(0, ref task);
-            for (int i = 0; i < arrLength; i++) {
-                val.SetValue(Serializer.DeserializeReader(reader, serializer, ref task), i);
-            }
-
-            return val;
+            return reader.ReadArrayBinaryUtf8(GetConverter(0, ref task), ref task);
         }
 
         public override void SerializeBinary(object obj, Utf8Writer writer, ref SerializeTask task)
         {
-            Array val = (Array)obj;
-            writer.Write(val.Length);
-
-            Converter serializer = GetSerializer(0, ref task);
-            for (int i = 0; i < val.Length; i++) {
-                Serializer.SerializeWriter(writer, val.GetValue(i), serializer, ref task, false);
-            }
+            writer.WriteArrayBinary((Array)obj, GetConverter(0, ref task), ref task);
         }
 
         public override object DeserializeText(Utf8Reader reader, ref DeserializeTask task)
         {
-            ////if (!reader.ReadBoolean()) 
-            ////    return null;
-
-            //int arrLength = reader.ReadInt32();
-            //Array val = Array.CreateInstance(TypeArguments[0], arrLength);
-            //Converter serializer = GetSerializer(0, ref task);
-            //for (int i = 0; i < arrLength; i++)
-            //{
-            //    val.SetValue(Serializer.DeserializeReader(serializer, reader, ref task), i);
-            //}
-
-            //return val;
-
-            RentableArray rentedArray = SerializerArrayPool.Rent(TypeArguments[0], 16);
-            Converter serializer = GetSerializer(0, ref task);
-
-            while (true) {
-                byte b = reader.ReadByte();
-                switch (b) {
-                    case _ARRAY_SEPARATOR:
-                    case _CARRIDGE_RETURN:
-                    case _NEW_LINE:
-                    case _TAB:
-                        continue;
-
-                    case _END_ARRAY:
-                        return SerializerArrayPool.Return(rentedArray);
-
-                    default:
-                        reader.BaseStream.Position -= 1;
-                        rentedArray.Add(Serializer.DeserializeReader(reader, serializer, ref task));
-                        break;
-                }
-            }
+            return reader.ReadArrayTextUtf8(GetConverter(0, ref task), ref task);
         }
 
         public override void SerializeText(object obj, Utf8Writer writer, ref SerializeTask task)
         {
-            Array val = (Array)obj;
-            Converter serializer = GetSerializer(0, ref task);
-
-            writer.Write(_BEGIN_ARRAY);
-            for (int i = 0; i < val.Length; i++) {
-                Serializer.SerializeWriter(writer, val.GetValue(i), serializer, ref task, false);
-                if (i + 1 < val.Length) {
-                    writer.Write(_ARRAY_SEPARATOR);
-                }
-            }
-            writer.Write(_END_ARRAY);
+            writer.WriteArrayText((Array)obj, GetConverter(0, ref task), ref task);
         }
 
         public override bool IsDefault(object obj)

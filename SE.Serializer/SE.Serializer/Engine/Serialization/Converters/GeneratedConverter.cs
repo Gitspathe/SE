@@ -724,7 +724,7 @@ namespace SE.Serialization.Converters
 
         private sealed class Node
         {
-            public SerializerTypeInfo Info;
+            public SerializableType Info;
             public string Name;
             public string RealName;
             public ushort Index;
@@ -850,7 +850,7 @@ namespace SE.Serialization.Converters
                 // Resolve true type converter (in case of polymorphism).
                 if (serializeType && val != null) {
                     valType = val.GetType();
-                    if (valType != Info.Type) {
+                    if (valType != Info) {
                         typeConverter = settings.Resolver.GetConverter(valType);
                     }
                 }
@@ -881,7 +881,7 @@ namespace SE.Serialization.Converters
 
                 // Prepare meta info.
                 // Type.
-                bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Info.Type, settings);
+                bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Info, settings);
                 string metaType = null;
                 if (shouldWriteType && valType != null) {
                     metaType = GetQualifiedTypeName(valType, settings);
@@ -928,7 +928,7 @@ namespace SE.Serialization.Converters
                 // Resolve true type converter (in case of polymorphism).
                 if (serializeType && val != null) {
                     valType = val.GetType();
-                    if (valType != Info.Type) {
+                    if (valType != Info) {
                         typeConverter = settings.Resolver.GetConverter(valType);
                     }
                 }
@@ -950,7 +950,7 @@ namespace SE.Serialization.Converters
 
                 // Prepare the meta-data.
                 // Type name.
-                bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Info.Type, settings);
+                bool shouldWriteType = Serializer.ShouldWriteConverterType(valType, Info, settings);
                 string metaType = null;
                 if (shouldWriteType && valType != null) {
                     metaType = GetQualifiedTypeName(valType, settings);
