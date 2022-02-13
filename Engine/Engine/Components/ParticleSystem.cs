@@ -21,7 +21,6 @@ namespace SE.Components
 
         protected override void OnInitialize()
         {
-            ParticleEngine.NativeEnabled = false;
             //Emitter = new Emitter(shape: new CircleEmitterShape(64.0f, EmissionDirection.Out, true, true, 0.5f));
 
             CircleEmitterShape circleShape = new CircleEmitterShape(32.0f, EmissionDirection.Out, false, false);

@@ -182,30 +182,30 @@ namespace SEDemos
 
                 textClass.inner = innerInner;
 
-                Stopwatch s = new Stopwatch();
+                //Stopwatch s = new Stopwatch();
 
-                //New serializer.
-                s.Start();
-                for (int z = 0; z < textIterations; z++) {
-                    ReadOnlySpan<byte> bytes2 = Serializer.Serialize(textClass);
-                    //FileIO.SaveFile(bytes2.ToArray(), "testNew.txt");
-                }
-                s.Stop();
-                long s1 = s.ElapsedMilliseconds;
+                ////New serializer.
+                //s.Start();
+                //for (int z = 0; z < textIterations; z++) {
+                //    ReadOnlySpan<byte> bytes2 = Serializer.Serialize(textClass);
+                //    //FileIO.SaveFile(bytes2.ToArray(), "testNew.txt");
+                //}
+                //s.Stop();
+                //long s1 = s.ElapsedMilliseconds;
 
-                // JSON serializer.
-                s = new Stopwatch();
-                s.Start();
-                for (int z = 0; z < textIterations; z++) {
-                    string bytes = System.Text.Json.JsonSerializer.Serialize(textClass, textJsonOptions);
-                    //FileIO.SaveFile(bytes, "testNewSystemJson.txt");
-                }
-                s.Stop();
-                long s2 = s.ElapsedMilliseconds;
+                //// JSON serializer.
+                //s = new Stopwatch();
+                //s.Start();
+                //for (int z = 0; z < textIterations; z++) {
+                //    string bytes = System.Text.Json.JsonSerializer.Serialize(textClass, textJsonOptions);
+                //    //FileIO.SaveFile(bytes, "testNewSystemJson.txt");
+                //}
+                //s.Stop();
+                //long s2 = s.ElapsedMilliseconds;
 
-                string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
-                SE.Core.Console.WriteLine($"Serializer benchmark ({textIterations} iterations, measured in ms):");
-                SE.Core.Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
+                //string percent = (((s2 / (float)s1) * 100.0f) - 100.0f).ToString("0.00");
+                //SE.Core.Console.WriteLine($"Serializer benchmark ({textIterations} iterations, measured in ms):");
+                //SE.Core.Console.WriteLine($"  New: {s1}, System.Text.JSON: {s2} ({percent}% faster.)");
             }
 
             //long bytesBefore = GC.GetTotalMemory(true);

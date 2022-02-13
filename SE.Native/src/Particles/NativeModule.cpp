@@ -37,6 +37,8 @@ namespace Particles
 		(curSubmodules).clear();
 		delete submodules;
 
+		delete submodule;
+
 		// Replace current submodules with the new vector.
 		submodules = newSubmodules;
 	}
