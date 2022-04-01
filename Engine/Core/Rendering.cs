@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using SE.AssetManagement;
 using SE.Components;
 using SE.Core.Exceptions;
+using SE.NeoRenderer;
 using SE.Particles;
 using SE.Rendering;
 using SE.Utility;

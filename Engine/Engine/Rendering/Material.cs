@@ -14,6 +14,8 @@ namespace SE.Rendering
     // TODO: Allow this to be an Asset somehow?
     // TODO: What about Materials without textures?? (i.e non SpriteBatch stuff.)
     // TODO: Renderers should hold SharedMaterial and Material, like Unity. (How will this work with SpriteBatch?)
+
+    // TODO: Get rid of the draw call ID stuff and just use the Material itself as the ID. Cloning should not be done automatically!
     public sealed class Material
     {
         public Texture2D Texture {

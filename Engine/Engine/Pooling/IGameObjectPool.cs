@@ -4,7 +4,7 @@ namespace SE.Pooling
 {
     public interface IGameObjectPool
     {
-        public void Return(GameObject go);
-        public void DestroyedCallback(GameObject go);
+        void Return(GameObject go);
+        void DestroyedCallback(GameObject go);
     }
 }

@@ -73,6 +73,8 @@ namespace SE.Rendering
 
             Add(LoopEnum.LightingEnd, new LoopEndLighting(Render));
 
+            Add(LoopEnum.FinalizeParticles+1, new NewRender(Render));
+
             Add(LoopEnum.RenderUnlitParticles, new LoopParticles(Render));
 
             Add(LoopEnum.DrawUnderlay, new LoopConsoleUnderlay());

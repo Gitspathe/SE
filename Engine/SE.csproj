@@ -22,6 +22,7 @@
     <SignAssembly>false</SignAssembly>
     <AssemblyName>SE</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -113,8 +114,8 @@
     <ProjectReference Include="..\SE.Serializer\SE.Serializer\SE.Serializer.csproj" />
     <ProjectReference Include="..\SE.Utility\SE.Utility.csproj" />
     <ProjectReference Include="..\_DEPENDENCIES\Aether.Physics2D\Physics2D\Aether.Physics2D.NETSTANDARD.MG.csproj" />
-    <ProjectReference Include="..\_DEPENDENCIES\MonoGame\MonoGame.Framework\MonoGame.Framework.DesktopGL.csproj" />
-    <ProjectReference Include="..\_DEPENDENCIES\penumbra\Source\MonoGame.Penumbra.DesktopGL.csproj" />
+	<ProjectReference Include="..\_DEPENDENCIES\MonoGame\MonoGame.Framework\MonoGame.Framework.DesktopGL.csproj" />
+	<ProjectReference Include="..\_DEPENDENCIES\penumbra\Source\MonoGame.Penumbra.DesktopGL.csproj" />
   </ItemGroup>
 
 </Project>

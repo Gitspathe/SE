@@ -103,7 +103,7 @@ namespace SE.Editor
 
         public void SaveToDirectory(string projectDirectory)
         {
-            byte[] data = Serializer.Serialize(this, configSerializationSettings);
+            byte[] data = Serializer.Serialize(this, configSerializationSettings).ToArray();
             FileIO.SaveFile(data, projectDirectory + Path.DirectorySeparatorChar + ProjectConfigFileName);
         }
 

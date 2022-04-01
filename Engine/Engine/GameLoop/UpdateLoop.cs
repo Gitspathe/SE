@@ -78,7 +78,7 @@ namespace SE.GameLoop
             if (!Screen.IsFullHeadless) {
                 Add(DefaultEnum.StartNewParticles, new LoopBeginAsyncParticles());
                 Add(DefaultEnum.InputManager, new LoopInputManager());
-                ; Add(DefaultEnum.UIManager, new LoopUIManager());
+                Add(DefaultEnum.UIManager, new LoopUIManager());
                 Add(DefaultEnum.Screen, new LoopScreen());
             }
         }

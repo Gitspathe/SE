@@ -69,12 +69,6 @@
     <Reference Include="FastMember">
       <HintPath>..\_DEPENDENCIES\fast-member\FastMember\bin\$(Configuration)\netstandard2.1\FastMember.dll</HintPath>
     </Reference>
-    <Reference Include="MonoGame.Penumbra">
-      <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\$(Configuration)\DesktopGL\MonoGame.Penumbra.dll</HintPath>
-    </Reference>
-    <Reference Include="Aether.Physics2D.NETSTANDARD.MG">
-      <HintPath>..\_DEPENDENCIES\Aether.Physics2D\bin\$(Configuration)\netstandard2.1\Aether.Physics2D.NETSTANDARD.MG.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

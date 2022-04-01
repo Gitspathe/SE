@@ -14,7 +14,12 @@ namespace SE.AssetManagement
     {
         private const string _DATA_EXTENSION = ".sdata";
         private const string _MG_EXTENSION = ".xnb";
-        private static string[] excludedExtensions = { _MG_EXTENSION, ".semap" };
+
+
+        // This is stupid as fuck! I should append sdata to the extension, not overwrite it!
+        // This exclusion list is a bandaid solution.
+
+        private static string[] excludedExtensions = { _MG_EXTENSION, ".semap", ".fx", ".fxh", ".ogl", ".d3d" };
 
         private static Dictionary<string, File> files = new Dictionary<string, File>();
         private static Dictionary<Type, FileProcessor> fileProcessors = new Dictionary<Type, FileProcessor>();

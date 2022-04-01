@@ -34,7 +34,7 @@ namespace SE.GameLoop
             for (int i = 0; i < count; i++) {
                 goArray[i].Update();
             }
-            ArrayPool<GameObject>.Shared.Return(goArray);
+            ArrayPool<GameObject>.Shared.Return(goArray, true);
         }
     }
 

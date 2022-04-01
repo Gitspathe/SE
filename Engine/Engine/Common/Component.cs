@@ -190,8 +190,12 @@ namespace SE.Common
 
         protected internal virtual void OnTransformChildrenChanged() { }
 
+        // TODO: Remove and add better messaging system for rare events like these.
+        protected virtual void OnOwnerBoundsUpdated() { }
+
         internal void OwnerBoundsUpdated()
         {
+            OnOwnerBoundsUpdated();
             InsertPartition();
         }
 

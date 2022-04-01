@@ -1,0 +1,11 @@
+﻿TODOs:
+
+- Figure out which uniforms are engine specific, and set them appropriately
+- Figure out how vertex buffers will work with Materials
+  - Might be better to you assume the layout (all sprites have the same vertex buffer layout)
+
+  https://www.youtube.com/watch?v=2k5FjtMNQsM
+  https://www.youtube.com/watch?v=d5wL6eZnWMU
+
+DON'T WORRY ABOUT THIS UNTIL LATER:
+ - How will resources be cleaned up? I.e, a texture or material should be disposed, how will that all work??

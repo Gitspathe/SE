@@ -56,6 +56,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\Demos\SE.Demos.csproj" />
     <ProjectReference Include="..\Engine\SE.csproj" />
   </ItemGroup>
 
@@ -72,20 +73,11 @@
     <Reference Include="SE.Net">
       <HintPath>..\SE.Net\bin\$(Configuration)\netstandard2.1\SE.Net.dll</HintPath>
     </Reference>
-    <Reference Include="MonoGame.Penumbra">
-      <HintPath>..\_DEPENDENCIES\penumbra\Source\bin\Release\DesktopGL\MonoGame.Penumbra.dll</HintPath>
-    </Reference>
-    <Reference Include="Aether.Physics2D.NETSTANDARD.MG">
-      <HintPath>..\_DEPENDENCIES\Aether.Physics2D\bin\$(Configuration)\netstandard2.1\Aether.Physics2D.NETSTANDARD.MG.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
       <HintPath>..\_DEPENDENCIES\MonoGame\Artifacts\MonoGame.Framework\DesktopGL\Release\netstandard2.1\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="SE.Demos">
-      <HintPath>..\Demos\bin\netstandard2.1\SE.Demos.dll</HintPath>
     </Reference>
     <Reference Include="SE.Utility">
       <HintPath>..\SE.Utility\bin\Debug\netstandard2.1\SE.Utility.dll</HintPath>

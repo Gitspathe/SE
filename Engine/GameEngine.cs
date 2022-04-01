@@ -10,7 +10,9 @@ using SE.Core;
 using SE.Core.Extensions;
 using SE.Core.Internal;
 using SE.GameLoop;
+using SE.NeoRenderer;
 using SE.Rendering;
+using SE.Threading;
 using SE.Utility;
 using System;
 using System.Collections.Generic;
@@ -82,11 +84,14 @@ namespace SE
 
             Engine = this;
 
+            bool useOpenGL3 = args.Contains("--opengl-profiling");
+
             if (!IsEditor) {
                 GraphicsDeviceManager = new GraphicsDeviceManager(this) {
                     SynchronizeWithVerticalRetrace = false,
                     PreferredBackBufferFormat = SurfaceFormat.Color,
-                    GraphicsProfile = GraphicsProfile.HiDef
+                    GraphicsProfile = GraphicsProfile.HiDef,
+                    UseOpenGL3ForProfiling = useOpenGL3
                 };
             } else {
                 GraphicsDeviceManager = editorEntry.EditorGraphicsDeviceManager;
@@ -171,6 +176,12 @@ namespace SE
                 Initalized?.Invoke();
 
                 Console.LogInfo("Finished initialization.", true);
+
+                // Test neo renderer code.
+                ShaderLoader.Initialize();
+                Effect e = ShaderLoader.LoadEffect("TestShader");
+                RenderingManager.Initialize(new DefaultRenderPipeline());
+                ThreadManager.Initialize();
             }
 
             if (IsEditor) {
@@ -281,6 +292,7 @@ namespace SE
                 return;
 
             Core.Rendering.Update();
+
             Editor?.OnDraw(GraphicsDeviceManager.GraphicsDevice, gameTime);
             EngineUtility.TransformHierarchyDirty = false;
         }

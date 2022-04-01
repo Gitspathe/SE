@@ -108,6 +108,13 @@ namespace SE.Rendering
         public LoopUI(Renderer renderer) : base(renderer) { }
     }
 
+    public class NewRender : DefaultRendererAction
+    {
+        public override string Name => "New Render";
+        public override void Invoke(Camera2D camera) => NeoRenderer.RenderingManager.Render(camera);
+        public NewRender(Renderer renderer) : base(renderer) { }
+    }
+
     // TODO: This probably shouldn't be a single render action. (Material could handle render order)
     public class LoopTileMaps : DefaultRendererAction
     {

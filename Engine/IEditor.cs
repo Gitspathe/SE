@@ -8,12 +8,12 @@ namespace SE
     /// </summary>
     public interface IEditor
     {
-        public GraphicsDeviceManager EditorGraphicsDeviceManager { get; set; }
-        public GraphicsDevice EditorGraphicsDevice { get; set; }
+        GraphicsDeviceManager EditorGraphicsDeviceManager { get; set; }
+        GraphicsDevice EditorGraphicsDevice { get; set; }
 
-        public void OnUpdate(GraphicsDevice graphics, GameTime gameTime);
-        public void OnDraw(GraphicsDevice graphics, GameTime gameTime);
-        public void OnInitialize(Game game);
-        public void ChangeInstance(Game game);
+        void OnUpdate(GraphicsDevice graphics, GameTime gameTime);
+        void OnDraw(GraphicsDevice graphics, GameTime gameTime);
+        void OnInitialize(Game game);
+        void ChangeInstance(Game game);
     }
 }

@@ -25,7 +25,7 @@ namespace SE.Editor.GUI.Viewport
             GUI.Begin("View", 
                 GUIWindowFlags.NoScrollbar
                 | GUIWindowFlags.NoCollapse
-                | GUIWindowFlags.NoResize
+                //| GUIWindowFlags.NoResize
                 //| ImGuiWindowFlags.NoMove
                 | GUIWindowFlags.NoScrollWithMouse
                 | GUIWindowFlags.NoTitleBar);

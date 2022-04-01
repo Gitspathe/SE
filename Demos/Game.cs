@@ -12,6 +12,7 @@ using SE.Core;
 using SE.Core.Extensions;
 using SE.Editor.Debug.GameObjects;
 using SE.Input;
+using SE.NeoRenderer;
 using SE.Networking.Internal;
 using SE.Rendering;
 using SE.Serialization.Attributes;
@@ -20,6 +21,8 @@ using SEDemos.GameObjects.UI;
 using System;
 using System.Diagnostics;
 using System.Text.Json.Serialization;
+using System.Threading;
+using Console = SE.Core.Console;
 using DisplayMode = SE.DisplayMode;
 using MemberSerialization = Newtonsoft.Json.MemberSerialization;
 using Vector2 = System.Numerics.Vector2;
@@ -442,7 +445,7 @@ namespace SEDemos
                .ID("0")
                .Create(new TileProcessor(pos => {
                    Floor obj = new Floor(pos, 0f, Vector2.One);
-                   obj.GetComponent<Sprite>().Color = Color.White;
+                   obj.GetComponent<SpriteComponent>().Color = Color.White;
                    return obj;
                }))
                .FromContent(content)
@@ -507,7 +510,7 @@ namespace SEDemos
         {
             timer -= Time.DeltaTime;
             if (timer <= 0.0f && Network.IsServer) {
-                NetHelper.Instantiate("bouncy", "SERVER", new Vector2(128 + SE.Utility.Random.Next(0.0f, 1024.0f), 128 + SE.Utility.Random.Next(0.0f, 1024.0f)));
+                //NetHelper.Instantiate("bouncy", "SERVER", new Vector2(128 + SE.Utility.Random.Next(0.0f, 1024.0f), 128 + SE.Utility.Random.Next(0.0f, 1024.0f)));
                 timer = 0.1f;
             }
 

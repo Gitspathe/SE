@@ -7,7 +7,14 @@ namespace SE.Common
     {
         public ulong InstanceID { get; internal set; }
 
-        public AssetConsumer AssetConsumer => AssetConsumerInternal ??= new AssetConsumer();
+        public AssetConsumer AssetConsumer {
+            get {
+                if(AssetConsumerInternal == null)
+                    AssetConsumerInternal = new AssetConsumer();
+               
+                return AssetConsumerInternal;
+            }
+        }
         internal AssetConsumer AssetConsumerInternal;
 
         public virtual void Destroy()

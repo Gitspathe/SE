@@ -95,8 +95,8 @@ namespace SEDemos.GameObjects
         {
             timer -= Time.DeltaTime;
             if (timer <= 0.0f) {
-                Destroy();
-                return;
+                //Destroy();
+                //return;
             }
 
             base.OnUpdate();
