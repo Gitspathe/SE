@@ -63,14 +63,12 @@ namespace SE.NeoRenderer
 
         internal void EnsureNextFrameCapacity()
         {
-            int vertCount = Material.RefCount * 4;
-
-            int bucketsNeeded = vertCount / MaxBatchSize;
+            int bucketsNeeded = 1 + (Material.RefCount / MaxBatchSize);
             if (bucketsNeeded > buckets.Length) {
                 SpriteBatcherBucket[] newBuckets = new SpriteBatcherBucket[bucketsNeeded];
                 Array.Copy(buckets, newBuckets, buckets.Length);
                 for (int i = buckets.Length; i < newBuckets.Length; i++) {
-                    newBuckets[i] = new SpriteBatcherBucket(1);
+                    newBuckets[i] = new SpriteBatcherBucket(MaxBatchSize);
                 }
                 buckets = newBuckets;
             }

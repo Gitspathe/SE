@@ -72,7 +72,6 @@ namespace SE.NeoRenderer
 
             ThreadManager.RunParallelTasks(threadTasks);
 
-
             actionContainer.AddAction(new ConfigureSpriteBatchManager(camera));
             foreach (SpriteBatcher batcher in BatchersToCall) {
                 actionContainer.AddAction(new RenderBatchTest(batcher.Material.RenderQueue, batcher));

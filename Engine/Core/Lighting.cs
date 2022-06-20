@@ -89,7 +89,7 @@ namespace SE.Core
                 Vector2 unscaledPos = l.Position + l.Offset;
                 MGVector2 pos = new MGVector2(unscaledPos.X, unscaledPos.Y);
                 l.PenumbraLight.Scale = l.Size.ToMonoGameVector2();
-                l.PenumbraLight.Radius = 10;
+                l.PenumbraLight.Radius = 10.0f;
                 l.PenumbraLight.Position = pos;
                 l.PenumbraLight.Rotation = l.Rotation;
             }
