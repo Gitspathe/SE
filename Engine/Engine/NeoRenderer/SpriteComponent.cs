@@ -127,17 +127,20 @@ namespace SE.NeoRenderer
         /// <summary>Cached owner transform. DO NOT MODIFY!</summary>
         internal Transform OwnerTransform;
 
-        internal void AddToBatcher(int index, SpriteBatcher batcher)
+        internal unsafe void SetMaterialVertex(SpriteVertexMaterialData* ptr)
         {
-            batcher.Add(
-                index,
+            SpriteVertexHelper.CalculateVertex(
+                ptr,
                 OwnerTransform.GlobalPositionInternal, 
                 new Rectangle(0, 0, 64, 64), // Temporary.
                 color, 
                 OwnerTransform.GlobalRotationInternal, 
                 origin,
                 OwnerTransform.GlobalScaleInternal,
-                layerDepth);
+                layerDepth,
+                material.TexelWidth,
+                material.TexelHeight
+                );
         }
 
         protected override void OnOwnerBoundsUpdated()

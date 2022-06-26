@@ -27,8 +27,6 @@ namespace SE.NeoRenderer
         internal SpriteMaterial Material;
         internal int RegisterFlag;
 
-        private float texelWidth;
-        private float texelHeight;
         public int batchItemCount;
 
         private SpriteBatcherBucket[] buckets;
@@ -51,8 +49,6 @@ namespace SE.NeoRenderer
             buckets = new SpriteBatcherBucket[1];
             buckets[0] = new SpriteBatcherBucket(InitialBatchSize);
 
-            texelWidth = 1.0f / mainTexture.Width;
-            texelHeight = 1.0f / mainTexture.Height;
             initialized = true;
         }
 
@@ -83,53 +79,16 @@ namespace SE.NeoRenderer
             }
         }
 
-        internal void Add(int index, Vector2 position, Rectangle sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, float layerDepth)
+        internal void Add(SpriteVertexMaterialData* materialVert)
         {
+            int index = batchItemCount;
+
             int bucketIndex = index / MaxBatchSize;
             index -= bucketIndex * MaxBatchSize;
 
             VertexPositionColorTexture* vertexArrayPtr = buckets[bucketIndex].GetVertexPtr(index);
-
-            Rectangle srcRect = sourceRectangle;
-            origin *= scale;
-            float w = srcRect.Width * scale.X;
-            float h = srcRect.Height * scale.Y;
-
-            Vector2 texCoordTL = new Vector2(srcRect.X * texelWidth, srcRect.Y * texelHeight);
-            Vector2 texCoordBR = new Vector2((srcRect.X + srcRect.Width) * texelWidth, (srcRect.Y + srcRect.Height) * texelHeight);
-
-            if (rotation == 0f) {
-                SpriteBatcherHelper.Set(
-                    vertexArrayPtr, 
-                    position.X - origin.X,
-                    position.Y - origin.Y,
-                    w,
-                    h,
-                    color,
-                    texCoordTL,
-                    texCoordBR,
-                    layerDepth);
-            } else {
-                SpriteBatcherHelper.Set(
-                    vertexArrayPtr, 
-                    position.X,
-                    position.Y,
-                    -origin.X,
-                    -origin.Y,
-                    w,
-                    h,
-#if NETSTANDARD2_1
-                    MathF.Sin(rotation),
-                    MathF.Cos(rotation),
-#else
-                    (float)MathF.Sin(rotation),
-                    (float)MathF.Cos(rotation),
-#endif
-                    color,
-                    texCoordTL,
-                    texCoordBR,
-                    layerDepth);
-            }
+            SpriteVertexHelper.CopyTo(materialVert, vertexArrayPtr);
+            batchItemCount++;
         }
 
         private void ApplyDeviceStates()

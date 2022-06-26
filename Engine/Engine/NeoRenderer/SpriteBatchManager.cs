@@ -14,7 +14,7 @@ namespace SE.NeoRenderer
         internal static Texture2D NullTexture;
         internal static Matrix? TransformMatrix;
 
-        private static Dictionary<SpriteMaterial, SpriteBatcher> spriteBatchers = new Dictionary<SpriteMaterial, SpriteBatcher>();
+        private static Dictionary<uint, SpriteBatcher> spriteBatchers = new Dictionary<uint, SpriteBatcher>();
         private static SpriteBatchManagerObserver observer = new SpriteBatchManagerObserver();
 
         private static bool initialized;
@@ -45,11 +45,11 @@ namespace SE.NeoRenderer
                 return; // I will need to add it to an "UnorderedSpriteBatcher" instead.
             }
 
-            if (!spriteBatchers.ContainsKey(mat)) {
+            if (!spriteBatchers.ContainsKey(mat.MaterialID)) {
                 SpriteBatcher batcher = new SpriteBatcher();
                 batcher.Configure(mat);
                 batcher.Initialize();
-                spriteBatchers.Add(mat, batcher);
+                spriteBatchers.Add(mat.MaterialID, batcher);
             }
         }
 
@@ -68,15 +68,20 @@ namespace SE.NeoRenderer
 
         internal static SpriteBatcher GetBatcher(SpriteMaterial material)
         {
-            return spriteBatchers[material];
+            return spriteBatchers[material.MaterialID];
+        }
+
+        internal static SpriteBatcher GetBatcher(uint materialID)
+        {
+            return spriteBatchers[materialID];
         }
 
         // TODO: Pooling and shiet.
         internal static void RemoveBatcher(SpriteMaterial material)
         {
-            if(spriteBatchers.TryGetValue(material, out SpriteBatcher val)) {
+            if(spriteBatchers.TryGetValue(material.MaterialID, out SpriteBatcher val)) {
                 val.Clear();
-                spriteBatchers.Remove(material);
+                spriteBatchers.Remove(material.MaterialID);
             }
         }
 

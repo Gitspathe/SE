@@ -23,7 +23,7 @@ namespace SE.Threading
             if (initialized)
                 throw new Exception("Already initialized.");
 
-            ThreadCount = threadCount == -1 ? 1 : Math.Clamp(threadCount, 0, int.MaxValue);
+            ThreadCount = threadCount == -1 ? 8 : Math.Clamp(threadCount, 0, int.MaxValue);
             SingleThreadMode = ThreadCount == 0;
             IdleThreads = ThreadCount;
 

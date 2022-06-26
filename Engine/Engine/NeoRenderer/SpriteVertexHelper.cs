@@ -11,14 +11,72 @@ using System.Runtime.InteropServices;
 
 namespace SE.NeoRenderer
 {
-    internal static unsafe class SpriteBatcherHelper
+    internal static unsafe class SpriteVertexHelper
     {
-        public static void Set(VertexPositionColorTexture* ptr, float x, float y, float dx, float dy, float w, float h, float sin, float cos, Color color, Vector2 texCoordTL, Vector2 texCoordBR, float depth)
+        public static void CalculateVertex(SpriteVertexMaterialData* vertexArrPtr, Vector2 position, Rectangle sourceRectangle, Color color, float rotation,
+            Vector2 origin, Vector2 scale, float layerDepth, float texelWidth, float texelHeight)
         {
-            VertexPositionColorTexture* vertexTL = (ptr + 0);
-            VertexPositionColorTexture* vertexTR = (ptr + 1);
-            VertexPositionColorTexture* vertexBL = (ptr + 2);
-            VertexPositionColorTexture* vertexBR = (ptr + 3);
+            Rectangle srcRect = sourceRectangle;
+            origin *= scale;
+            float w = srcRect.Width * scale.X;
+            float h = srcRect.Height * scale.Y;
+
+            Vector2 texCoordTL = new Vector2(srcRect.X * texelWidth, srcRect.Y * texelHeight);
+            Vector2 texCoordBR = new Vector2((srcRect.X + srcRect.Width) * texelWidth, (srcRect.Y + srcRect.Height) * texelHeight);
+
+            if (rotation == 0f) {
+                Set(
+                    vertexArrPtr, 
+                    position.X - origin.X,
+                    position.Y - origin.Y,
+                    w,
+                    h,
+                    color,
+                    texCoordTL,
+                    texCoordBR,
+                    layerDepth);
+            } else {
+                Set(
+                    vertexArrPtr, 
+                    position.X,
+                    position.Y,
+                    -origin.X,
+                    -origin.Y,
+                    w,
+                    h,
+#if NETSTANDARD2_1
+                    MathF.Sin(rotation),
+                    MathF.Cos(rotation),
+#else
+                    (float)MathF.Sin(rotation),
+                    (float)MathF.Cos(rotation),
+#endif
+                    color,
+                    texCoordTL,
+                    texCoordBR,
+                    layerDepth);
+            }
+        }
+
+        public static void CopyTo(SpriteVertexMaterialData* source, VertexPositionColorTexture* dest)
+        {
+            VertexPositionColorTexture* vertexTL = (dest + 0);
+            VertexPositionColorTexture* vertexTR = (dest + 1);
+            VertexPositionColorTexture* vertexBL = (dest + 2);
+            VertexPositionColorTexture* vertexBR = (dest + 3);
+
+            *vertexTL = source->VertexTL;
+            *vertexTR = source->VertexTR;
+            *vertexBL = source->VertexBL;
+            *vertexBR = source->VertexBR;
+        }
+
+        public static void Set(SpriteVertexMaterialData* ptr, float x, float y, float dx, float dy, float w, float h, float sin, float cos, Color color, Vector2 texCoordTL, Vector2 texCoordBR, float depth)
+        {
+            VertexPositionColorTexture* vertexTL = &(ptr->VertexTL);
+            VertexPositionColorTexture* vertexTR = &(ptr->VertexTR);
+            VertexPositionColorTexture* vertexBL = &(ptr->VertexBL);
+            VertexPositionColorTexture* vertexBR = &(ptr->VertexBR);
 
             vertexTL->Position.X = x + dx * cos - dy * sin;
             vertexTL->Position.Y = y + dx * sin + dy * cos;
@@ -49,12 +107,12 @@ namespace SE.NeoRenderer
             vertexBR->TextureCoordinate.Y = texCoordBR.Y;
         }
 
-        public static void Set(VertexPositionColorTexture* ptr, float x, float y, float w, float h, Color color, Vector2 texCoordTL, Vector2 texCoordBR, float depth)
+        public static void Set(SpriteVertexMaterialData* ptr, float x, float y, float w, float h, Color color, Vector2 texCoordTL, Vector2 texCoordBR, float depth)
         {
-            VertexPositionColorTexture* vertexTL = (ptr + 0);
-            VertexPositionColorTexture* vertexTR = (ptr + 1);
-            VertexPositionColorTexture* vertexBL = (ptr + 2);
-            VertexPositionColorTexture* vertexBR = (ptr + 3);
+            VertexPositionColorTexture* vertexTL = &(ptr->VertexTL);
+            VertexPositionColorTexture* vertexTR = &(ptr->VertexTR);
+            VertexPositionColorTexture* vertexBL = &(ptr->VertexBL);
+            VertexPositionColorTexture* vertexBR = &(ptr->VertexBR);
 
             vertexTL->Position.X = x;
             vertexTL->Position.Y = y;
@@ -117,6 +175,30 @@ namespace SE.NeoRenderer
                 new VertexElement(16, VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0)
             };
             VertexDeclaration = new VertexDeclaration(elements);
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 0)]
+    public struct SpriteVertexMaterialData
+    {
+        public VertexPositionColorTexture VertexTL;
+        public VertexPositionColorTexture VertexTR;
+        public VertexPositionColorTexture VertexBL;
+        public VertexPositionColorTexture VertexBR;
+        public uint MaterialID;
+
+        public SpriteVertexMaterialData(
+            VertexPositionColorTexture vertexTL,
+            VertexPositionColorTexture vertexTR,
+            VertexPositionColorTexture vertexBL,
+            VertexPositionColorTexture vertexBR,
+            uint materialID)
+        {
+            VertexTL = vertexTL;
+            VertexTR = vertexTR;
+            VertexBL = vertexBL;
+            VertexBR = vertexBR;
+            MaterialID = materialID;
         }
     }
 }

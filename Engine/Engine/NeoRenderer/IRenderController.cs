@@ -28,7 +28,8 @@ namespace SE.NeoRenderer
     {
         public uint UpdateOrder => 0;
 
-        internal readonly QuickList<SpriteComponent> CullingSprites = new QuickList<SpriteComponent>(2048);
+        internal SpriteVertexMaterialData[] SpriteVertexArray = new SpriteVertexMaterialData[4096];
+        internal readonly QuickList<SpriteComponent> CullingSprites = new QuickList<SpriteComponent>(4096);
         internal readonly QuickList<SpriteBatcher> BatchersToCall = new QuickList<SpriteBatcher>();
 
         private IThreadTask[] threadTasks;
@@ -41,17 +42,16 @@ namespace SE.NeoRenderer
         public void PrepareActions(RenderActionContainer actionContainer, Camera2D camera)
         {
             // Culling.
-            for (int i = 0; i < 20; i++) {
-                SpatialPartitionManager<SpriteComponent>.GetFromRegion(CullingSprites, camera.VisibleArea);
-            }
-            //SpatialPartitionManager<SpriteComponent>.GetFromRegion(CullingSprites, camera.VisibleArea);
+            SpatialPartitionManager<SpriteComponent>.GetFromRegion(CullingSprites, camera.VisibleArea);
+            
             SpriteBatchManager.EnsureNextFrameCapacity();
+            EnsureVertexArrayCapacity(CullingSprites.Count);
 
             int batchNum = Math.Clamp(ThreadManager.ThreadCount, 1, ThreadManager.ThreadCount);
             if (threadTasks == null || batchNum != threadTasks.Length) {
                 threadTasks = new IThreadTask[batchNum];
                 for (int i = 0; i < batchNum; i++) {
-                    threadTasks[i] = new BatchTask(this);
+                    threadTasks[i] = new WriteVertexTask(this);
                 }
             }
 
@@ -64,13 +64,15 @@ namespace SE.NeoRenderer
                     to += CullingSprites.Count / batchNum;
                 }
 
-                BatchTask task = (BatchTask)threadTasks[i];
+                WriteVertexTask task = (WriteVertexTask)threadTasks[i];
                 task.Set(from, to);
 
                 from = to;
             }
 
             ThreadManager.RunParallelTasks(threadTasks);
+
+            CopyVertexToBatchers(CullingSprites.Count);
 
             actionContainer.AddAction(new ConfigureSpriteBatchManager(camera));
             foreach (SpriteBatcher batcher in BatchersToCall) {
@@ -81,7 +83,39 @@ namespace SE.NeoRenderer
             BatchersToCall.Clear();
         }
 
-        public class BatchTask : IThreadTask
+        private void EnsureVertexArrayCapacity(int count)
+        {
+            if (SpriteVertexArray.Length >= count)
+                return;
+
+            int nextSize = (SpriteVertexArray.Length + 1) * 2;
+            SpriteVertexMaterialData[] newArray = new SpriteVertexMaterialData[nextSize];
+            Array.Copy(SpriteVertexArray, newArray, SpriteVertexArray.Length);
+            SpriteVertexArray = newArray;
+        }
+
+        private unsafe void CopyVertexToBatchers(int length)
+        {
+            for (int i = 0; i < length; i++) {
+                SpriteVertexMaterialData data = SpriteVertexArray[i];
+                SpriteMaterialInfo info = SpriteMaterialHandler.GetSpriteMaterialInfo(data.MaterialID);
+
+                if (!info.Material.SpecialRenderOrderingInternal) {
+                    SpriteBatcher batcher = info.Batcher;
+
+                    if (batcher.batchItemCount == 0) {
+                        BatchersToCall.Add(batcher);
+                    }
+
+                    batcher.Add(&data);
+
+                } else {
+                    // TODO: Unsorted render list shit.
+                }
+            }
+        }
+
+        public class WriteVertexTask : IThreadTask
         {
             private readonly SpritesRenderController controller;
             private int from;
@@ -93,38 +127,20 @@ namespace SE.NeoRenderer
                 this.to = to;
             }
 
-            public BatchTask(SpritesRenderController controller)
+            public WriteVertexTask(SpritesRenderController controller)
             {
                 this.controller = controller;
             }
 
-            public void Execute()
+            public unsafe void Execute()
             {
                 SpriteComponent[] array = controller.CullingSprites.Array;
 
                 for (int i = from; i < to; i++) {
                     SpriteComponent sprite = array[i];
-                    SpriteMaterial mat = sprite.Material;
-
-                    if (!mat.SpecialRenderOrderingInternal) {
-
-                        SpriteBatcher batcher = SpriteBatchManager.GetBatcher(mat);
-
-                        // Interlocked is causing slowdown due to low-level contention!
-                        // Idea: Put all sprites into a giant vertex array in parallel with NO synchronization (no lock nor interlocked)
-                        //       And then just copy them into the relevant SpriteBatchers.
-
-                        int spriteIndex = Interlocked.Increment(ref batcher.batchItemCount) - 1;
-                        if (spriteIndex == 0) {
-                            controller.BatchersToCall.Add(batcher);
-                        }
-
-                        sprite.AddToBatcher(spriteIndex, batcher);
-
-                    } else {
-                        // TODO: Unsorted render list shit.
+                    fixed (SpriteVertexMaterialData* ptr = &controller.SpriteVertexArray[i]) {
+                        sprite.SetMaterialVertex(ptr);
                     }
-
                 }
             }
         }
