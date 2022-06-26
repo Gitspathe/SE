@@ -44,7 +44,6 @@ namespace SE.NeoRenderer
             // Culling.
             SpatialPartitionManager<SpriteComponent>.GetFromRegion(CullingSprites, camera.VisibleArea);
             
-            SpriteBatchManager.EnsureNextFrameCapacity();
             EnsureVertexArrayCapacity(CullingSprites.Count);
 
             int batchNum = Math.Clamp(ThreadManager.ThreadCount, 1, ThreadManager.ThreadCount);
@@ -104,6 +103,7 @@ namespace SE.NeoRenderer
                     SpriteBatcher batcher = info.Batcher;
 
                     if (batcher.batchItemCount == 0) {
+                        batcher.EnsureNextFrameCapacity();
                         BatchersToCall.Add(batcher);
                     }
 

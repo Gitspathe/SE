@@ -61,13 +61,6 @@ namespace SE.NeoRenderer
             DefaultEffect.TransformMatrix = TransformMatrix;
         }
 
-        internal static void EnsureNextFrameCapacity()
-        {
-            for (int i = 0; i < spriteBatchers.Length; i++) {
-                spriteBatchers[i]?.EnsureNextFrameCapacity();
-            }
-        }
-
         internal static SpriteBatcher GetBatcher(int materialID)
         {
             return spriteBatchers[materialID];

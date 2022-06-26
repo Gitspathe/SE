@@ -56,7 +56,7 @@ namespace SE.NeoRenderer
         {
             Material = null;
         }
-
+        
         internal void EnsureNextFrameCapacity()
         {
             int bucketsNeeded = 1 + (Material.RefCount / MaxBatchSize);
