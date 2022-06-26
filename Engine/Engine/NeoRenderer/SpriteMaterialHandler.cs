@@ -7,10 +7,29 @@ namespace SE.NeoRenderer
     {
         private static readonly HashSet<IMaterialObserver> materialObservers = new HashSet<IMaterialObserver>();
         
-        private static readonly HashSet<SpriteMaterial> materials = new HashSet<SpriteMaterial>();
-        private static readonly Dictionary<uint, SpriteMaterialInfo> materialInfos = new Dictionary<uint, SpriteMaterialInfo>();
+        private static HashSet<SpriteMaterial> materials;
+        private static SpriteMaterialInfo[] materialInfos;
 
-        // TODO: Dictionary<uint, Material>
+        private static int curMaterialID;
+        private static Queue<int> avaliableIDs;
+
+        internal static void Initialize()
+        {
+            materialInfos = new SpriteMaterialInfo[RenderConfig.MaxMaterialSlots];
+            materials = new HashSet<SpriteMaterial>(RenderConfig.MaxMaterialSlots);
+            avaliableIDs = new Queue<int>(RenderConfig.MaxMaterialSlots);
+            for (int i = 0; i < RenderConfig.MaxMaterialSlots; i++) {
+                avaliableIDs.Enqueue(i);
+            }
+        }
+
+        internal static int GetNextMaterialID()
+        {
+            if (avaliableIDs.TryDequeue(out int i)) {
+                return i;
+            }
+            throw new Exception("Exceeded material slots!");
+        }
 
         internal static void RegisterMaterialObserver(IMaterialObserver observer)
         {
@@ -32,8 +51,8 @@ namespace SE.NeoRenderer
                 observer.MaterialCreated(material);
             }
 
-            uint matID = material.MaterialID;
-            materialInfos.Add(matID, new SpriteMaterialInfo(matID, material, SpriteBatchManager.GetBatcher(matID)));
+            int matID = material.MaterialID;
+            materialInfos[matID] = new SpriteMaterialInfo(matID, material, SpriteBatchManager.GetBatcher(matID));
         }
 
         // TODO: This is fairly inefficient for simple material property changes. Should look into making a less brute-forcey system.
@@ -46,8 +65,9 @@ namespace SE.NeoRenderer
 
         internal static void MaterialDispose(SpriteMaterial material)
         {
+            avaliableIDs.Enqueue(material.MaterialID);
             materials.Remove(material);
-            materialInfos.Remove(material.MaterialID);
+            materialInfos[material.MaterialID] = null;
             foreach (IMaterialObserver observer in materialObservers) {
                 observer.MaterialDispose(material);
             }
@@ -71,11 +91,11 @@ namespace SE.NeoRenderer
 
     internal class SpriteMaterialInfo
     {
-        public uint MaterialID;
+        public int MaterialID;
         public SpriteMaterial Material;
         public SpriteBatcher Batcher;
 
-        public SpriteMaterialInfo(uint id, SpriteMaterial material, SpriteBatcher batcher)
+        public SpriteMaterialInfo(int id, SpriteMaterial material, SpriteBatcher batcher)
         {
             MaterialID = id;
             Material = material;

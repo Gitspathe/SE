@@ -79,6 +79,7 @@ namespace SE.NeoRenderer
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Add(SpriteVertexMaterialData* materialVert)
         {
             int index = batchItemCount;

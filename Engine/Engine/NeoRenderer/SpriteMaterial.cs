@@ -122,7 +122,7 @@ namespace SE.NeoRenderer
         }
         private bool useCustomRenderQueue;
 
-        public uint MaterialID { get; private set; }
+        public int MaterialID { get; private set; }
         public float TexelWidth { get; private set; } = 1.0f;
         public float TexelHeight { get; private set; } = 1.0f;
 
@@ -131,25 +131,13 @@ namespace SE.NeoRenderer
 
         internal static Texture2D NullTexture;
 
-        //private static HashSet<uint> materialIDsTaken = new HashSet<uint>();
-        private static uint currentMaterialID;
-
         private bool disposed;
 
         public SpriteMaterial()
         {
-            MaterialID = GetNextAvaliableID();
+            MaterialID = SpriteMaterialHandler.GetNextMaterialID();
             CalculateRenderQueue();
             SpriteMaterialHandler.MaterialCreated(this);
-        }
-
-        private uint GetNextAvaliableID()
-        {
-            if (currentMaterialID == uint.MaxValue) {
-                // TODO: Allow for pruning material ids or whatever.
-                return 0;
-            }
-            return unchecked(currentMaterialID++);
         }
 
         private void CalculateRenderQueue()

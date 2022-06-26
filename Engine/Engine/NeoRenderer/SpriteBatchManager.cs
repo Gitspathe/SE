@@ -14,7 +14,7 @@ namespace SE.NeoRenderer
         internal static Texture2D NullTexture;
         internal static Matrix? TransformMatrix;
 
-        private static Dictionary<uint, SpriteBatcher> spriteBatchers = new Dictionary<uint, SpriteBatcher>();
+        private static SpriteBatcher[] spriteBatchers;
         private static SpriteBatchManagerObserver observer = new SpriteBatchManagerObserver();
 
         private static bool initialized;
@@ -23,6 +23,8 @@ namespace SE.NeoRenderer
         {
             if(initialized)
                 return;
+
+            spriteBatchers = new SpriteBatcher[RenderConfig.MaxMaterialSlots];
 
             SpriteMaterialHandler.RegisterMaterialObserver(observer);
             initialized = true;
@@ -45,11 +47,11 @@ namespace SE.NeoRenderer
                 return; // I will need to add it to an "UnorderedSpriteBatcher" instead.
             }
 
-            if (!spriteBatchers.ContainsKey(mat.MaterialID)) {
+            if (spriteBatchers[mat.MaterialID] == null) {
                 SpriteBatcher batcher = new SpriteBatcher();
                 batcher.Configure(mat);
                 batcher.Initialize();
-                spriteBatchers.Add(mat.MaterialID, batcher);
+                spriteBatchers[mat.MaterialID] = batcher;
             }
         }
 
@@ -61,17 +63,12 @@ namespace SE.NeoRenderer
 
         internal static void EnsureNextFrameCapacity()
         {
-            foreach (SpriteBatcher spriteBatcher in spriteBatchers.Values) {
-                spriteBatcher.EnsureNextFrameCapacity();
+            for (int i = 0; i < spriteBatchers.Length; i++) {
+                spriteBatchers[i]?.EnsureNextFrameCapacity();
             }
         }
 
-        internal static SpriteBatcher GetBatcher(SpriteMaterial material)
-        {
-            return spriteBatchers[material.MaterialID];
-        }
-
-        internal static SpriteBatcher GetBatcher(uint materialID)
+        internal static SpriteBatcher GetBatcher(int materialID)
         {
             return spriteBatchers[materialID];
         }
@@ -79,9 +76,10 @@ namespace SE.NeoRenderer
         // TODO: Pooling and shiet.
         internal static void RemoveBatcher(SpriteMaterial material)
         {
-            if(spriteBatchers.TryGetValue(material.MaterialID, out SpriteBatcher val)) {
-                val.Clear();
-                spriteBatchers.Remove(material.MaterialID);
+            SpriteBatcher batcher = spriteBatchers[material.MaterialID];
+            if (batcher != null) {
+                batcher.Clear();
+                spriteBatchers[material.MaterialID] = null;
             }
         }
 

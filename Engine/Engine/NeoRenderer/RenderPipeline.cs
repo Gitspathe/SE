@@ -19,6 +19,8 @@ namespace SE.NeoRenderer
             if(initialized)
                 throw new Exception();
 
+            RenderConfig.Done();
+
             // temporary, move to default pipeline when done!
             SpriteBatchManager.Initialize();
 

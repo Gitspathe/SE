@@ -179,7 +179,7 @@ namespace SE.NeoRenderer
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 0)]
-    public struct SpriteVertexMaterialData
+    internal struct SpriteVertexMaterialData
     {
         public VertexPositionColorTexture VertexTL;
         public VertexPositionColorTexture VertexTR;
